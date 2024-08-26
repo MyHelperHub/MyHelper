@@ -11,15 +11,17 @@
     "tauri dev": "tauri dev"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.0.0-rc.0",
+    "@tauri-apps/plugin-shell": "^2.0.0-rc.0",
+    "path": "^0.12.7",
     "vue": "^3.3.4",
-    "@tauri-apps/api": ">=2.0.0-rc.0",
-    "@tauri-apps/plugin-shell": ">=2.0.0-rc.0"
+    "vue-router": "^4.4.3"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0-rc.0",
     "@vitejs/plugin-vue": "^5.0.5",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
-    "vue-tsc": "^2.0.22",
-    "@tauri-apps/cli": ">=2.0.0-rc.0"
+    "vue-tsc": "^2.0.22"
   }
 }
