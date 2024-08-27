@@ -2,31 +2,46 @@ mod command;
 
 use command::home::set_window_size;
 use command::settings::open_new_window;
-use tauri::{image, Manager};
 use tauri::{
+    image::Image,
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Manager,
 };
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
+            // 获取应用的主窗口对象
             let window = app.get_webview_window("main").unwrap();
-            // 设置窗口大小为 200x200
             window.set_always_on_top(true)?;
 
-            let toggle = MenuItemBuilder::with_id("toggle", "Toggle").build(app)?;
-            let menu = MenuBuilder::new(app).items(&[&toggle]).build()?;
-            let icon = load_icon(std::path::Path::new("icons/icon.png"));
+            let item_show = MenuItemBuilder::with_id("show", "显示窗口").build(app)?;
+            let item_exit = MenuItemBuilder::with_id("exit", "退出").build(app)?;
+
+            let menu = MenuBuilder::new(app)
+                .items(&[&item_show])
+                .separator()
+                .items(&[&item_exit])
+                .build()?;
+
+            let icon = Image::from_bytes(include_bytes!("../icons/icon.png"))?;
             let tray = TrayIconBuilder::new()
+                .tooltip("MyHelper")
                 .menu(&menu)
                 .on_menu_event(move |app, event| match event.id().as_ref() {
-                    "toggle" => {
-                        println!("toggle clicked");
+                    "exit" => {
+                        app.exit(0);
+                    }
+                    "show" => {
+                        let _ = window.show();
+                        let _ = window.set_focus();
                     }
                     _ => (),
                 })
                 .on_tray_icon_event(|tray, event| {
+                    // 处理托盘图标点击事件，左键点击时显示主窗口
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
@@ -41,7 +56,7 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
-            tray.set_icon(icon);
+            let _ = tray.set_icon(Some(icon));
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
@@ -49,16 +64,3 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("MyHelper启动失败...");
 }
-fn load_icon(path: &std::path::Path) -> tray_icon::Icon {
-    let (icon_rgba, icon_width, icon_height) = {
-        let image = image::open(path)
-            .expect("Failed to open icon path")
-            .into_rgba8();
-        let (width, height) = image.dimensions();
-        let rgba = image.into_raw();
-        (rgba, width, height)
-    };
-    tray_icon::Icon::from_rgba(icon_rgba, icon_width, icon_height).expect("Failed to open icon")
-}
-
-// https://github.com/tauri-apps/tray-icon/blob/13cabcd5184e7721c42c2c1262af5e0468146003/examples/tao.rs#L19-L42
