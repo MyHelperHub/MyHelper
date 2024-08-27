@@ -6,9 +6,6 @@ import { Submenu } from '@tauri-apps/api/menu/submenu';
 import { TrayIcon } from '@tauri-apps/api/tray';
 
 export async function setupTray() {
-    //图标路径在src-tauri目录下
-    const _icon = "icons/32x32.png";
-
     const subMenu1 = await MenuItem.new({ text: "Sta2rt" });
     const subMenu2 = await MenuItem.new({ text: "Open at Login" });
     //分割线
@@ -51,6 +48,7 @@ export async function setupTray() {
     const tray = await TrayIcon.new();
 
     tray.setMenu(newMenu);
-    tray.setIcon(_icon);
+    //图标路径在src-tauri目录下
+    tray.setIcon("icons/32x32.png");
     tray.setTooltip("Shortcake");
 }
