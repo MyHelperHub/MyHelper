@@ -35,8 +35,9 @@ pub fn run() {
                         app.exit(0);
                     }
                     "show" => {
-                        let _ = window.show();
-                        let _ = window.set_focus();
+                        window.unminimize().unwrap();
+                        window.show().unwrap();
+                        window.set_focus().unwrap();
                     }
                     _ => (),
                 })
@@ -50,8 +51,10 @@ pub fn run() {
                     {
                         let app = tray.app_handle();
                         if let Some(webview_window) = app.get_webview_window("main") {
-                            let _ = webview_window.show();
-                            let _ = webview_window.set_focus();
+                            println!("托盘图标被点击");
+                            webview_window.unminimize().unwrap();
+                            webview_window.show().unwrap();
+                            webview_window.set_focus().unwrap();
                         }
                     }
                 })
