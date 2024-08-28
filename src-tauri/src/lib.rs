@@ -1,4 +1,5 @@
 mod command;
+mod utils;
 
 use command::home::set_window_size;
 use command::settings::open_new_window;
@@ -8,6 +9,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
+use utils::get_icon::extract_icon_from_exe;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -63,7 +65,11 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![set_window_size, open_new_window])
+        .invoke_handler(tauri::generate_handler![
+            set_window_size,
+            open_new_window,
+            extract_icon_from_exe // 修改这里
+        ])
         .run(tauri::generate_context!())
         .expect("MyHelper启动失败...");
 }

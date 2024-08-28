@@ -15,6 +15,8 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.0-rc", features = [] }
 
 [dependencies]
+image = "0.24.5" # 用于处理图像
+winapi = { version = "0.3.9", features = ["winbase", "winuser", "wingdi", "shellapi"] }
 tauri = { version = "2.0.0-rc", features = ["tray-icon", "image-png"] }
 tauri-plugin-shell = "2.0.0-rc"
 serde = { version = "1", features = ["derive"] }
