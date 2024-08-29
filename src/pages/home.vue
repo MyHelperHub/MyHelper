@@ -39,8 +39,9 @@ const selectFile = async () => {
   });
 
 };
+
 const getWebIcon = () => {
-  invoke("get_web_icon", { url: "https://cn.vuejs.org" }).then((res) => {
+  invoke("get_web_icon", { url: "https://ialtone.xyz" }).then((res) => {
     console.log(res);
   });
 };
