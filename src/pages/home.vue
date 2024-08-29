@@ -7,12 +7,14 @@
 
   <div>
     <button @click="selectFile">选择文件</button>
+    <button @click="getWebIcon">getWebIcon</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 
 const isLarge = ref(false);
 
@@ -25,18 +27,21 @@ function openNewWindow() {
   invoke("open_new_window");
 }
 
-const selectFile = () => {
+const selectFile = async () => {
+  const file = await open({
+    multiple: false,
+    directory: false,
+  });
+  invoke("get_app_icon", {
+    exePath: file.path,
+  }).then((res) => {
+    console.log(res);
+  });
 
-  // 将文件路径传递给 Tauri 应用
-  invoke('extract_icon_from_exe', {
-    exePath: "D:/QQ/QQ.exe",
-    outputPath: 'public/app_icon.png',
-  })
-    .then(path => {
-      console.log('图标路径:', path); // 打印路径到控制台
-    })
-    .catch(error => {
-      console.error('错误:', error);
-    });
+};
+const getWebIcon = () => {
+  invoke("get_web_icon", { url: "https://cn.vuejs.org" }).then((res) => {
+    console.log(res);
+  });
 };
 </script>

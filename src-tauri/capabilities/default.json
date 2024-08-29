@@ -4,7 +4,10 @@
   "description": "Capability for the main window",
   "windows": ["main"],
   "permissions": [
-    "core:default",
-    "shell:allow-open"
+    "core:app:default",
+    "shell:allow-open",
+    "dialog:allow-open",
+    "dialog:default",
+    "dialog:allow-save"
   ]
 }
