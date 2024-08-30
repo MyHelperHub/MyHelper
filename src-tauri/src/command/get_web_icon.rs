@@ -29,9 +29,9 @@ pub fn get_web_icon(url: &str) -> Result<String, String> {
 
     let output_path = myhelper_path.join(format!("{}.png", domain));
 
-    // 创建 HTTP 客户端并设置超时时间为 5 秒
+    // 创建 HTTP 客户端并设置超时时间为 3 秒
     let client = Client::builder()
-        .timeout(Duration::from_secs(5))
+        .timeout(Duration::from_secs(3))
         .redirect(reqwest::redirect::Policy::limited(10)) // 处理重定向
         .build()
         .map_err(|e| e.to_string())?;
@@ -40,9 +40,17 @@ pub fn get_web_icon(url: &str) -> Result<String, String> {
     let favicon_url = url.join("/favicon.ico").map_err(|e| e.to_string())?;
     let mut response = client.get(favicon_url.as_str()).send();
 
-    // 如果/favicon.ico请求失败或者获取不到数据，则尝试从meta标签或者link标签中获取图标
-    if response.is_err() || response.as_ref().unwrap().status().is_client_error() {
-        // 处理可能的重定向
+    // 检查是否请求超时或其他错误
+    if let Err(e) = response {
+        if e.is_timeout() {
+            return Err("请求超时".to_string());
+        } else {
+            return Err(format!("请求失败: {:?}", e));
+        }
+    }
+
+    if response.as_ref().unwrap().status().is_client_error() {
+        // 如果返回的状态码是4xx，尝试从meta标签中获取图标
         url = response.unwrap().url().clone();
 
         // 获取网页内容
@@ -88,7 +96,7 @@ pub fn get_web_icon(url: &str) -> Result<String, String> {
         if let Some(url) = img_url {
             response = client.get(&url).send();
         } else {
-            return Err("No icon found".to_string());
+            return Err("未找到图标".to_string());
         }
     }
 
@@ -99,7 +107,7 @@ pub fn get_web_icon(url: &str) -> Result<String, String> {
 
     // 如果数据为空，返回错误
     if favicon_data.is_empty() {
-        return Err("Failed to download the icon".to_string());
+        return Err("下载图标失败".to_string());
     }
 
     let img = image::load_from_memory(&favicon_data).map_err(|e| e.to_string())?;
