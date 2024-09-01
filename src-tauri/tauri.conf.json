@@ -1,7 +1,7 @@
 {
-  "productName": "MyHelper",
+  "productName": "myhelper",
   "version": "1.0.0",
-  "identifier": "xyz.ialtone.helper",
+  "identifier": "xyz.ialtone.myhelper",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -11,15 +11,16 @@
   "app": {
     "windows": [
       {
-        "title": "myhelper-tauri",
-        "width": 200,
-        "height": 200,
+        "label": "main",
+        "title": "myhelper",
+        "width": 60,
+        "height": 60,
         "decorations": false,
         "alwaysOnTop": true,
-        "visible":false,
-        "shadow":false,
-        "resizable":false,
-        "skipTaskbar":true
+        "shadow": false,
+        "resizable": false,
+        "skipTaskbar": true,
+        "transparent": true
       }
     ],
     "security": {

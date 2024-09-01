@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:app:default",
     "shell:allow-open",
@@ -10,6 +12,8 @@
     "dialog:default",
     "dialog:allow-save",
     "core:window:allow-start-dragging",
-    "notification:default"
+    "notification:default",
+    "window-state:allow-save-window-state",
+    "window-state:allow-restore-state"
   ]
 }

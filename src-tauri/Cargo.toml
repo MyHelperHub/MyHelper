@@ -1,14 +1,14 @@
 [package]
-name = "myhelper-tauri"
-version = "0.1.0"
+name = "myhelper"
+version = "1.0.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["ialtone"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "myhelper_tauri_lib"
+name = "myhelper_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
@@ -19,11 +19,11 @@ image = "0.24.5"
 url = "2.5.2"
 reqwest = { version = "0.12.7", features = ["blocking"] }
 winapi = { version = "0.3.9", features = ["winbase", "winuser", "wingdi", "shellapi"] }
-tauri = { version = "2.0.0-rc", features = ["tray-icon", "image-png"] }
-tauri-plugin-shell = "2.0.0-rc"
-tauri-plugin-dialog = "2.0.0-rc"
-tauri-plugin-window-state = "2.0.0-rc"
-tauri-plugin-notification = "2.0.0-rc"
+tauri = { version = "2.0.0-rc.8", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2.0.0-rc.3"
+tauri-plugin-dialog = "2.0.0-rc.3"
+tauri-plugin-window-state = "2.0.0-rc.2"
+tauri-plugin-notification = "2.0.0-rc.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 scraper = "0.20.0"
