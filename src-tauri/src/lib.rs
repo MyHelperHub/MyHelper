@@ -5,34 +5,73 @@ use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
 use command::home::set_window_size;
 use command::settings::open_new_window;
-use std::sync::{Arc, RwLock};
-use tauri::{
-    image::Image,
-    menu::{MenuBuilder, MenuItemBuilder},
-    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager, WindowEvent,
+use serde_json::json;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex, RwLock},
+    time::{Duration, Instant},
 };
+use tauri::{
+    image::Image, menu::{MenuBuilder, MenuItemBuilder}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}, LogicalPosition, Manager, WindowEvent
+};
+use utils::config::{get_config, set_config};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            // 获取应用的主窗口对象，并使用 Arc<RwLock<>> 进行包装
             let window = Arc::new(RwLock::new(app.get_webview_window("main").unwrap()));
 
-            // 克隆 Arc 指针，而不是直接克隆 window 对象
+            // 定义窗口位置
+            let position = match get_config(&["position"]) {
+                Ok(Some(value)) => {
+                    let pos = value.as_object().unwrap();
+                    let x = pos.get("x").unwrap().as_i64().unwrap() as f64;
+                    let y = pos.get("y").unwrap().as_i64().unwrap() as f64;
+                    LogicalPosition::new(x, y)
+                }
+                Ok(None) => {
+                    LogicalPosition::new(500.0, 300.0)
+                }
+                Err(e) => {
+                    eprintln!("读取配置时出错: {}", e);
+                    LogicalPosition::new(500.0, 300.0) // 使用默认位置
+                }
+            };
+
+            // tauri基础操作
+            {
+                let window_write = window.write().unwrap();
+                window_write.set_position(position).unwrap();
+                window_write.show().unwrap();
+            }
+
+            // 创建移动窗口时所需的克隆变量
+            let last_move_time = Arc::new(Mutex::new(Instant::now()));
+            let last_move_time_clone = Arc::clone(&last_move_time);
             let window_clone = Arc::clone(&window);
 
             // 监听窗口移动事件
-            let window_clone_for_event = Arc::clone(&window_clone);
-            window_clone.read().unwrap().on_window_event(move |event| {
+            window.read().unwrap().on_window_event(move |event| {
                 if let WindowEvent::Moved { .. } = event {
-                    let po = window_clone_for_event
-                        .read()
-                        .unwrap()
-                        .outer_position()
-                        .unwrap();
-                    println!("窗口位置：{:?}", po);
+                    // 更新最后移动时间
+                    *last_move_time_clone.lock().unwrap() = Instant::now();
+
+                    let window_inner = Arc::clone(&window_clone);
+                    let last_move_time_inner = Arc::clone(&last_move_time_clone);
+
+                    std::thread::spawn(move || {
+                        std::thread::sleep(Duration::from_millis(100));
+                        if last_move_time_inner.lock().unwrap().elapsed() >= Duration::from_millis(100) {
+                            let position = window_inner.read().unwrap().outer_position().unwrap();
+                            // println!("窗口位置：{:?}", position);
+                            let mut data = HashMap::new();
+                            data.insert("position".to_string(), json!({"x": position.x, "y": position.y}));
+                            if let Err(e) = set_config(data) {
+                                eprintln!("保存位置时出错: {}", e);
+                            }
+                        }
+                    });
                 }
             });
 
@@ -50,13 +89,10 @@ pub fn run() {
                 .tooltip("MyHelper")
                 .menu(&menu)
                 .on_menu_event(move |app, event| {
-                    let window_clone_for_menu = Arc::clone(&window_clone);
                     match event.id().as_ref() {
-                        "exit" => {
-                            app.exit(0);
-                        }
+                        "exit" => app.exit(0),
                         "show" => {
-                            let window = window_clone_for_menu.read().unwrap();
+                            let window = window.read().unwrap();
                             window.unminimize().unwrap();
                             window.show().unwrap();
                             window.set_focus().unwrap();
@@ -64,8 +100,7 @@ pub fn run() {
                         _ => (),
                     }
                 })
-                .on_tray_icon_event(|tray, event| {
-                    // 处理托盘图标点击事件，左键点击时显示主窗口
+                .on_tray_icon_event(move |tray, event| {
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
