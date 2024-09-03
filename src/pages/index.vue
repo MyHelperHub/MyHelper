@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" data-tauri-drag-region>
     <div class="brand">
       <!-- <img class="logo" src="/logo.png" @click="showMenu" data-tauri-drag-region /> -->
       <img class="logo" src="/logo.png" @click="showMenu" />
@@ -16,7 +16,7 @@ import { ref } from "vue";
 
 const isShowMenu = ref(false);
 const showMenu = () => {
-  const [width, height] = isShowMenu.value ? [65, 65] : [270, 420];
+  const [width, height] = isShowMenu.value ? [65, 65] : [250, 420];
   invoke("set_window_size", { width, height });
   isShowMenu.value = !isShowMenu.value;
 };
@@ -25,12 +25,14 @@ const showMenu = () => {
 .home {
   width: 100%;
   height: 100%;
+
   .brand {
     width: fit-content;
     height: fit-content;
     cursor: pointer;
+
     .logo {
-      position:absolute;
+      position: absolute;
       left: 4px;
       top: 4px;
       height: 50px;
@@ -43,18 +45,19 @@ const showMenu = () => {
     }
   }
 }
+
 .transition-enter-from,
 .transition-leave-to {
-    opacity: 0;
+  opacity: 0;
 }
 
 .transition-enter-to,
 .transition-leave-from {
-    opacity: 1;
+  opacity: 1;
 }
 
 .transition-enter-active,
 .transition-leave-active {
-    transition: opacity .5s ease-in-out;
+  transition: opacity .5s ease-in-out;
 }
 </style>

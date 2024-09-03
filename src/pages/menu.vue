@@ -21,19 +21,22 @@
   background: linear-gradient(#e5edf1, #9fc0cf);
   list-style-type: none;
   -webkit-font-smoothing: antialiased;
+
   .menu-list {
+    border-top: 1px solid rgba(0, 0, 0, 0.7);
     margin-top: 70px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    .menu-item{
-        width: 80%;
-        height: 30px;
-        margin: 13px 0;
-        padding-left: 5px;
-        display: flex;
-        align-items: center;
-        background-color: #9fc0cf;
+
+    .menu-item {
+      width: 80%;
+      height: 30px;
+      margin: 13px 0;
+      padding-left: 5px;
+      display: flex;
+      align-items: center;
+      background-color: #9fc0cf;
     }
   }
 }
