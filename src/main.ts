@@ -2,6 +2,8 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import './assets/main.css'
+import { invoke } from "@tauri-apps/api/core";
+invoke("set_window_size", { width: 65, height: 65 });
 
 const app = createApp(App);
 app.use(router)

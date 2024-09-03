@@ -84,7 +84,7 @@ pub fn run() {
                 .items(&[&item_exit])
                 .build()?;
 
-            let icon = Image::from_bytes(include_bytes!("../icons/icon.png"))?;
+            let icon = Image::from_bytes(include_bytes!("../icons/32x32.png"))?;
             let tray = TrayIconBuilder::new()
                 .tooltip("MyHelper")
                 .menu(&menu)
@@ -100,7 +100,8 @@ pub fn run() {
                         _ => (),
                     }
                 })
-                .on_tray_icon_event(move |tray, event| {
+                .on_tray_icon_event(|tray, event| {
+                    // 处理托盘图标点击事件，左键点击时切换窗口显示/隐藏状态
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
@@ -109,10 +110,15 @@ pub fn run() {
                     {
                         let app = tray.app_handle();
                         if let Some(webview_window) = app.get_webview_window("main") {
-                            println!("托盘图标被点击");
-                            webview_window.unminimize().unwrap();
-                            webview_window.show().unwrap();
-                            webview_window.set_focus().unwrap();
+                            if webview_window.is_visible().unwrap() {
+                                // 窗口当前是显示状态，隐藏它
+                                webview_window.hide().unwrap();
+                            } else {
+                                // 窗口当前是隐藏状态，显示它
+                                webview_window.unminimize().unwrap();
+                                webview_window.show().unwrap();
+                                webview_window.set_focus().unwrap();
+                            }
                         }
                     }
                 })

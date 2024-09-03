@@ -13,8 +13,6 @@
       {
         "label": "main",
         "title": "myhelper",
-        "width": 60,
-        "height": 60,
         "visible":false,
         "decorations": false,
         "alwaysOnTop": true,
