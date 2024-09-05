@@ -21,7 +21,7 @@
   background: linear-gradient(#e5edf1, #9fc0cf);
   list-style-type: none;
   -webkit-font-smoothing: antialiased;
-  position: relative; 
+  position: relative;
 
   .menu-list {
     border-top: 1px solid rgba(0, 0, 0, 0.7);
@@ -38,11 +38,11 @@
       display: flex;
       align-items: center;
       background-color: #9fc0cf;
-      position: relative; 
+      position: relative;
       transition: background-color 0.2s ease-out;
 
       &:hover {
-        background-color: rgb(54, 56, 55);
+        background-color: rgb(245, 245, 245);
         z-index: 2;
         /* 使用相对定位 */
         top: 0;
