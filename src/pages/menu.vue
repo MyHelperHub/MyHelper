@@ -52,7 +52,7 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       transition: 0.3s;
-      color: rgb(28, 31, 30);
+      // color: rgb(28, 31, 30);
 
       .text {
         width: 80%;
