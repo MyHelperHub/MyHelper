@@ -52,7 +52,7 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       transition: 0.3s;
-      // color: rgb(28, 31, 30);
+      color: rgb(28, 31, 30);
 
       .text {
         width: 80%;
@@ -61,7 +61,7 @@
         padding-left: 5px;
         display: flex;
         align-items: center;
-        background-color: #9fc0cf;
+        // background-color: #9fc0cf;
         position: relative;
         transition: background-color 0.2s ease-out;
 
@@ -70,49 +70,58 @@
           z-index: 2;
           transition: background-color 0.2s ease-out;
         }
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 1px;
+          background-color: rgb(54, 56, 55);
+          transform-origin: left;
+          transform: scaleX(0);
+          transition: transform 0.2s ease-out;
+        }
+
+        &::before {
+          top: 0;
+        }
+
+        &::after {
+          bottom: 0;
+        }
+
+        &:hover::before,
+        &:hover::after {
+          transform: scaleX(1);
+        }
       }
 
-      /* 上半部分的竖线 */
-      &::before {
-        content: '';
-        width: 2px;
-        /* 竖线的宽度 */
-        height: 13px;
-        /* 初始高度为0 */
-        background-color: rgb(54, 56, 55);
-        /* 竖线的颜色 */
-        position: absolute;
-        left: 15px;
-        /* 定位在左侧 */
-        top: 20px;
-        /* 初始位置在中间 */
-        transition: height 0.2s ease-out, top 0.2s ease-out;
-      }
-
-      /* 下半部分的竖线 */
+      &::before,
       &::after {
         content: '';
         width: 2px;
-        /* 竖线的宽度 */
         height: 13px;
-        /* 初始高度为0 */
         background-color: rgb(54, 56, 55);
-        /* 竖线的颜色 */
         position: absolute;
         left: 15px;
-        /* 定位在左侧 */
+        transition: height 0.2s ease-out, top 0.2s ease-out;
+      }
+
+      &::before {
+        top: 20px;
+      }
+
+      &::after {
         bottom: 20px;
-        /* 初始位置在中间 */
-        transition: height 0.2s ease-out, bottom 0.2s ease-out;
       }
 
-      &:hover::before {
-        height: 24px;
-      }
-
+      &:hover::before,
       &:hover::after {
         height: 24px;
       }
+
     }
   }
 }
