@@ -12,7 +12,10 @@ use std::{
     time::{Duration, Instant},
 };
 use tauri::{
-    image::Image, menu::{MenuBuilder, MenuItemBuilder}, tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}, LogicalPosition, Manager, WindowEvent
+    image::Image,
+    menu::{MenuBuilder, MenuItemBuilder},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    LogicalPosition, Manager, WindowEvent,
 };
 use utils::config::{get_config, set_config};
 
@@ -30,9 +33,7 @@ pub fn run() {
                     let y = pos.get("y").unwrap().as_i64().unwrap() as f64;
                     LogicalPosition::new(x, y)
                 }
-                Ok(None) => {
-                    LogicalPosition::new(500.0, 300.0)
-                }
+                Ok(None) => LogicalPosition::new(500.0, 300.0),
                 Err(e) => {
                     eprintln!("读取配置时出错: {}", e);
                     LogicalPosition::new(500.0, 300.0) // 使用默认位置
@@ -62,11 +63,16 @@ pub fn run() {
 
                     std::thread::spawn(move || {
                         std::thread::sleep(Duration::from_millis(100));
-                        if last_move_time_inner.lock().unwrap().elapsed() >= Duration::from_millis(100) {
+                        if last_move_time_inner.lock().unwrap().elapsed()
+                            >= Duration::from_millis(100)
+                        {
                             let position = window_inner.read().unwrap().outer_position().unwrap();
                             // println!("窗口位置：{:?}", position);
                             let mut data = HashMap::new();
-                            data.insert("position".to_string(), json!({"x": position.x, "y": position.y}));
+                            data.insert(
+                                "position".to_string(),
+                                json!({"x": position.x, "y": position.y}),
+                            );
                             if let Err(e) = set_config(data) {
                                 eprintln!("保存位置时出错: {}", e);
                             }
@@ -88,17 +94,15 @@ pub fn run() {
             let tray = TrayIconBuilder::new()
                 .tooltip("MyHelper")
                 .menu(&menu)
-                .on_menu_event(move |app, event| {
-                    match event.id().as_ref() {
-                        "exit" => app.exit(0),
-                        "show" => {
-                            let window = window.read().unwrap();
-                            window.unminimize().unwrap();
-                            window.show().unwrap();
-                            window.set_focus().unwrap();
-                        }
-                        _ => (),
+                .on_menu_event(move |app, event| match event.id().as_ref() {
+                    "exit" => app.exit(0),
+                    "show" => {
+                        let window = window.read().unwrap();
+                        window.unminimize().unwrap();
+                        window.show().unwrap();
+                        window.set_focus().unwrap();
                     }
+                    _ => (),
                 })
                 .on_tray_icon_event(|tray, event| {
                     // 处理托盘图标点击事件，左键点击时切换窗口显示/隐藏状态
