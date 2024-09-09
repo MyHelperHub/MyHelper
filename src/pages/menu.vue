@@ -36,7 +36,7 @@
   position: relative;
 
   .menu-list {
-    border-top: 1px solid rgba(0, 0, 0, 0.7);
+    border-top: 1px solid rgba(124, 122, 122, 0.7);
     margin-top: 70px;
     display: flex;
     flex-direction: column;
@@ -46,7 +46,7 @@
       position: relative;
       display: flex;
       justify-content: center;
-      width: 100%;
+      width: 98%;
       font-size: 14px;
       font-weight: bold;
       letter-spacing: 2px;
@@ -55,7 +55,7 @@
       color: rgb(28, 31, 30);
 
       .text {
-        width: 80%;
+        width: 84%;
         height: 30px;
         margin: 13px 0;
         padding-left: 5px;
@@ -110,11 +110,11 @@
       }
 
       &::before {
-        top: 20px;
+        top: 19px;
       }
 
       &::after {
-        bottom: 20px;
+        bottom: 19px;
       }
 
       &:hover::before,
