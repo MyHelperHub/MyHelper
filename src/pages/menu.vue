@@ -101,11 +101,11 @@
       &::before,
       &::after {
         content: '';
-        width: 2px;
+        width: 1px;
         height: 13px;
         background-color: rgb(54, 56, 55);
         position: absolute;
-        left: 15px;
+        left: 16px;
         transition: height 0.2s ease-out, top 0.2s ease-out;
       }
 
