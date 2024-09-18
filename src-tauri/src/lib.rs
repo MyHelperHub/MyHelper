@@ -94,7 +94,8 @@ pub fn run() {
             let tray = TrayIconBuilder::new()
                 .tooltip("MyHelper")
                 .menu(&menu)
-                .on_menu_event(move |app, event| match event.id().as_ref() {
+                .menu_on_left_click(false)
+                .on_menu_event(move |app, event| match event.id.as_ref() {
                     "exit" => app.exit(0),
                     "show" => {
                         let window = window.read().unwrap();

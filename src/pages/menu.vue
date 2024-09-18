@@ -1,29 +1,33 @@
 <template>
   <div class="menu-container">
+  <span class="parting-line"></span>  
+  <div class="search">搜索</div>
     <div class="menu-list">
       <div class="menu-item">
-        <div class="text">常用网站</div>
+        <div class="menu-text">常用网站</div>
       </div>
       <div class="menu-item">
-        <div class="text">常用软件</div>
+        <div class="menu-text">常用软件</div>
       </div>
       <div class="menu-item">
-        <div class="text">桌面便签</div>
+        <div class="menu-text">桌面便签</div>
       </div>
       <div class="menu-item">
-        <div class="text">定时计时器</div>
+        <div class="menu-text">定时计时器</div>
       </div>
       <div class="menu-item">
-        <div class="text">CHATGPT</div>
+        <div class="menu-text">CHATGPT</div>
       </div>
       <div class="menu-item">
-        <div class="text">使用教程</div>
+        <div class="menu-text">使用教程</div>
       </div>
     </div>
   </div>
 </template>
-<script setup lang="ts"></script>
-<style lang="less">
+
+<script setup></script>
+
+<style lang="less" scoped>
 .menu-container {
   width: 100%;
   height: 100%;
@@ -33,96 +37,114 @@
   background: linear-gradient(#e5edf1, #9fc0cf);
   list-style-type: none;
   -webkit-font-smoothing: antialiased;
-  position: relative;
 
   .menu-list {
-    border-top: 1px solid rgba(124, 122, 122, 0.7);
-    margin-top: 70px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
+    margin: 65px 0 0 30px;
 
     .menu-item {
+      display: inline-block;
+      vertical-align: top;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
       position: relative;
-      display: flex;
-      justify-content: center;
-      width: 98%;
-      font-size: 14px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: 0.3s;
-      color: rgb(28, 31, 30);
 
-      .text {
-        width: 84%;
-        height: 30px;
-        margin: 13px 0;
-        padding-left: 5px;
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-51%);
+        width: 2px;
+        height: 30%;
+        background-color: rgb(54, 56, 55);
+        transition: height 0.2s 0.35s ease-out;
+        z-index: 1;
+      }
+
+      &:hover {
+        .menu-text {
+          color: rgb(54, 56, 55);
+          background-color: rgb(245, 245, 245);
+
+          &::before {
+            width: 100%;
+            height: 96%;
+            opacity: 1;
+            transition: width 0.2s 0.1s linear, height 0.15s 0.3s ease-out,
+              opacity 0s 0.1s;
+          }
+
+          &::after {
+            width: 100%;
+            opacity: 1;
+            transition: width 0.25s 0.2s ease-out, opacity 0s 0.2s;
+          }
+        }
+
+        &::before { 
+          height: 100%;
+          transition: height 0.2s ease-in;
+        }
+      }
+
+      .menu-text {
+        width: 140px;
+        height: 10px;
+        position: relative;
         display: flex;
         align-items: center;
-        // background-color: #9fc0cf;
-        position: relative;
-        transition: background-color 0.2s ease-out;
-
-        &:hover {
-          background-color: rgb(245, 245, 245);
-          z-index: 2;
-          transition: background-color 0.2s ease-out;
-        }
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 15px 20px;
+        color: rgb(28, 31, 30);
+        transition: 0.3s;
 
         &::before,
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           left: 0;
-          width: 100%;
-          height: 1px;
-          background-color: rgb(54, 56, 55);
-          transform-origin: left;
-          transform: scaleX(0);
-          transition: transform 0.2s ease-out;
+          transition: all 0.25s ease;
+          width: 0;
+          height: 0;
+          background: transparent;
+          opacity: 0;
         }
 
         &::before {
           top: 0;
+          border-top: 2px solid rgb(54, 56, 55);
+          border-right: 2px solid rgb(54, 56, 55);
+          transition: height 0.15s ease-in, width 0.2s 0.15s linear,
+            opacity 0s 0.35s;
         }
 
         &::after {
           bottom: 0;
-        }
-
-        &:hover::before,
-        &:hover::after {
-          transform: scaleX(1);
+          border-bottom: 2px solid rgb(54, 56, 55);
+          transition: width 0.25s ease-in, opacity 0s 0.35s;
         }
       }
-
-      &::before,
-      &::after {
-        content: '';
-        width: 1px;
-        height: 13px;
-        background-color: rgb(54, 56, 55);
-        position: absolute;
-        left: 16px;
-        transition: height 0.2s ease-out, top 0.2s ease-out;
-      }
-
-      &::before {
-        top: 19px;
-      }
-
-      &::after {
-        bottom: 19px;
-      }
-
-      &:hover::before,
-      &:hover::after {
-        height: 24px;
-      }
-
     }
+  }
+
+.search{
+  position: relative;
+  top: 72px;
+}
+
+  .parting-line{
+    position: absolute;
+    top: 65px;
+    width: 100%;
+    margin-left: -1px;
+    border: none;
+    border-top: 1px solid rgba(58, 69, 80, 0.2);
   }
 }
 </style>
