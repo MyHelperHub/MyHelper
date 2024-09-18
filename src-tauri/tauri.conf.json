@@ -13,7 +13,7 @@
       {
         "label": "main",
         "title": "myhelper",
-        "visible":false,
+        "visible": false,
         "decorations": false,
         "alwaysOnTop": true,
         "shadow": false,

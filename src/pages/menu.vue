@@ -1,7 +1,7 @@
 <template>
   <div class="menu-container">
-  <span class="parting-line"></span>  
-  <div class="search">搜索</div>
+    <span class="parting-line"></span>
+    <Search class="search" />
     <div class="menu-list">
       <div class="menu-item">
         <div class="menu-text">常用网站</div>
@@ -25,7 +25,9 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import Search from "@/components/search.vue";
+</script>
 
 <style lang="less" scoped>
 .menu-container {
@@ -84,7 +86,7 @@
           }
         }
 
-        &::before { 
+        &::before {
           height: 100%;
           transition: height 0.2s ease-in;
         }
@@ -133,12 +135,12 @@
     }
   }
 
-.search{
-  position: relative;
-  top: 72px;
-}
+  .search {
+    position: relative;
+    top: 72px;
+  }
 
-  .parting-line{
+  .parting-line {
     position: absolute;
     top: 65px;
     width: 100%;
