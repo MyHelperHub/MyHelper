@@ -1,10 +1,10 @@
 mod command;
 mod utils;
 
+use command::config::*;
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
-use command::config::*;
-use command::home::set_window_size;
+use command::common::set_window_size;
 use command::settings::open_new_window;
 use serde_json::json;
 use std::{
@@ -18,7 +18,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     LogicalPosition, Manager, WindowEvent,
 };
-use utils::config::{get_config, set_config};
+use utils::config::{utils_get_config, utils_set_config};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -27,7 +27,7 @@ pub fn run() {
             let window = Arc::new(RwLock::new(app.get_webview_window("main").unwrap()));
 
             // 定义窗口位置
-            let position = match get_config(&["position"]) {
+            let position = match utils_get_config(vec!["position".to_string()]) {
                 Ok(Some(value)) => {
                     let pos = value.as_object().unwrap();
                     let x = pos.get("x").unwrap().as_i64().unwrap() as f64;
@@ -74,7 +74,7 @@ pub fn run() {
                                 "position".to_string(),
                                 json!({"x": position.x, "y": position.y}),
                             );
-                            if let Err(e) = set_config(data) {
+                            if let Err(e) = utils_set_config(data) {
                                 eprintln!("保存位置时出错: {}", e);
                             }
                         }
@@ -139,7 +139,7 @@ pub fn run() {
             get_web_icon,
             get_config,
             set_config,
-            remove_config
+            delete_config
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())

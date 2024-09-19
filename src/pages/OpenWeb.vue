@@ -9,11 +9,20 @@
         <img src="../assets/images/add.svg" class="image" />
         <div class="text">添加</div>
       </div>
-      
+
     </div>
   </div>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+// import { getConfig } from '@/utils/config';
+
+// try {
+//   const res = await getConfig(['position'])
+//   console.log(res);
+// } catch (error) {
+//   console.error('操作配置时出错:', error);
+// }
+</script>
 <style lang="less" scoped>
 .open-web {
   position: absolute;
@@ -24,10 +33,11 @@
   border-radius: 10px;
   z-index: 2;
   cursor: default;
+
   .list {
     display: flex;
     justify-content: flex-start;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
     gap: 13px;
     margin: 15px 20px;
     overflow: auto;
@@ -35,24 +45,27 @@
 
     // 隐藏滚动条
     &::-webkit-scrollbar {
-      display: none; 
+      display: none;
     }
+
     .item {
-        width: 40px;
-        height: 50px;
-        min-width: 40px;
-        min-height: 50px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 5px;
-        background-color: rgb(255, 255, 255);
-        cursor: pointer;
+      width: 40px;
+      height: 50px;
+      min-width: 40px;
+      min-height: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 5px;
+      background-color: rgb(255, 255, 255);
+      cursor: pointer;
+
       .image {
         width: 32px;
         height: 32px;
       }
+
       .text {
         display: flex;
         justify-content: center;

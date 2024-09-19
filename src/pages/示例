@@ -1,51 +1,51 @@
 // @ts-nocheck
 
+<template>
+  <div>
+  <button @click="getConfig" > Get Config < /button>
+    < button @click="setConfig" > Set Config < /button>
+      < button @click="deleteConfig" > Delete Config < /button>
+        < /div>
+        < /template>
+
+        < script setup >
 import { invoke } from '@tauri-apps/api';
 
-async function fetchConfig(keys: string[]): Promise<void> {
+// 调用 get_config 命令
+const getConfig = async () => {
   try {
+    const keys = ['position'];
     const result = await invoke('get_config', { keys });
-    console.log('配置数据:', result);
+    console.log('Config:', result);
   } catch (error) {
-    console.error('获取配置时出错:', error);
+    console.error('Error getting config:', error);
   }
-}
+};
 
-// 示例调用
-fetchConfig(['position', 'x']);
-
-
-
-import { invoke } from '@tauri-apps/api';
-
-async function updateConfig(data: Record<string, any>): Promise<void> {
+// 调用 set_config 命令
+const setConfig = async () => {
   try {
+    const data = {
+      position: {
+        x: 100,
+        y: 200
+      }
+    };
     await invoke('set_config', { data });
-    console.log('配置已成功更新！');
+    console.log('Config set successfully');
   } catch (error) {
-    console.error('更新配置时出错:', error);
+    console.error('Error setting config:', error);
   }
-}
+};
 
-// 示例调用
-updateConfig({
-  position: { x: 100, y: 200 },
-  config: {},
-  name: 'new_name',
-});
-
-
-
-import { invoke } from '@tauri-apps/api';
-
-async function deleteConfig(keys: string[]): Promise<void> {
+// 调用 delete_config 命令
+const deleteConfig = async () => {
   try {
-    await invoke('remove_config', { keys });
-    console.log('配置已成功删除！');
+    const key = 'position';
+    await invoke('delete_config', { key });
+    console.log('Config deleted successfully');
   } catch (error) {
-    console.error('删除配置时出错:', error);
+    console.error('Error deleting config:', error);
   }
-}
-
-// 示例调用
-deleteConfig(['position', 'x']);
+};
+</script>
