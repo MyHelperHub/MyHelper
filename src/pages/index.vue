@@ -10,7 +10,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import Menu from "./menu.vue";
+import Menu from "./Menu.vue";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
 

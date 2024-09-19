@@ -3,11 +3,17 @@
     <span class="parting-line"></span>
     <Search class="search" />
     <div class="menu-list">
-      <div class="menu-item">
+      <div class="menu-item" @click="handleOpen('openWeb')">
         <div class="menu-text">常用网站</div>
+        <Transition name="fade">
+          <OpenWeb v-if="openControl.openWeb" @click.stop/>
+        </Transition>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="handleOpen('openApp')">
         <div class="menu-text">常用软件</div>
+        <Transition name="fade">
+          <OpenApp v-if="openControl.openApp" />
+        </Transition>
       </div>
       <div class="menu-item">
         <div class="menu-text">桌面便签</div>
@@ -26,7 +32,29 @@
 </template>
 
 <script setup>
-import Search from "@/components/search.vue";
+import Search from "@/components/Search.vue";
+import OpenWeb from "./OpenWeb.vue";
+import OpenApp from "./OpenApp.vue";
+import { ref } from "vue";
+
+// 控制每个菜单项的展开与关闭状态
+const openControl = ref({
+  openWeb: false,
+  openApp: false,
+});
+
+/** 打开菜单项 */
+const handleOpen = (key) => {
+  // 如果当前点击的项已经是打开的，则关闭它
+  if (openControl.value[key]) {
+    openControl.value[key] = false;
+  } else {
+    Object.keys(openControl.value).forEach(k => {
+      openControl.value[k] = false;
+    });
+    openControl.value[key] = true;
+  }
+};
 </script>
 
 <style lang="less" scoped>
@@ -54,11 +82,11 @@ import Search from "@/components/search.vue";
       position: relative;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         left: 0;
         top: 50%;
-        transform: translateY(-51%);
+        transform: translateY(-50%);
         width: 2px;
         height: 30%;
         background-color: rgb(54, 56, 55);
@@ -148,5 +176,20 @@ import Search from "@/components/search.vue";
     border: none;
     border-top: 1px solid rgba(58, 69, 80, 0.2);
   }
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+    opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity .3s ease-in-out;
 }
 </style>

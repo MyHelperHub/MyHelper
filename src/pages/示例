@@ -1,0 +1,51 @@
+// @ts-nocheck
+
+import { invoke } from '@tauri-apps/api';
+
+async function fetchConfig(keys: string[]): Promise<void> {
+  try {
+    const result = await invoke('get_config', { keys });
+    console.log('配置数据:', result);
+  } catch (error) {
+    console.error('获取配置时出错:', error);
+  }
+}
+
+// 示例调用
+fetchConfig(['position', 'x']);
+
+
+
+import { invoke } from '@tauri-apps/api';
+
+async function updateConfig(data: Record<string, any>): Promise<void> {
+  try {
+    await invoke('set_config', { data });
+    console.log('配置已成功更新！');
+  } catch (error) {
+    console.error('更新配置时出错:', error);
+  }
+}
+
+// 示例调用
+updateConfig({
+  position: { x: 100, y: 200 },
+  config: {},
+  name: 'new_name',
+});
+
+
+
+import { invoke } from '@tauri-apps/api';
+
+async function deleteConfig(keys: string[]): Promise<void> {
+  try {
+    await invoke('remove_config', { keys });
+    console.log('配置已成功删除！');
+  } catch (error) {
+    console.error('删除配置时出错:', error);
+  }
+}
+
+// 示例调用
+deleteConfig(['position', 'x']);

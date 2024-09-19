@@ -3,6 +3,7 @@ mod utils;
 
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
+use command::config::*;
 use command::home::set_window_size;
 use command::settings::open_new_window;
 use serde_json::json;
@@ -135,7 +136,10 @@ pub fn run() {
             set_window_size,
             open_new_window,
             get_app_icon,
-            get_web_icon
+            get_web_icon,
+            get_config,
+            set_config,
+            remove_config
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())

@@ -1,12 +1,12 @@
 <template>
     <div class="search-container">
-        <div class="search-list" @click="dropdown = !dropdown">
-            <img class="search-img" :src="selectedEngine.src" :alt="selectedEngine.alt" />
+        <div class="search-list" @click="showDropdown = !showDropdown">
+            <img class="search-img" :src="selectedEngine.src" :alt="selectedEngine.key" :title="selectedEngine.key"/>
             <transition name="slide-down">
-                <div class="dropdown" v-if="dropdown">
-                    <div class="dropdown-item" v-for="engine in searchEngines" :key="engine.alt"
+                <div class="dropdown-list" v-if="showDropdown">
+                    <div class="dropdown-item" v-for="engine in searchEngines" :key="engine.key"
                         @click="selectEngine(engine)">
-                        <img :src="engine.src" :alt="engine.alt" />
+                        <img :src="engine.src" :alt="engine.key" :title="engine.key"/>
                     </div>
                 </div>
             </transition>
@@ -15,10 +15,7 @@
             <input v-model="searchData" class="search-input" placeholder="搜索" @keydown.enter="handleSearch"
                 spellcheck="false" />
             <div class="search-btn" @click="handleSearch">
-                <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M966.4 924.8l-230.4-227.2c60.8-67.2 96-156.8 96-256 0-217.6-176-390.4-390.4-390.4-217.6 0-390.4 176-390.4 390.4 0 217.6 176 390.4 390.4 390.4 99.2 0 188.8-35.2 256-96l230.4 227.2c9.6 9.6 28.8 9.6 38.4 0C979.2 950.4 979.2 934.4 966.4 924.8zM102.4 441.6c0-185.6 150.4-339.2 339.2-339.2s339.2 150.4 339.2 339.2c0 89.6-35.2 172.8-92.8 233.6-3.2 0-3.2 3.2-6.4 3.2-3.2 3.2-3.2 3.2-3.2 6.4-60.8 57.6-144 92.8-233.6 92.8C256 780.8 102.4 627.2 102.4 441.6z" />
-                </svg>
+                <img class="icon" src="../assets/images/search.svg" >
             </div>
         </div>
     </div>
@@ -26,43 +23,46 @@
 
 <script setup>
 import { ref } from "vue";
+import { open } from "@tauri-apps/plugin-shell";
 
-const dropdown = ref(false);
 const searchData = ref("");
+const showDropdown = ref(false);
+/** 搜索引擎列表 */
 const searchEngines = [
     {
-        src: new URL("@/assets/engine/baidu.png", import.meta.url).href,
-        alt: "baidu",
+        src: new URL("@/assets/images/engine/baidu.png", import.meta.url).href,
+        key: "baidu",
         url: "https://www.baidu.com/s?wd=",
         handleSearch: (data) => {
-            window.open(`https://www.baidu.com/s?wd=${data}`, "_blank");
+            open(`https://www.baidu.com/s?wd=${data}`);
         },
     },
     {
-        src: new URL("@/assets/engine/bing.png", import.meta.url).href,
-        alt: "bing",
+        src: new URL("@/assets/images/engine/bing.png", import.meta.url).href,
+        key: "bing",
         url: "https://bing.com/search?q=",
         handleSearch: (data) => {
-            window.open(`https://bing.com/search?q=${data}`, "_blank");
+            open(`https://bing.com/search?q=${data}`);
         },
     },
     {
-        src: new URL("@/assets/engine/google.png", import.meta.url).href,
-        alt: "google",
+        src: new URL("@/assets/images/engine/google.png", import.meta.url).href,
+        key: "google",
         url: "https://www.google.com/search?q=",
         handleSearch: (data) => {
-            window.open(`https://www.google.com/search?q=${data}`, "_blank");
+            open(`https://www.google.com/search?q=${data}`);
         },
     },
     {
-        src: new URL("@/assets/engine/yahoo.png", import.meta.url).href,
-        alt: "yahoo",
+        src: new URL("@/assets/images/engine/yahoo.png", import.meta.url).href,
+        key: "yahoo",
         url: "https://search.yahoo.com/search?p=",
         handleSearch: (data) => {
-            window.open(`https://search.yahoo.com/search?p=${data}`, "_blank");
+            open(`https://search.yahoo.com/search?p=${data}`);
         },
     },
 ];
+/** 当前选择的搜索引擎 */
 const selectedEngine = ref(searchEngines[0]);
 
 const selectEngine = (engine) => {
@@ -86,8 +86,8 @@ function handleSearch() {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 35px;
-        height: 35px;
+        width: 30px;
+        height: 30px;
         cursor: pointer;
 
         .search-img {
@@ -95,17 +95,17 @@ function handleSearch() {
             height: 22px;
         }
 
-        .dropdown {
+        .dropdown-list {
             position: absolute;
-            top: 100%; // 改为从顶部开始
+            top: 100%; 
             left: 0;
-            width: auto; // 根据内容自动调整宽度
+            width: auto; 
             background-color: #fff;
             border: 1px solid #ccc;
             z-index: 2;
 
             .dropdown-item {
-                padding: 5px 10px;
+                padding: 5px 8px;
                 cursor: pointer;
 
                 &:hover {
@@ -149,8 +149,8 @@ function handleSearch() {
 
             .icon {
                 fill: #000;
-                width: 100%;
-                height: 100%;
+                width: 90%;
+                height: 90%;
             }
         }
     }
@@ -158,12 +158,12 @@ function handleSearch() {
 
 .slide-down-enter-active,
 .slide-down-leave-active {
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 
 .slide-down-enter-from,
 .slide-down-leave-to {
-    transform: translateY(-100%);
+    transform: translateY(-30%);
     opacity: 0;
 }
 </style>
