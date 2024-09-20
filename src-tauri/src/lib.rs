@@ -26,20 +26,43 @@ pub fn run() {
         .setup(|app| {
             let window = Arc::new(RwLock::new(app.get_webview_window("main").unwrap()));
 
-            // 定义窗口位置
-            let position = match utils_get_config(vec!["position".to_string()]) {
-                Ok(Some(value)) => {
-                    let pos = value.as_object().unwrap();
-                    let x = pos.get("x").unwrap().as_i64().unwrap() as f64;
-                    let y = pos.get("y").unwrap().as_i64().unwrap() as f64;
-                    LogicalPosition::new(x, y)
-                }
-                Ok(None) => LogicalPosition::new(500.0, 300.0),
-                Err(e) => {
-                    eprintln!("读取配置时出错: {}", e);
-                    LogicalPosition::new(500.0, 300.0) // 使用默认位置
-                }
-            };
+             // 获取主屏幕的尺寸
+             let main_screen = app.primary_monitor();
+
+             // 处理 main_screen 为 Err 或 None 的情况
+             let (screen_width, screen_height) = match main_screen {
+                 Ok(Some(monitor)) => (monitor.size().width as f64, monitor.size().height as f64),
+                 Ok(None) => {
+                     println!("没有找到主屏幕，使用默认屏幕尺寸");
+                     (1920.0, 1080.0) 
+                 },
+                 Err(e) => {
+                     eprintln!("获取主屏幕信息时出错: {:?}, 使用默认屏幕尺寸", e);
+                     (1920.0, 1080.0) 
+                 }
+             };
+ 
+             // 定义窗口位置
+             let position = match utils_get_config(vec!["position".to_string()]) {
+                 Ok(Some(value)) => {
+                     let pos = value.as_object().unwrap();
+                     let x = pos.get("x").unwrap().as_f64().unwrap();
+                     let y = pos.get("y").unwrap().as_f64().unwrap();
+ 
+                     // 检查位置是否在屏幕范围内
+                     if x >= 0.0 && x <= screen_width && y >= 0.0 && y <= screen_height {
+                         LogicalPosition::new(x, y)
+                     } else {
+                         println!("窗口位置超出屏幕范围，使用默认位置");
+                         LogicalPosition::new(500.0, 300.0)
+                     }
+                 }
+                 Ok(None) => LogicalPosition::new(500.0, 300.0),
+                 Err(e) => {
+                     eprintln!("读取配置时出错: {}", e);
+                     LogicalPosition::new(500.0, 300.0)
+                 }
+             };
 
             // tauri基础操作
             {

@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import Search from "@/components/Search.vue";
+import Search from "@/pages/Search.vue";
 import OpenWeb from "./OpenWeb.vue";
 import OpenApp from "./OpenApp.vue";
 import { ref } from "vue";
