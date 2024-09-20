@@ -7,9 +7,9 @@
       </div>
       <AddItem>
         <div class="item">
-        <img src="../assets/images/add.svg" class="image" />
-        <div class="text">添加</div>
-      </div>
+          <img src="../assets/images/add.svg" class="image" />
+          <div class="text">添加</div>
+        </div>
       </AddItem>
     </div>
   </div>
@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import AddItem from "@/components/AddItem.vue";
 import { deleteConfig, getConfig, setConfig } from "@/utils/config";
-import {getImageByPath} from "@/utils/getImages"
+import { getImageByPath } from "@/utils/getImages"
 import { ref } from "vue";
 
 const listData = ref([
@@ -42,7 +42,7 @@ const listData = ref([
 const init = async () => {
   try {
     const res = await getConfig(["position", "x"]);
-    console.log(res);
+    // console.log(res);
   } catch (error) {
     console.error("操作配置时出错:", error);
   }
