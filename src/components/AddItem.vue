@@ -39,9 +39,12 @@ const formData = ref({
 const showModal = ref(false);
 
 const handleConfirm = () => {
-  console.log(formData.value);
-
-  // showModal.value = false;
+  formData.value = {
+    title: '',
+    url: '',
+    logo: ''
+  }
+  showModal.value = false;
 }
 </script>
 
@@ -84,9 +87,13 @@ const handleConfirm = () => {
       flex-direction: column;
 
       .image {
+        padding: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
         width: 32px;
         height: 32px;
         margin: 10px;
+        cursor: pointer;
       }
 
       .input-container {

@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 
+// @ts-ignore
 const props = defineProps({
     value: {
         type: String,
