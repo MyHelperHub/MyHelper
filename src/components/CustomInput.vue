@@ -1,5 +1,5 @@
 <template>
-    <div class="group">
+    <div class="input-container">
         <input type="text" v-model="localInputValue" required />
         <span class="highlight"></span>
         <span class="bar"></span>
@@ -16,23 +16,23 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    inputValue: {
+    modelValue: {
         type: String,
         default: '',
     },
 });
 
-const emit = defineEmits(['update:inputValue']);
+const emit = defineEmits(['update:modelValue']);
 
-const localInputValue = ref(props.inputValue);
+const localInputValue = ref(props.modelValue);
 
 // 监听本地变量的变化，并使用防抖函数更新父组件的值
 watch(localInputValue, useDebounce((newValue: any) => {
-    emit('update:inputValue', newValue);
+    emit('update:modelValue', newValue);
 }, 300));
 </script>
-<style lang="less">
-.group {
+<style lang="less" scoped>
+.input-container {
     position: relative;
     margin-bottom: 45px;
 

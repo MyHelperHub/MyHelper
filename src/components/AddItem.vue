@@ -12,13 +12,12 @@
           <div class="modal-body">
             <img class="image" src="../assets/images/defaultImage.svg">
             <div class="input-container">
-              <CustomInput class="input" :label="'网站名称'" />
-              <CustomInput class="input" :label="'网站地址'" />
+              <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
+              <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
             </div>
           </div>
           <div class="modal-footer">
-            <button class="modal-button">取消</button>
-            <button class="modal-button primary">确定</button>
+            <CustomButton class="button" @click="handleConfirm" />
           </div>
         </div>
       </div>
@@ -29,8 +28,21 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import CustomInput from './CustomInput.vue';
+import CustomButton from './CustomButton.vue';
 
+
+const formData = ref({
+  title: '',
+  url: '',
+  logo: ''
+})
 const showModal = ref(false);
+
+const handleConfirm = () => {
+  console.log(formData.value);
+
+  // showModal.value = false;
+}
 </script>
 
 <style lang="less" scoped>
@@ -87,6 +99,17 @@ const showModal = ref(false);
           width: 160px;
         }
       }
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: center;
+
+      .button {
+        width: 80px;
+        margin-top: 10px;
+      }
+
     }
   }
 }
