@@ -14,6 +14,8 @@
     "core:window:allow-start-dragging",
     "notification:default",
     "window-state:allow-save-window-state",
-    "window-state:allow-restore-state"
+    "window-state:allow-restore-state",
+    "core:image:allow-from-path",
+    "core:image:default"
   ]
 }

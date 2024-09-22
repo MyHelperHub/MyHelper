@@ -2369,6 +2369,7 @@ dependencies = [
 name = "myhelper"
 version = "1.0.0"
 dependencies = [
+ "base64 0.22.1",
  "image 0.24.9",
  "reqwest",
  "scraper",

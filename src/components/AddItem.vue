@@ -10,7 +10,7 @@
             添加网站
           </div>
           <div class="modal-body">
-            <img class="image" src="../assets/images/defaultImage.svg">
+            <img class="image" :src="formData.logo ? formData.logo : '../assets/images/add.svg'">
             <div class="input-container">
               <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
               <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
@@ -29,6 +29,7 @@
 import { ref } from 'vue';
 import CustomInput from './CustomInput.vue';
 import CustomButton from './CustomButton.vue';
+import { invoke } from "@tauri-apps/api/core";
 
 
 const formData = ref({
@@ -38,13 +39,27 @@ const formData = ref({
 })
 const showModal = ref(false);
 
+
 const handleConfirm = () => {
+  // invoke("get_web_icon", { url: formData.value.url }).then((res) => {
+  //   console.log(res);
+  //   formData.value.logo = res as string;
+  // });
+  invoke('get_image_base64', { path: 'C:\\Users\\14255\\AppData\\Roaming\\MyHelper\\Image\\WebIcon\\baidu_com.png' })
+    .then((res) => {
+      // 设置 Base64 数据，前面加上数据类型和编码信息
+      formData.value.logo = `data:image/png;base64,${res as string}`;
+      console.log(formData.value.logo); // 打印查看 Base64 数据
+    })
+    .catch((error) => {
+      console.error('Error fetching image:', error);
+    });
   formData.value = {
     title: '',
     url: '',
     logo: ''
   }
-  showModal.value = false;
+  // showModal.value = false;
 }
 </script>
 

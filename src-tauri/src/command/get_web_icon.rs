@@ -11,8 +11,15 @@ use url::Url;
 
 #[tauri::command]
 pub fn get_web_icon(url: &str) -> Result<String, String> {
+    // 检查并补全 URL
+    let url = if !url.starts_with("http://") && !url.starts_with("https://") {
+        format!("https://{}", url)
+    } else {
+        url.to_string()
+    };
+
     // 解析网站 URL
-    let mut url = Url::parse(url).map_err(|e| e.to_string())?;
+    let mut url = Url::parse(&url).map_err(|e| e.to_string())?;
     let domain = url.host_str().ok_or("Invalid URL")?.replace(".", "_");
 
     // 获取用户目录
