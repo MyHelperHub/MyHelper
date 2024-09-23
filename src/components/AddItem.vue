@@ -10,10 +10,13 @@
             添加网站
           </div>
           <div class="modal-body">
-            <img class="image" :src="formData.logo ?addImage : '../assets/images/add.svg'">
+            <img class="image" :src="`formData.logo ? addItemImage : '../assets/images/add.svg'`">
             <div class="input-container">
               <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
               <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
+              <transition name="icon">
+                <div v-if="formData.url" class="get-icon" @click="getIcon">获取图标</div>
+              </transition>
             </div>
           </div>
           <div class="modal-footer">
@@ -31,6 +34,7 @@ import { getImageByTauri } from '../utils/getImages';
 import CustomInput from './CustomInput.vue';
 import CustomButton from './CustomButton.vue';
 import { invoke } from "@tauri-apps/api/core";
+import { configDir, join, resolve } from '@tauri-apps/api/path';
 
 
 const formData = ref({
@@ -38,19 +42,33 @@ const formData = ref({
   url: '',
   logo: ''
 })
-const addImage = ref<string>()
+const addItemImage = ref<string>()
 const showModal = ref(false);
 
-
-const handleConfirm = () => {
-  invoke("get_web_icon", { url: formData.value.url }).then((res) => {
-    formData.value.logo = res as string;
-  });
-  // console.log(getImageByTauri(String.raw`C:\Users\Administrator\AppData\Roaming\MyHelper\Image\WebIcon\baidu_com.png`));
+const getIcon = () => {
+  if (!formData.value.url) {
+    console.log("请输入网站地址");
+    return
+  }
   getImageByTauri(formData.value.logo).then((res) => {
-    addImage.value = res;
+    addItemImage.value = res;
   });
-  
+}
+
+const handleConfirm = async () => {
+
+  const configPath = await configDir(); // 获取 C:\Users\14255\AppData\Roaming 路径
+  const myHelperPath = await join(configPath, 'myhelper'); // 拼接 myhelper 路径
+  console.log(myHelperPath);
+  const tt = `${myHelperPath}\\Image\\WebIcon\\baidu_com.png`
+  const imagePath = await resolve(tt);
+  console.log(imagePath);
+  addItemImage.value = imagePath;
+
+  // invoke("get_web_icon", { url: formData.value.url }).then((res) => {
+  //   formData.value.logo = res as string;
+  // });
+
   // showModal.value = false;
 }
 </script>
@@ -112,6 +130,16 @@ const handleConfirm = () => {
           margin: 5px;
           width: 160px;
         }
+
+        .get-icon {
+          margin-left: 90px;
+          cursor: pointer;
+          color: #5264ae;
+          font-size: 12px;
+          border: 1px solid #5264ae;
+          border-radius: 5px;
+          padding: 5px;
+        }
       }
     }
 
@@ -136,5 +164,20 @@ const handleConfirm = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.icon-enter-active,
+.icon-leave-active {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.icon-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.icon-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 </style>

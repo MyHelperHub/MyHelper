@@ -16,6 +16,9 @@
     "window-state:allow-save-window-state",
     "window-state:allow-restore-state",
     "core:image:allow-from-path",
-    "core:image:default"
+    "core:image:default",
+    "core:path:allow-resolve-directory",
+    "core:path:default",
+    "core:path:allow-resolve"
   ]
 }

@@ -4,6 +4,9 @@
         <span class="highlight"></span>
         <span class="bar"></span>
         <label>{{ label }}</label>
+        <div class="slot-container">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
@@ -110,6 +113,13 @@ watch(localInputValue, useDebounce((newValue: any) => {
         left: 0;
         pointer-events: none;
         opacity: 0.5;
+    }
+
+    .slot-container {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
     }
 }
 
