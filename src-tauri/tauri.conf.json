@@ -1,7 +1,7 @@
 {
   "productName": "myhelper",
   "version": "1.0.0",
-  "identifier": "xyz.ialtone.myhelper",
+  "identifier": "myhelper",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -30,7 +30,9 @@
       },
       "assetProtocol": {
         "enable": true,
-        "scope": ["$CONFIG/**"]
+        "scope": [
+          "$APPDATA/**"
+        ]
       }
     }
   },

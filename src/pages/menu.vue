@@ -6,16 +6,16 @@
       <div class="menu-item" @click="handleOpen('openWeb')">
         <div class="menu-text">常用网站</div>
         <Transition name="fade">
-          <OpenWeb v-if="openControl.openWeb" @click.stop/>
+          <OpenWeb v-if="openControl.openWeb" @click.stop />
         </Transition>
       </div>
       <div class="menu-item" @click="handleOpen('openApp')">
         <div class="menu-text">常用软件</div>
         <Transition name="fade">
-          <OpenApp v-if="openControl.openApp" />
+          <OpenApp v-if="openControl.openApp" @click.stop />
         </Transition>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="showGlobalMessage('你好')">
         <div class="menu-text">桌面便签</div>
       </div>
       <div class="menu-item">
@@ -36,6 +36,7 @@ import Search from "@/pages/Search.vue";
 import OpenWeb from "./OpenWeb.vue";
 import OpenApp from "./OpenApp.vue";
 import { ref } from "vue";
+import { showGlobalMessage } from "@/utils/message";
 
 // 控制每个菜单项的展开与关闭状态
 const openControl = ref({
@@ -180,16 +181,16 @@ const handleOpen = (key) => {
 
 .fade-enter-from,
 .fade-leave-to {
-    opacity: 0;
+  opacity: 0;
 }
 
 .fade-enter-to,
 .fade-leave-from {
-    opacity: 1;
+  opacity: 1;
 }
 
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity .3s ease-in-out;
+  transition: opacity .3s ease-in-out;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="open-web">
     <div class="list">
       <div class="item" v-for="(item, index) in listData" :key="index">
-        <img :src="getImageByPath(item.logo)" class="image" />
+        <img :src="item.logo" class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
       <AddItem>
@@ -18,24 +18,23 @@
 <script setup lang="ts">
 import AddItem from "@/components/AddItem.vue";
 import { deleteConfig, getConfig, setConfig } from "@/utils/config";
-import { getImageByPath } from "@/utils/getImages"
 import { ref } from "vue";
 
 const listData = ref([
   {
     title: "百度",
     url: "http://baidu.com",
-    logo: "../assets/images/engine/baidu.png",
+    logo: "src/assets/images/engine/baidu.png",
   },
   {
     title: "百度",
     url: "http://baidu.com",
-    logo: "../assets/images/engine/baidu.png",
+    logo: "src/assets/images/engine/baidu.png",
   },
   {
     title: "百度",
     url: "http://baidu.com",
-    logo: "../assets/images/engine/baidu.png",
+    logo: "src/assets/images/engine/baidu.png",
   },
 ]);
 

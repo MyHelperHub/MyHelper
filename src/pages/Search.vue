@@ -1,29 +1,18 @@
 <template>
   <div class="search-container">
     <div class="search-list" @click="showDropdown = !showDropdown">
-      <img
-        class="search-img"
-        :src="getImageByPath(selectedEngine.logo)"
-        :alt="selectedEngine.title"
-        :title="selectedEngine.title" />
+      <img class="search-img" :src="selectedEngine.logo" :alt="selectedEngine.title" :title="selectedEngine.title" />
       <transition name="slide-down">
         <div class="dropdown-list" v-if="showDropdown">
-          <div
-            class="dropdown-item"
-            v-for="(engine, index) in searchEngines"
-            :key="index"
+          <div class="dropdown-item" v-for="(engine, index) in searchEngines" :key="index"
             @click="selectEngine(engine)">
-            <img :src="getImageByPath(engine.logo)" :alt="engine.title" :title="engine.title" />
+            <img :src="engine.logo" :alt="engine.title" :title="engine.title" />
           </div>
         </div>
       </transition>
     </div>
     <div class="search-control">
-      <input
-        v-model="searchData"
-        class="search-input"
-        placeholder="搜索"
-        @keydown.enter="handleSearch"
+      <input v-model="searchData" class="search-input" placeholder="搜索" @keydown.enter="handleSearch"
         spellcheck="false" />
       <div class="search-btn" @click="handleSearch">
         <img class="icon" src="../assets/images/search.svg" />
@@ -35,7 +24,6 @@
 <script setup>
 import { ref } from "vue";
 import { open } from "@tauri-apps/plugin-shell";
-import { getImageByPath } from "@/utils/getImages";
 
 const searchData = ref("");
 const showDropdown = ref(false);
@@ -43,7 +31,7 @@ const showDropdown = ref(false);
 const searchEngines = [
   {
     title: "baidu",
-    logo: "../assets/images/engine/baidu.png",
+    logo: "src/assets/images/engine/baidu.png",
     url: "https://www.baidu.com/s?wd=",
     handleSearch: (data) => {
       open(`https://www.baidu.com/s?wd=${data}`);
@@ -51,7 +39,7 @@ const searchEngines = [
   },
   {
     title: "bing",
-    logo: "../assets/images/engine/bing.png",
+    logo: "src/assets/images/engine/bing.png",
     url: "https://bing.com/search?q=",
     handleSearch: (data) => {
       open(`https://bing.com/search?q=${data}`);
@@ -59,7 +47,7 @@ const searchEngines = [
   },
   {
     title: "google",
-    logo: "../assets/images/engine/google.png",
+    logo: "src/assets/images/engine/google.png",
     url: "https://www.google.com/search?q=",
     handleSearch: (data) => {
       open(`https://www.google.com/search?q=${data}`);
@@ -67,7 +55,7 @@ const searchEngines = [
   },
   {
     title: "yahoo",
-    logo: "../assets/images/engine/yahoo.png",
+    logo: "src/assets/images/engine/yahoo.png",
     url: "https://search.yahoo.com/search?p=",
     handleSearch: (data) => {
       open(`https://search.yahoo.com/search?p=${data}`);

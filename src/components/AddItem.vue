@@ -10,7 +10,8 @@
             添加网站
           </div>
           <div class="modal-body">
-            <img class="image" :src="addItemImage">
+            <img class="image"
+              :src="formData.logo ? convertFileSrc(formData.logo) : 'src/assets/images/defaultImage.svg'">
             <div class="input-container">
               <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
               <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
@@ -30,11 +31,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { getImageByTauri } from '../utils/getImages';
 import CustomInput from './CustomInput.vue';
 import CustomButton from './CustomButton.vue';
-import { invoke,convertFileSrc  } from "@tauri-apps/api/core";
-import { configDir, join, resolve } from '@tauri-apps/api/path';
+import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 
 
 const formData = ref({
@@ -42,7 +41,6 @@ const formData = ref({
   url: '',
   logo: ''
 })
-const addItemImage = ref<string>()
 const showModal = ref(false);
 
 
@@ -52,24 +50,20 @@ const getIcon = () => {
     console.log("请输入网站地址");
     return;
   }
-  
-  // 这里应该会获取 formData.logo 中的图片，并且你可以使用 convertFileSrc 来展示图片
-  if (formData.value.logo) {
-    addItemImage.value = convertFileSrc(formData.value.logo);
-  }
+
+  invoke("get_web_icon", { url: formData.value.url }).then((res) => {
+    formData.value.logo = res as string;
+  });
 }
 
 // 确认按钮处理逻辑
 const handleConfirm = async () => {
-  const configPath = await configDir(); // 获取配置目录
-  const myHelperPath = await join(configPath, 'myhelper'); // 拼接 myhelper 路径
-  const imagePath = `${myHelperPath}/Image/WebIcon/baidu_com.png`; // 完整路径
-
-  // 使用 convertFileSrc 将本地路径转换为可显示的文件 URL
-  addItemImage.value = convertFileSrc(imagePath);
-
-  // 如果你有其他逻辑需要处理，可以在这里添加
-  console.log('图片路径：', addItemImage.value);
+  formData.value = {
+    title: '',
+    url: '',
+    logo: ''
+  }
+  showModal.value = false;
 };
 </script>
 

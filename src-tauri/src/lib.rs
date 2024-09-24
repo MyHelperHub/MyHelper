@@ -1,7 +1,7 @@
 mod command;
 mod utils;
 
-use command::common::{get_image_base64, set_window_size};
+use command::common::set_window_size;
 use command::config::*;
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
@@ -162,8 +162,7 @@ pub fn run() {
             get_web_icon,
             get_config,
             set_config,
-            delete_config,
-            get_image_base64
+            delete_config
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
