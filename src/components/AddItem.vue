@@ -10,7 +10,7 @@
             添加网站
           </div>
           <div class="modal-body">
-            <img class="image" :src="`formData.logo ? addItemImage : '../assets/images/add.svg'`">
+            <img class="image" :src="addItemImage">
             <div class="input-container">
               <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
               <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
@@ -33,7 +33,7 @@ import { ref } from 'vue';
 import { getImageByTauri } from '../utils/getImages';
 import CustomInput from './CustomInput.vue';
 import CustomButton from './CustomButton.vue';
-import { invoke } from "@tauri-apps/api/core";
+import { invoke,convertFileSrc  } from "@tauri-apps/api/core";
 import { configDir, join, resolve } from '@tauri-apps/api/path';
 
 
@@ -45,32 +45,32 @@ const formData = ref({
 const addItemImage = ref<string>()
 const showModal = ref(false);
 
+
+// 获取图标方法
 const getIcon = () => {
   if (!formData.value.url) {
     console.log("请输入网站地址");
-    return
+    return;
   }
-  getImageByTauri(formData.value.logo).then((res) => {
-    addItemImage.value = res;
-  });
+  
+  // 这里应该会获取 formData.logo 中的图片，并且你可以使用 convertFileSrc 来展示图片
+  if (formData.value.logo) {
+    addItemImage.value = convertFileSrc(formData.value.logo);
+  }
 }
 
+// 确认按钮处理逻辑
 const handleConfirm = async () => {
-
-  const configPath = await configDir(); // 获取 C:\Users\14255\AppData\Roaming 路径
+  const configPath = await configDir(); // 获取配置目录
   const myHelperPath = await join(configPath, 'myhelper'); // 拼接 myhelper 路径
-  console.log(myHelperPath);
-  const tt = `${myHelperPath}\\Image\\WebIcon\\baidu_com.png`
-  const imagePath = await resolve(tt);
-  console.log(imagePath);
-  addItemImage.value = imagePath;
+  const imagePath = `${myHelperPath}/Image/WebIcon/baidu_com.png`; // 完整路径
 
-  // invoke("get_web_icon", { url: formData.value.url }).then((res) => {
-  //   formData.value.logo = res as string;
-  // });
+  // 使用 convertFileSrc 将本地路径转换为可显示的文件 URL
+  addItemImage.value = convertFileSrc('C:\\Users\\Administrator\\AppData\\Roaming\\MyHelper\\Image\\WebIcon\\baidu_com.png');
 
-  // showModal.value = false;
-}
+  // 如果你有其他逻辑需要处理，可以在这里添加
+  console.log('图片路径：', addItemImage.value);
+};
 </script>
 
 <style lang="less" scoped>

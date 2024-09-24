@@ -25,7 +25,7 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let window = Arc::new(RwLock::new(app.get_webview_window("main").unwrap()));
-
+            app.manage("C:\\Users\\Administrator\\AppData\\Roaming\\MyHelper");
             // 获取主屏幕的尺寸
             let main_screen = app.primary_monitor();
 

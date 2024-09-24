@@ -23,7 +23,15 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self' asset: http://asset.localhost",
+        "media-src": "'self' asset: http://asset.localhost",
+        "img-src": "'self' asset: http://asset.localhost"
+      },
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$CONFIG/**"]
+      }
     }
   },
   "bundle": {
