@@ -66,7 +66,7 @@ const handleConfirm = async () => {
   const imagePath = `${myHelperPath}/Image/WebIcon/baidu_com.png`; // 完整路径
 
   // 使用 convertFileSrc 将本地路径转换为可显示的文件 URL
-  addItemImage.value = convertFileSrc('C:\\Users\\Administrator\\AppData\\Roaming\\MyHelper\\Image\\WebIcon\\baidu_com.png');
+  addItemImage.value = convertFileSrc(imagePath);
 
   // 如果你有其他逻辑需要处理，可以在这里添加
   console.log('图片路径：', addItemImage.value);
