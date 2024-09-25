@@ -12,10 +12,14 @@ const setMessageRef = (ref: MessageRef | null) => {
     messageRef.value = ref;
 };
 
-const showGlobalMessage = (message: string, duration?: number) => {
+/** 展示消息
+ * @param {string} message - 消息内容
+ * @param {number} duration - 消息展示时间
+ */
+const showMessage = (message: string, duration?: number) => {
     if (messageRef.value) {
         messageRef.value.showMessage(message, duration);
     }
 };
 
-export { setMessageRef, showGlobalMessage };
+export { setMessageRef, showMessage };

@@ -15,7 +15,7 @@
           <OpenApp v-if="openControl.openApp" @click.stop />
         </Transition>
       </div>
-      <div class="menu-item" @click="showGlobalMessage('你好')">
+      <div class="menu-item" @click="showMessage('你好')">
         <div class="menu-text">桌面便签</div>
       </div>
       <div class="menu-item">
@@ -36,7 +36,7 @@ import Search from "@/pages/Search.vue";
 import OpenWeb from "./OpenWeb.vue";
 import OpenApp from "./OpenApp.vue";
 import { ref } from "vue";
-import { showGlobalMessage } from "@/utils/message";
+import { showMessage } from "@/utils/message";
 
 // 控制每个菜单项的展开与关闭状态
 const openControl = ref({

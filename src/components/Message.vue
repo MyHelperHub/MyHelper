@@ -14,7 +14,7 @@ import { ref } from 'vue';
 const message = ref<string>('');
 const duration = ref<number>(3000);
 const visible = ref(false);
-let timer: ReturnType<typeof setTimeout>; // 用于存储定时器 ID
+let timer: ReturnType<typeof setTimeout> | null = null;
 
 const hideMessage = () => {
     visible.value = false;
@@ -25,15 +25,20 @@ const showMessage = (msg: string, dur?: number) => {
     if (dur) {
         duration.value = dur;
     }
-    visible.value = true;
 
-    // 清除上一个定时器
+    // 如果上一个定时器存在并且还没有执行，则清除
     if (timer) {
         clearTimeout(timer);
     }
 
+    // 立即显示消息
+    visible.value = true;
+
     // 设置新的定时器
-    timer = setTimeout(hideMessage, duration.value);
+    timer = setTimeout(() => {
+        hideMessage();
+        timer = null; // 定时器执行完毕后，将其置空
+    }, duration.value);
 };
 
 defineExpose({ showMessage });
@@ -49,18 +54,20 @@ defineExpose({ showMessage });
         background-color: rgba(0, 0, 0, 0.7);
         color: white;
         padding: 10px 20px;
-        border-radius: 5px;
+        border-radius: 20px;
         z-index: 9999;
+        transition: opacity 0.3s ease-in-out;
+        text-align: center;
     }
-}
 
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.5s;
-}
+    .fade-enter-from,
+    .fade-leave-to {
+        opacity: 0;
+    }
 
-.fade-enter,
-.fade-leave-to {
-    opacity: 0;
+    .fade-enter-to,
+    .fade-leave-from {
+        opacity: 1;
+    }
 }
 </style>
