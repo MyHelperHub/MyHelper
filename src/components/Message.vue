@@ -47,6 +47,10 @@ defineExpose({ showMessage });
 <style lang="less" scoped>
 .message-container {
     .message {
+        width: max-content;
+        max-width: 80%;
+        max-height: 30vh;
+        overflow: auto;
         position: fixed;
         top: 20px;
         left: 50%;
@@ -57,6 +61,8 @@ defineExpose({ showMessage });
         border-radius: 20px;
         z-index: 9999;
         transition: opacity 0.3s ease-in-out;
+        font-size: 14px;
+        letter-spacing: 1px;
         text-align: center;
     }
 

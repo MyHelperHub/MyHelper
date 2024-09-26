@@ -16,7 +16,7 @@
               <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
               <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
               <transition name="icon">
-                <div v-if="formData.url" class="get-icon" @click="getIcon">获取图标</div>
+                <div v-if="urlRegex.test(formData.url)" class="get-icon" @click="getIcon">获取图标</div>
               </transition>
             </div>
           </div>
@@ -34,8 +34,10 @@ import { ref } from 'vue';
 import CustomInput from './CustomInput.vue';
 import CustomButton from './CustomButton.vue';
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { showMessage } from '@/utils/message';
 
-
+/** 网址正则表达式 */
+const urlRegex = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6})(\/[\w.-]*)*\/?$/i;
 const formData = ref({
   title: '',
   url: '',
@@ -44,7 +46,7 @@ const formData = ref({
 const showModal = ref(false);
 
 
-// 获取图标方法
+/** 获取图标方法 */
 const getIcon = () => {
   if (!formData.value.url) {
     console.log("请输入网站地址");
@@ -56,8 +58,18 @@ const getIcon = () => {
   });
 }
 
-// 确认按钮处理逻辑
+/** 确认按钮处理逻辑 */
 const handleConfirm = async () => {
+  if (!formData.value.title || !formData.value.url) {
+    showMessage('请完整填写内容!');
+    return;
+  }
+
+  // 校验网址格式
+  if (!urlRegex.test(formData.value.url)) {
+    showMessage('请输入正确的网址格式!');
+    return;
+  }
   formData.value = {
     title: '',
     url: '',
