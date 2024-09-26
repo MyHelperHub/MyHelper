@@ -16,6 +16,7 @@
     "@tauri-apps/plugin-dialog": "^2.0.0-rc.1",
     "@tauri-apps/plugin-notification": "^2.0.0-rc.1",
     "@tauri-apps/plugin-shell": "^2.0.0-rc.1",
+    "@vee-validate/rules": "^4.13.2",
     "less": "^4.2.0",
     "path": "^0.12.7",
     "vee-validate": "^4.13.2",
