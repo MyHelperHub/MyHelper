@@ -1,7 +1,7 @@
 <template>
   <div class="open-web">
     <div class="list">
-      <div class="item" v-for="(item, index) in listData" :key="index">
+      <div class="item" v-for="(item, index) in listData" :key="index" @click="navigateTo(item.url)">
         <img :src="item.logo" class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
@@ -18,6 +18,7 @@
 <script setup lang="ts">
 import AddItem from "@/components/AddItem.vue";
 import { deleteConfig, getConfig, setConfig } from "@/utils/config";
+import { open } from "@tauri-apps/plugin-shell";
 import { ref } from "vue";
 
 const listData = ref([
@@ -47,6 +48,10 @@ const init = async () => {
   }
 };
 init();
+/** 跳转到指定链接 */
+const navigateTo = (url:string)=>{
+  open(url);
+}
 </script>
 <style lang="less" scoped>
 .open-web {

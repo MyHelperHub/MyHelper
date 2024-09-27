@@ -1,6 +1,6 @@
 <template>
     <div class="input-container">
-        <input type="text" v-model="localInputValue" required />
+        <input type="text" v-model="localInputValue" :title="title" required />
         <span class="highlight"></span>
         <span class="bar"></span>
         <label>{{ label }}</label>
@@ -15,14 +15,21 @@ import { ref, watch } from 'vue';
 import { useDebounce } from '@/utils/debounce';
 
 const props = defineProps({
+    /** 输入框的标签 */
     label: {
         type: String,
         required: true,
     },
+    /** 绑定的值 */
     modelValue: {
         type: String,
         default: '',
     },
+    /** 鼠标悬浮上时显示的文字 */
+    title:{
+        type: String,
+        default: '',
+    }
 });
 
 const emit = defineEmits(['update:modelValue']);

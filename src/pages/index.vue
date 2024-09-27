@@ -10,12 +10,14 @@
   </div>
 </template>
 <script setup lang="ts">
+import { hideMessage } from "@/utils/message";
 import Menu from "./Menu.vue";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
 
 const isShowMenu = ref(false);
 const showMenu = () => {
+  hideMessage();
   const [width, height] = isShowMenu.value ? [65, 65] : [250, 420];
   invoke("set_window_size", { width, height });
   isShowMenu.value = !isShowMenu.value;

@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-container">
+  <div class="menu-container" @click.capture="handleClickOutside">
     <span class="parting-line"></span>
     <Search class="search" />
     <div class="menu-list">
@@ -19,7 +19,7 @@
         <div class="menu-text">桌面便签</div>
       </div>
       <div class="menu-item">
-        <div class="menu-text">定时计时器</div>
+        <div class="menu-text" @click="showLoading()">定时计时器</div>
       </div>
       <div class="menu-item">
         <div class="menu-text">CHATGPT</div>
@@ -37,6 +37,7 @@ import OpenWeb from "./OpenWeb.vue";
 import OpenApp from "./OpenApp.vue";
 import { ref } from "vue";
 import { showMessage } from "@/utils/message";
+import { showLoading } from "@/utils/loading";
 
 // 控制每个菜单项的展开与关闭状态
 const openControl = ref({
@@ -50,14 +51,24 @@ const handleOpen = (key) => {
   if (openControl.value[key]) {
     openControl.value[key] = false;
   } else {
-    Object.keys(openControl.value).forEach(k => {
+    Object.keys(openControl.value).forEach((k) => {
       openControl.value[k] = false;
     });
     openControl.value[key] = true;
   }
 };
-</script>
 
+/** 点击外侧时关闭菜单项 */
+const handleClickOutside = (event) => {
+  // 检查点击事件的目标元素是否是 .menu-container 元素本身
+  if (event.target === event.currentTarget) {
+    // 如果是，说明点击事件发生在 .menu-container 的空白区域，关闭所有打开的菜单项
+    Object.keys(openControl.value).forEach((k) => {
+      openControl.value[k] = false;
+    });
+  }
+};
+</script>
 <style lang="less" scoped>
 .menu-container {
   width: 100%;
@@ -191,6 +202,6 @@ const handleOpen = (key) => {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity .3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 </style>

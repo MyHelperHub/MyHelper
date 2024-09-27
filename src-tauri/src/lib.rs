@@ -5,6 +5,7 @@ use command::common::set_window_size;
 use command::config::*;
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
+use command::set_local_icon::set_local_icon;
 use command::settings::open_new_window;
 use serde_json::json;
 use std::{
@@ -160,6 +161,7 @@ pub fn run() {
             open_new_window,
             get_app_icon,
             get_web_icon,
+            set_local_icon,
             get_config,
             set_config,
             delete_config
