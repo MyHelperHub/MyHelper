@@ -8,28 +8,15 @@
         <div class="modal-container">
           <div class="modal-header">添加网站</div>
           <div class="modal-body">
-            <img
-              class="image"
-              :src="
-                formData.logo
-                  ? convertFileSrc(formData.logo)
-                  : 'src/assets/images/defaultImage.svg'
-              "
-              @click="selectLocalImage" />
+            <img class="image" :src="formData.logo
+              ? convertFileSrc(formData.logo)
+              : 'src/assets/images/defaultImage.svg'
+              " @click="selectLocalImage" />
             <div class="input-container">
-              <CustomInput
-                class="input"
-                :label="'网站名称'"
-                v-model="formData.title" />
-              <CustomInput
-                class="input"
-                :label="'网站地址'"
-                v-model="formData.url" />
+              <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
+              <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
               <transition name="icon">
-                <div
-                  v-if="urlRegex.test(formData.url)"
-                  class="get-icon"
-                  @click="getIcon">
+                <div v-if="urlRegex.test(formData.url)" class="get-icon" @click="getIcon">
                   获取图标
                 </div>
               </transition>
@@ -52,6 +39,8 @@ import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { showMessage } from "@/utils/message";
 import { hideLoading, showLoading } from "@/utils/loading";
 import { open } from "@tauri-apps/plugin-dialog";
+
+const emit = defineEmits(["addWebItem"]);
 
 /** 网址正则表达式 */
 const urlRegex =
@@ -122,12 +111,17 @@ const handleConfirm = async () => {
     showMessage("请选择图标!");
     return;
   }
+  // 检查 URL 是否以 http:// 或 https:// 开头
+  if (!/^https?:\/\//i.test(formData.value.url)) {
+    formData.value.url = `http://${formData.value.url}`; // 默认添加 http://
+  }
+  emit("addWebItem", formData.value);
+  showModal.value = false;
   formData.value = {
     title: "",
     url: "",
     logo: "",
   };
-  showModal.value = false;
 };
 </script>
 

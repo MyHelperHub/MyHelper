@@ -1,11 +1,12 @@
 <template>
   <div class="open-web">
     <div class="list">
-      <div class="item" v-for="(item, index) in listData" :key="index" @click="navigateTo(item.url)">
-        <img :src="item.logo" class="image" />
+      <div class="item" v-for="(item, index) in dataList" :key="index" @click="navigateTo(item.url)">
+        <img :src="convertFileSrc(item.logo) ? convertFileSrc(item.logo) : 'src/assets/images/defaultImage.svg'"
+          class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
-      <AddItem>
+      <AddItem @addWebItem="addWebItem">
         <div class="item">
           <img src="../assets/images/add.svg" class="image" />
           <div class="text">添加</div>
@@ -17,40 +18,37 @@
 
 <script setup lang="ts">
 import AddItem from "@/components/AddItem.vue";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { deleteConfig, getConfig, setConfig } from "@/utils/config";
 import { open } from "@tauri-apps/plugin-shell";
 import { ref } from "vue";
+import { WebItem } from "@/interface/web";
 
-const listData = ref([
-  {
-    title: "百度",
-    url: "http://baidu.com",
-    logo: "src/assets/images/engine/baidu.png",
-  },
-  {
-    title: "百度",
-    url: "http://baidu.com",
-    logo: "src/assets/images/engine/baidu.png",
-  },
-  {
-    title: "百度",
-    url: "http://baidu.com",
-    logo: "src/assets/images/engine/baidu.png",
-  },
-]);
+const dataList = ref<WebItem[]>([]);
 
 const init = async () => {
   try {
-    const res = await getConfig(["position", "x"]);
-    // console.log(res);
+    // const oo = await setConfig(["webConfig", "dataList"], dataList.value);
+
+    dataList.value = await getConfig(["webConfig", "dataList"]);
+
   } catch (error) {
     console.error("操作配置时出错:", error);
   }
 };
 init();
 /** 跳转到指定链接 */
-const navigateTo = (url:string)=>{
+const navigateTo = (url: string) => {
+  // 检查 URL 是否以 http:// 或 https:// 开头
+  if (!/^https?:\/\//i.test(url)) {
+    url = `http://${url}`; // 默认添加 http://
+  }
   open(url);
+}
+
+const addWebItem = (item: any) => {
+  dataList.value.push(item);
+  setConfig(["webConfig", "dataList"], dataList.value);
 }
 </script>
 <style lang="less" scoped>
@@ -102,7 +100,6 @@ const navigateTo = (url:string)=>{
       .text {
         display: flex;
         justify-content: center;
-        margin-top: 2px;
         max-width: 40px;
         font-size: 12px;
         overflow: hidden;

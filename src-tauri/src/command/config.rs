@@ -1,5 +1,5 @@
 use crate::utils::config::{utils_get_config, utils_set_config};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use std::collections::HashMap;
 
 /// 获取配置数据
@@ -16,11 +16,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> Result<(), String> {
         .unwrap_or_default();
 
     // 使用递归函数更新嵌套字段
-    fn update_nested_value(
-        data: &mut Value,
-        keys: &[String],
-        value: Value,
-    ) -> Result<(), String> {
+    fn update_nested_value(data: &mut Value, keys: &[String], value: Value) -> Result<(), String> {
         if keys.is_empty() {
             return Err("缺少要设置的键".to_string());
         }
@@ -38,14 +34,19 @@ pub fn set_config(keys: Vec<String>, value: Value) -> Result<(), String> {
                 }
             }
         } else {
-            // 递归更新嵌套字段
-            match data.get_mut(&key) {
-                Some(nested_data) => {
-                    update_nested_value(nested_data, &keys[1..], value)?;
-                }
-                None => {
-                    return Err(format!("配置中不存在键: {}", key));
-                }
+            // 确保父级键存在并是对象，如果不存在则创建一个新对象
+            let nested_data = {
+                let map = data
+                    .as_object_mut()
+                    .ok_or("配置数据不是对象类型".to_string())?;
+                map.entry(key.clone())
+                    .or_insert_with(|| Value::Object(Map::new()))
+            };
+
+            if let Value::Object(_) = nested_data {
+                update_nested_value(nested_data, &keys[1..], value)?;
+            } else {
+                return Err(format!("配置中键 {} 的类型不是对象", key));
             }
         }
 
@@ -62,7 +63,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> Result<(), String> {
         .into_iter()
         .collect();
 
-    utils_set_config(config_hashmap) 
+    utils_set_config(config_hashmap)
 }
 
 /// 删除配置数据
