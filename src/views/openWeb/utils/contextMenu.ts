@@ -1,7 +1,8 @@
+import { WebItem } from '@/interface/web';
 import { Menu, MenuItem, PredefinedMenuItem } from '@tauri-apps/api/menu';
 import { LogicalPosition } from '@tauri-apps/api/window';
 
-export async function showContextMenu(event: MouseEvent, item: any) {
+export async function showContextMenu(event: MouseEvent, item: WebItem) {
     const menuItems = await Promise.all([
         MenuItem.new({
             text: '编辑',

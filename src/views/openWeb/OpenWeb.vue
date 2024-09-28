@@ -35,7 +35,7 @@ const init = async () => {
       dataList.value = [];
     }
   } catch (error) {
-    showMessage("操作配置时出错!", 3000, 2);
+    showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
 };
 init();
@@ -48,7 +48,9 @@ const navigateTo = (url: string) => {
   open(url);
 }
 
+/** 添加网站时触发事件 */
 const addWebItem = async (item: WebItem) => {
+  //下一个可用ID
   const maxId = await getConfig(["webConfig", "maxDataId"]) + 1
   if (!maxId) {
     setConfig(["webConfig", "maxDataId"], 0)
