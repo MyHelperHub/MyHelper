@@ -19,6 +19,8 @@
     "core:image:default",
     "core:path:allow-resolve-directory",
     "core:path:default",
-    "core:path:allow-resolve"
+    "core:path:allow-resolve",
+    "core:menu:allow-new",
+    "core:menu:default"
   ]
 }

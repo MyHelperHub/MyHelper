@@ -32,9 +32,9 @@
 </template>
 
 <script setup>
-import Search from "@/pages/Search.vue";
-import OpenWeb from "./OpenWeb.vue";
-import OpenApp from "./OpenApp.vue";
+import Search from "@/views/Search.vue";
+import OpenWeb from "./openWeb/OpenWeb.vue";
+import OpenApp from "./openApp/OpenApp.vue";
 import { ref } from "vue";
 import { showMessage } from "@/utils/message";
 import { showLoading } from "@/utils/loading";

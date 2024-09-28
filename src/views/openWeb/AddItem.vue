@@ -33,11 +33,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import CustomInput from "./CustomInput.vue";
-import CustomButton from "./CustomButton.vue";
+import CustomInput from "../../components/CustomInput.vue";
+import CustomButton from "../../components/CustomButton.vue";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
-import { showMessage } from "@/utils/message";
-import { hideLoading, showLoading } from "@/utils/loading";
+import { showMessage } from "@/utils/message.ts";
+import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 
 const emit = defineEmits(["addWebItem"]);

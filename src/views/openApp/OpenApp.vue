@@ -6,7 +6,7 @@
         <div class="text">{{ item.title }}</div>
       </div>
       <div class="item">
-        <img src="../assets/images/add.svg" class="image" />
+        <img src="../../assets/images/add.svg" class="image" />
         <div class="text">添加</div>
       </div>
     </div>
@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { deleteConfig, getConfig, setConfig } from "@/utils/config";
+import { deleteConfig, getConfig, setConfig } from "@/utils/config.ts";
 import { ref } from "vue";
 
 const listData = ref([

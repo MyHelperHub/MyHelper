@@ -3,12 +3,12 @@ const routes = [
     {
         name: 'Index',
         path: '/',
-        component: () => import('@/pages/Index.vue'),
+        component: () => import('@/views/Index.vue'),
     },
     {
         name: 'Settings',
         path: '/settings',
-        component: () => import('@/pages/Settings.vue')
+        component: () => import('@/views/Settings.vue')
     }
 ];
 

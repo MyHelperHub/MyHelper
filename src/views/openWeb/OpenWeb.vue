@@ -1,7 +1,7 @@
 <template>
   <div class="open-web">
     <div class="list">
-      <div class="item" v-for="(item, index) in dataList" :key="index" @click="navigateTo(item.url)" :title="item.title"
+      <div class="item" v-for="item in dataList" :key="item.id" @click="navigateTo(item.url)" :title="item.title"
         @contextmenu.prevent="(e) => showContextMenu(e, item)">
         <img :src="convertFileSrc(item.logo) ? convertFileSrc(item.logo) : 'src/assets/images/defaultImage.svg'"
           class="image" />
@@ -9,7 +9,7 @@
       </div>
       <AddItem @addWebItem="addWebItem">
         <div class="item">
-          <img src="../assets/images/add.svg" class="image" />
+          <img src="../../assets/images/add.svg" class="image" />
           <div class="text">添加</div>
         </div>
       </AddItem>
@@ -18,19 +18,22 @@
 </template>
 
 <script setup lang="ts">
-import AddItem from "@/components/AddItem.vue";
+import AddItem from "@/views/openWeb/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { deleteConfig, getConfig, setConfig } from "@/utils/config";
+import { deleteConfig, getConfig, setConfig } from "@/utils/config.ts";
 import { open } from "@tauri-apps/plugin-shell";
 import { ref } from "vue";
 import { WebItem } from "@/interface/web";
-import { showMessage } from "@/utils/message";
-import { showContextMenu } from "@/utils/contextMenu"
+import { showMessage } from "@/utils/message.ts";
+import { showContextMenu } from "@/views/openWeb/utils/contextMenu.ts"
 const dataList = ref<WebItem[]>([]);
 
 const init = async () => {
   try {
     dataList.value = await getConfig(["webConfig", "dataList"]);
+    if (!dataList.value) {
+      dataList.value = [];
+    }
   } catch (error) {
     showMessage("操作配置时出错!", 3000, 2);
   }
@@ -45,11 +48,20 @@ const navigateTo = (url: string) => {
   open(url);
 }
 
-const addWebItem = (item: any) => {
+const addWebItem = async (item: WebItem) => {
+  const maxId = await getConfig(["webConfig", "maxDataId"]) + 1
+  if (!maxId) {
+    setConfig(["webConfig", "maxDataId"], 0)
+  }
+  item.id = maxId
   dataList.value.push(item);
-  setConfig(["webConfig", "dataList"], dataList.value).catch(() => {
+  // 将数据存储到本地配置中
+  try {
+    await setConfig(["webConfig", "dataList"], dataList.value)
+    await setConfig(["webConfig", "maxDataId"], maxId)
+  } catch (error) {
     showMessage("保存失败!", 3000, 2);
-  });
+  }
 }
 </script>
 <style lang="less" scoped>
