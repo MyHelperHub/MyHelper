@@ -1,7 +1,8 @@
 <template>
   <div class="open-web">
     <div class="list">
-      <div class="item" v-for="(item, index) in dataList" :key="index" @click="navigateTo(item.url)">
+      <div class="item" v-for="(item, index) in dataList" :key="index" @click="navigateTo(item.url)" :title="item.title"
+        @contextmenu.prevent="(e) => showContextMenu(e, item)">
         <img :src="convertFileSrc(item.logo) ? convertFileSrc(item.logo) : 'src/assets/images/defaultImage.svg'"
           class="image" />
         <div class="text">{{ item.title }}</div>
@@ -23,17 +24,15 @@ import { deleteConfig, getConfig, setConfig } from "@/utils/config";
 import { open } from "@tauri-apps/plugin-shell";
 import { ref } from "vue";
 import { WebItem } from "@/interface/web";
-
+import { showMessage } from "@/utils/message";
+import { showContextMenu } from "@/utils/contextMenu"
 const dataList = ref<WebItem[]>([]);
 
 const init = async () => {
   try {
-    // const oo = await setConfig(["webConfig", "dataList"], dataList.value);
-
     dataList.value = await getConfig(["webConfig", "dataList"]);
-
   } catch (error) {
-    console.error("操作配置时出错:", error);
+    showMessage("操作配置时出错!", 3000, 2);
   }
 };
 init();
@@ -48,7 +47,9 @@ const navigateTo = (url: string) => {
 
 const addWebItem = (item: any) => {
   dataList.value.push(item);
-  setConfig(["webConfig", "dataList"], dataList.value);
+  setConfig(["webConfig", "dataList"], dataList.value).catch(() => {
+    showMessage("保存失败!", 3000, 2);
+  });
 }
 </script>
 <style lang="less" scoped>
@@ -98,8 +99,6 @@ const addWebItem = (item: any) => {
       }
 
       .text {
-        display: flex;
-        justify-content: center;
         max-width: 40px;
         font-size: 12px;
         overflow: hidden;
