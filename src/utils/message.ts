@@ -1,4 +1,3 @@
-// src/utils/message.ts
 import { ref } from 'vue';
 
 // 定义消息引用的类型

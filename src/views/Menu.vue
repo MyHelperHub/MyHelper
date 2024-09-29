@@ -18,8 +18,8 @@
       <div class="menu-item" @click="showMessage('你好')">
         <div class="menu-text">桌面便签</div>
       </div>
-      <div class="menu-item">
-        <div class="menu-text" @click="showLoading()">定时计时器</div>
+      <div class="menu-item" @click="showLoading()">
+        <div class="menu-text">定时计时器</div>
       </div>
       <div class="menu-item">
         <div class="menu-text">CHATGPT</div>
@@ -31,44 +31,53 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Search from "@/views/Search.vue";
 import OpenWeb from "./openWeb/OpenWeb.vue";
 import OpenApp from "./openApp/OpenApp.vue";
-import { ref } from "vue";
+import { provide, ref } from "vue";
 import { showMessage } from "@/utils/message";
 import { showLoading } from "@/utils/loading";
+import { OpenControl } from "@/interface/menu";
 
 // 控制每个菜单项的展开与关闭状态
-const openControl = ref({
+const openControl = ref<OpenControl>({
   openWeb: false,
   openApp: false,
 });
 
+/** 关闭所有菜单 */
+const closeAllMenu = () => {
+  Object.keys(openControl.value).forEach((k) => {
+    // 使用类型断言将 k 转换为 keyof OpenControl 类型
+    (openControl.value as OpenControl)[k] = false;
+  });
+};
+
 /** 打开菜单项 */
-const handleOpen = (key) => {
+const handleOpen = (key: keyof OpenControl) => {
   // 如果当前点击的项已经是打开的，则关闭它
   if (openControl.value[key]) {
     openControl.value[key] = false;
   } else {
-    Object.keys(openControl.value).forEach((k) => {
-      openControl.value[k] = false;
-    });
+    closeAllMenu();
     openControl.value[key] = true;
   }
 };
 
+
 /** 点击外侧时关闭菜单项 */
-const handleClickOutside = (event) => {
+const handleClickOutside = (event: MouseEvent) => {
   // 检查点击事件的目标元素是否是 .menu-container 元素本身
   if (event.target === event.currentTarget) {
     // 如果是，说明点击事件发生在 .menu-container 的空白区域，关闭所有打开的菜单项
-    Object.keys(openControl.value).forEach((k) => {
-      openControl.value[k] = false;
-    });
+    closeAllMenu();
   }
 };
+
+provide("closeAllMenu", closeAllMenu);
 </script>
+
 <style lang="less" scoped>
 .menu-container {
   width: 100%;

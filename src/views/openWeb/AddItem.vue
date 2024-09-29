@@ -4,19 +4,34 @@
       <slot></slot>
     </div>
     <transition name="fade">
-      <div class="modal" v-if="showModal" @click.self="showModal = false">
+      <div class="modal" v-if="showModal" @click.self="closeModal">
         <div class="modal-container">
-          <div class="modal-header">添加网站</div>
+          <div class="modal-header">
+            {{ formData.id === -1 ? "添加网站" : "编辑网站" }}
+          </div>
           <div class="modal-body">
-            <img class="image" :src="formData.logo
-              ? convertFileSrc(formData.logo)
-              : 'src/assets/images/defaultImage.svg'
-              " @click="selectLocalImage" />
+            <img
+              class="image"
+              :src="
+                formData.logo
+                  ? convertFileSrc(formData.logo)
+                  : 'src/assets/images/defaultImage.svg'
+              "
+              @click="selectLocalImage" />
             <div class="input-container">
-              <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
-              <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
+              <CustomInput
+                class="input"
+                :label="'网站名称'"
+                v-model="formData.title" />
+              <CustomInput
+                class="input"
+                :label="'网站地址'"
+                v-model="formData.url" />
               <transition name="icon">
-                <div v-if="urlRegex.test(formData.url)" class="get-icon" @click="getIcon">
+                <div
+                  v-if="urlRegex.test(formData.url)"
+                  class="get-icon"
+                  @click="getIcon">
                   获取图标
                 </div>
               </transition>
@@ -39,20 +54,40 @@ import { invoke, convertFileSrc } from "@tauri-apps/api/core";
 import { showMessage } from "@/utils/message.ts";
 import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
+import { WebItem } from "@/interface/web";
 
-const emit = defineEmits(["addWebItem"]);
+const emit = defineEmits(["addWebItem", "editWebItem"]);
 
 /** 网址正则表达式 */
 const urlRegex =
   /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6})(?:\/[\w\.\-%]+)*\/?(\?[\w\.\-%]+(?:=[\w\.\-%]+)*)?(?:\&[\w\.\-%]+(?:=[\w\.\-%]+)*)*$/i;
 
-const formData = ref({
+const formData = ref<WebItem>({
+  /** -1时为编辑 */
+  id: -1,
   title: "",
   url: "",
   logo: "",
 });
 const showModal = ref(false);
 
+/** 打开AddItem弹窗 */
+const openModal = (item: WebItem) => {
+  formData.value = item;
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  if (formData.value.id !== -1) {
+    formData.value = {
+      id: -1,
+      title: "",
+      url: "",
+      logo: "",
+    };
+  }
+  showModal.value = false;
+};
 /** 获取图标方法 */
 const getIcon = () => {
   if (!formData.value.url) {
@@ -115,14 +150,24 @@ const handleConfirm = async () => {
   if (!/^https?:\/\//i.test(formData.value.url)) {
     formData.value.url = `http://${formData.value.url}`; // 默认添加 http://
   }
-  emit("addWebItem", formData.value);
+  // formData.value.id为-1时为新增
+  if (formData.value.id === -1) {
+    emit("addWebItem", formData.value);
+  } else {
+    emit("editWebItem", formData.value);
+  }
   showModal.value = false;
   formData.value = {
+    id: -1,
     title: "",
     url: "",
     logo: "",
   };
 };
+
+defineExpose({
+  openModal,
+});
 </script>
 
 <style lang="less" scoped>
