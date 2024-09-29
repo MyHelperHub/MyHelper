@@ -7,7 +7,6 @@
   ],
   "permissions": [
     "core:app:default",
-    "shell:allow-open",
     "dialog:allow-open",
     "dialog:default",
     "dialog:allow-save",

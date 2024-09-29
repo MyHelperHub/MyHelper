@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { open } from "@tauri-apps/plugin-shell";
+import { open } from "@/utils/openWebOrApp";
 
 const searchData = ref("");
 const showDropdown = ref(false);

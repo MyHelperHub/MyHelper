@@ -34,8 +34,8 @@
 import AddItem from "@/views/openWeb/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { open } from "@tauri-apps/plugin-shell";
 import { inject, ref } from "vue";
+import { open } from "@/utils/openWebOrApp";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/openWeb/utils/contextMenu.ts";
@@ -55,8 +55,8 @@ const init = async () => {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
   // 通过事件总线传递方法
-  on("deleteWebItem", deleteWebItem);
   on("editWebItem", openEditWebItem);
+  on("deleteWebItem", deleteWebItem);
 };
 init();
 
@@ -81,17 +81,12 @@ const navigateTo = (url: string) => {
 
 /** 添加网站时触发事件 */
 const addWebItem = async (item: WebItem) => {
-  //下一个可用ID
-  const maxId = (await getConfig(["webConfig", "maxDataId"])) + 1;
-  if (!maxId) {
-    setConfig(["webConfig", "maxDataId"], 0);
-  }
-  item.id = maxId;
+  // 使用 Date.now() 生成唯一 ID
+  item.id = Date.now();
   dataList.value.push(item);
   // 将数据存储到本地配置中
   try {
     await setConfig(["webConfig", "dataList"], dataList.value);
-    await setConfig(["webConfig", "maxDataId"], maxId);
   } catch (error) {
     dataList.value.pop();
     showMessage("保存失败!", 3000, 2);

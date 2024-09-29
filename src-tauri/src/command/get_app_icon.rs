@@ -1,7 +1,10 @@
+use image::{DynamicImage, ImageBuffer, ImageOutputFormat, Rgba};
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
+use std::env;
 use std::fs::{self, File};
 use std::io::BufWriter;
 use std::path::Path;
-use std::env;
 use std::ptr::null_mut;
 use winapi::ctypes::c_void;
 use winapi::shared::windef::{HBITMAP, HICON};
@@ -11,22 +14,31 @@ use winapi::um::wingdi::{
     BITMAPINFOHEADER, RGBQUAD,
 };
 use winapi::um::winuser::{DestroyIcon, GetIconInfo, ICONINFO};
-use image::{DynamicImage, ImageBuffer, ImageOutputFormat, Rgba};
 
 #[tauri::command]
 pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
-
     // 获取用户目录
     let home_dir = env::var("APPDATA").map_err(|e| e.to_string())?;
-    let myhelper_path = Path::new(&home_dir).join("MyHelper").join("Image").join("AppIcon");
+    let myhelper_path = Path::new(&home_dir)
+        .join("MyHelper")
+        .join("Image")
+        .join("AppIcon");
 
     // 创建目录（如果不存在）
     if !myhelper_path.exists() {
         fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
     }
 
-    // 使用软件名作为文件名
-    let output_path = myhelper_path.join("your_software_name.png");
+    // 生成随机六位字符
+    let random_chars: String = thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(6)
+        .map(char::from)
+        .collect();
+
+    // 使用"app_image_" + 随机字符作为文件名
+    let file_name = format!("app_image_{}.png", random_chars);
+    let output_path = myhelper_path.join(file_name);
 
     let exe_path_w: Vec<u16> = exe_path.encode_utf16().chain(Some(0)).collect();
     let mut shinfo: SHFILEINFOW = unsafe { std::mem::zeroed() };
@@ -141,9 +153,8 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
         }
     }
 
-    let img_buffer =
-        ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels_rgba)
-            .ok_or("Failed to create image buffer")?;
+    let img_buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels_rgba)
+        .ok_or("Failed to create image buffer")?;
 
     let img = DynamicImage::ImageRgba8(img_buffer);
     let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
