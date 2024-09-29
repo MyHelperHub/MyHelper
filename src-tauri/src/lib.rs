@@ -6,6 +6,7 @@ use command::config::*;
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
 use command::set_local_icon::set_local_icon;
+use command::open_web_or_app::open_web_or_app;
 use command::settings::open_new_window;
 use serde_json::json;
 use std::{
@@ -163,7 +164,8 @@ pub fn run() {
             set_local_icon,
             get_config,
             set_config,
-            delete_config
+            delete_config,
+            open_web_or_app
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())

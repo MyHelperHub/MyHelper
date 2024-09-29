@@ -15,7 +15,6 @@
     "@tauri-apps/api": "^2.0.0-rc.6",
     "@tauri-apps/plugin-dialog": "^2.0.0-rc.1",
     "@tauri-apps/plugin-notification": "^2.0.0-rc.1",
-    "@tauri-apps/plugin-shell": "^2.0.0-rc.1",
     "less": "^4.2.0",
     "vue": "^3.5.10",
     "vue-router": "^4.4.5"

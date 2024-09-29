@@ -1,11 +1,23 @@
 <template>
   <div class="open-app">
     <div class="list">
-      <div class="item" v-for="(item, index) in listData" :key="index">
-        <img :src="item.logo" class="image" />
+      <div
+        class="item"
+        v-for="item in dataList"
+        :key="item.id"
+        :title="item.title"
+        @contextmenu.prevent="(e) => showContextMenu(e, item)"
+        @click="openApp(item.src)">
+        <img
+          :src="
+            convertFileSrc(item.logo)
+              ? convertFileSrc(item.logo)
+              : 'src/assets/images/defaultImage.svg'
+          "
+          class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
-      <div class="item">
+      <div class="item" @click="addAppItem">
         <img src="../../assets/images/add.svg" class="image" />
         <div class="text">添加</div>
       </div>
@@ -14,37 +26,101 @@
 </template>
 
 <script setup lang="ts">
-import { deleteConfig, getConfig, setConfig } from "@/utils/config.ts";
+import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { getConfig, setConfig } from "@/utils/config.ts";
+import { showContextMenu } from "@/views/openApp/utils/contextMenu.ts";
 import { ref } from "vue";
+import { AppItem } from "@/interface/app";
+import { showMessage } from "@/utils/message";
+import { on } from "@/utils/eventBus";
 
-const listData = ref([
-  {
-    title: "百度",
-    url: "http://baidu.com",
-    logo: "src/assets/images/engine/baidu.png",
-  },
-  {
-    title: "百度",
-    url: "http://baidu.com",
-    logo: "src/assets/images/engine/baidu.png",
-  },
-  {
-    title: "百度",
-    url: "http://baidu.com",
-    logo: "src/assets/images/engine/baidu.png",
-  },
-]);
+const dataList = ref<AppItem[]>([]);
 
 const init = async () => {
   try {
-    const res = await getConfig(["position", "x"]);
-    console.log(res);
+    dataList.value = await getConfig(["appConfig", "dataList"]);
+    if (!dataList.value) {
+      dataList.value = [];
+    }
   } catch (error) {
-    console.error("操作配置时出错:", error);
+    showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
+  // 通过事件总线传递方法
+  on("deleteAppItem", deleteAppItem);
 };
 init();
+
+/** 打开应用 */
+const openApp = async (path: string) => {
+  invoke("open_web_or_app", { path }).catch(() => {
+    showMessage("打开失败!", 3000, 2);
+  });
+};
+
+/** 添加应用 */
+const addAppItem = async () => {
+  const newItem: AppItem = {
+    id: Date.now(),
+    src: "",
+    title: "",
+    logo: "",
+  };
+
+  const filePath = (await open({
+    multiple: false,
+    directory: false,
+  })) as string;
+
+  const formattedFilePath = filePath.replace(/\\/g, "/");
+  // 设置应用路径
+  newItem.src = formattedFilePath;
+
+  // 获取文件名
+  let fileName = formattedFilePath.substring(
+    formattedFilePath.lastIndexOf("/") + 1
+  );
+
+  // 去除 .exe 后缀 (如果存在)
+  if (fileName.toLowerCase().endsWith(".exe")) {
+    fileName = fileName.slice(0, -4);
+  }
+
+  // 设置应用标题
+  newItem.title = fileName;
+
+  try {
+    // 获取应用图标
+    newItem.logo = (await invoke("get_app_icon", {
+      exePath: filePath,
+    })) as string;
+
+    // 更新 dataList 并保存
+    dataList.value.push(newItem);
+    await setConfig(["appConfig", "dataList"], dataList.value);
+  } catch (error) {
+    showMessage("添加应用失败!", 3000, 2);
+  }
+};
+
+const deleteAppItem = async (id: number) => {
+  // 找到要删除的元素索引
+  const index = dataList.value.findIndex((item) => item.id === id);
+  // 如果找到了，则删除该元素
+  if (index !== -1) {
+    dataList.value.splice(index, 1);
+    // 将数据存储到本地配置中
+    try {
+      await setConfig(["appConfig", "dataList"], dataList.value);
+      showMessage("删除成功!", 3000, 1);
+    } catch (error) {
+      showMessage("删除失败!", 3000, 2);
+    }
+  }
+};
 </script>
+
 <style lang="less" scoped>
 .open-app {
   position: absolute;
