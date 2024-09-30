@@ -20,7 +20,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import MochiBox from './Mochi/MochiBox.vue';
+import MochiBox from './Mochi/one.vue';
 // let label_list = [{ "shiba": "okaka", "mood": "happy" }, { "shiba": "sesame", "mood": "cheeky" }];
 const menu_show = ref(false)
 const position = ref({
@@ -41,7 +41,7 @@ watch(menu_show, () => {
         document.body.removeEventListener('click', () => { menu_show.value = false })
     }
 })
-function Ontop(){
+function Ontop() {
     $window.label_ontop()
 }
 </script>
