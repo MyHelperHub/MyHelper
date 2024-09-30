@@ -3,7 +3,8 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "main"
+    "main",
+    "label"
   ],
   "permissions": [
     "core:app:default",
@@ -20,6 +21,8 @@
     "core:path:default",
     "core:path:allow-resolve",
     "core:menu:allow-new",
-    "core:menu:default"
+    "core:menu:default",
+    "core:webview:allow-internal-toggle-devtools",
+    "core:webview:default"
   ]
 }

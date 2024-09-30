@@ -3,19 +3,19 @@
     <span class="parting-line"></span>
     <Search class="search" />
     <div class="menu-list">
-      <div class="menu-item" @click="handleOpen('openWeb')">
+      <div class="menu-item" @click="handleOpen('commonWeb')">
         <div class="menu-text">常用网站</div>
         <Transition name="fade">
-          <OpenWeb v-if="openControl.openWeb" @click.stop />
+          <commonWeb v-if="openControl.commonWeb" @click.stop />
         </Transition>
       </div>
-      <div class="menu-item" @click="handleOpen('openApp')">
+      <div class="menu-item" @click="handleOpen('commonApp')">
         <div class="menu-text">常用软件</div>
         <Transition name="fade">
-          <OpenApp v-if="openControl.openApp" @click.stop />
+          <commonApp v-if="openControl.commonApp" @click.stop />
         </Transition>
       </div>
-      <div class="menu-item" @click="showMessage('你好')">
+      <div class="menu-item" @click="openLabel">
         <div class="menu-text">桌面便签</div>
       </div>
       <div class="menu-item" @click="showLoading()">
@@ -32,18 +32,27 @@
 </template>
 
 <script setup lang="ts">
+import { invoke } from "@tauri-apps/api/core";
 import Search from "@/views/Search.vue";
-import OpenWeb from "./openWeb/OpenWeb.vue";
-import OpenApp from "./openApp/OpenApp.vue";
+import commonWeb from "@/views/web/CommonWeb.vue";
+import commonApp from "@/views/app/CommonApp.vue";
 import { provide, ref } from "vue";
-import { showMessage } from "@/utils/message";
 import { showLoading } from "@/utils/loading";
 import { OpenControl } from "@/interface/menu";
 
+const openLabel = () => {
+  invoke("create_new_window", {
+    windowId: "label",
+    title: "桌面便签",
+    url: "#/label",
+    size: [210, 310]
+  });
+};
+
 // 控制每个菜单项的展开与关闭状态
 const openControl = ref<OpenControl>({
-  openWeb: false,
-  openApp: false,
+  commonWeb: false,
+  commonApp: false,
 });
 
 /** 关闭所有菜单 */
@@ -64,7 +73,6 @@ const handleOpen = (key: keyof OpenControl) => {
     openControl.value[key] = true;
   }
 };
-
 
 /** 点击外侧时关闭菜单项 */
 const handleClickOutside = (event: MouseEvent) => {

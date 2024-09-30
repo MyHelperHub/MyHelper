@@ -71,4 +71,13 @@ const getWebIcon = () => {
     console.log(res);
   });
 };
+
+const test = ()=>{
+  invoke('create_new_window', { 
+    windowId: 'my-new-window', 
+    url: '#/settings', 
+    size: [800, 600], 
+    position: [100, 100] 
+})
+}
 </script>

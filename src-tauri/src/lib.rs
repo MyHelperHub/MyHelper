@@ -1,13 +1,12 @@
 mod command;
 mod utils;
 
-use command::common::set_window_size;
+use command::common::{set_window_size,create_new_window,close_new_window};
 use command::config::*;
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
 use command::set_local_icon::set_local_icon;
 use command::open_web_or_app::open_web_or_app;
-use command::settings::open_new_window;
 use serde_json::json;
 use std::{
     collections::HashMap,
@@ -158,14 +157,15 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             set_window_size,
-            open_new_window,
             get_app_icon,
             get_web_icon,
             set_local_icon,
             get_config,
             set_config,
             delete_config,
-            open_web_or_app
+            open_web_or_app,
+            create_new_window,
+            close_new_window
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())

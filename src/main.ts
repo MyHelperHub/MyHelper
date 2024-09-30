@@ -1,10 +1,14 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import './assets/main.css'
+import "./assets/main.css";
 import { invoke } from "@tauri-apps/api/core";
-invoke("set_window_size", { width: 65, height: 65 });
+import { Window } from "@tauri-apps/api/window";
+if (Window.getCurrent().label === "main") {
+  invoke("set_window_size", { width: 65, height: 65 });
+}
+console.log(Window.getCurrent().label);
 
 const app = createApp(App);
-app.use(router)
+app.use(router);
 app.mount("#app");

@@ -30,13 +30,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { showContextMenu } from "@/views/openApp/utils/contextMenu.ts";
-import { ref } from "vue";
+import { showContextMenu } from "@/views/app/utils/contextMenu.ts";
+import { inject, ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { on } from "@/utils/eventBus";
 
 const dataList = ref<AppItem[]>([]);
+const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
 
 const init = async () => {
   try {
@@ -54,7 +55,9 @@ init();
 
 /** 打开应用 */
 const openApp = async (path: string) => {
-  invoke("open_web_or_app", { path }).catch(() => {
+  invoke("open_web_or_app", { path }).then(()=>{
+    closeAllMenu()
+  }).catch(() => {
     showMessage("打开失败!", 3000, 2);
   });
 };

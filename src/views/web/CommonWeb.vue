@@ -31,14 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import AddItem from "@/views/openWeb/AddItem.vue";
+import AddItem from "@/views/web/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { inject, ref } from "vue";
 import { open } from "@/utils/openWebOrApp";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
-import { showContextMenu } from "@/views/openWeb/utils/contextMenu.ts";
+import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { on } from "@/utils/eventBus";
 
 const dataList = ref<WebItem[]>([]);
