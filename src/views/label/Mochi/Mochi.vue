@@ -1,5 +1,5 @@
 <template>
-    <div class="MochiBox" :class="[shibaAttribute, { pop: popRef }]" tabindex="0">
+    <div class="MochiBox" :class="[shiba, { pop: popRef }]" tabindex="0">
         <div class="MochiShiba" :class="shibaStyleClass">
             <svg class="shiba" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="152"
                 height="174" viewBox="0 0 152 174">
@@ -239,85 +239,72 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive, toRefs } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 
 const props = defineProps({
-    shiba: { type: String, default: "okaka" },
-    size: { type: String, default: "medium" },
-    mood: { type: String, default: "" },
-    leftEye: { type: String, default: "open" },
-    rightEye: { type: String, default: "open" },
-    leftEar: { type: String, default: "up" },
-    rightEar: { type: String, default: "flat" },
+    size: { type: String, default: 'medium' },
+    shiba: { type: String, default: 'okaka' },
+    mood: { type: String, default: '' },
+    leftEye: { type: String, default: 'open' },
+    rightEye: { type: String, default: 'open' },
+    leftEar: { type: String, default: 'up' },
+    rightEar: { type: String, default: 'flat' },
     blush: { type: Boolean, default: false },
-    pop: { type: Boolean, default: true }
+    pop: { type: Boolean, default: true },
 });
 
-const canRandom = ref(false);
+const shibaOptions = ['ume', 'sesame', 'tuna', 'okaka', 'anko', 'kinako', 'sakura', 'monaka'];
+const moodOptions = ['', 'happy', 'content', 'excited', 'cheeky', 'drool', 'cute', 'gleam'];
+const eyeOptions = ['open', 'wink', 'shy', 'laugh'];
+const earOptions = ['up', 'down', 'flat', 'middle'];
+
 const popRef = ref(props.pop);
-
-// Use toRefs for reactive props
-const shibaProps = reactive({
-    ...toRefs(props, ['shiba', 'mood', 'leftEye', 'rightEye', 'leftEar', 'rightEar', 'blush']),
-    size: props.size  // Directly access size prop
-});
-
-const shibaOptions = ["ume", "sesame", "tuna", "okaka", "anko", "kinako", "sakura", "monaka"];
-const moodOptions = ["", "happy", "content", "excited", "cheeky", "drool", "cute", "gleam"];
-const eyeOptions = ["open", "wink", "shy", "laugh"];
-const earOptions = ["up", "down", "flat", "middle"];
-
+const shiba = ref(props.shiba); // 使用 ref 来存储 shiba 的值
+const mood = ref(props.mood);
+const leftEye = ref(props.leftEye);
+const rightEye = ref(props.rightEye);
+const leftEar = ref(props.leftEar);
+const rightEar = ref(props.rightEar);
+const blush = ref(props.blush);
 
 const randomize = () => {
-    if (canRandom.value) {
-        shibaProps.shiba = shibaOptions[Math.floor(Math.random() * shibaOptions.length)];
-        shibaProps.mood = moodOptions[Math.floor(Math.random() * moodOptions.length)];
-        shibaProps.leftEye = eyeOptions[Math.floor(Math.random() * eyeOptions.length)];
-        shibaProps.rightEye = eyeOptions[Math.floor(Math.random() * eyeOptions.length)];
-        shibaProps.leftEar = earOptions[Math.floor(Math.random() * earOptions.length)];
-        shibaProps.rightEar = earOptions[Math.floor(Math.random() * earOptions.length)];
-        shibaProps.blush = Math.random() < 0.5;
-    }
+    shiba.value = shibaOptions[Math.floor(Math.random() * shibaOptions.length)];
+    mood.value = moodOptions[Math.floor(Math.random() * moodOptions.length)];
+    leftEye.value = eyeOptions[Math.floor(Math.random() * eyeOptions.length)];
+    rightEye.value = eyeOptions[Math.floor(Math.random() * eyeOptions.length)];
+    leftEar.value = earOptions[Math.floor(Math.random() * earOptions.length)];
+    rightEar.value = earOptions[Math.floor(Math.random() * earOptions.length)];
+    blush.value = Math.random() < 0.5;
 };
 
-const ears = computed(() => {
-    let l = "l4";
-    let r = "r4";
-    if (shibaProps.leftEar === "up") { l = "l1"; }
-    else if (shibaProps.leftEar === "down") { l = "l3"; }
-    else if (shibaProps.leftEar === "flat") { l = "l2"; }
-    if (shibaProps.rightEar === "up") { r = "r1"; }
-    else if (shibaProps.rightEar === "down") { r = "r3"; }
-    else if (shibaProps.rightEar === "flat") { r = "r2"; }
-    return `ears ${l} ${r}`; // Removed the leading '/' as it caused issues
+const earsClass = computed(() => {
+    const leftEarClass = leftEar.value === 'up' ? 'l1' : (leftEar.value === 'down' ? 'l3' : (leftEar.value === 'flat' ? 'l2' : 'l4'));
+    const rightEarClass = rightEar.value === 'up' ? 'r1' : (rightEar.value === 'down' ? 'r3' : (rightEar.value === 'flat' ? 'r2' : 'r4'));
+    return `ears ${leftEarClass} ${rightEarClass}`;
 });
 
-const eyes = computed(() => {
-    if (shibaProps.leftEye === shibaProps.rightEye) {
-        return `eyes ${shibaProps.leftEye}`;
-    } else {
-        return `eyes l${shibaProps.leftEye} r${shibaProps.rightEye}`;
-    }
-});
-
-const cheeks = computed(() => {
-    return shibaProps.blush ? "blush" : "";  // Removed the leading '/'
+const eyesClass = computed(() => {
+    return leftEye.value === rightEye.value ? `eyes ${leftEye.value}` : `eyes l${leftEye.value} r${rightEye.value}`;
 });
 
 const shibaStyleClass = computed(() => {
-    return `${props.size} / ${shibaProps.mood} ${ears.value} ${eyes.value} ${cheeks.value}`;
+    return [props.size, shiba.value, mood.value, earsClass.value, eyesClass.value, blush.value ? 'blush' : ''].join(' ');
 });
+
+watch(
+    () => props.shiba,
+    (newVal) => {
+        if (newVal === 'random') {
+            randomize();
+        }
+    }, { immediate: true }
+);
 
 onMounted(() => {
     setTimeout(() => {
         popRef.value = false;
     }, 2000);
 });
-
-if (shibaProps.shiba === "random") {
-    canRandom.value = true;
-    randomize();
-}
 </script>
 
 <style>

@@ -8,7 +8,7 @@
         <MochiPaws :size="size" />
     </div>
 </template>
-  
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import MochiPaws from './MochiPaws.vue';
@@ -1006,4 +1006,3 @@ button:hover {
     box-sizing: border-box;
 }
 </style>
-  
