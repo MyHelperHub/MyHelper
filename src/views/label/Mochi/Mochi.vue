@@ -838,9 +838,11 @@ onMounted(() => {
 .MochiBox {
     display: inline-block;
     vertical-align: top;
-    position: relative;
-    top: 80px;
-    margin: 23px 20px 10px 2px;
+    position: absolute;
+    /* top: 105px; */
+    height: 50%;
+    bottom: 0;
+    /* margin: 23px 20px 10px 2px; */
     border-radius: 20px;
     /* box-shadow: 0 5px 20px 4px #f8f0e8; */
     -webkit-user-select: none;
@@ -873,8 +875,8 @@ onMounted(() => {
 .MochiBox .MochiContent {
     z-index: 1;
     position: relative;
-    min-width: 200px;
-    min-height: 200px;
+    width: 100vw;
+    height: 100%;
     padding: 15px;
     background: white;
     border: 1px solid #f0e0d1;

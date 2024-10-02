@@ -31,6 +31,9 @@ pub async fn create_new_window(
     let mut builder =
         WebviewWindowBuilder::new(&app_handle_clone, &window_id, WebviewUrl::App(url.into()))
             .title(title)
+            .shadow(false)
+            .transparent(true)
+            .visible(false)
             .decorations(false);
 
     // 设置窗口大小
@@ -40,25 +43,24 @@ pub async fn create_new_window(
     };
     builder = builder.inner_size(width, height);
 
-    // 如果未指定位置，则计算窗口中心位置
-    let (x, y) = if position.is_some() {
-        position.unwrap()
-    } else {
-        // 获取主屏幕的大小
-        let primary_monitor = app_handle.primary_monitor().map_err(|e| e.to_string())?;
-        
-        let monitor = primary_monitor.expect("未找到主监视器");
-        let monitor_size = monitor.size(); 
+    // 获取主屏幕的大小和缩放比例
+    let primary_monitor = app_handle.primary_monitor().map_err(|e| e.to_string())?;
+    let monitor = primary_monitor.expect("未找到主监视器");
+    let monitor_size = monitor.size();
+    let scale_factor = monitor.scale_factor();
 
+    // 如果未指定位置，则计算窗口中心位置
+    let (x, y) = if let Some(pos) = position {
+        (pos.0 / scale_factor, pos.1 / scale_factor) // 调整位置
+    } else {
         // 计算窗口的左上角位置，使窗口位于屏幕中央
-        let x = (monitor_size.width as f64 - width) / 2.0;  
-        let y = (monitor_size.height as f64 - height) / 2.0; 
-        (x, y)
+        let center_x = (monitor_size.width as f64 / scale_factor - width) / 2.0;
+        let center_y = (monitor_size.height as f64 / scale_factor - height) / 2.0;
+        (center_x, center_y)
     };
 
     // 设置窗口位置
     builder = builder.position(x, y);
-
     // 创建并显示窗口
     let new_window = builder.build().map_err(|e| e.to_string())?;
     new_window.show().map_err(|e| e.to_string())?;
@@ -76,6 +78,24 @@ pub async fn close_new_window(
     if let Some(window) = app_handle.get_webview_window(&window_id) {
         // 关闭窗口
         window.close().map_err(|e| e.to_string())?;
+    } else {
+        println!("未找到窗口: {}", window_id);
+    }
+    Ok(())
+}
+
+/** 封装设置窗口置顶状态的异步函数 */
+#[tauri::command]
+pub async fn set_window_always_on_top(
+    app_handle: tauri::AppHandle,
+    window_id: String,
+    is_always_on_top: bool,
+) -> Result<(), String> {
+    // 通过 window_id 获取窗口实例
+    if let Some(window) = app_handle.get_webview_window(&window_id) {
+        window
+            .set_always_on_top(is_always_on_top)
+            .map_err(|e| e.to_string())?;
     } else {
         println!("未找到窗口: {}", window_id);
     }

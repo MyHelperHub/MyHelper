@@ -1,12 +1,14 @@
 mod command;
 mod utils;
 
-use command::common::{set_window_size,create_new_window,close_new_window};
+use command::common::{
+    close_new_window, create_new_window, set_window_always_on_top, set_window_size,
+};
 use command::config::*;
 use command::get_app_icon::get_app_icon;
 use command::get_web_icon::get_web_icon;
-use command::set_local_icon::set_local_icon;
 use command::open_web_or_app::open_web_or_app;
+use command::set_local_icon::set_local_icon;
 use serde_json::json;
 use std::{
     collections::HashMap,
@@ -30,15 +32,22 @@ pub fn run() {
             let main_screen = app.primary_monitor();
 
             // 处理 main_screen 为 Err 或 None 的情况
-            let (screen_width, screen_height) = match main_screen {
-                Ok(Some(monitor)) => (monitor.size().width as f64, monitor.size().height as f64),
+            let (screen_width, screen_height, scale_factor) = match main_screen {
+                Ok(Some(monitor)) => {
+                    let size = monitor.size();
+                    (
+                        size.width as f64,
+                        size.height as f64,
+                        monitor.scale_factor(),
+                    )
+                }
                 Ok(None) => {
                     println!("没有找到主屏幕，使用默认屏幕尺寸");
-                    (1920.0, 1080.0)
+                    (1920.0, 1080.0, 1.0) // 默认缩放比例
                 }
                 Err(e) => {
                     eprintln!("获取主屏幕信息时出错: {:?}, 使用默认屏幕尺寸", e);
-                    (1920.0, 1080.0)
+                    (1920.0, 1080.0, 1.0) // 默认缩放比例
                 }
             };
 
@@ -46,8 +55,8 @@ pub fn run() {
             let position = match utils_get_config(vec!["position".to_string()]) {
                 Ok(Some(value)) => {
                     let pos = value.as_object().unwrap();
-                    let x = pos.get("x").unwrap().as_f64().unwrap();
-                    let y = pos.get("y").unwrap().as_f64().unwrap();
+                    let x = pos.get("x").unwrap().as_f64().unwrap() / scale_factor;
+                    let y = pos.get("y").unwrap().as_f64().unwrap() / scale_factor;
 
                     // 检查位置是否在屏幕范围内
                     if x >= 0.0 && x <= screen_width && y >= 0.0 && y <= screen_height {
@@ -165,7 +174,8 @@ pub fn run() {
             delete_config,
             open_web_or_app,
             create_new_window,
-            close_new_window
+            close_new_window,
+            set_window_always_on_top
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
