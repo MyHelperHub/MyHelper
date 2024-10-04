@@ -3,23 +3,23 @@
     <span class="parting-line"></span>
     <Search class="search" />
     <div class="menu-list">
-      <div class="menu-item" @click="handleOpen('commonWeb')">
+      <div class="menu-item" @click="openCommon('commonWeb')">
         <div class="menu-text">常用网站</div>
         <Transition name="fade">
-          <commonWeb v-if="openControl.commonWeb" @click.stop />
+          <commonWeb v-if="commonState.commonWeb" @click.stop />
         </Transition>
       </div>
-      <div class="menu-item" @click="handleOpen('commonApp')">
+      <div class="menu-item" @click="openCommon('commonApp')">
         <div class="menu-text">常用软件</div>
         <Transition name="fade">
-          <commonApp v-if="openControl.commonApp" @click.stop />
+          <commonApp v-if="commonState.commonApp" @click.stop />
         </Transition>
       </div>
       <div class="menu-item" @click="openLabel">
         <div class="menu-text">桌面便签</div>
       </div>
-      <div class="menu-item" @click="showLoading()">
-        <div class="menu-text">定时计时器</div>
+      <div class="menu-item">
+        <div class="menu-text">快捷复制</div>
       </div>
       <div class="menu-item">
         <div class="menu-text">CHATGPT</div>
@@ -37,40 +37,62 @@ import Search from "@/views/Search.vue";
 import commonWeb from "@/views/web/CommonWeb.vue";
 import commonApp from "@/views/app/CommonApp.vue";
 import { provide, ref } from "vue";
-import { showLoading } from "@/utils/loading";
-import { OpenControl } from "@/interface/menu";
+import { CommonState, ContainState } from "@/interface/menu";
 
-const openLabel = () => {
-  invoke("create_new_window", {
-    windowId: "label",
-    title: "桌面便签",
-    url: "#/label",
-    size: [210, 310]
-  });
-};
 
 // 控制每个菜单项的展开与关闭状态
-const openControl = ref<OpenControl>({
+const commonState = ref<CommonState>({
   commonWeb: false,
   commonApp: false,
 });
+const containState = ref<ContainState>({
+  label: false,
+})
+
 
 /** 关闭所有菜单 */
 const closeAllMenu = () => {
-  Object.keys(openControl.value).forEach((k) => {
-    // 使用类型断言将 k 转换为 keyof OpenControl 类型
-    (openControl.value as OpenControl)[k] = false;
+  // 断言 Object.keys 返回的键是 CommonState 的键
+  (Object.keys(commonState.value) as (keyof CommonState)[]).forEach((k) => {
+    commonState.value[k] = false;
   });
 };
 
 /** 打开菜单项 */
-const handleOpen = (key: keyof OpenControl) => {
+const openCommon = (key: keyof CommonState) => {
   // 如果当前点击的项已经是打开的，则关闭它
-  if (openControl.value[key]) {
-    openControl.value[key] = false;
+  if (commonState.value[key]) {
+    commonState.value[key] = false;
   } else {
     closeAllMenu();
-    openControl.value[key] = true;
+    commonState.value[key] = true;
+  }
+};
+
+/** 打开桌面便签 */
+const openLabel = () => {
+  /** 创建桌面便签 */
+  const createLabelWindow = () => {
+    containState.value.label = true;
+    invoke("create_new_window", {
+      windowId: "label",
+      title: "桌面便签",
+      url: "#/label",
+      size: [210, 250]
+    });
+  }
+  if (containState.value.label) {
+    containState.value.label = false;
+    invoke("close_new_window", {
+      windowId: 'label'
+    }).catch((err) => {
+      if (err === 'label') {
+        createLabelWindow();
+      }
+
+    })
+  } else {
+    createLabelWindow();
   }
 };
 

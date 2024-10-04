@@ -11,6 +11,8 @@ pub async fn set_window_size(
         window
             .set_size(tauri::Size::Logical(LogicalSize { width, height }))
             .map_err(|e| e.to_string())?;
+    } else {
+        return Err("未找到 main 窗口".to_string());
     }
     Ok(())
 }
@@ -45,7 +47,7 @@ pub async fn create_new_window(
 
     // 获取主屏幕的大小和缩放比例
     let primary_monitor = app_handle.primary_monitor().map_err(|e| e.to_string())?;
-    let monitor = primary_monitor.expect("未找到主监视器");
+    let monitor = primary_monitor.ok_or("未找到主监视器".to_string())?;
     let monitor_size = monitor.size();
     let scale_factor = monitor.scale_factor();
 
@@ -79,7 +81,7 @@ pub async fn close_new_window(
         // 关闭窗口
         window.close().map_err(|e| e.to_string())?;
     } else {
-        println!("未找到窗口: {}", window_id);
+        return Err(window_id);
     }
     Ok(())
 }
@@ -97,7 +99,7 @@ pub async fn set_window_always_on_top(
             .set_always_on_top(is_always_on_top)
             .map_err(|e| e.to_string())?;
     } else {
-        println!("未找到窗口: {}", window_id);
+        return Err(window_id);
     }
     Ok(())
 }

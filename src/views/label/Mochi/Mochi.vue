@@ -841,8 +841,9 @@ onMounted(() => {
     position: absolute;
     /* top: 105px; */
     height: 50%;
+    width: 99%;
     bottom: 0;
-    /* margin: 23px 20px 10px 2px; */
+    margin: 1px;
     border-radius: 20px;
     /* box-shadow: 0 5px 20px 4px #f8f0e8; */
     -webkit-user-select: none;
@@ -875,7 +876,7 @@ onMounted(() => {
 .MochiBox .MochiContent {
     z-index: 1;
     position: relative;
-    width: 100vw;
+    width: 100%;
     height: 100%;
     padding: 15px;
     background: white;
