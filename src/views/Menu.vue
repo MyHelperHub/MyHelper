@@ -19,7 +19,7 @@
         <div class="menu-text">桌面便签</div>
       </div>
       <div class="menu-item">
-        <div class="menu-text">快捷复制</div>
+        <div class="menu-text">快捷输入</div>
       </div>
       <div class="menu-item">
         <div class="menu-text">CHATGPT</div>

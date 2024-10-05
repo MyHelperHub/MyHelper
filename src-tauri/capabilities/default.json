@@ -23,6 +23,8 @@
     "core:menu:allow-new",
     "core:menu:default",
     "core:webview:allow-internal-toggle-devtools",
-    "core:webview:default"
+    "core:webview:default",
+    "core:event:default",
+    "core:event:allow-listen"
   ]
 }
