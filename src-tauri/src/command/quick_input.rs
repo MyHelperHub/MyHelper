@@ -1,5 +1,5 @@
 use clipboard_rs::{
-    Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext,
+    Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext, ContentFormat, WatcherShutdown
 };
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::async_runtime;
@@ -24,10 +24,8 @@ impl Manager {
 
     fn handle_text(&self) {
         if let Ok(text) = self.ctx.get_text() {
-            // 发送剪贴板文本内容
             let _ = self.sender.try_send(text.clone());
 
-            // 在主线程中发出事件
             let app_handle = self.app_handle.clone();
             async_runtime::spawn(async move {
                 if let Err(e) = app_handle.emit("clipboard-updated", text) {
@@ -40,8 +38,7 @@ impl Manager {
 
 impl ClipboardHandler for Manager {
     fn on_clipboard_change(&mut self) {
-        // 只处理文本内容
-        if self.ctx.has(clipboard_rs::ContentFormat::Text) {
+        if self.ctx.has(ContentFormat::Text) {
             self.handle_text();
             println!("{}", self.ctx.get_text().unwrap());
             let _ = self
@@ -54,11 +51,11 @@ impl ClipboardHandler for Manager {
 }
 
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
+static mut WATCHER_SHUTDOWN: Option<WatcherShutdown> = None; // 存储关闭信号
 
 #[tauri::command]
 pub async fn start_clipboard_listener(app_handle: AppHandle) -> Result<(), String> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        // 检查是否已在监听
         return Ok(()); // 已在监听，直接返回
     }
 
@@ -67,7 +64,12 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> Result<(), Strin
     let (tx, _rx) = mpsc::channel::<String>(10); // 发送剪贴板内容
     let manager = Manager::new(tx.clone(), app_handle.clone()); // 克隆 tx 以传递给 Manager
     let mut watcher = ClipboardWatcherContext::new().unwrap();
-    let _watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel(); // 获取停止信号
+
+    let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
+    unsafe {
+        WATCHER_SHUTDOWN = Some(watcher_shutdown); // 存储关闭信号
+    }
+
     watcher.start_watch(); // 启动监听
 
     Ok(())
@@ -76,7 +78,11 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> Result<(), Strin
 #[tauri::command]
 pub async fn stop_clipboard_listener() -> Result<(), String> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        // 停止监听逻辑
+        unsafe {
+            if let Some(shutdown) = WATCHER_SHUTDOWN.take() {
+                shutdown.stop(); // 停止监听
+            }
+        }
         CLIPBOARD_LISTENER.store(false, Ordering::SeqCst); // 更新状态为停止
     }
     Ok(())
