@@ -1,3 +1,3 @@
-<template>剪切板</template>
+<template>常用</template>
 <script setup lang="ts"></script>
 <style lang="less"></style>
