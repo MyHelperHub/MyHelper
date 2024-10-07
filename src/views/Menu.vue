@@ -6,20 +6,23 @@
       <div class="menu-item" @click="openCommon('commonWeb')">
         <div class="menu-text">常用网站</div>
         <Transition name="fade">
-          <commonWeb v-if="commonState.commonWeb" @click.stop />
+          <CommonWeb v-if="commonState.commonWeb" @click.stop />
         </Transition>
       </div>
       <div class="menu-item" @click="openCommon('commonApp')">
         <div class="menu-text">常用软件</div>
         <Transition name="fade">
-          <commonApp v-if="commonState.commonApp" @click.stop />
+          <CommonApp v-if="commonState.commonApp" @click.stop />
         </Transition>
       </div>
       <div class="menu-item" @click="openLabel">
         <div class="menu-text">桌面便签</div>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="openCommon('quickInput')">
         <div class="menu-text">快捷输入</div>
+        <Transition name="fade">
+          <QuickInput v-if="commonState.quickInput" @click.stop />
+        </Transition>
       </div>
       <div class="menu-item">
         <div class="menu-text">CHATGPT</div>
@@ -34,8 +37,9 @@
 <script setup lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import Search from "@/views/Search.vue";
-import commonWeb from "@/views/web/CommonWeb.vue";
-import commonApp from "@/views/app/CommonApp.vue";
+import CommonWeb from "@/views/web/CommonWeb.vue";
+import CommonApp from "@/views/app/CommonApp.vue";
+import QuickInput from "@/views/quick-input/QuickInput.vue";
 import { provide, ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
 
@@ -44,6 +48,7 @@ import { CommonState, ContainState } from "@/interface/menu";
 const commonState = ref<CommonState>({
   commonWeb: false,
   commonApp: false,
+  quickInput: false,
 });
 const containState = ref<ContainState>({
   label: false,
