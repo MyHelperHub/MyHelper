@@ -12,7 +12,7 @@
         <div class="tab-content-wrapper">
             <transition name="fade">
                 <div class="tab-content" v-if="activeTab === 0" key="0">
-                    <Common />
+                    <CommonText />
                 </div>
             </transition>
             <transition name="fade">
@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { inject, ref } from "vue";
-import Common from "./Common.vue";
+import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
 
 const closeAllMenu = inject<() => void>("closeAllMenu") || (() => { });
