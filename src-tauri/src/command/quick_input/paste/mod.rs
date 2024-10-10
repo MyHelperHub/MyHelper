@@ -1,9 +1,3 @@
-use tauri::{
-    generate_handler,
-    plugin::{Builder, TauriPlugin},
-    Wry,
-};
-
 #[cfg(target_os = "macos")]
 mod mac;
 
@@ -27,11 +21,4 @@ pub fn wait(millis: u64) {
     use std::{thread, time};
 
     thread::sleep(time::Duration::from_millis(millis));
-}
-
-pub fn init() -> TauriPlugin<Wry> {
-    println!("init paste");
-    Builder::new("paste")
-        .invoke_handler(generate_handler![paste])
-        .build()
 }

@@ -23,7 +23,6 @@ fn focus_previous_window() {
 
 #[tauri::command]
 pub async fn paste() {
-    println!("paste");
     let mut enigo = Enigo::new(&Settings::default()).unwrap();
 
     focus_previous_window();

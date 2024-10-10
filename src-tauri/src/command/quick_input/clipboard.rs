@@ -1,5 +1,6 @@
 use clipboard_rs::{
-    Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext, ContentFormat, WatcherShutdown
+    Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext,
+    ContentFormat, WatcherShutdown,
 };
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::async_runtime;
@@ -84,6 +85,15 @@ pub async fn stop_clipboard_listener() -> Result<(), String> {
             }
         }
         CLIPBOARD_LISTENER.store(false, Ordering::SeqCst); // 更新状态为停止
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn write_clipboard(text: String) -> Result<(), String> {
+    let ctx = ClipboardContext::new().unwrap();
+    if let Err(e) = ctx.set_text(text) {
+        return Err(format!("Failed to set clipboard content: {}", e));
     }
     Ok(())
 }

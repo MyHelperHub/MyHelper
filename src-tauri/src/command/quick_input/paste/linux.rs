@@ -1,7 +1,6 @@
 use super::wait;
 use crate::core::app::get_previous_window;
 use rdev::{simulate, EventType, Key};
-use tauri::command;
 use x11::xlib::{self, XCloseDisplay, XOpenDisplay, XRaiseWindow, XSetInputFocus};
 
 fn focus_previous_window() {
@@ -25,7 +24,7 @@ fn focus_previous_window() {
     }
 }
 
-#[command]
+#[tauri::command]
 pub async fn paste() {
     fn dispatch(event_type: &EventType) {
         wait(20);

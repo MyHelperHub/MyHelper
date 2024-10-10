@@ -3,7 +3,6 @@ use cocoa::{
     appkit::{NSApplicationActivationOptions, NSRunningApplication},
     base::nil,
 };
-use tauri::command;
 
 fn focus_previous_window() {
     let process_id = match get_previous_window() {
@@ -20,7 +19,7 @@ fn focus_previous_window() {
     }
 }
 
-#[command]
+#[tauri::command]
 pub async fn paste() {
     focus_previous_window();
 

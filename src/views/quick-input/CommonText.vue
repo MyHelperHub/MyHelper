@@ -1,7 +1,10 @@
 <template>
   <div class="common">
-    <div v-for="item in formData" :key="item.id" class="item">
-      <div class="text" @click="handleClick(item)">{{ item.text }}</div>
+    <div class="add-button">
+      <img src="../../assets/images/add.svg" class="image" />
+    </div>
+    <div v-for="item in formData" :key="item.id" class="item" @click="handleClick(item)">
+      <div class="text">{{ item.text }}</div>
     </div>
   </div>
 </template>
@@ -25,8 +28,9 @@ const formData = ref<commonTextItem[]>([
 ]);
 
 const handleClick = (item: commonTextItem) => {
-  console.log(item);
-  invoke("plugin:paste|paste");
+  invoke("write_clipboard", { text: item.text }).then(() => {
+    invoke("paste");
+  });
 };
 </script>
 
@@ -40,34 +44,43 @@ const handleClick = (item: commonTextItem) => {
   &::-webkit-scrollbar {
     display: none;
   }
-}
 
-.item {
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  background-color: #f2f4f5;
-  border: 1px solid #dcdcdc;
-  border-radius: 5px;
-  padding: 8px;
-  transition: background-color 0.3s;
-  margin: 6px 0;
+  .item {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #f2f4f5;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    padding: 8px;
+    transition: background-color 0.3s;
+    margin: 6px 0;
+    cursor: pointer;
 
-  .text {
-    font-size: 12px;
-    margin: 0;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    text-overflow: ellipsis;
+    .text {
+      font-size: 12px;
+      margin: 0;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      text-overflow: ellipsis;
+    }
+
+    &:hover {
+      background-color: #e6e9ed;
+    }
   }
 
-  &:hover {
-    background-color: #e6e9ed;
+  .add-button {
+    position: absolute;
+    height: 32px;
+    width: 32px;
+    right: 15px;
+    bottom: 15px;
   }
 }
 </style>

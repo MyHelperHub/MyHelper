@@ -3,6 +3,7 @@ mod core;
 mod utils;
 
 use command::*;
+use core::app::observe_app;
 use serde_json::json;
 use std::{
     collections::HashMap,
@@ -16,6 +17,11 @@ use tauri::{
     LogicalPosition, Manager, WindowEvent,
 };
 use utils::config::{utils_get_config, utils_set_config};
+/** 初始化 */
+fn init() {
+    // 监听窗口变化
+    observe_app();
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -156,6 +162,7 @@ pub fn run() {
                 })
                 .build(app)?;
             let _ = tray.set_icon(Some(icon));
+            init();
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -171,13 +178,13 @@ pub fn run() {
             close_new_window,
             set_window_always_on_top,
             start_clipboard_listener,
-            stop_clipboard_listener
+            stop_clipboard_listener,
+            write_clipboard,
+            paste
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
-        // 自定义粘贴的插件
-        .plugin(paste::init())
         .run(tauri::generate_context!())
         .expect("MyHelper启动失败...");
 }
