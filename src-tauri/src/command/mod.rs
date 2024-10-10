@@ -1,3 +1,4 @@
+pub mod paste;
 pub mod common;
 pub mod config;
 pub mod get_app_icon;

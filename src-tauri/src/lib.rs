@@ -1,4 +1,5 @@
 mod command;
+mod core;
 mod utils;
 
 use command::*;
@@ -175,6 +176,8 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
+        // 自定义粘贴的插件
+        .plugin(paste::init())
         .run(tauri::generate_context!())
         .expect("MyHelper启动失败...");
 }
