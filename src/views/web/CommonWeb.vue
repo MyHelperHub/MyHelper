@@ -1,28 +1,16 @@
 <template>
   <div class="open-web">
     <div class="list">
-      <div
-        class="item"
-        v-for="item in dataList"
-        :key="item.id"
-        @click="navigateTo(item.url)"
-        :title="item.title"
+      <div class="item" v-for="item in dataList" :key="item.id" @click="navigateTo(item.url)" :title="item.title"
         @contextmenu.prevent="(e) => showContextMenu(e, item)">
-        <img
-          :src="
-            convertFileSrc(item.logo)
-              ? convertFileSrc(item.logo)
-              : 'src/assets/images/defaultImage.svg'
-          "
-          class="image" />
+        <img v-if="item.logo" :src="convertFileSrc(item.logo)
+          " class="image" />
+        <ImagesOutline v-else class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
-      <AddItem
-        ref="addItemRef"
-        @addWebItem="addWebItem"
-        @editWebItem="editWebItem">
+      <AddItem ref="addItemRef" @addWebItem="addWebItem" @editWebItem="editWebItem">
         <div class="item">
-          <img src="../../assets/images/add.svg" class="image" />
+          <Add class="image" />
           <div class="text">添加</div>
         </div>
       </AddItem>
@@ -40,10 +28,11 @@ import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { on } from "@/utils/eventBus";
+import { ImagesOutline, Add } from "@vicons/ionicons5";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
+const closeAllMenu = inject<() => void>("closeAllMenu") || (() => { });
 
 const init = async () => {
   try {

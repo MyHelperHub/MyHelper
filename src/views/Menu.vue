@@ -113,7 +113,7 @@ const handleClickOutside = (event: MouseEvent) => {
 provide("closeAllMenu", closeAllMenu);
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .menu-container {
   width: 100%;
   height: 100%;

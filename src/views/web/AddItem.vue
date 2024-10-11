@@ -10,32 +10,14 @@
           {{ formData.id === -1 ? "添加网站" : "编辑网站" }}
         </div>
         <div class="modal-body">
-          <img
-            class="image"
-            :src="
-              formData.logo
-                ? convertFileSrc(formData.logo)
-                : 'src/assets/images/defaultImage.svg'
-            "
-            @click="selectLocalImage"
-          />
+          <img class="image" v-if="formData.logo" :src="convertFileSrc(formData.logo)
+            " @click="selectLocalImage" />
+          <ImagesOutline v-else class="image" @click="selectLocalImage" />
           <div class="input-container">
-            <CustomInput
-              class="input"
-              :label="'网站名称'"
-              v-model="formData.title"
-            />
-            <CustomInput
-              class="input"
-              :label="'网站地址'"
-              v-model="formData.url"
-            />
+            <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
+            <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
             <transition name="icon">
-              <div
-                v-if="urlRegex.test(formData.url)"
-                class="get-icon"
-                @click="getIcon"
-              >
+              <div v-if="urlRegex.test(formData.url)" class="get-icon" @click="getIcon">
                 获取图标
               </div>
             </transition>
@@ -58,7 +40,8 @@ import { showMessage } from "@/utils/message.ts";
 import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 import { WebItem } from "@/interface/web";
-import Modal from "@/components/Modal.vue"; // 引入 Modal 组件
+import Modal from "@/components/Modal.vue";
+import { ImagesOutline } from "@vicons/ionicons5";
 
 const emit = defineEmits(["addWebItem", "editWebItem"]);
 

@@ -1,7 +1,7 @@
 <template>
     <div class="label-container" @mouseover="showCloseButton = true" @mouseleave="showCloseButton = false"
         @contextmenu="showContextMenu" data-tauri-drag-region>
-        <img v-if="showCloseButton" class="close-button" src="../../assets/images/close.svg" @click="handleClose">
+        <CloseOutline v-if="showCloseButton" class="close-button" @click="handleClose" />
         <Mochi shiba="random" mood="happy" blush left-eye="laugh" right-eye="laugh" left-ear="down" right-ear="down">
             <div class="content">
                 <input class="title" placeholder="输入标题..." spellcheck="false">
@@ -16,6 +16,7 @@ import { ref } from 'vue';
 import Mochi from './Mochi/Mochi.vue';
 import { invoke } from '@tauri-apps/api/core';
 import { showContextMenu } from './utils/contextMenu';
+import { CloseOutline } from '@vicons/ionicons5';
 
 const showCloseButton = ref(false);
 

@@ -1,7 +1,9 @@
 <template>
   <div class="common">
     <div class="add-button">
-      <img src="../../assets/images/add.svg" class="image" />
+      <NFloatButton>
+        <Add class="image" />
+      </NFloatButton>
     </div>
     <div v-for="item in formData" :key="item.id" class="item" @click="handleClick(item)">
       <div class="text">{{ item.text }}</div>
@@ -10,9 +12,11 @@
 </template>
 
 <script setup lang="ts">
+import { NFloatButton } from "naive-ui";
 import { commonTextItem } from "@/interface/quickInput";
 import { invoke } from "@tauri-apps/api/core";
 import { ref } from "vue";
+import { Add } from "@vicons/ionicons5";
 
 const formData = ref<commonTextItem[]>([
   { id: 0, text: "你好你好" },
@@ -34,7 +38,7 @@ const handleClick = (item: commonTextItem) => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" sc>
 .common {
   gap: 5px;
   margin: 0 10px;
@@ -50,7 +54,6 @@ const handleClick = (item: commonTextItem) => {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
     background-color: #f2f4f5;
     border: 1px solid #dcdcdc;
     border-radius: 5px;

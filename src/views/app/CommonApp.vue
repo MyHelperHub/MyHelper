@@ -1,24 +1,14 @@
 <template>
   <div class="open-app">
     <div class="list">
-      <div
-        class="item"
-        v-for="item in dataList"
-        :key="item.id"
-        :title="item.title"
-        @contextmenu.prevent="(e) => showContextMenu(e, item)"
-        @click="openApp(item.src)">
-        <img
-          :src="
-            convertFileSrc(item.logo)
-              ? convertFileSrc(item.logo)
-              : 'src/assets/images/defaultImage.svg'
-          "
-          class="image" />
+      <div class="item" v-for="item in dataList" :key="item.id" :title="item.title"
+        @contextmenu.prevent="(e) => showContextMenu(e, item)" @click="openApp(item.src)">
+        <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
+        <ImagesOutline v-else class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
       <div class="item" @click="addAppItem">
-        <img src="../../assets/images/add.svg" class="image" />
+        <Add class="image" />
         <div class="text">添加</div>
       </div>
     </div>
@@ -35,9 +25,10 @@ import { inject, ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { on } from "@/utils/eventBus";
+import { ImagesOutline, Add } from "@vicons/ionicons5";
 
 const dataList = ref<AppItem[]>([]);
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
+const closeAllMenu = inject<() => void>("closeAllMenu") || (() => { });
 
 const init = async () => {
   try {
@@ -55,7 +46,7 @@ init();
 
 /** 打开应用 */
 const openApp = async (path: string) => {
-  invoke("open_web_or_app", { path }).then(()=>{
+  invoke("open_web_or_app", { path }).then(() => {
     closeAllMenu()
   }).catch(() => {
     showMessage("打开失败!", 3000, 2);

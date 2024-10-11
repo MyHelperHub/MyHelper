@@ -15,7 +15,7 @@
       <input v-model="searchData" class="search-input" placeholder="搜索" @keydown.enter="handleSearch"
         spellcheck="false" />
       <div class="search-btn" @click="handleSearch">
-        <img class="icon" src="../assets/images/search.svg" />
+        <Search class="icon" />
       </div>
     </div>
   </div>
@@ -24,6 +24,7 @@
 <script setup>
 import { ref } from "vue";
 import { open } from "@/utils/openWebOrApp";
+import { Search } from '@vicons/ionicons5';
 
 const searchData = ref("");
 const showDropdown = ref(false);
@@ -134,6 +135,7 @@ function handleSearch() {
       white-space: nowrap;
       overflow: hidden;
       font-size: 16px;
+      font-family: inherit;
     }
 
     .search-btn {
