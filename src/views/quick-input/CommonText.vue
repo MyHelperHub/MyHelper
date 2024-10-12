@@ -42,7 +42,7 @@ const handleClick = (item: commonTextItem) => {
 .common {
   gap: 5px;
   margin: 0 10px;
-  max-height: 280px;
+  max-height: 270px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
