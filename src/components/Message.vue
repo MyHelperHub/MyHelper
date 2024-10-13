@@ -21,7 +21,6 @@ const visible = ref(false);
 const type = ref<number>(0); // 0: 默认黑色, 1: 成功色绿色, 2: 警告色红色
 let timer: ReturnType<typeof setTimeout> | null = null;
 
-
 const messageClass = computed(() => {
   switch (type.value) {
     case 1:
@@ -55,19 +54,19 @@ const showMessage = (msg: string, dur?: number, msgType?: number) => {
 
   timer = setTimeout(() => {
     visible.value = false;
-    timer = null; 
+    timer = null;
   }, duration.value);
 };
 
 const hideMessage = () => {
-    visible.value = false;
-    if (timer) {
-        clearTimeout(timer);
-        timer = null;
-    }
+  visible.value = false;
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
+  }
 };
 
-defineExpose({ showMessage,hideMessage });
+defineExpose({ showMessage, hideMessage });
 </script>
 
 <style lang="less" scoped>

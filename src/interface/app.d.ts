@@ -1,6 +1,6 @@
 export interface AppItem {
-    id: number,
-    title: string,
-    src: string,
-    logo: string
+  id: number;
+  title: string;
+  src: string;
+  logo: string;
 }

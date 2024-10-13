@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref } from "vue";
 
 // 定义加载组件引用的类型
 interface LoadingRef {

@@ -23,7 +23,11 @@ import {
 const send = async () => {
   // 检查权限并发送通知
   const sendNotificationWithPermission = async () => {
-    sendNotification({ title: "Tauri", body: "Tauri is awesome!" ,autoCancel:true });
+    sendNotification({
+      title: "Tauri",
+      body: "Tauri is awesome!",
+      autoCancel: true,
+    });
   };
 
   // 检查是否已经获得权限
@@ -55,7 +59,7 @@ function openNewWindow() {
 }
 
 const selectFile = async () => {
-  const file:any = await open({
+  const file: any = await open({
     multiple: false,
     directory: false,
   });
@@ -72,12 +76,12 @@ const getWebIcon = () => {
   });
 };
 
-const test = ()=>{
-  invoke('create_new_window', { 
-    windowId: 'my-new-window', 
-    url: '#/settings', 
-    size: [800, 600], 
-    position: [100, 100] 
-})
-}
+const test = () => {
+  invoke("create_new_window", {
+    windowId: "my-new-window",
+    url: "#/settings",
+    size: [800, 600],
+    position: [100, 100],
+  });
+};
 </script>

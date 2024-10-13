@@ -10,14 +10,26 @@
           {{ formData.id === -1 ? "添加网站" : "编辑网站" }}
         </div>
         <div class="modal-body">
-          <img class="image" v-if="formData.logo" :src="convertFileSrc(formData.logo)
-            " @click="selectLocalImage" />
+          <img
+            v-if="formData.logo"
+            class="image"
+            :src="convertFileSrc(formData.logo)"
+            @click="selectLocalImage" />
           <ImagesOutline v-else class="image" @click="selectLocalImage" />
           <div class="input-container">
-            <CustomInput class="input" :label="'网站名称'" v-model="formData.title" />
-            <CustomInput class="input" :label="'网站地址'" v-model="formData.url" />
+            <CustomInput
+              v-model="formData.title"
+              class="input"
+              :label="'网站名称'" />
+            <CustomInput
+              v-model="formData.url"
+              class="input"
+              :label="'网站地址'" />
             <transition name="icon">
-              <div v-if="urlRegex.test(formData.url)" class="get-icon" @click="getIcon">
+              <div
+                v-if="urlRegex.test(formData.url)"
+                class="get-icon"
+                @click="getIcon">
                 获取图标
               </div>
             </transition>
@@ -166,7 +178,6 @@ defineExpose({
   cursor: pointer;
 }
 
-
 .modal-content {
   background-color: #fff;
   border-radius: 5px;
@@ -226,10 +237,11 @@ defineExpose({
   }
 }
 
-
 .icon-enter-active,
 .icon-leave-active {
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.3s ease-out;
 }
 
 .icon-enter-from {

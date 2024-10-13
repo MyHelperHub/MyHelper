@@ -10,7 +10,7 @@ export async function showContextMenu(event: MouseEvent) {
     action: async () => {
       isAlwaysOnTop = !isAlwaysOnTop; // 切换状态
       await invoke("set_window_always_on_top", {
-        windowId: 'label',
+        windowId: "label",
         isAlwaysOnTop: isAlwaysOnTop,
       });
     },

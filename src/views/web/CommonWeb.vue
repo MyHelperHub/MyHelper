@@ -1,14 +1,21 @@
 <template>
   <div class="open-web">
     <div class="list">
-      <div class="item" v-for="item in dataList" :key="item.id" @click="navigateTo(item.url)" :title="item.title"
+      <div
+        v-for="item in dataList"
+        :key="item.id"
+        class="item"
+        :title="item.title"
+        @click="navigateTo(item.url)"
         @contextmenu.prevent="(e) => showContextMenu(e, item)">
-        <img v-if="item.logo" :src="convertFileSrc(item.logo)
-          " class="image" />
+        <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
         <ImagesOutline v-else class="image" />
         <div class="text">{{ item.title }}</div>
       </div>
-      <AddItem ref="addItemRef" @addWebItem="addWebItem" @editWebItem="editWebItem">
+      <AddItem
+        ref="addItemRef"
+        @addWebItem="addWebItem"
+        @editWebItem="editWebItem">
         <div class="item">
           <Add class="image" />
           <div class="text">添加</div>
@@ -32,7 +39,7 @@ import { ImagesOutline, Add } from "@vicons/ionicons5";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => { });
+const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
 
 const init = async () => {
   try {

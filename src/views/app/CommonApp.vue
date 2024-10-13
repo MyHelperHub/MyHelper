@@ -1,8 +1,13 @@
 <template>
   <div class="open-app">
     <div class="list">
-      <div class="item" v-for="item in dataList" :key="item.id" :title="item.title"
-        @contextmenu.prevent="(e) => showContextMenu(e, item)" @click="openApp(item.src)">
+      <div
+        v-for="item in dataList"
+        :key="item.id"
+        class="item"
+        :title="item.title"
+        @contextmenu.prevent="(e) => showContextMenu(e, item)"
+        @click="openApp(item.src)">
         <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
         <ImagesOutline v-else class="image" />
         <div class="text">{{ item.title }}</div>
@@ -28,7 +33,7 @@ import { on } from "@/utils/eventBus";
 import { ImagesOutline, Add } from "@vicons/ionicons5";
 
 const dataList = ref<AppItem[]>([]);
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => { });
+const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
 
 const init = async () => {
   try {
@@ -46,11 +51,13 @@ init();
 
 /** 打开应用 */
 const openApp = async (path: string) => {
-  invoke("open_web_or_app", { path }).then(() => {
-    closeAllMenu()
-  }).catch(() => {
-    showMessage("打开失败!", 3000, 2);
-  });
+  invoke("open_web_or_app", { path })
+    .then(() => {
+      closeAllMenu();
+    })
+    .catch(() => {
+      showMessage("打开失败!", 3000, 2);
+    });
 };
 
 /** 添加应用 */
@@ -73,7 +80,7 @@ const addAppItem = async () => {
 
   // 获取文件名
   let fileName = formattedFilePath.substring(
-    formattedFilePath.lastIndexOf("/") + 1
+    formattedFilePath.lastIndexOf("/") + 1,
   );
 
   // 去除 .exe 后缀 (如果存在)

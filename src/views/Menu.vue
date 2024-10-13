@@ -43,7 +43,6 @@ import QuickInput from "@/views/quick-input/QuickInput.vue";
 import { provide, ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
 
-
 // 控制每个菜单项的展开与关闭状态
 const commonState = ref<CommonState>({
   commonWeb: false,
@@ -52,8 +51,7 @@ const commonState = ref<CommonState>({
 });
 const containState = ref<ContainState>({
   label: false,
-})
-
+});
 
 /** 关闭所有菜单 */
 const closeAllMenu = () => {
@@ -83,19 +81,18 @@ const openLabel = () => {
       windowId: "label",
       title: "桌面便签",
       url: "#/label",
-      size: [210, 250]
+      size: [210, 250],
     });
-  }
+  };
   if (containState.value.label) {
     containState.value.label = false;
     invoke("close_new_window", {
-      windowId: 'label'
+      windowId: "label",
     }).catch((err) => {
-      if (err === 'label') {
+      if (err === "label") {
         createLabelWindow();
       }
-
-    })
+    });
   } else {
     createLabelWindow();
   }
@@ -127,7 +124,7 @@ provide("closeAllMenu", closeAllMenu);
   .menu-list {
     display: flex;
     flex-wrap: wrap;
-    margin: 65px 0 0 30px;
+    margin: 65px 38px 0 30px;
 
     .menu-item {
       display: inline-block;
@@ -159,14 +156,18 @@ provide("closeAllMenu", closeAllMenu);
             width: 100%;
             height: 96%;
             opacity: 1;
-            transition: width 0.2s 0.1s linear, height 0.15s 0.3s ease-out,
+            transition:
+              width 0.2s 0.1s linear,
+              height 0.15s 0.3s ease-out,
               opacity 0s 0.1s;
           }
 
           &::after {
             width: 100%;
             opacity: 1;
-            transition: width 0.25s 0.2s ease-out, opacity 0s 0.2s;
+            transition:
+              width 0.25s 0.2s ease-out,
+              opacity 0s 0.2s;
           }
         }
 
@@ -206,14 +207,18 @@ provide("closeAllMenu", closeAllMenu);
           top: 0;
           border-top: 2px solid rgb(54, 56, 55);
           border-right: 2px solid rgb(54, 56, 55);
-          transition: height 0.15s ease-in, width 0.2s 0.15s linear,
+          transition:
+            height 0.15s ease-in,
+            width 0.2s 0.15s linear,
             opacity 0s 0.35s;
         }
 
         &::after {
           bottom: 0;
           border-bottom: 2px solid rgb(54, 56, 55);
-          transition: width 0.25s ease-in, opacity 0s 0.35s;
+          transition:
+            width 0.25s ease-in,
+            opacity 0s 0.35s;
         }
       }
     }

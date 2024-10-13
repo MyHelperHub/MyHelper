@@ -1,10 +1,17 @@
 <template>
   <div class="search-container">
     <div class="search-list" @click="showDropdown = !showDropdown">
-      <img class="search-img" :src="selectedEngine.logo" :alt="selectedEngine.title" :title="selectedEngine.title" />
+      <img
+        class="search-img"
+        :src="selectedEngine.logo"
+        :alt="selectedEngine.title"
+        :title="selectedEngine.title" />
       <transition name="slide-down">
-        <div class="dropdown-list" v-if="showDropdown">
-          <div class="dropdown-item" v-for="(engine, index) in searchEngines" :key="index"
+        <div v-if="showDropdown" class="dropdown-list">
+          <div
+            v-for="(engine, index) in searchEngines"
+            :key="index"
+            class="dropdown-item"
             @click="selectEngine(engine)">
             <img :src="engine.logo" :alt="engine.title" :title="engine.title" />
           </div>
@@ -12,8 +19,12 @@
       </transition>
     </div>
     <div class="search-control">
-      <input v-model="searchData" class="search-input" placeholder="搜索" @keydown.enter="handleSearch"
-        spellcheck="false" />
+      <input
+        v-model="searchData"
+        class="search-input"
+        placeholder="搜索"
+        spellcheck="false"
+        @keydown.enter="handleSearch" />
       <div class="search-btn" @click="handleSearch">
         <Search class="icon" />
       </div>
@@ -24,7 +35,7 @@
 <script setup>
 import { ref } from "vue";
 import { open } from "@/utils/openWebOrApp";
-import { Search } from '@vicons/ionicons5';
+import { Search } from "@vicons/ionicons5";
 
 const searchData = ref("");
 const showDropdown = ref(false);

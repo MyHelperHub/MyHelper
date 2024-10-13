@@ -60,6 +60,6 @@ const showMenu = () => {
 
 .transition-enter-active,
 .transition-leave-active {
-  transition: opacity .5s ease-in-out;
+  transition: opacity 0.5s ease-in-out;
 }
 </style>

@@ -1,5 +1,5 @@
 // eventBus.ts
-import { ref } from 'vue';
+import { ref } from "vue";
 
 /**
  * eventBus 是一个 Map 类型的事件总线。
@@ -30,7 +30,10 @@ export function off(event: string, callback: Function) {
   const listeners = eventBus.value.get(event);
   if (listeners) {
     // 过滤掉与传入的 callback 不同的监听器，从而移除目标回调
-    eventBus.value.set(event, listeners.filter((listener) => listener !== callback));
+    eventBus.value.set(
+      event,
+      listeners.filter((listener) => listener !== callback),
+    );
   }
 }
 
