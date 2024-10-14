@@ -7,6 +7,9 @@ use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
 
+static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
+static mut WATCHER_SHUTDOWN: Option<WatcherShutdown> = None; // 存储关闭信号
+
 struct Manager {
     ctx: ClipboardContext,
     sender: mpsc::Sender<String>, // 发送器
@@ -24,6 +27,10 @@ impl Manager {
     }
 
     fn handle_text(&self) {
+        // 如果监听已经停止，不处理剪切板事件
+        if !CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
+            return;
+        }
         if let Ok(text) = self.ctx.get_text() {
             let _ = self.sender.try_send(text.clone());
 
@@ -50,9 +57,6 @@ impl ClipboardHandler for Manager {
         }
     }
 }
-
-static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
-static mut WATCHER_SHUTDOWN: Option<WatcherShutdown> = None; // 存储关闭信号
 
 #[tauri::command]
 pub async fn start_clipboard_listener(app_handle: AppHandle) -> Result<(), String> {

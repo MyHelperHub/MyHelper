@@ -4,11 +4,13 @@
       <Add class="image" />
     </NFloatButton>
     <div ref="scrollContainer" class="scroll-container">
-      <div v-for="item in formData" :key="item.id" class="item">
-        <div
-          v-if="editingId !== item.id"
-          class="text"
-          @click="handleClick(item)">
+      <div
+        v-for="item in formData"
+        :key="item.id"
+        class="item"
+        @click="pasteTo(item)"
+      >
+        <div v-if="editingId !== item.id" class="text">
           {{ item.text ? item.text : "请输入内容..." }}
         </div>
         <input
@@ -18,7 +20,8 @@
           placeholder="请输入内容..."
           :data-id="item.id"
           @blur="save"
-          @keyup.enter="save" />
+          @keyup.enter="save"
+        />
         <div v-if="editingId !== item.id" class="action-buttons">
           <NIcon size="small" title="编辑" @click="editItem(item.id)">
             <CreateOutline />
@@ -34,14 +37,14 @@
 
 <script setup lang="ts">
 import { NFloatButton, NIcon } from "naive-ui";
-import { commonTextItem } from "@/interface/quickInput";
+import { CmmonTextItem } from "@/interface/quickInput";
 import { invoke } from "@tauri-apps/api/core";
 import { nextTick, ref } from "vue";
 import { Add, CreateOutline, TrashOutline } from "@vicons/ionicons5";
 import { getConfig, setConfig } from "@/utils/config";
 import { showMessage } from "@/utils/message";
 
-const formData = ref<commonTextItem[]>([]);
+const formData = ref<CmmonTextItem[]>([]);
 
 /** 使用一个 ref 变量来跟踪当前正在编辑的项的 ID */
 const editingId = ref<number | null>(null);
@@ -118,7 +121,7 @@ const save = async () => {
 };
 
 /** 处理复制到剪贴板的功能 */
-const handleClick = (item: commonTextItem) => {
+const pasteTo = (item: CmmonTextItem) => {
   invoke("write_clipboard", { text: item.text }).then(() => {
     invoke("paste");
   });

@@ -22,19 +22,28 @@ export function on(event: string, callback: Function) {
 }
 
 /**
- * 移除某个事件的监听器。
+ * 更新某个事件的监听器。
  * @param event - 事件名称。
- * @param callback - 需要移除的回调函数。
+ * @param callback - 需要更新的回调函数。
  */
-export function off(event: string, callback: Function) {
+export function update(event: string, callback: Function) {
   const listeners = eventBus.value.get(event);
   if (listeners) {
     // 过滤掉与传入的 callback 不同的监听器，从而移除目标回调
     eventBus.value.set(
       event,
-      listeners.filter((listener) => listener !== callback),
+      listeners.filter((listener) => listener !== callback)
     );
   }
+}
+
+/**
+ * 移除某个事件的所有监听器。
+ * @param event - 事件名称。
+ */
+export function off(event: string) {
+  // 直接删除该事件名称对应的回调函数数组
+  eventBus.value.delete(event);
 }
 
 /**
