@@ -1,4 +1,4 @@
-export interface CmmonTextItem {
+export interface QuickInputItem {
   id: number;
   text: string;
 }

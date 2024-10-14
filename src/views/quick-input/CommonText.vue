@@ -37,14 +37,14 @@
 
 <script setup lang="ts">
 import { NFloatButton, NIcon } from "naive-ui";
-import { CmmonTextItem } from "@/interface/quickInput";
+import { QuickInputItem } from "@/interface/quickInput";
 import { invoke } from "@tauri-apps/api/core";
 import { nextTick, ref } from "vue";
 import { Add, CreateOutline, TrashOutline } from "@vicons/ionicons5";
 import { getConfig, setConfig } from "@/utils/config";
 import { showMessage } from "@/utils/message";
 
-const formData = ref<CmmonTextItem[]>([]);
+const formData = ref<QuickInputItem[]>([]);
 
 /** 使用一个 ref 变量来跟踪当前正在编辑的项的 ID */
 const editingId = ref<number | null>(null);
@@ -121,7 +121,7 @@ const save = async () => {
 };
 
 /** 处理复制到剪贴板的功能 */
-const pasteTo = (item: CmmonTextItem) => {
+const pasteTo = (item: QuickInputItem) => {
   invoke("write_clipboard", { text: item.text }).then(() => {
     invoke("paste");
   });

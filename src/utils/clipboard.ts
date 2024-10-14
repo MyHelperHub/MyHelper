@@ -2,13 +2,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import GlobalData from "./globalData";
 import { ref } from "vue";
-import { CmmonTextItem } from "@/interface/quickInput";
+import { QuickInputItem } from "@/interface/quickInput";
 
 let clipboardListener: UnlistenFn | null = null;
-let clipboardData = ref<CmmonTextItem[]>([]);
+let clipboardData = ref<QuickInputItem[]>([]);
 GlobalData.set("clipboardList", clipboardData);
 
-// 启动剪切板监听
+/** 启动剪切板监听 */
 export async function startClipboardListening() {
   // 如果已经有监听器，先移除
   if (clipboardListener) {
@@ -39,7 +39,7 @@ export async function startClipboardListening() {
   await invoke("start_clipboard_listener");
 }
 
-// 停止剪切板监听
+/** 停止剪切板监听 */
 export async function stopClipboardListening() {
   if (clipboardListener) {
     clipboardListener();
