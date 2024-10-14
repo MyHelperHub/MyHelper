@@ -50,6 +50,9 @@ const scrollContainer = ref<string | HTMLElement | undefined>();
 const init = async () => {
   try {
     formData.value = await getConfig(["quickInputConfig", "commonText"]);
+    if (!formData.value) {
+      formData.value = [];
+    }
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -66,7 +69,7 @@ const editItem = (id: number) => {
   editingId.value = id;
   nextTick(() => {
     const input = document.querySelector(
-      `input[data-id='${id}']`,
+      `input[data-id='${id}']`
     ) as HTMLInputElement;
     if (input) {
       input.focus();
@@ -183,9 +186,7 @@ const handleClick = (item: commonTextItem) => {
         display: flex;
         opacity: 0;
         visibility: hidden;
-        transition:
-          opacity 0.3s ease,
-          visibility 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
         position: absolute;
         right: 10px;
         top: 5px;
