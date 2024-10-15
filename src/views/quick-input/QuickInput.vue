@@ -53,6 +53,9 @@ const activeTab = ref(0);
   border-radius: 10px;
   z-index: 2;
   cursor: default;
+  box-shadow:
+    0 0 0 1px #a037371a,
+    0 4px 11px rgba(0, 0, 0, 0.2);
 }
 
 .close {

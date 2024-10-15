@@ -8,8 +8,7 @@
         v-for="item in formData"
         :key="item.id"
         class="item"
-        @click="pasteTo(item)"
-      >
+        @click="pasteTo(item)">
         <div v-if="editingId !== item.id" class="text">
           {{ item.text ? item.text : "请输入内容..." }}
         </div>
@@ -20,8 +19,7 @@
           placeholder="请输入内容..."
           :data-id="item.id"
           @blur="save"
-          @keyup.enter="save"
-        />
+          @keyup.enter="save" />
         <div v-if="editingId !== item.id" class="action-buttons">
           <NIcon size="small" title="编辑" @click="editItem(item.id)">
             <CreateOutline />
@@ -72,7 +70,7 @@ const editItem = (id: number) => {
   editingId.value = id;
   nextTick(() => {
     const input = document.querySelector(
-      `input[data-id='${id}']`
+      `input[data-id='${id}']`,
     ) as HTMLInputElement;
     if (input) {
       input.focus();
@@ -189,7 +187,9 @@ const pasteTo = (item: QuickInputItem) => {
         display: flex;
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition:
+          opacity 0.3s ease,
+          visibility 0.3s ease;
         position: absolute;
         right: 10px;
         top: 5px;

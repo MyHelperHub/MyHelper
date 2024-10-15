@@ -5,8 +5,7 @@
         v-for="item in formData"
         :key="item.id"
         class="item"
-        @click="pasteTo(item)"
-      >
+        @click="pasteTo(item)">
         <div class="text">
           {{ item.text ? item.text : "请输入内容..." }}
         </div>
@@ -17,8 +16,7 @@
         () => {
           startClipboardListening();
         }
-      "
-    >
+      ">
       开启监听
     </button>
     <button
@@ -26,8 +24,7 @@
         () => {
           stopClipboardListening();
         }
-      "
-    >
+      ">
       关闭监听
     </button>
   </div>

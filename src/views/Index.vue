@@ -1,8 +1,9 @@
 <template>
   <div class="home" data-tauri-drag-region>
-    <div class="brand">
-      <!-- <img class="logo" src="/logo.png" @click="showMenu" data-tauri-drag-region /> -->
-      <img class="logo" src="/logo.png" @click="showMenu" />
+    <div class="top-container">
+      <div class="brand">
+        <img class="logo" src="/logo.png" @click="showMenu" />
+      </div>
     </div>
     <Transition name="transition">
       <Menu v-show="isShowMenu"></Menu>
