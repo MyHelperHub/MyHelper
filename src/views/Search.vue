@@ -89,6 +89,7 @@ function handleSearch() {
 
 <style lang="less">
 .search-container {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,11 +134,12 @@ function handleSearch() {
   }
 
   .search-control {
+    width: 80%;
     position: relative;
 
     .search-input {
-      width: 135px;
-      height: 25px;
+      width: 190px;
+      height: 30px;
       border-radius: 18px;
       outline: none;
       border: 1px solid #ccc;
@@ -151,8 +153,8 @@ function handleSearch() {
 
     .search-btn {
       position: absolute;
-      top: 5px;
-      right: 10px;
+      top: 6px;
+      right: 15px;
       height: 20px;
       width: 20px;
       border: none;

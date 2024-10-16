@@ -36,10 +36,10 @@ const showMenu = () => {
 
     .logo {
       position: absolute;
-      left: 4px;
-      top: 4px;
-      height: 50px;
-      width: 50px;
+      left: 3px;
+      top: 3px;
+      height: 60px;
+      width: 60px;
       border-radius: 50%;
       border: 4px solid rgba(230, 235, 240, 0.8);
       z-index: 1;
