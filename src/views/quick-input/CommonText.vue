@@ -1,8 +1,8 @@
 <template>
   <div class="common-text">
-    <NFloatButton v-if="!editingId" class="add-button" @click="addItem">
-      <Add class="image" />
-    </NFloatButton>
+    <div v-if="!editingId" class="add-button" @click="addItem">
+      <i class="pi pi-plus image"></i>
+    </div>
     <div ref="scrollContainer" class="scroll-container">
       <div
         v-for="item in formData"
@@ -21,12 +21,14 @@
           @blur="save"
           @keyup.enter="save" />
         <div v-if="editingId !== item.id" class="action-buttons">
-          <NIcon size="small" title="编辑" @click="editItem(item.id)">
-            <CreateOutline />
-          </NIcon>
-          <NIcon size="small" title="删除" @click="deleteItem(item.id)">
-            <TrashOutline />
-          </NIcon>
+          <i
+            class="pi pi-pen-to-square"
+            title="编辑"
+            @click.stop="editItem(item.id)"></i>
+          <i
+            class="pi pi-trash"
+            title="删除"
+            @click.stop="deleteItem(item.id)"></i>
         </div>
       </div>
     </div>
@@ -34,11 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { NFloatButton, NIcon } from "naive-ui";
 import { QuickInputItem } from "@/interface/quickInput";
 import { invoke } from "@tauri-apps/api/core";
 import { nextTick, ref } from "vue";
-import { Add, CreateOutline, TrashOutline } from "@vicons/ionicons5";
 import { getConfig, setConfig } from "@/utils/config";
 import { showMessage } from "@/utils/message";
 
@@ -142,7 +142,7 @@ const pasteTo = (item: QuickInputItem) => {
 
     .item {
       position: relative;
-      height: 30px;
+      height: 40px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -208,9 +208,24 @@ const pasteTo = (item: QuickInputItem) => {
 
   .add-button {
     position: fixed;
+    background: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     right: 35px;
     bottom: 35px;
     z-index: 1;
+    box-shadow: 0 2px 8px 0px rgba(0, 0, 0, 0.16);
+    transition: 0.3s;
+    cursor: pointer;
+
+    &:hover {
+      background: rgb(237, 237, 237);
+      box-shadow: 0 2px 12px 0px rgba(0, 0, 0, 0.24);
+    }
   }
 }
 </style>

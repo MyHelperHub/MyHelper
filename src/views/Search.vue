@@ -26,7 +26,7 @@
         spellcheck="false"
         @keydown.enter="handleSearch" />
       <div class="search-btn" @click="handleSearch">
-        <Search class="icon" />
+        <i class="pi pi-search icon"></i>
       </div>
     </div>
   </div>
@@ -35,7 +35,6 @@
 <script setup>
 import { ref } from "vue";
 import { open } from "@/utils/openWebOrApp";
-import { Search } from "@vicons/ionicons5";
 
 const searchData = ref("");
 const showDropdown = ref(false);
@@ -153,7 +152,7 @@ function handleSearch() {
 
     .search-btn {
       position: absolute;
-      top: 6px;
+      top: 5px;
       right: 15px;
       height: 20px;
       width: 20px;

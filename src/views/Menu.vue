@@ -178,8 +178,8 @@ provide("closeAllMenu", closeAllMenu);
       }
 
       .menu-text {
-        width: 140px;
-        height: 10px;
+        width: 185px;
+        height: 40px;
         position: relative;
         display: flex;
         align-items: center;

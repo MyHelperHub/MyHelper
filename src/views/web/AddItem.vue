@@ -15,7 +15,7 @@
             class="image"
             :src="convertFileSrc(formData.logo)"
             @click="selectLocalImage" />
-          <ImagesOutline v-else class="image" @click="selectLocalImage" />
+          <i v-else class="pi pi-image image" @click="selectLocalImage"></i>
           <div class="input-container">
             <CustomInput
               v-model="formData.title"
@@ -53,7 +53,6 @@ import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 import { WebItem } from "@/interface/web";
 import Modal from "@/components/Modal.vue";
-import { ImagesOutline } from "@vicons/ionicons5";
 
 const emit = defineEmits(["addWebItem", "editWebItem"]);
 
@@ -195,11 +194,14 @@ defineExpose({
     flex-direction: column;
 
     .image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 5px;
       border: 1px solid rgba(0, 0, 0, 0.2);
       border-radius: 10px;
-      width: 32px;
-      height: 32px;
+      width: 38px;
+      height: 38px;
       margin: 10px;
       cursor: pointer;
     }

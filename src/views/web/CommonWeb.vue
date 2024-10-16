@@ -9,7 +9,7 @@
         @click="navigateTo(item.url)"
         @contextmenu.prevent="(e) => showContextMenu(e, item)">
         <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
-        <ImagesOutline v-else class="image" />
+        <i v-else class="pi pi-image"></i>
         <div class="text">{{ item.title }}</div>
       </div>
       <AddItem
@@ -17,7 +17,7 @@
         @addWebItem="addWebItem"
         @editWebItem="editWebItem">
         <div class="item">
-          <Add class="image" />
+          <i class="pi pi-plus image"></i>
           <div class="text">添加</div>
         </div>
       </AddItem>
@@ -35,7 +35,6 @@ import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { on } from "@/utils/eventBus";
-import { ImagesOutline, Add } from "@vicons/ionicons5";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
@@ -156,10 +155,10 @@ const deleteWebItem = async (id: number) => {
     }
 
     .item {
-      width: 35px;
-      height: 45px;
-      min-width: 35px;
-      min-height: 45px;
+      width: 45px;
+      height: 55px;
+      min-width: 45px;
+      min-height: 55px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -171,6 +170,9 @@ const deleteWebItem = async (id: number) => {
       cursor: pointer;
 
       .image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 28px;
         height: 28px;
       }

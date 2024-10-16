@@ -9,11 +9,11 @@
         @contextmenu.prevent="(e) => showContextMenu(e, item)"
         @click="openApp(item.src)">
         <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
-        <ImagesOutline v-else class="image" />
+        <i v-else class="pi pi-image"></i>
         <div class="text">{{ item.title }}</div>
       </div>
       <div class="item" @click="addAppItem">
-        <Add class="image" />
+        <i class="pi pi-plus image"></i>
         <div class="text">添加</div>
       </div>
     </div>
@@ -30,7 +30,6 @@ import { inject, ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { on } from "@/utils/eventBus";
-import { ImagesOutline, Add } from "@vicons/ionicons5";
 
 const dataList = ref<AppItem[]>([]);
 const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
@@ -149,10 +148,10 @@ const deleteAppItem = async (id: number) => {
     }
 
     .item {
-      width: 35px;
-      height: 45px;
-      min-width: 35px;
-      min-height: 45px;
+      width: 45px;
+      height: 55px;
+      min-width: 45px;
+      min-height: 55px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -164,6 +163,9 @@ const deleteAppItem = async (id: number) => {
       cursor: pointer;
 
       .image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 28px;
         height: 28px;
       }

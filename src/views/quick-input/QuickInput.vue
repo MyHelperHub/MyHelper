@@ -1,6 +1,6 @@
 <template>
   <div class="quick-input">
-    <CloseOutline class="close" @click="closeAllMenu" />
+    <i class="pi pi-times close" @click="closeAllMenu"></i>
     <div class="tabs">
       <div
         class="tab"
@@ -34,7 +34,6 @@
 import { inject, ref } from "vue";
 import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
-import { CloseOutline } from "@vicons/ionicons5";
 
 const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
 
@@ -60,8 +59,8 @@ const activeTab = ref(0);
 
 .close {
   position: absolute;
-  right: 0;
-  height: 25px;
+  top: 5px;
+  right: 5px;
   cursor: pointer;
 }
 
