@@ -23,10 +23,12 @@
         <div v-if="editingId !== item.id" class="action-buttons">
           <i
             class="pi pi-pen-to-square"
+            style="font-size: 0.8rem"
             title="编辑"
             @click.stop="editItem(item.id)"></i>
           <i
             class="pi pi-trash"
+            style="font-size: 0.8rem"
             title="删除"
             @click.stop="deleteItem(item.id)"></i>
         </div>
@@ -195,13 +197,6 @@ const pasteTo = (item: QuickInputItem) => {
         top: 5px;
         gap: 4px;
         z-index: 2;
-
-        button {
-          background: transparent;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-        }
       }
     }
   }

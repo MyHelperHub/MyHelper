@@ -65,7 +65,7 @@ const pasteTo = (item: QuickInputItem) => {
 
     .item {
       position: relative;
-      height: 30px;
+      height: 40px;
       display: flex;
       justify-content: center;
       align-items: center;

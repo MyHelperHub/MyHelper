@@ -22,7 +22,8 @@ export async function startClipboardListening() {
     // 只处理不同于当前第一条的内容
     if (
       !clipboardData.value.length ||
-      clipboardData.value[0].text !== clipboardContent
+      (clipboardData.value[0].text !== clipboardContent &&
+        clipboardData.value[0].text !== "")
     ) {
       clipboardData.value.unshift({
         id: Date.now(),
