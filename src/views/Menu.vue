@@ -1,7 +1,5 @@
 <template>
   <div class="menu-container" @click.capture="handleClickOutside">
-    <span class="parting-line"></span>
-    <Search class="search" />
     <div class="menu-list">
       <div class="menu-item" @click="openCommon('commonWeb')">
         <div class="menu-text">常用网站</div>
@@ -36,7 +34,6 @@
 
 <script setup lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import Search from "@/views/Search.vue";
 import CommonWeb from "@/views/web/CommonWeb.vue";
 import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
@@ -114,17 +111,12 @@ provide("closeAllMenu", closeAllMenu);
 .menu-container {
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
-  border: 1px solid rgba(230, 235, 240, 0.7);
-  border-radius: 20px;
-  background: linear-gradient(#e5edf1, #9fc0cf);
-  list-style-type: none;
-  -webkit-font-smoothing: antialiased;
-
+  margin-top: 65px;
+  
   .menu-list {
     display: flex;
     flex-wrap: wrap;
-    margin: 65px 38px 0 30px;
+    margin: 0 38px 0 30px;
 
     .menu-item {
       display: inline-block;
@@ -222,20 +214,6 @@ provide("closeAllMenu", closeAllMenu);
         }
       }
     }
-  }
-
-  .search {
-    position: relative;
-    top: 72px;
-  }
-
-  .parting-line {
-    position: absolute;
-    top: 65px;
-    width: 100%;
-    margin-left: -1px;
-    border: none;
-    border-top: 1px solid rgba(58, 69, 80, 0.2);
   }
 }
 
