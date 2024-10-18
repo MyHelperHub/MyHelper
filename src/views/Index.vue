@@ -9,13 +9,14 @@
       <div class="settings">
         <SpeedDial
           class="speed-dial"
-          button-class="speed-dial-button"
+          button-class="p-button-rounded p-button-text"
           show-icon="pi pi-bars"
           hide-icon="pi pi-times"
           :model="items"
           :radius="65"
           type="quarter-circle"
-          direction="down-left" />
+          direction="down-left"
+          :tooltipOptions="{ position: 'left' }" />
       </div>
       <Search class="search" />
       <span class="parting-line"></span>
@@ -35,22 +36,15 @@ const isShowMenu = ref(false);
 
 const items = ref([
   {
-    label: "Add",
-    icon: "pi pi-pencil",
+    label: "设置",
+    icon: "pi pi-wrench",
     command: () => {
       console.log(123123);
     },
   },
   {
-    label: "Add",
-    icon: "pi pi-pencil",
-    command: () => {
-      console.log(123123);
-    },
-  },
-  {
-    label: "Add",
-    icon: "pi pi-pencil",
+    label: "我的",
+    icon: "pi pi-user",
     command: () => {
       console.log(123123);
     },
@@ -91,14 +85,12 @@ const showMenu = () => {
     right: 0;
     top: 10px;
     .speed-dial {
-      .p-button-rounded{
+      .p-button-rounded {
         width: 30px;
         height: 30px;
+        --p-button-text-primary-color: #3c3d3d;
+        --p-button-text-primary-hover-background: rgb(213, 232, 241);
       }
-    }
-    .speed-dial-button{
-      background-color: rgb(168, 165, 165);
-      border-color:rgb(168, 165, 165) ;
     }
   }
 }
