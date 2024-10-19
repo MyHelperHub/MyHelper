@@ -5,10 +5,10 @@
     @mouseover="showCloseButton = true"
     @mouseleave="showCloseButton = false"
     @contextmenu="showContextMenu">
-    <CloseOutline
+    <i
       v-if="showCloseButton"
-      class="close-button"
-      @click="handleClose" />
+      class="pi pi-times close close-button"
+      @click="handleClose"></i>
     <Mochi
       shiba="random"
       mood="happy"
@@ -33,7 +33,6 @@ import { ref } from "vue";
 import Mochi from "./Mochi/Mochi.vue";
 import { invoke } from "@tauri-apps/api/core";
 import { showContextMenu } from "./utils/contextMenu";
-import { CloseOutline } from "@vicons/ionicons5";
 
 const showCloseButton = ref(false);
 

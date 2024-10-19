@@ -11,9 +11,9 @@ const routes = [
     component: () => import("@/views/label/Label.vue"),
   },
   {
-    name: "Settings",
-    path: "/settings",
-    component: () => import("@/views/Settings.vue"),
+    name: "Setting",
+    path: "/setting",
+    component: () => import("@/views/Setting.vue"),
   },
 ];
 

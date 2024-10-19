@@ -18,5 +18,3 @@ onMounted(() => {
   setLoadingRef(loadingRef.value);
 });
 </script>
-
-<style scoped></style>

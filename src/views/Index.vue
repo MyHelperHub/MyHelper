@@ -9,11 +9,11 @@
       <div class="settings">
         <SpeedDial
           class="speed-dial"
-          button-class="p-button-rounded p-button-text"
+          button-class="p-button-text"
           show-icon="pi pi-bars"
           hide-icon="pi pi-times"
-          :model="items"
-          :radius="65"
+          :model="menuItemsArray"
+          :radius="55"
           type="quarter-circle"
           direction="down-left"
           :tooltipOptions="{ position: 'left' }" />
@@ -30,26 +30,40 @@ import { hideMessage } from "@/utils/message";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
 import { invoke } from "@tauri-apps/api/core";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const isShowMenu = ref(false);
 
-const items = ref([
-  {
+const menuItems = ref({
+  settings: {
     label: "设置",
     icon: "pi pi-wrench",
+    isOpen: false,
     command: () => {
-      console.log(123123);
+      menuItems.value.settings.isOpen = !menuItems.value.settings.isOpen;
+      if (menuItems.value.settings.isOpen) {
+        invoke("create_new_window", {
+          windowId: "settings",
+          title: "设置",
+          url: "#/setting",
+          size: [350, 550],
+        });
+      } else {
+        invoke("close_new_window", {
+          windowId: "settings",
+        });
+      }
     },
   },
-  {
+  my: {
     label: "我的",
     icon: "pi pi-user",
-    command: () => {
-      console.log(123123);
-    },
+    isOpen: false,
   },
-]);
+});
+
+// 将menuItems转为数组以供SpeedDial使用
+const menuItemsArray = computed(() => Object.values(menuItems.value));
 
 const showMenu = () => {
   hideMessage();
@@ -85,7 +99,7 @@ const showMenu = () => {
     right: 0;
     top: 10px;
     .speed-dial {
-      .p-button-rounded {
+      .p-speeddial-button {
         width: 30px;
         height: 30px;
         --p-button-text-primary-color: #3c3d3d;
