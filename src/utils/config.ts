@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { ipcDeleteConfig, ipcGetConfig, ipcSetConfig } from "@/api/ipc/main";
 
 /**
  * 获取配置数据
@@ -14,7 +14,7 @@ import { invoke } from "@tauri-apps/api/core";
  */
 export const getConfig = async (keys: Array<string>): Promise<any> => {
   try {
-    const result = await invoke("get_config", { keys });
+    const result = await ipcGetConfig(keys);
     return result;
   } catch (error) {
     console.error("Error getting config:", error);
@@ -40,7 +40,7 @@ export const setConfig = async (
   value: any,
 ): Promise<void> => {
   try {
-    await invoke("set_config", { keys, value });
+    await ipcSetConfig(keys, value);
   } catch (error) {
     console.error("Error setting config:", error);
     throw error;
@@ -61,7 +61,7 @@ export const setConfig = async (
  */
 export const deleteConfig = async (keys: Array<string>): Promise<void> => {
   try {
-    await invoke("delete_config", { keys });
+    await ipcDeleteConfig(keys);
   } catch (error) {
     console.error("Error deleting config:", error);
     throw error;

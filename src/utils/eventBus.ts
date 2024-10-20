@@ -32,7 +32,7 @@ export function update(event: string, callback: Function) {
     // 过滤掉与传入的 callback 不同的监听器，从而移除目标回调
     eventBus.value.set(
       event,
-      listeners.filter((listener) => listener !== callback)
+      listeners.filter((listener) => listener !== callback),
     );
   }
 }

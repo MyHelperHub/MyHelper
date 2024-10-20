@@ -1,8 +1,11 @@
-import { invoke } from "@tauri-apps/api/core";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import GlobalData from "./globalData";
 import { ref } from "vue";
 import { QuickInputItem } from "@/interface/quickInput";
+import {
+  ipcStartClipboardListener,
+  ipcStopClipboardListener,
+} from "@/api/ipc/main";
 
 let clipboardListener: UnlistenFn | null = null;
 let clipboardData = ref<QuickInputItem[]>([]);
@@ -37,7 +40,7 @@ export async function startClipboardListening() {
     }
   });
 
-  await invoke("start_clipboard_listener");
+  await ipcStartClipboardListener();
 }
 
 /** 停止剪切板监听 */
@@ -47,5 +50,5 @@ export async function stopClipboardListening() {
     clipboardListener = null;
   }
 
-  await invoke("stop_clipboard_listener");
+  await ipcStopClipboardListener();
 }

@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { open } from "@/utils/openWebOrApp";
+import { ipcOpen } from "@/api/ipc/main";
 
 const searchData = ref("");
 const showDropdown = ref(false);
@@ -45,7 +45,7 @@ const searchEngines = [
     logo: "src/assets/images/engine/baidu.png",
     url: "https://www.baidu.com/s?wd=",
     handleSearch: (data) => {
-      open(`https://www.baidu.com/s?wd=${data}`);
+      ipcOpen(`https://www.baidu.com/s?wd=${data}`);
     },
   },
   {
@@ -53,7 +53,7 @@ const searchEngines = [
     logo: "src/assets/images/engine/bing.png",
     url: "https://bing.com/search?q=",
     handleSearch: (data) => {
-      open(`https://bing.com/search?q=${data}`);
+      ipcOpen(`https://bing.com/search?q=${data}`);
     },
   },
   {
@@ -61,7 +61,7 @@ const searchEngines = [
     logo: "src/assets/images/engine/google.png",
     url: "https://www.google.com/search?q=",
     handleSearch: (data) => {
-      open(`https://www.google.com/search?q=${data}`);
+      ipcOpen(`https://www.google.com/search?q=${data}`);
     },
   },
   {
@@ -69,7 +69,7 @@ const searchEngines = [
     logo: "src/assets/images/engine/yahoo.png",
     url: "https://search.yahoo.com/search?p=",
     handleSearch: (data) => {
-      open(`https://search.yahoo.com/search?p=${data}`);
+      ipcOpen(`https://search.yahoo.com/search?p=${data}`);
     },
   },
 ];

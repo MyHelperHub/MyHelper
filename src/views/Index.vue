@@ -31,6 +31,7 @@ import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
 import { invoke } from "@tauri-apps/api/core";
 import { computed, ref } from "vue";
+import { ipcCreateNewWindow } from "@/api/ipc/main";
 
 const isShowMenu = ref(false);
 
@@ -40,19 +41,13 @@ const menuItems = ref({
     icon: "pi pi-wrench",
     isOpen: false,
     command: () => {
-      menuItems.value.settings.isOpen = !menuItems.value.settings.isOpen;
-      if (menuItems.value.settings.isOpen) {
-        invoke("create_new_window", {
-          windowId: "settings",
-          title: "设置",
-          url: "#/setting",
-          size: [350, 550],
-        });
-      } else {
-        invoke("close_new_window", {
-          windowId: "settings",
-        });
-      }
+      ipcCreateNewWindow(
+        menuItems.value.settings.isOpen,
+        "setting",
+        "设置",
+        "#/setting",
+        [350, 550],
+      );
     },
   },
   my: {

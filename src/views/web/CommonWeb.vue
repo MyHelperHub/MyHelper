@@ -30,11 +30,11 @@ import AddItem from "@/views/web/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { inject, ref } from "vue";
-import { open } from "@/utils/openWebOrApp";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { on } from "@/utils/eventBus";
+import { ipcOpen } from "@/api/ipc/main";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
@@ -65,7 +65,7 @@ const navigateTo = (url: string) => {
   if (!/^https?:\/\//i.test(url)) {
     url = `http://${url}`; // 默认添加 http://
   }
-  open(url)
+  ipcOpen(url)
     .then(() => {
       closeAllMenu();
     })

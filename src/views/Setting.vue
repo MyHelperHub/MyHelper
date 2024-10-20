@@ -1,9 +1,17 @@
 <template>
-  <div class="settings-wrap">
+  <div class="settings-wrap" data-tauri-drag-region>
     <Fieldset legend="常用设置">
       <div class="item">
-        <InputText placeholder="请输入内容" />
-        <ToggleSwitch v-model="commonSettings.clipboardListening" />
+        <h4>剪切板监听</h4>
+        <ToggleSwitch v-model="settingsData.commonSettings.clipboardListening">
+          <template #handle="{ checked }">
+            <i
+              :class="[
+                '!text-xs pi',
+                { 'pi-check': checked, 'pi-times': !checked },
+              ]"></i>
+          </template>
+        </ToggleSwitch>
       </div>
     </Fieldset>
   </div>
@@ -11,16 +19,19 @@
 
 <script setup lang="ts">
 import Fieldset from "primevue/fieldset";
-import InputText from "primevue/inputtext";
 import ToggleSwitch from "primevue/toggleswitch";
 import { ref } from "vue";
 
-const commonSettings = ref({
-  clipboardListening: false,
+const settingsData = ref({
+  commonSettings: {
+    clipboardListening: false,
+  },
 });
 </script>
 
 <style lang="less">
+@import "@/assets/css/variable.less";
+
 .settings-wrap {
   width: 100%;
   height: 100%;

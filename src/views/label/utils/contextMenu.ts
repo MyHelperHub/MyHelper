@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { ipcSetWindowAlwaysOnTop } from "@/api/ipc/main";
 import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { LogicalPosition } from "@tauri-apps/api/window";
 
@@ -9,10 +9,7 @@ export async function showContextMenu(event: MouseEvent) {
     text: isAlwaysOnTop ? "取消置顶" : "置顶",
     action: async () => {
       isAlwaysOnTop = !isAlwaysOnTop; // 切换状态
-      await invoke("set_window_always_on_top", {
-        windowId: "label",
-        isAlwaysOnTop: isAlwaysOnTop,
-      });
+      await ipcSetWindowAlwaysOnTop("label", isAlwaysOnTop);
     },
   });
 
