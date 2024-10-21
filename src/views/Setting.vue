@@ -3,7 +3,15 @@
     <Fieldset legend="常用设置">
       <div class="item">
         <h4>剪切板监听</h4>
-        <ToggleSwitch v-model="settingsData.commonSettings.clipboardListening">
+        <ToggleSwitch
+          v-model="settingsData.clipboardListening"
+          @change="
+            handleSwitch(
+              settingsData.clipboardListening,
+              startClipboardListening,
+              stopClipboardListening,
+            )
+          ">
           <template #handle="{ checked }">
             <i
               :class="[
@@ -19,13 +27,16 @@
 
 <script setup lang="ts">
 import Fieldset from "primevue/fieldset";
+import {
+  startClipboardListening,
+  stopClipboardListening,
+} from "@/utils/clipboard";
 import ToggleSwitch from "primevue/toggleswitch";
+import { handleSwitch } from "@/utils/common";
 import { ref } from "vue";
 
 const settingsData = ref({
-  commonSettings: {
-    clipboardListening: false,
-  },
+  clipboardListening: false,
 });
 </script>
 

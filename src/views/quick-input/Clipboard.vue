@@ -11,32 +11,12 @@
         </div>
       </div>
     </div>
-    <button
-      @click="
-        () => {
-          startClipboardListening();
-        }
-      ">
-      开启监听
-    </button>
-    <button
-      @click="
-        () => {
-          stopClipboardListening();
-        }
-      ">
-      关闭监听
-    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { QuickInputItem } from "@/interface/quickInput";
-import {
-  startClipboardListening,
-  stopClipboardListening,
-} from "@/utils/clipboard";
 import GlobalData from "@/utils/globalData";
 
 const formData = GlobalData.get("clipboardList");
