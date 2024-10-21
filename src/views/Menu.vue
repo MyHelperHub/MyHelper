@@ -38,7 +38,7 @@ import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
 import { provide, ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
-import { ipcCreateNewWindow } from "@/api/ipc/window.api";
+import { ipcCloseWindow, ipcCreateNewWindow } from "@/api/ipc/window.api";
 
 // 控制每个菜单项的展开与关闭状态
 const commonState = ref<CommonState>({
@@ -72,13 +72,18 @@ const openCommon = (key: keyof CommonState) => {
 /** 打开桌面便签 */
 const openLabel = () => {
   /** 创建桌面便签 */
-  ipcCreateNewWindow(
-    containState.value.label,
-    "label",
-    "桌面便签",
-    "#/label",
-    [210, 250],
-  );
+  if (containState.value.label) {
+    containState.value.label = false;
+    ipcCloseWindow("label").catch((err) => {
+      if (err === 'label') {
+        ipcCreateNewWindow("label", "桌面便签", "#/label", [210, 250]);
+        containState.value.label = true;
+      }
+    })
+  } else {
+    ipcCreateNewWindow("label", "桌面便签", "#/label", [210, 250]);
+    containState.value.label = true;
+  }
 };
 
 /** 点击外侧时关闭菜单项 */

@@ -5,6 +5,7 @@
     "primeui",
     "primevue",
     "speeddial",
-    "tailwindcss"
+    "tailwindcss",
+    "toggleswitch"
   ]
 }

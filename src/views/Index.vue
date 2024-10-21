@@ -30,7 +30,11 @@ import { hideMessage } from "@/utils/message";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
 import { computed, ref } from "vue";
-import { ipcCreateNewWindow, ipcSetWindowSize } from "@/api/ipc/window.api";
+import {
+  ipcCloseWindow,
+  ipcCreateNewWindow,
+  ipcSetWindowSize,
+} from "@/api/ipc/window.api";
 
 const isShowMenu = ref(false);
 
@@ -40,13 +44,18 @@ const menuItems = ref({
     icon: "pi pi-wrench",
     isOpen: false,
     command: () => {
-      ipcCreateNewWindow(
-        menuItems.value.settings.isOpen,
-        "setting",
-        "设置",
-        "#/setting",
-        [350, 550],
-      );
+      if (menuItems.value.settings.isOpen) {
+        menuItems.value.settings.isOpen = false;
+        ipcCloseWindow("setting").catch((err) => {
+          if (err === "setting") {
+            ipcCreateNewWindow("setting", "设置", "#/setting", [350, 550]);
+            menuItems.value.settings.isOpen = true;
+          }
+        });
+      } else {
+        ipcCreateNewWindow("setting", "设置", "#/setting", [350, 550]);
+        menuItems.value.settings.isOpen = true;
+      }
     },
   },
   my: {
