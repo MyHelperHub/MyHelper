@@ -1,4 +1,4 @@
-import { ipcSetWindowAlwaysOnTop } from "@/api/ipc/main";
+import { ipcSetWindowAlwaysOnTop } from "@/api/ipc/window.api";
 import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { LogicalPosition } from "@tauri-apps/api/window";
 

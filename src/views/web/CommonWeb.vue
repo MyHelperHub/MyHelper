@@ -34,7 +34,7 @@ import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { on } from "@/utils/eventBus";
-import { ipcOpen } from "@/api/ipc/main";
+import { ipcOpen } from "@/api/ipc/launch.api";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);

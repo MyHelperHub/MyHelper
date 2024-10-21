@@ -21,7 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
@@ -30,6 +29,7 @@ import { inject, ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { on } from "@/utils/eventBus";
+import { ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 
 const dataList = ref<AppItem[]>([]);
 const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
@@ -50,7 +50,7 @@ init();
 
 /** 打开应用 */
 const openApp = async (path: string) => {
-  invoke("open_web_or_app", { path })
+  ipcOpen(path)
     .then(() => {
       closeAllMenu();
     })
@@ -92,9 +92,7 @@ const addAppItem = async () => {
 
   try {
     // 获取应用图标
-    newItem.logo = (await invoke("get_app_icon", {
-      exePath: filePath,
-    })) as string;
+    newItem.logo = (await ipcGetAppIcon(filePath)) as string;
 
     // 更新 dataList 并保存
     dataList.value.push(newItem);

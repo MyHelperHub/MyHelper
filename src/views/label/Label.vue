@@ -31,15 +31,13 @@
 <script setup>
 import { ref } from "vue";
 import Mochi from "./Mochi/Mochi.vue";
-import { invoke } from "@tauri-apps/api/core";
+import { ipcCloseWindow } from "@/api/ipc/window.api";
 import { showContextMenu } from "./utils/contextMenu";
 
 const showCloseButton = ref(false);
 
 const handleClose = () => {
-  invoke("close_new_window", {
-    windowId: "label",
-  });
+  ipcCloseWindow("label");
 };
 </script>
 

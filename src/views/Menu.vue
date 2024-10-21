@@ -38,7 +38,7 @@ import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
 import { provide, ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
-import { ipcCreateNewWindow } from "@/api/ipc/main";
+import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 
 // 控制每个菜单项的展开与关闭状态
 const commonState = ref<CommonState>({

@@ -47,12 +47,13 @@
 import { ref } from "vue";
 import CustomInput from "../../components/CustomInput.vue";
 import CustomButton from "../../components/CustomButton.vue";
-import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { showMessage } from "@/utils/message.ts";
 import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 import { WebItem } from "@/interface/web";
 import Modal from "@/components/Modal.vue";
+import { ipcGetWebIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
 
 const emit = defineEmits(["addWebItem", "editWebItem"]);
 
@@ -93,7 +94,7 @@ const getIcon = () => {
     return;
   }
   showLoading();
-  invoke("get_web_icon", { url: formData.value.url })
+  ipcGetWebIcon(formData.value.url)
     .then((res) => {
       formData.value.logo = (res as string).replace(/\\/g, "/");
     })
@@ -119,7 +120,7 @@ const selectLocalImage = async () => {
   });
 
   if (filePath) {
-    invoke("set_local_icon", { imagePath: filePath, appType: 0 })
+    ipcSetLocalIcon(filePath, 0)
       .then((res) => {
         formData.value.logo = (res as string).replace(/\\/g, "/");
       })

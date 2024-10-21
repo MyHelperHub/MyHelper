@@ -34,8 +34,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { ipcOpen } from "@/api/ipc/main";
-
+import { ipcOpen } from "@/api/ipc/launch.api";
 const searchData = ref("");
 const showDropdown = ref(false);
 /** 搜索引擎列表 */

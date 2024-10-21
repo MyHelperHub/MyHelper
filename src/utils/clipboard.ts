@@ -5,7 +5,7 @@ import { QuickInputItem } from "@/interface/quickInput";
 import {
   ipcStartClipboardListener,
   ipcStopClipboardListener,
-} from "@/api/ipc/main";
+} from "@/api/ipc/clipboard.api";
 
 let clipboardListener: UnlistenFn | null = null;
 let clipboardData = ref<QuickInputItem[]>([]);

@@ -29,9 +29,8 @@ import SpeedDial from "primevue/speeddial";
 import { hideMessage } from "@/utils/message";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
-import { invoke } from "@tauri-apps/api/core";
 import { computed, ref } from "vue";
-import { ipcCreateNewWindow } from "@/api/ipc/main";
+import { ipcCreateNewWindow, ipcSetWindowSize } from "@/api/ipc/window.api";
 
 const isShowMenu = ref(false);
 
@@ -63,7 +62,7 @@ const menuItemsArray = computed(() => Object.values(menuItems.value));
 const showMenu = () => {
   hideMessage();
   const [width, height] = isShowMenu.value ? [65, 65] : [250, 420];
-  invoke("set_window_size", { width, height });
+  ipcSetWindowSize(width, height);
   isShowMenu.value = !isShowMenu.value;
 };
 </script>

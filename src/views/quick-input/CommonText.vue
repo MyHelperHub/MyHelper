@@ -39,10 +39,10 @@
 
 <script setup lang="ts">
 import { QuickInputItem } from "@/interface/quickInput";
-import { invoke } from "@tauri-apps/api/core";
 import { nextTick, ref } from "vue";
 import { getConfig, setConfig } from "@/utils/config";
 import { showMessage } from "@/utils/message";
+import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 
 const formData = ref<QuickInputItem[]>([]);
 
@@ -122,8 +122,8 @@ const save = async () => {
 
 /** 处理复制到剪贴板的功能 */
 const pasteTo = (item: QuickInputItem) => {
-  invoke("write_clipboard", { text: item.text }).then(() => {
-    invoke("paste");
+  ipcWriteClipboard(item.text).then(() => {
+    ipcPaste();
   });
 };
 </script>

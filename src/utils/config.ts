@@ -1,4 +1,8 @@
-import { ipcDeleteConfig, ipcGetConfig, ipcSetConfig } from "@/api/ipc/main";
+import {
+  ipcDeleteConfig,
+  ipcGetConfig,
+  ipcSetConfig,
+} from "@/api/ipc/config.api";
 
 /**
  * 获取配置数据

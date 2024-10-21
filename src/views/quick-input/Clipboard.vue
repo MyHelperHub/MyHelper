@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { QuickInputItem } from "@/interface/quickInput";
-import { invoke } from "@tauri-apps/api/core";
 import {
   startClipboardListening,
   stopClipboardListening,
@@ -43,8 +43,8 @@ const formData = GlobalData.get("clipboardList");
 
 /** 处理复制到剪贴板的功能 */
 const pasteTo = (item: QuickInputItem) => {
-  invoke("write_clipboard", { text: item.text }).then(() => {
-    invoke("paste");
+  ipcWriteClipboard(item.text).then(() => {
+    ipcPaste();
   });
 };
 </script>
