@@ -5,7 +5,9 @@
         <h4>剪切板监听</h4>
         <ToggleSwitch
           v-model="settingData.clipboardListening"
-          @change="handleClipboardSwitch">
+          @change="
+            handleSwitch('clipboardListening', settingData.clipboardListening)
+          ">
           <template #handle="{ checked }">
             <i
               :class="[
@@ -22,10 +24,10 @@
 <script setup lang="ts">
 import Fieldset from "primevue/fieldset";
 import ToggleSwitch from "primevue/toggleswitch";
-import { handleSettingChange } from "./utils/startupManager.ts";
 import { ref } from "vue";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { initSetting } from "./utils/settingRegistry.ts";
+import { emit } from "@tauri-apps/api/event";
 
 const settingData = ref({
   clipboardListening: false,
@@ -42,14 +44,17 @@ const init = async () => {
   }
 };
 init();
-
-const handleClipboardSwitch = async () => {
-  handleSettingChange(
-    "clipboardListening",
-    settingData.value.clipboardListening,
-  ).then(() => {
-    setConfig(["settingConfig"], settingData.value);
+/**
+ * 切换switch事件
+ * @param key 设置项的 key
+ * @param value 是否启用
+ */
+const handleSwitch = async (key: string, value: boolean) => {
+  emit("setting-change", {
+    key,
+    value,
   });
+  setConfig(["settingConfig"], settingData.value);
 };
 </script>
 

@@ -1,4 +1,7 @@
-import { startClipboardListening, stopClipboardListening } from "@/utils/clipboard";
+import {
+  startClipboardListening,
+  stopClipboardListening,
+} from "@/utils/clipboard";
 import { registerTask } from "./startupManager";
 
 /**
@@ -11,8 +14,6 @@ export const initSetting = async () => {
       startClipboardListening();
     },
     disabledFn: () => {
-      console.log("stopClipboardListening");
-      
       stopClipboardListening();
     },
   });

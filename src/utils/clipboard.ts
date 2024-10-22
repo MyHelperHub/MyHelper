@@ -32,7 +32,6 @@ export async function startClipboardListening() {
         id: Date.now(),
         text: clipboardContent,
       });
-      console.log(clipboardContent);
 
       // 限制数据条数，超过 50 条时删除最早的记录
       if (clipboardData.value.length > 50) {
