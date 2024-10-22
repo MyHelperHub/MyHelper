@@ -21,11 +21,11 @@ export const ipcCreateNewWindow = async (
  * @param windowId 窗口唯一标识符
  */
 export const ipcCloseWindow = async (windowId: string) => {
- try {
-   await invoke("close_new_window", { windowId });
- } catch (e) {
-   throw e;
- }
+  try {
+    await invoke("close_new_window", { windowId });
+  } catch (e) {
+    throw e;
+  }
 };
 
 /**

@@ -75,11 +75,11 @@ const openLabel = () => {
   if (containState.value.label) {
     containState.value.label = false;
     ipcCloseWindow("label").catch((err) => {
-      if (err === 'label') {
+      if (err === "label") {
         ipcCreateNewWindow("label", "桌面便签", "#/label", [210, 250]);
         containState.value.label = true;
       }
-    })
+    });
   } else {
     ipcCreateNewWindow("label", "桌面便签", "#/label", [210, 250]);
     containState.value.label = true;

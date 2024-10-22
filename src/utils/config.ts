@@ -21,7 +21,6 @@ export const getConfig = async (keys: Array<string>): Promise<any> => {
     const result = await ipcGetConfig(keys);
     return result;
   } catch (error) {
-    console.error("Error getting config:", error);
     throw error;
   }
 };
@@ -46,7 +45,6 @@ export const setConfig = async (
   try {
     await ipcSetConfig(keys, value);
   } catch (error) {
-    console.error("Error setting config:", error);
     throw error;
   }
 };
@@ -67,7 +65,6 @@ export const deleteConfig = async (keys: Array<string>): Promise<void> => {
   try {
     await ipcDeleteConfig(keys);
   } catch (error) {
-    console.error("Error deleting config:", error);
     throw error;
   }
 };

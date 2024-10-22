@@ -4,14 +4,8 @@
       <div class="item">
         <h4>剪切板监听</h4>
         <ToggleSwitch
-          v-model="settingsData.clipboardListening"
-          @change="
-            handleSwitch(
-              settingsData.clipboardListening,
-              startClipboardListening,
-              stopClipboardListening,
-            )
-          ">
+          v-model="settingData.clipboardListening"
+          @change="handleClipboardSwitch">
           <template #handle="{ checked }">
             <i
               :class="[
@@ -27,17 +21,36 @@
 
 <script setup lang="ts">
 import Fieldset from "primevue/fieldset";
-import {
-  startClipboardListening,
-  stopClipboardListening,
-} from "@/utils/clipboard";
 import ToggleSwitch from "primevue/toggleswitch";
-import { handleSwitch } from "@/utils/common";
+import { handleSettingChange } from "./utils/startupManager.ts";
 import { ref } from "vue";
+import { getConfig, setConfig } from "@/utils/config.ts";
+import { initSetting } from "./utils/settingRegistry.ts";
 
-const settingsData = ref({
+const settingData = ref({
   clipboardListening: false,
 });
+const init = async () => {
+  try {
+    initSetting();
+    const config = await getConfig(["settingConfig"]);
+    if (config) {
+      settingData.value = config || settingData.value;
+    }
+  } catch (error) {
+    console.error("获取设置项配置时出错，使用默认值:", error);
+  }
+};
+init();
+
+const handleClipboardSwitch = async () => {
+  handleSettingChange(
+    "clipboardListening",
+    settingData.value.clipboardListening,
+  ).then(() => {
+    setConfig(["settingConfig"], settingData.value);
+  });
+};
 </script>
 
 <style lang="less">
