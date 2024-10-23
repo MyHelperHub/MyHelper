@@ -4,42 +4,44 @@
       <slot></slot>
     </div>
 
-    <Modal v-model="showModal" @close="closeModal">
+    <Dialog
+      v-model:visible="showModal"
+      @hide="closeModal"
+      :dismissableMask="true"
+      :header="formData.id === -1 ? '添加网站' : '编辑网站'"
+      modal
+      appendTo="self"
+      :closable="false">
       <div class="modal-content">
-        <div class="modal-header">
-          {{ formData.id === -1 ? "添加网站" : "编辑网站" }}
-        </div>
-        <div class="modal-body">
-          <img
-            v-if="formData.logo"
-            class="image"
-            :src="convertFileSrc(formData.logo)"
-            @click="selectLocalImage" />
-          <i v-else class="pi pi-image image" @click="selectLocalImage"></i>
-          <div class="input-container">
-            <CustomInput
-              v-model="formData.title"
-              class="input"
-              :label="'网站名称'" />
-            <CustomInput
-              v-model="formData.url"
-              class="input"
-              :label="'网站地址'" />
-            <transition name="icon">
-              <div
-                v-if="urlRegex.test(formData.url)"
-                class="get-icon"
-                @click="getIcon">
-                获取图标
-              </div>
-            </transition>
-          </div>
+        <img
+          v-if="formData.logo"
+          class="image"
+          :src="convertFileSrc(formData.logo)"
+          @click="selectLocalImage" />
+        <i v-else class="pi pi-image image" @click="selectLocalImage"></i>
+        <div class="input-container">
+          <CustomInput
+            v-model="formData.title"
+            class="input"
+            :label="'网站名称'" />
+          <CustomInput
+            v-model="formData.url"
+            class="input"
+            :label="'网站地址'" />
+          <transition name="icon">
+            <div
+              v-if="urlRegex.test(formData.url)"
+              class="get-icon"
+              @click="getIcon">
+              获取图标
+            </div>
+          </transition>
         </div>
         <div class="modal-footer">
           <CustomButton class="button" @click="handleConfirm" />
         </div>
       </div>
-    </Modal>
+    </Dialog>
   </div>
 </template>
 
@@ -52,7 +54,7 @@ import { showMessage } from "@/utils/message.ts";
 import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 import { WebItem } from "@/interface/web";
-import Modal from "@/components/Modal.vue";
+import Dialog from "primevue/dialog";
 import { ipcGetWebIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
 
 const emit = defineEmits(["addWebItem", "editWebItem"]);
@@ -85,7 +87,6 @@ const closeModal = () => {
       logo: "",
     };
   }
-  showModal.value = false;
 };
 /** 获取图标方法 */
 const getIcon = () => {
@@ -169,9 +170,14 @@ defineExpose({
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
+@import "@/assets/css/variable.less";
+
 .add-item {
   display: inline-block;
+}
+.p-overlay-mask {
+  border-radius: 20px;
 }
 
 .add-btn-container {
@@ -182,50 +188,42 @@ defineExpose({
   background-color: #fff;
   border-radius: 5px;
 
-  .modal-header {
-    font-size: 14px;
-    font-weight: bold;
-    margin: 0;
-    padding: 0;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  .image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 32px;
   }
 
-  .modal-body {
+  .input-container {
     display: flex;
     align-items: center;
     flex-direction: column;
 
-    .image {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5px;
-      border: 1px solid rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      width: 38px;
-      height: 38px;
-      margin: 10px;
-      cursor: pointer;
+    .input {
+      margin: 5px;
+      width: 160px;
     }
 
-    .input-container {
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-
-      .input {
-        margin: 5px;
-        width: 160px;
-      }
-
-      .get-icon {
-        margin-left: 90px;
-        cursor: pointer;
-        color: #5264ae;
-        font-size: 12px;
-        border: 1px solid #5264ae;
-        border-radius: 5px;
-        padding: 5px;
-      }
+    .get-icon {
+      margin-left: 90px;
+      cursor: pointer;
+      color: #5264ae;
+      font-size: 12px;
+      border: 1px solid #5264ae;
+      border-radius: 5px;
+      padding: 5px;
     }
   }
 

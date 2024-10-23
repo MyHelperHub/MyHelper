@@ -5,7 +5,16 @@
         v-for="item in dataList"
         :key="item.id"
         class="item"
-        :title="item.title"
+        v-tooltip.bottom="{
+          value: item.title,
+          pt: {
+            text: {
+              style: {
+                fontSize: '15px',
+              },
+            },
+          },
+        }"
         @contextmenu.prevent="(e) => showContextMenu(e, item)"
         @click="openApp(item.src)">
         <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />

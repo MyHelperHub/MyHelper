@@ -16,6 +16,8 @@ import {
 import { initSetting } from "./views/setting/utils/settingRegistry";
 import { getConfig } from "./utils/config";
 import { listen } from "@tauri-apps/api/event";
+import Tooltip from "primevue/tooltip";
+
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
   async function initializeApp() {
@@ -54,4 +56,6 @@ app.use(PrimeVue, {
     preset: Lara,
   },
 });
+app.directive("tooltip", Tooltip);
+
 app.mount("#app");

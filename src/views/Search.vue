@@ -1,13 +1,13 @@
 <template>
   <div class="search-container">
-    <div class="search-list" @click="showDropdown = !showDropdown">
+    <div class="search-list" @click="popoverRef.toggle($event)">
       <img
         class="search-img"
         :src="selectedEngine.logo"
         :alt="selectedEngine.title"
         :title="selectedEngine.title" />
-      <transition name="slide-down">
-        <div v-if="showDropdown" class="dropdown-list">
+      <Popover ref="popoverRef">
+        <div class="dropdown-list">
           <div
             v-for="(engine, index) in searchEngines"
             :key="index"
@@ -16,7 +16,7 @@
             <img :src="engine.logo" :alt="engine.title" :title="engine.title" />
           </div>
         </div>
-      </transition>
+      </Popover>
     </div>
     <div class="search-control">
       <input
@@ -35,8 +35,12 @@
 <script setup>
 import { ref } from "vue";
 import { ipcOpen } from "@/api/ipc/launch.api";
+import Popover from "primevue/popover";
+
 const searchData = ref("");
-const showDropdown = ref(false);
+const selectedEngine = ref(null);
+const popoverRef = ref(null);
+
 /** 搜索引擎列表 */
 const searchEngines = [
   {
@@ -72,11 +76,14 @@ const searchEngines = [
     },
   },
 ];
-/** 当前选择的搜索引擎 */
-const selectedEngine = ref(searchEngines[0]);
+
+/** 默认选中的搜索引擎 */
+selectedEngine.value = searchEngines[0];
 
 const selectEngine = (engine) => {
   selectedEngine.value = engine;
+  // 关闭 popover
+  popoverRef.value.hide();
 };
 
 function handleSearch() {
@@ -107,10 +114,6 @@ function handleSearch() {
     }
 
     .dropdown-list {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: auto;
       background-color: #fff;
       border: 1px solid #ccc;
       z-index: 2;
@@ -167,16 +170,5 @@ function handleSearch() {
       }
     }
   }
-}
-
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.2s ease-in-out;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  transform: translateY(-30%);
-  opacity: 0;
 }
 </style>
