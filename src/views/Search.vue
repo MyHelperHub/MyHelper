@@ -5,7 +5,17 @@
         class="search-img"
         :src="selectedEngine.logo"
         :alt="selectedEngine.title"
-        :title="selectedEngine.title" />
+        v-tooltip.bottom="{
+          value: selectedEngine.title,
+          showDelay: 500,
+          pt: {
+            text: {
+              style: {
+                fontSize: '15px',
+              },
+            },
+          },
+        }" />
       <Popover ref="popoverRef">
         <div class="dropdown-list">
           <div
@@ -13,7 +23,20 @@
             :key="index"
             class="dropdown-item"
             @click="selectEngine(engine)">
-            <img :src="engine.logo" :alt="engine.title" :title="engine.title" />
+            <img
+              :src="engine.logo"
+              :alt="engine.title"
+              v-tooltip.right="{
+                value: engine.title,
+                showDelay: 200,
+                pt: {
+                  text: {
+                    style: {
+                      fontSize: '15px',
+                    },
+                  },
+                },
+              }" />
           </div>
         </div>
       </Popover>
@@ -44,7 +67,7 @@ const popoverRef = ref(null);
 /** 搜索引擎列表 */
 const searchEngines = [
   {
-    title: "baidu",
+    title: "Baidu",
     logo: "src/assets/images/engine/baidu.png",
     url: "https://www.baidu.com/s?wd=",
     handleSearch: (data) => {
@@ -52,7 +75,7 @@ const searchEngines = [
     },
   },
   {
-    title: "bing",
+    title: "Bing",
     logo: "src/assets/images/engine/bing.png",
     url: "https://bing.com/search?q=",
     handleSearch: (data) => {
@@ -60,7 +83,7 @@ const searchEngines = [
     },
   },
   {
-    title: "google",
+    title: "Google",
     logo: "src/assets/images/engine/google.png",
     url: "https://www.google.com/search?q=",
     handleSearch: (data) => {
@@ -68,7 +91,7 @@ const searchEngines = [
     },
   },
   {
-    title: "yahoo",
+    title: "Yahoo",
     logo: "src/assets/images/engine/yahoo.png",
     url: "https://search.yahoo.com/search?p=",
     handleSearch: (data) => {
@@ -93,6 +116,8 @@ function handleSearch() {
 </script>
 
 <style lang="less">
+@import "../assets/css/variable.less";
+
 .search-container {
   width: 100%;
   display: flex;
@@ -111,26 +136,6 @@ function handleSearch() {
     .search-img {
       width: 22px;
       height: 22px;
-    }
-
-    .dropdown-list {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      z-index: 2;
-
-      .dropdown-item {
-        padding: 5px 8px;
-        cursor: pointer;
-
-        &:hover {
-          background-color: #f0f0f0;
-        }
-
-        img {
-          width: 22px;
-          height: 22px;
-        }
-      }
     }
   }
 
@@ -167,6 +172,31 @@ function handleSearch() {
         fill: #000;
         width: 90%;
         height: 90%;
+      }
+    }
+  }
+}
+
+.p-popover:after,
+.p-popover:before {
+  transform: translateX(-20%);
+}
+.p-popover-content {
+  padding: 5px !important;
+  .dropdown-list {
+    background-color: #fff;
+
+    .dropdown-item {
+      padding: 5px 8px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f0f0f0;
+      }
+
+      img {
+        width: 22px;
+        height: 22px;
       }
     }
   }

@@ -59,7 +59,7 @@ const handleSwitch = async (key: string, value: boolean) => {
 </script>
 
 <style lang="less">
-@import "@/assets/css/variable.less";
+@import "../../assets/css/variable.less";
 
 .settings-wrap {
   width: 100%;

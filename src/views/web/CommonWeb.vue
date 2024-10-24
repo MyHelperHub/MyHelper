@@ -7,6 +7,7 @@
         class="item"
         v-tooltip.bottom="{
           value: item.title,
+          showDelay: 200,
           pt: {
             text: {
               style: {
