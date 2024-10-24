@@ -22,21 +22,19 @@
             v-for="(engine, index) in searchEngines"
             :key="index"
             class="dropdown-item"
-            @click="selectEngine(engine)">
-            <img
-              :src="engine.logo"
-              :alt="engine.title"
-              v-tooltip.right="{
-                value: engine.title,
-                showDelay: 200,
-                pt: {
-                  text: {
-                    style: {
-                      fontSize: '15px',
-                    },
+            v-tooltip.right="{
+              value: engine.title,
+              showDelay: 200,
+              pt: {
+                text: {
+                  style: {
+                    fontSize: '15px',
                   },
                 },
-              }" />
+              },
+            }"
+            @click="selectEngine(engine)">
+            <img :src="engine.logo" :alt="engine.title" />
           </div>
         </div>
       </Popover>

@@ -15,6 +15,11 @@ const routes = [
     path: "/setting",
     component: () => import("@/views/setting/Setting.vue"),
   },
+  {
+    name: "Plugin",
+    path: "/plugin",
+    component: () => import("@/plugin/Plugin.vue"),
+  },
 ];
 
 const router = createRouter({

@@ -171,7 +171,7 @@ defineExpose({
 </script>
 
 <style lang="less">
-@import '../../assets/css/variable.less';
+@import "../../assets/css/variable.less";
 
 .add-item {
   display: inline-block;
