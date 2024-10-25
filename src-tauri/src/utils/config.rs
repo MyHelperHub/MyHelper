@@ -1,20 +1,22 @@
 use serde_json::{Map, Value};
 use std::collections::HashMap;
-use std::env;
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-// 获取配置文件的路径并确保目录存在
-fn get_config_path() -> Result<PathBuf, String> {
-    let home_dir = env::var("APPDATA").map_err(|e| e.to_string())?;
-    let myhelper_path = Path::new(&home_dir).join("MyHelper");
+use super::path::get_myhelper_path;
 
-    if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
+// 获取配置文件的路径并确保目录存在
+pub fn get_config_path() -> Result<PathBuf, String> {
+    let myhelper_path = get_myhelper_path()?;
+    let config_path = myhelper_path.join("config.json");
+
+    // 如果 config.json 文件不存在，则创建它
+    if !config_path.exists() {
+        fs::File::create(&config_path).map_err(|e| e.to_string())?;
     }
 
-    Ok(myhelper_path.join("config.json"))
+    Ok(config_path)
 }
 
 // 读取配置文件

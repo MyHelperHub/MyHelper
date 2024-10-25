@@ -1,10 +1,8 @@
 use image::{DynamicImage, ImageBuffer, ImageOutputFormat, Rgba};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use std::env;
 use std::fs::{self, File};
 use std::io::BufWriter;
-use std::path::Path;
 use std::ptr::null_mut;
 use winapi::ctypes::c_void;
 use winapi::shared::windef::{HBITMAP, HICON};
@@ -15,16 +13,14 @@ use winapi::um::wingdi::{
 };
 use winapi::um::winuser::{DestroyIcon, GetIconInfo, ICONINFO};
 
+use crate::utils::path::get_myhelper_path;
+
 #[tauri::command]
 pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
     // 获取用户目录
-    let home_dir = env::var("APPDATA").map_err(|e| e.to_string())?;
-    let myhelper_path = Path::new(&home_dir)
-        .join("MyHelper")
-        .join("Image")
-        .join("AppIcon");
-
-    // 创建目录（如果不存在）
+    let myhelper_path = get_myhelper_path()
+        .map(|path| path.join("Image").join("AppIcon"))
+        .map_err(|e| e.to_string())?;
     if !myhelper_path.exists() {
         fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
     }
