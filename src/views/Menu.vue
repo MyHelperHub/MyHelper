@@ -26,7 +26,7 @@
         <div class="menu-text">CHATGPT</div>
       </div>
       <div class="menu-item">
-        <div class="menu-text">使用教程</div>
+        <div class="menu-text">插件市场</div>
       </div>
     </div>
   </div>
