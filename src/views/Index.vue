@@ -67,12 +67,12 @@ const menuItems = ref({
         menuItems.value.my.isOpen = false;
         ipcCloseWindow("my").catch((err) => {
           if (err === "my") {
-            ipcCreateNewWindow("my", "我的", "#/my", [350, 550]);
+            ipcCreateNewWindow("my", "我的", "#/my", [600, 400]);
             menuItems.value.my.isOpen = true;
           }
         });
       } else {
-        ipcCreateNewWindow("my", "我的", "#/my", [350, 550]);
+        ipcCreateNewWindow("my", "我的", "#/my", [600, 400]);
         menuItems.value.my.isOpen = true;
       }
     },

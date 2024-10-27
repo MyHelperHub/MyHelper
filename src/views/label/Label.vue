@@ -86,10 +86,8 @@ const handleClose = () => {
 
   .close-button {
     position: absolute;
-    top: 2px;
-    right: 0;
-    width: 32px;
-    height: 32px;
+    top: 5px;
+    right: 5px;
     cursor: pointer;
   }
 }

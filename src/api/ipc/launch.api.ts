@@ -35,10 +35,19 @@ export const ipcGetWebIcon = async (url: string) => {
 };
 
 /**
- * 设置本地文件为图标
- * @param imagePath 图标文件的本地路径
- * @param appType 应用类型，0 为网页图标，1 为应用图标
+ * 设置本地文件或 base64 编码的图像为图标
+ * @param appType 应用类型，0为网页图标，1为应用图标，2为 logo 图片
+ * @param imagePath 图标文件的本地路径（可选）
+ * @param imageBase64 图标的 base64 编码（可选）
  */
-export const ipcSetLocalIcon = async (imagePath: string, appType: number) => {
-  return invoke("set_local_icon", { imagePath, appType });
+export const ipcSetLocalIcon = async (
+  appType: number,
+  imagePath?: string | null,
+  imageBase64?: string | null,
+) => {
+  return invoke("set_local_icon", {
+    appType: appType,
+    imagePath: imagePath || null,
+    imageBase64: imageBase64 || null,
+  });
 };
