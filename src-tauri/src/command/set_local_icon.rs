@@ -20,26 +20,15 @@ pub enum IconError {
 /**
  * 设置本地图标
  * @param image_path 图片路径
- * @param image_base64 图片的 base64 编码
- * @param app_type 应用类型，0为网页图标，1为应用图标，2为 logo 图片
+ * @param app_type 应用类型，0为网页图标，1为应用图标
  */
 #[tauri::command]
-pub fn set_local_icon(
-    image_path: Option<&str>,
-    image_base64: Option<&str>,
-    app_type: u32,
-) -> Result<String, IconError> {
+pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconError> {
     let myhelper_path = get_myhelper_path().map_err(|e| IconError::HomeDirError(e))?;
     let icon_path = myhelper_path.join("Image");
 
-    // 加载图片（优先使用 base64 数据）
-    let img = if let Some(base64_str) = image_base64 {
-        load_image_from_base64(base64_str)?
-    } else if let Some(path) = image_path {
-        image::open(path).map_err(|e| IconError::ImageError(e.to_string()))?
-    } else {
-        return Err(IconError::ImageError("No image data provided".to_string()));
-    };
+    // 加载图片
+    let img = image::open(image_path).map_err(|e| IconError::ImageError(e.to_string()))?;
 
     // 调整图片大小为 32x32
     let resized_img = img.resize_exact(32, 32, image::imageops::FilterType::Lanczos3);
@@ -59,10 +48,6 @@ pub fn set_local_icon(
             let file_name = format!("{}{}.png", prefix, generate_random_string(6));
             sub_path.join(file_name)
         }
-        2 => {
-            // Logo 图标路径，固定文件名
-            icon_path.join("logo.png")
-        }
         _ => return Err(IconError::InvalidAppType),
     };
 
@@ -81,6 +66,34 @@ pub fn set_local_icon(
         .map_err(|e| IconError::ImageError(e.to_string()))?;
 
     Ok(output_path.display().to_string())
+}
+
+/**
+ * 设置 logo 图标
+ * @param image_base64 图片的 base64 编码
+ */
+#[tauri::command]
+pub fn set_local_logo(image_base64: &str) -> Result<String, IconError> {
+    let myhelper_path = get_myhelper_path().map_err(|e| IconError::HomeDirError(e))?;
+    let logo_path = myhelper_path.join("Image").join("logo.png");
+
+    // 从 base64 字符串加载图片
+    let img = load_image_from_base64(image_base64)?;
+
+    // 确保目录存在
+    if let Some(parent) = logo_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent).map_err(|e| IconError::IoError(e.to_string()))?;
+        }
+    }
+
+    // 写入原始图片到指定路径
+    let mut writer =
+        BufWriter::new(File::create(&logo_path).map_err(|e| IconError::IoError(e.to_string()))?);
+    img.write_to(&mut writer, ImageOutputFormat::Png)
+        .map_err(|e| IconError::ImageError(e.to_string()))?;
+
+    Ok(logo_path.display().to_string())
 }
 
 // 从 base64 字符串加载图片

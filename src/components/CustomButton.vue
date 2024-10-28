@@ -42,15 +42,15 @@ const props = defineProps({
     }
 
     &:after {
-      top: -1px;
-      left: -1px;
+      top: 0;
+      left: 0;
       border-top: 3px solid black;
       border-left: 3px solid black;
     }
 
     &:before {
-      bottom: -2px;
-      right: -2px;
+      bottom: 0;
+      right: 0;
       border-bottom: 3px solid black;
       border-right: 3px solid black;
     }

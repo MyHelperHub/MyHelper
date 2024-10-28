@@ -52,7 +52,7 @@ init();
  * @param value 是否启用
  */
 const handleSwitch = async (key: string, value: boolean) => {
-  emit("setting-change", {
+  emit("update:setting", {
     key,
     value,
   });

@@ -32,7 +32,7 @@ if (Window.getCurrent().label === "main") {
       }
       // 监听设置变化,将所有设置都放在main窗口里执行
       listen(
-        "setting-change",
+        "update:setting",
         (event: { payload: { key: string; value: boolean } }) => {
           const { key, value } = event.payload;
           handleSettingChange(key, value);

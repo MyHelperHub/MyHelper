@@ -35,14 +35,13 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { showContextMenu } from "@/views/app/utils/contextMenu.ts";
-import { inject, ref } from "vue";
+import { ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
-import { on } from "@/utils/eventBus";
+import { emit, on } from "@/utils/eventBus";
 import { ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 
 const dataList = ref<AppItem[]>([]);
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
 
 const init = async () => {
   try {
@@ -54,7 +53,7 @@ const init = async () => {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
   // 通过事件总线传递方法
-  on("deleteAppItem", deleteAppItem);
+  on("delete-appItem", deleteAppItem);
 };
 init();
 
@@ -62,7 +61,7 @@ init();
 const openApp = async (path: string) => {
   ipcOpen(path)
     .then(() => {
-      closeAllMenu();
+      emit("closeAllMenu");
     })
     .catch(() => {
       showMessage("打开失败!", 3000, 2);

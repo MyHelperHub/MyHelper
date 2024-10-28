@@ -4,7 +4,7 @@
     <Fieldset legend="主页头像">
       <div class="avatar-upload-container">
         <div class="avatar-preview">
-          <img :src="avatarUrl || '/logo.png'" alt="头像预览" />
+          <img :src="avatarLogo || '/logo.png'" alt="头像预览" />
           <FileUpload
             class="upload-overlay"
             mode="basic"
@@ -17,6 +17,28 @@
         </div>
       </div>
     </Fieldset>
+
+    <Dialog
+      v-model:visible="showCropperModal"
+      header="裁剪头像"
+      modal
+      appendTo="self"
+      :closable="false">
+      <div class="cropper-container">
+        <VueCropper
+          ref="cropper"
+          :img="cropperImage"
+          outputType="png"
+          autoCropWidth="70"
+          autoCropHeight="70"
+          fixedBox
+          autoCrop />
+      </div>
+      <template #footer>
+        <Button label="确认裁剪" @click="confirmCrop" />
+        <Button label="取消" @click="cancelCrop" class="p-button-secondary" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -24,21 +46,60 @@
 import { ref } from "vue";
 import Fieldset from "primevue/fieldset";
 import FileUpload from "primevue/fileupload";
+import Dialog from "primevue/dialog";
+import Button from "primevue/button";
 import { ipcCloseWindow } from "@/api/ipc/window.api";
-import { ipcSetLocalIcon } from "@/api/ipc/launch.api";
+import { ipcSetLocalLogo } from "@/api/ipc/launch.api";
+import { VueCropper } from "vue-cropper";
+import "vue-cropper/dist/index.css";
+import { emit } from "@tauri-apps/api/event";
+import { checkLogoPath } from "@/utils/avatar";
 
-const avatarUrl = ref<string | undefined>();
+const avatarLogo = ref<string | undefined>();
+const showCropperModal = ref(false); // 控制裁剪框的显示状态
+const cropper = ref();
+const cropperImage = ref();
 
+const init = () => {
+  checkLogoPath().then((path) => {
+    avatarLogo.value = path;
+  });
+};
+init();
+// 选择图片后
 const onSelect = (event: any) => {
   const file = event.files[0];
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      avatarUrl.value = e.target?.result as string;
-      ipcSetLocalIcon(2, null, e.target?.result as string);
+      cropperImage.value = e.target?.result as string;
+      showCropperModal.value = true; // 显示裁剪框
     };
     reader.readAsDataURL(file);
   }
+};
+
+// 裁剪完成后
+const confirmCrop = () => {
+  cropper.value.getCropData((data: string) => {
+    if (data) {
+      const base64 = (data as string).replace(
+        /^data:image\/[a-zA-Z]+;base64,/,
+        "",
+      );
+      ipcSetLocalLogo(base64); // 将裁剪后的图片上传
+      avatarLogo.value = data;
+      cropperImage.value = "";
+      showCropperModal.value = false; // 隐藏裁剪框
+      emit("update:logo");
+    }
+  });
+};
+
+// 取消裁剪
+const cancelCrop = () => {
+  cropperImage.value = "";
+  showCropperModal.value = false; // 隐藏裁剪框
 };
 
 const handleClose = () => {
@@ -100,6 +161,7 @@ const handleClose = () => {
           visibility 0.2s ease;
         border-radius: 50%;
         text-wrap: nowrap;
+
         .pi {
           display: none;
         }
@@ -110,6 +172,10 @@ const handleClose = () => {
         visibility: visible;
       }
     }
+  }
+  .cropper-container {
+    width: 200px;
+    height: 150px;
   }
 }
 </style>

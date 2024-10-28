@@ -39,16 +39,15 @@
 import AddItem from "@/views/web/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { inject, ref } from "vue";
+import { ref } from "vue";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
-import { on } from "@/utils/eventBus";
+import { emit, on } from "@/utils/eventBus";
 import { ipcOpen } from "@/api/ipc/launch.api";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
 
 const init = async () => {
   try {
@@ -60,8 +59,8 @@ const init = async () => {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
   // 通过事件总线传递方法
-  on("editWebItem", openEditWebItem);
-  on("deleteWebItem", deleteWebItem);
+  on("edit-webItem", openEditWebItem);
+  on("delete-webItem", deleteWebItem);
 };
 init();
 
@@ -77,7 +76,7 @@ const navigateTo = (url: string) => {
   }
   ipcOpen(url)
     .then(() => {
-      closeAllMenu();
+      emit("closeAllMenu");
     })
     .catch(() => {
       showMessage("打开失败!", 3000, 2);

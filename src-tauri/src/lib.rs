@@ -170,6 +170,8 @@ pub fn run() {
             get_app_icon,
             get_web_icon,
             set_local_icon,
+            set_local_logo,
+            file_exists,
             get_config,
             set_config,
             delete_config,

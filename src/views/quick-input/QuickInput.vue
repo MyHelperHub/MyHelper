@@ -1,6 +1,6 @@
 <template>
   <div class="quick-input">
-    <i class="pi pi-times close" @click="closeAllMenu"></i>
+    <i class="pi pi-times close" @click="close"></i>
     <div class="tabs">
       <div
         class="tab"
@@ -31,14 +31,16 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { ref } from "vue";
 import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
-
-const closeAllMenu = inject<() => void>("closeAllMenu") || (() => {});
+import { emit } from "@/utils/eventBus";
 
 /** 0为常用，1为剪切板 */
 const activeTab = ref(0);
+const close = () => {
+  emit("closeAllMenu");
+};
 </script>
 
 <style lang="less">

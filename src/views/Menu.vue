@@ -36,9 +36,10 @@
 import CommonWeb from "@/views/web/CommonWeb.vue";
 import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
-import { provide, ref } from "vue";
+import { ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
 import { ipcCloseWindow, ipcCreateNewWindow } from "@/api/ipc/window.api";
+import { on } from "@/utils/eventBus";
 
 // 控制每个菜单项的展开与关闭状态
 const commonState = ref<CommonState>({
@@ -95,7 +96,7 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
-provide("closeAllMenu", closeAllMenu);
+on("closeAllMenu", closeAllMenu);
 </script>
 
 <style lang="less">

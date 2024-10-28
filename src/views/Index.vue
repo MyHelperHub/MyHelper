@@ -1,13 +1,12 @@
 <template>
-  <div class="top-container">
-    <div class="brand">
-      <img class="logo" src="/logo.png" @click="showMenu" />
-    </div>
+  <div class="brand" data-tauri-drag-region>
+    <img class="logo" :src="avatarLogo" @click="showMenu" />
   </div>
   <Transition name="transition">
     <div v-show="isShowMenu" class="home">
       <div class="settings">
         <SpeedDial
+          v-if="isShowMenu"
           class="speed-dial"
           button-class="p-button-text"
           show-icon="pi pi-bars"
@@ -35,8 +34,25 @@ import {
   ipcCreateNewWindow,
   ipcSetWindowSize,
 } from "@/api/ipc/window.api";
+import { listen } from "@tauri-apps/api/event";
+import { checkLogoPath } from "@/utils/avatar";
+import { emit } from "@/utils/eventBus";
 
 const isShowMenu = ref(false);
+const avatarLogo = ref("/logo.png");
+
+const init = () => {
+  checkLogoPath().then((path) => {
+    avatarLogo.value = path;
+  });
+  listen("update:logo", () => {
+    checkLogoPath().then((path) => {
+      avatarLogo.value = path;
+    });
+  });
+};
+
+init();
 
 const menuItems = ref({
   settings: {
@@ -84,11 +100,24 @@ const menuItemsArray = computed(() => Object.values(menuItems.value));
 
 const showMenu = () => {
   hideMessage();
-  const [width, height] = isShowMenu.value ? [65, 65] : [250, 420];
+
+  let width;
+  let height;
+
+  if (isShowMenu.value) {
+    width = 65;
+    height = 65;
+  } else {
+    width = 250;
+    height = 420;
+    emit("closeAllMenu");
+  }
+
   ipcSetWindowSize(width, height);
   isShowMenu.value = !isShowMenu.value;
 };
 </script>
+
 <style lang="less">
 .home {
   width: 100%;
@@ -126,18 +155,16 @@ const showMenu = () => {
   }
 }
 .brand {
-  width: fit-content;
-  height: fit-content;
-  cursor: pointer;
-
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  z-index: 2;
   .logo {
-    position: absolute;
-    left: 3px;
-    top: 3px;
     height: 60px;
     width: 60px;
     border-radius: 50%;
     border: 4px solid rgba(230, 235, 240, 0.8);
+    cursor: pointer;
     z-index: 1;
     // 禁止拖动
     -webkit-user-drag: none;

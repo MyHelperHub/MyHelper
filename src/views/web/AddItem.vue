@@ -121,7 +121,7 @@ const selectLocalImage = async () => {
   });
 
   if (filePath) {
-    ipcSetLocalIcon(0, filePath)
+    ipcSetLocalIcon(filePath, 0)
       .then((res) => {
         formData.value.logo = (res as string).replace(/\\/g, "/");
       })

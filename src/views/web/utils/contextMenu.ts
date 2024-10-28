@@ -8,14 +8,14 @@ export async function showContextMenu(event: MouseEvent, item: WebItem) {
     MenuItem.new({
       text: "编辑",
       action: () => {
-        emit("editWebItem", item);
+        emit("edit-webItem", item);
       },
     }),
     PredefinedMenuItem.new({ item: "Separator" }), // 分隔线
     MenuItem.new({
       text: "删除",
       action: () => {
-        emit("deleteWebItem", item.id);
+        emit("delete-webItem", item.id);
       },
     }),
   ]);

@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use tauri::{LogicalSize, Manager, WebviewUrl, WebviewWindowBuilder};
 
 /** 设置窗口大小的命令 */
@@ -102,4 +104,12 @@ pub async fn set_window_always_on_top(
         return Err(window_id);
     }
     Ok(())
+}
+
+/**
+ * 判断文件是否存在
+ */
+#[tauri::command]
+pub fn file_exists(path: String) -> bool {
+    Path::new(&path).exists()
 }

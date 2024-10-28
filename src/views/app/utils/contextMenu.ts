@@ -8,7 +8,7 @@ export async function showContextMenu(event: MouseEvent, item: AppItem) {
     MenuItem.new({
       text: "删除",
       action: () => {
-        emit("deleteAppItem", item.id);
+        emit("delete-appItem", item.id);
       },
     }),
   ]);
