@@ -21,32 +21,33 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
     let myhelper_path = get_myhelper_path()
         .map(|path| path.join("Image").join("AppIcon"))
         .map_err(|e| e.to_string())?;
+
     if !myhelper_path.exists() {
         fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
     }
 
-    // 生成随机六位字符
+    // 生成随机文件名
     let random_chars: String = thread_rng()
         .sample_iter(&Alphanumeric)
         .take(6)
         .map(char::from)
         .collect();
-
-    // 使用"app_image_" + 随机字符作为文件名
-    let file_name = format!("app_image_{}.png", random_chars);
-    let output_path = myhelper_path.join(file_name);
+    let output_path = myhelper_path.join(format!("app_image_{}.png", random_chars));
 
     let exe_path_w: Vec<u16> = exe_path.encode_utf16().chain(Some(0)).collect();
     let mut shinfo: SHFILEINFOW = unsafe { std::mem::zeroed() };
 
-    unsafe {
+    if unsafe {
         SHGetFileInfoW(
             exe_path_w.as_ptr(),
             0,
             &mut shinfo,
             std::mem::size_of::<SHFILEINFOW>() as u32,
             SHGFI_ICON,
-        );
+        )
+    } == 0
+    {
+        return Err("Failed to get file info".to_string());
     }
 
     let hicon: HICON = shinfo.hIcon;
@@ -54,39 +55,85 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
         return Err("Failed to get icon".to_string());
     }
 
-    let mut icon_info: ICONINFO = unsafe { std::mem::zeroed() };
+    let icon_info: ICONINFO = get_icon_info(hicon)?;
+    let bmp = get_bitmap(&icon_info)?;
+
+    let (width, height) = (bmp.bmWidth as usize, bmp.bmHeight as usize);
+    let pixels = get_pixels(hicon, &icon_info, width, height)?;
+
+    // 创建图像缓冲区并保存
+    let img_buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels)
+        .ok_or("Failed to create image buffer")?;
+    let img = DynamicImage::ImageRgba8(img_buffer);
+    let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
+    let mut writer = BufWriter::new(output_file);
+    img.write_to(&mut writer, ImageOutputFormat::Png)
+        .map_err(|e| e.to_string())?;
+
     unsafe {
-        if GetIconInfo(hicon, &mut icon_info) == 0 {
-            DestroyIcon(hicon);
-            return Err("Failed to get icon info".to_string());
-        }
+        cleanup_resources(icon_info, hicon);
     }
 
+    Ok(output_path.display().to_string())
+}
+
+unsafe fn cleanup_resources(icon_info: ICONINFO, hicon: HICON) {
+    DeleteObject(icon_info.hbmColor as *mut _ as *mut c_void);
+    DeleteObject(icon_info.hbmMask as *mut _ as *mut c_void);
+    DestroyIcon(hicon);
+}
+
+fn get_icon_info(hicon: HICON) -> Result<ICONINFO, String> {
+    let mut icon_info: ICONINFO = unsafe { std::mem::zeroed() };
+    if unsafe { GetIconInfo(hicon, &mut icon_info) == 0 } {
+        return Err("Failed to get icon info".to_string());
+    }
+    Ok(icon_info)
+}
+
+fn get_bitmap(icon_info: &ICONINFO) -> Result<BITMAP, String> {
     let mut bmp: BITMAP = unsafe { std::mem::zeroed() };
-    unsafe {
+    let result = unsafe {
         GetObjectW(
             icon_info.hbmColor as *mut _ as *mut c_void,
             std::mem::size_of::<BITMAP>() as i32,
             &mut bmp as *mut _ as *mut _,
-        );
+        )
+    };
+    if result == 0 {
+        return Err("Failed to get bitmap".to_string());
+    }
+    Ok(bmp)
+}
+
+fn get_pixels(
+    hicon: HICON,
+    icon_info: &ICONINFO,
+    width: usize,
+    height: usize,
+) -> Result<Vec<u8>, String> {
+    let _ = hicon;
+    let hdc = unsafe { CreateCompatibleDC(null_mut()) };
+    if hdc.is_null() {
+        return Err("Failed to create compatible DC".to_string());
     }
 
-    let bmp_info_header = BITMAPINFOHEADER {
-        biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
-        biWidth: bmp.bmWidth,
-        biHeight: bmp.bmHeight,
-        biPlanes: 1,
-        biBitCount: 32,
-        biCompression: 0,
-        biSizeImage: 0,
-        biXPelsPerMeter: 0,
-        biYPelsPerMeter: 0,
-        biClrUsed: 0,
-        biClrImportant: 0,
-    };
+    let mut pixels = vec![0u8; width * height * 4]; // 4 bytes per pixel (RGBA)
 
-    let mut bmp_info = BITMAPINFO {
-        bmiHeader: bmp_info_header,
+    let bmp_info = BITMAPINFO {
+        bmiHeader: BITMAPINFOHEADER {
+            biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+            biWidth: width as i32,
+            biHeight: height as i32,
+            biPlanes: 1,
+            biBitCount: 32,
+            biCompression: 0,
+            biSizeImage: 0,
+            biXPelsPerMeter: 0,
+            biYPelsPerMeter: 0,
+            biClrUsed: 0,
+            biClrImportant: 0,
+        },
         bmiColors: [RGBQUAD {
             rgbBlue: 0,
             rgbGreen: 0,
@@ -95,21 +142,6 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
         }; 1],
     };
 
-    let hdc = unsafe { CreateCompatibleDC(null_mut()) };
-    if hdc.is_null() {
-        unsafe {
-            DeleteObject(icon_info.hbmColor as *mut _ as *mut c_void);
-            DeleteObject(icon_info.hbmMask as *mut _ as *mut c_void);
-            DestroyIcon(hicon);
-        }
-        return Err("Failed to create compatible DC".to_string());
-    }
-
-    let width = bmp.bmWidth as usize;
-    let height = bmp.bmHeight as usize;
-    let row_size = width * 4;
-    let mut pixels = vec![0u8; row_size * height];
-
     let success = unsafe {
         GetDIBits(
             hdc,
@@ -117,53 +149,37 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
             0,
             height as u32,
             pixels.as_mut_ptr() as *mut _,
-            &mut bmp_info as *mut _,
+            &bmp_info as *const _ as *mut _,
             0,
         )
     };
 
     if success == 0 {
-        unsafe {
-            DeleteDC(hdc);
-            DeleteObject(icon_info.hbmColor as *mut _ as *mut c_void);
-            DeleteObject(icon_info.hbmMask as *mut _ as *mut c_void);
-            DestroyIcon(hicon);
-        }
         return Err("Failed to get DIB bits".to_string());
     }
 
-    // 将颜色通道从 BGRA 调整为 RGBA 并垂直翻转图像
+    // 将颜色通道从 BGRA 转换为 RGBA，并垂直翻转图像
     let mut pixels_rgba = vec![0u8; pixels.len()];
     for y in 0..height {
-        let src_start = (height - y - 1) * row_size;
-        let dst_start = y * row_size;
-        let src_row = &pixels[src_start..src_start + row_size];
-        let dst_row = &mut pixels_rgba[dst_start..dst_start + row_size];
+        let src_start = (height - y - 1) * width * 4; // BGRA 行
+        let dst_start = y * width * 4; // RGBA 行
 
-        for (i, chunk) in src_row.chunks_exact(4).enumerate() {
-            let (b, g, r, a) = (chunk[0], chunk[1], chunk[2], chunk[3]);
-            dst_row[i * 4] = r;
-            dst_row[i * 4 + 1] = g;
-            dst_row[i * 4 + 2] = b;
-            dst_row[i * 4 + 3] = a;
+        for x in 0..width {
+            let src_index = src_start + x * 4;
+            let dst_index = dst_start + x * 4;
+            let (b, g, r, a) = (
+                pixels[src_index],
+                pixels[src_index + 1],
+                pixels[src_index + 2],
+                pixels[src_index + 3],
+            );
+            pixels_rgba[dst_index] = r; // R
+            pixels_rgba[dst_index + 1] = g; // G
+            pixels_rgba[dst_index + 2] = b; // B
+            pixels_rgba[dst_index + 3] = a; // A
         }
     }
 
-    let img_buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels_rgba)
-        .ok_or("Failed to create image buffer")?;
-
-    let img = DynamicImage::ImageRgba8(img_buffer);
-    let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
-    let mut writer = BufWriter::new(output_file);
-    img.write_to(&mut writer, ImageOutputFormat::Png)
-        .map_err(|e| e.to_string())?;
-
-    unsafe {
-        DeleteDC(hdc);
-        DeleteObject(icon_info.hbmColor as *mut _ as *mut c_void);
-        DeleteObject(icon_info.hbmMask as *mut _ as *mut c_void);
-        DestroyIcon(hicon);
-    }
-
-    Ok(output_path.display().to_string())
+    unsafe { DeleteDC(hdc) };
+    Ok(pixels_rgba)
 }
