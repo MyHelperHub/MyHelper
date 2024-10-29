@@ -24,15 +24,13 @@
     ],
     "security": {
       "csp": {
-        "default-src": "'self' asset: http://asset.localhost",
-        "media-src": "'self' asset: http://asset.localhost",
-        "img-src": "'self' asset: http://asset.localhost"
+        "default-src": "'self' 'unsafe-inline' asset: http://asset.localhost",
+        "media-src": "'self' 'unsafe-inline' asset: http://asset.localhost",
+        "img-src": "'self' 'unsafe-inline' asset: http://asset.localhost"
       },
       "assetProtocol": {
         "enable": true,
-        "scope": [
-          "$APPDATA/**"
-        ]
+        "scope": ["$APPDATA/**"]
       }
     }
   },
