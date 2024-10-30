@@ -182,7 +182,9 @@ pub fn run() {
             start_clipboard_listener,
             stop_clipboard_listener,
             write_clipboard,
-            paste
+            paste,
+            mh_plugin_install,
+            mh_plugin_uninstall
         ])
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
