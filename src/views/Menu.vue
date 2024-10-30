@@ -25,7 +25,7 @@
       <div class="menu-item">
         <div class="menu-text">CHATGPT</div>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="openPluginMarket">
         <div class="menu-text">插件市场</div>
       </div>
     </div>
@@ -40,6 +40,7 @@ import { ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
 import { ipcCloseWindow, ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { on } from "@/utils/eventBus";
+import { showMessage } from "@/utils/message";
 
 // 控制每个菜单项的展开与关闭状态
 const commonState = ref<CommonState>({
@@ -87,6 +88,9 @@ const openLabel = () => {
   }
 };
 
+const openPluginMarket = () => {
+  showMessage("功能尚未开放，敬请期待！", 2500, 0);
+};
 /** 点击外侧时关闭菜单项 */
 const handleClickOutside = (event: MouseEvent) => {
   // 检查点击事件的目标元素是否是 .menu-container 元素本身
@@ -101,9 +105,11 @@ on("closeAllMenu", closeAllMenu);
 
 <style lang="less">
 .menu-container {
+  position: relative;
+  top: -30px;
   width: 100%;
   height: 100%;
-  margin-top: 65px;
+  padding-top: 95px;
 
   .menu-list {
     display: flex;
