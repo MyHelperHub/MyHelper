@@ -66,7 +66,7 @@ const popoverRef = ref(null);
 const searchEngines = [
   {
     title: "Baidu",
-    logo: new URL('../assets/images/engine/baidu.png', import.meta.url).href,
+    logo: new URL("../assets/images/engine/baidu.png", import.meta.url).href,
     url: "https://www.baidu.com/s?wd=",
     handleSearch: (data) => {
       ipcOpen(`https://www.baidu.com/s?wd=${data}`);
@@ -74,7 +74,7 @@ const searchEngines = [
   },
   {
     title: "Bing",
-    logo: new URL('../assets/images/engine/bing.png', import.meta.url).href,
+    logo: new URL("../assets/images/engine/bing.png", import.meta.url).href,
     url: "https://bing.com/search?q=",
     handleSearch: (data) => {
       ipcOpen(`https://bing.com/search?q=${data}`);
@@ -82,7 +82,7 @@ const searchEngines = [
   },
   {
     title: "Google",
-    logo: new URL('../assets/images/engine/google.png', import.meta.url).href,
+    logo: new URL("../assets/images/engine/google.png", import.meta.url).href,
     url: "https://www.google.com/search?q=",
     handleSearch: (data) => {
       ipcOpen(`https://www.google.com/search?q=${data}`);
@@ -90,7 +90,7 @@ const searchEngines = [
   },
   {
     title: "Yahoo",
-    logo:new URL('../assets/images/engine/yahoo.png', import.meta.url).href,
+    logo: new URL("../assets/images/engine/yahoo.png", import.meta.url).href,
     url: "https://search.yahoo.com/search?p=",
     handleSearch: (data) => {
       ipcOpen(`https://search.yahoo.com/search?p=${data}`);
@@ -121,6 +121,7 @@ function handleSearch() {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1;
 
   .search-list {
     position: relative;
