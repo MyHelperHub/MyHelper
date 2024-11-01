@@ -48,7 +48,12 @@ if (Window.getCurrent().label === "main") {
 
   initializeApp();
 }
-
+// 非开发环境下禁用默认右键菜单
+if (!import.meta.env.DEV) {
+  document.oncontextmenu = (event) => {
+    event.preventDefault();
+  };
+}
 const app = createApp(App);
 app.use(router);
 app.use(PrimeVue, {
