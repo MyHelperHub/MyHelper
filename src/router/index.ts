@@ -21,9 +21,9 @@ const routes = [
     component: () => import("@/views/my/My.vue"),
   },
   {
-    name: "Plugin",
-    path: "/plugin",
-    component: () => import("@/plugin/Plugin.vue"),
+    name: "MyPlugin",
+    path: "/my-plugin",
+    component: () => import("@/views/my-plugin/MyPlugin.vue"),
   },
 ];
 

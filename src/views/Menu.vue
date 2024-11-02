@@ -22,8 +22,8 @@
           <QuickInput v-if="commonState.quickInput" @click.stop />
         </Transition>
       </div>
-      <div class="menu-item">
-        <div class="menu-text">CHATGPT</div>
+      <div class="menu-item" @click="openMyPlugin">
+        <div class="menu-text">我的插件</div>
       </div>
       <div class="menu-item" @click="openPluginMarket">
         <div class="menu-text">插件市场</div>
@@ -90,6 +90,10 @@ const openLabel = () => {
 
 const openPluginMarket = () => {
   showMessage("功能尚未开放，敬请期待！", 2500, 0);
+};
+
+const openMyPlugin = () => {
+  ipcCreateNewWindow("myPlugin", "我的插件", "#/my-plugin", [350, 550]);
 };
 /** 点击外侧时关闭菜单项 */
 const handleClickOutside = (event: MouseEvent) => {
