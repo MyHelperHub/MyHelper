@@ -17,6 +17,7 @@ import { initSetting } from "./views/setting/utils/settingRegistry";
 import { getConfig } from "./utils/config";
 import { listen } from "@tauri-apps/api/event";
 import Tooltip from "primevue/tooltip";
+import ConfirmationService from "primevue/confirmationservice";
 
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
@@ -62,5 +63,6 @@ app.use(PrimeVue, {
   },
 });
 app.directive("tooltip", Tooltip);
+app.use(ConfirmationService);
 
 app.mount("#app");

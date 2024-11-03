@@ -176,9 +176,6 @@ defineExpose({
 .add-item {
   display: inline-block;
 }
-.p-overlay-mask {
-  border-radius: 20px;
-}
 
 .add-btn-container {
   cursor: pointer;

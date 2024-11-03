@@ -73,40 +73,52 @@ pub fn delete_config(keys: Vec<String>) -> Result<(), String> {
         .unwrap_or_default()
         .unwrap_or_default();
 
-    // 使用递归函数删除嵌套字段
-    fn delete_nested_key(data: &mut Value, keys: &[String]) -> Result<(), String> {
-        if keys.is_empty() {
-            return Err("缺少要删除的键".to_string());
-        }
-
-        let key = keys[0].clone();
-
-        if keys.len() == 1 {
-            // 到达最后一个键，删除值
-            match data {
-                Value::Object(map) => {
-                    map.remove(&key);
-                }
-                _ => {
-                    return Err("无法从非对象类型的配置数据中删除键".to_string());
-                }
+    // 如果传入的 keys 为空，删除所有配置
+    if keys.is_empty() {
+        match data {
+            Value::Object(ref mut map) => {
+                map.clear(); 
             }
-        } else {
-            // 递归删除嵌套字段
-            match data.get_mut(&key) {
-                Some(nested_data) => {
-                    delete_nested_key(nested_data, &keys[1..])?;
-                }
-                None => {
-                    return Err(format!("配置中不存在键: {}", key));
-                }
+            _ => {
+                return Err("无法从非对象类型的配置数据中删除所有键".to_string());
             }
         }
+    } else {
+        // 使用递归函数删除嵌套字段
+        fn delete_nested_key(data: &mut Value, keys: &[String]) -> Result<(), String> {
+            if keys.is_empty() {
+                return Err("缺少要删除的键".to_string());
+            }
 
-        Ok(())
+            let key = keys[0].clone();
+
+            if keys.len() == 1 {
+                // 到达最后一个键，删除值
+                match data {
+                    Value::Object(map) => {
+                        map.remove(&key);
+                    }
+                    _ => {
+                        return Err("无法从非对象类型的配置数据中删除键".to_string());
+                    }
+                }
+            } else {
+                // 递归删除嵌套字段
+                match data.get_mut(&key) {
+                    Some(nested_data) => {
+                        delete_nested_key(nested_data, &keys[1..])?;
+                    }
+                    None => {
+                        return Err(format!("配置中不存在键: {}", key));
+                    }
+                }
+            }
+
+            Ok(())
+        }
+
+        delete_nested_key(&mut data, &keys)?;
     }
-
-    delete_nested_key(&mut data, &keys)?;
 
     // 将 Map<String, Value> 转换为 HashMap<String, Value>
     let config_hashmap: HashMap<String, Value> = data
