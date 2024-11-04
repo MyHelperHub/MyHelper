@@ -5,6 +5,7 @@
         v-for="item in dataList"
         :key="item.id"
         class="item"
+        :class="isEdit ? 'overlay' : ''"
         v-tooltip.bottom="{
           value: item.title,
           showDelay: 200,
@@ -18,9 +19,25 @@
         }"
         @contextmenu.prevent="(e) => showContextMenu(e, item)"
         @click="openApp(item.src)">
-        <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
-        <i v-else class="pi pi-image"></i>
-        <div class="text">{{ item.title }}</div>
+        <!-- 非编辑时 -->
+        <template v-if="!isEdit">
+          <img
+            v-if="item.logo"
+            :src="convertFileSrc(item.logo)"
+            class="image" />
+          <i v-else class="pi pi-image"></i>
+          <div class="text">{{ item.title }}</div>
+        </template>
+        <!-- 编辑时 -->
+        <template v-else>
+          <i class="pi pi-check check"></i>
+          <img
+            v-if="item.logo"
+            :src="convertFileSrc(item.logo)"
+            class="image" />
+          <i v-else class="pi pi-image"></i>
+          <input class="text" :value="item.title"></input>
+        </template>
       </div>
       <div class="item" @click="addAppItem">
         <i class="pi pi-plus image"></i>
@@ -42,6 +59,7 @@ import { emit, on } from "@/utils/eventBus";
 import { ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 
 const dataList = ref<AppItem[]>([]);
+const isEdit = ref(true);
 
 const init = async () => {
   try {
@@ -59,6 +77,9 @@ init();
 
 /** 打开应用 */
 const openApp = async (path: string) => {
+  if (isEdit) {
+    return;
+  }
   ipcOpen(path)
     .then(() => {
       emit("closeAllMenu");
@@ -145,7 +166,7 @@ const deleteAppItem = async (id: number) => {
     justify-content: flex-start;
     flex-wrap: wrap;
     gap: 13px;
-    margin: 15px 20px;
+    margin: 10px 20px 15px 20px;
     overflow: auto;
     max-height: 145px;
 
@@ -164,10 +185,36 @@ const deleteAppItem = async (id: number) => {
       justify-content: center;
       align-items: center;
       padding: 5px;
-      margin-left: 2px;
+      margin: 5px 0 0 2px;
       background-color: rgb(255, 255, 255);
       border-radius: 5px;
       cursor: pointer;
+
+      &.overlay {
+        position: relative;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        cursor: default;
+
+        > * {
+          opacity: 0.5;
+        }
+        .text{
+          opacity: 1;
+        }
+        .check{
+          position: absolute;
+          right: -5px;
+          top: -2px;
+          font-size: 12px;
+          background-color: rgb(216, 218, 226);
+          border-radius: 5px;
+          padding: 2px;
+          opacity: 1;
+          z-index: 2;
+          cursor: pointer;
+        }
+      }
 
       .image {
         display: flex;
@@ -175,6 +222,7 @@ const deleteAppItem = async (id: number) => {
         justify-content: center;
         width: 28px;
         height: 28px;
+        z-index: 1;
       }
 
       .text {
