@@ -24,6 +24,9 @@
       </div>
       <div class="menu-item" @click="openMyPlugin">
         <div class="menu-text">我的插件</div>
+        <Transition name="fade">
+          <MyPlugin ref="myPluginRef" @click.stop />
+        </Transition>
       </div>
       <div class="menu-item" @click="openPluginMarket">
         <div class="menu-text">插件市场</div>
@@ -36,6 +39,7 @@
 import CommonWeb from "@/views/web/CommonWeb.vue";
 import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
+import MyPlugin from "@/views/my-plugin/MyPlugin.vue";
 import { ref } from "vue";
 import { CommonState, ContainState } from "@/interface/menu";
 import { ipcCloseWindow, ipcCreateNewWindow } from "@/api/ipc/window.api";
@@ -47,7 +51,11 @@ const commonState = ref<CommonState>({
   commonWeb: false,
   commonApp: false,
   quickInput: false,
+  myPlugin: false,
 });
+/** 控制每个菜单项的 ref */
+const myPluginRef = ref<InstanceType<typeof MyPlugin> | null>(null);
+/** 控制需要新建窗口的状态 */
 const containState = ref<ContainState>({
   label: false,
 });
@@ -93,7 +101,7 @@ const openPluginMarket = () => {
 };
 
 const openMyPlugin = () => {
-  ipcCreateNewWindow("myPlugin", "我的插件", "#/my-plugin", [350, 550]);
+  myPluginRef.value?.openPopover();
 };
 /** 点击外侧时关闭菜单项 */
 const handleClickOutside = (event: MouseEvent) => {

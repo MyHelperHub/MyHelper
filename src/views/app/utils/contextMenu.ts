@@ -6,6 +6,12 @@ import { LogicalPosition } from "@tauri-apps/api/window";
 export async function showContextMenu(event: MouseEvent, item: AppItem) {
   const menuItems = await Promise.all([
     MenuItem.new({
+      text: "编辑",
+      action: () => {
+        emit("edit-appItem", item);
+      },
+    }),
+    MenuItem.new({
       text: "删除",
       action: () => {
         emit("delete-appItem", item.id);

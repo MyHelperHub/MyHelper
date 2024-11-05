@@ -114,7 +114,6 @@ const editWebItem = async (updatedItem: WebItem) => {
       showMessage("更新失败!", 3000, 2);
     }
   } else {
-    console.error("未找到要更新的网站项！");
     showMessage("更新失败!", 3000, 2);
   }
 };

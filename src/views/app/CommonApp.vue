@@ -5,7 +5,6 @@
         v-for="item in dataList"
         :key="item.id"
         class="item"
-        :class="isEdit ? 'overlay' : ''"
         v-tooltip.bottom="{
           value: item.title,
           showDelay: 200,
@@ -19,31 +18,16 @@
         }"
         @contextmenu.prevent="(e) => showContextMenu(e, item)"
         @click="openApp(item.src)">
-        <!-- 非编辑时 -->
-        <template v-if="!isEdit">
-          <img
-            v-if="item.logo"
-            :src="convertFileSrc(item.logo)"
-            class="image" />
-          <i v-else class="pi pi-image"></i>
-          <div class="text">{{ item.title }}</div>
-        </template>
-        <!-- 编辑时 -->
-        <template v-else>
-          <i class="pi pi-check check"></i>
-          <img
-            v-if="item.logo"
-            :src="convertFileSrc(item.logo)"
-            class="image" />
-          <i v-else class="pi pi-image"></i>
-          <input class="text" :value="item.title"></input>
-        </template>
+        <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
+        <i v-else class="pi pi-image"></i>
+        <div class="text">{{ item.title }}</div>
       </div>
       <div class="item" @click="addAppItem">
         <i class="pi pi-plus image"></i>
         <div class="text">添加</div>
       </div>
     </div>
+    <EditItem ref="editItemRef" @editAppItem="editAppItem"></EditItem>
   </div>
 </template>
 
@@ -57,9 +41,10 @@ import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { emit, on } from "@/utils/eventBus";
 import { ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
+import EditItem from "./EditItem.vue";
 
 const dataList = ref<AppItem[]>([]);
-const isEdit = ref(true);
+const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
 
 const init = async () => {
   try {
@@ -71,15 +56,13 @@ const init = async () => {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
   // 通过事件总线传递方法
+  on("edit-appItem", openEditAppItem);
   on("delete-appItem", deleteAppItem);
 };
 init();
 
 /** 打开应用 */
 const openApp = async (path: string) => {
-  if (isEdit) {
-    return;
-  }
   ipcOpen(path)
     .then(() => {
       emit("closeAllMenu");
@@ -132,6 +115,10 @@ const addAppItem = async () => {
   }
 };
 
+const openEditAppItem = (item: AppItem) => {
+  editItemRef.value?.openModal(item);
+};
+
 const deleteAppItem = async (id: number) => {
   // 找到要删除的元素索引
   const index = dataList.value.findIndex((item) => item.id === id);
@@ -145,6 +132,25 @@ const deleteAppItem = async (id: number) => {
     } catch (error) {
       showMessage("删除失败!", 3000, 2);
     }
+  }
+};
+
+const editAppItem = async (updatedItem: AppItem) => {
+  // 找到要更新的网站的索引
+  const index = dataList.value.findIndex((item) => item.id === updatedItem.id);
+  if (index !== -1) {
+    // 使用新的数据更新 dataList 中的对应项
+    dataList.value[index] = updatedItem;
+
+    // 更新本地配置
+    try {
+      await setConfig(["appConfig", "dataList"], dataList.value);
+      showMessage("更新成功!", 3000, 1);
+    } catch (error) {
+      showMessage("更新失败!", 3000, 2);
+    }
+  } else {
+    showMessage("更新失败!", 3000, 2);
   }
 };
 </script>
@@ -166,7 +172,7 @@ const deleteAppItem = async (id: number) => {
     justify-content: flex-start;
     flex-wrap: wrap;
     gap: 13px;
-    margin: 10px 20px 15px 20px;
+    margin: 15px 20px;
     overflow: auto;
     max-height: 145px;
 
@@ -185,36 +191,10 @@ const deleteAppItem = async (id: number) => {
       justify-content: center;
       align-items: center;
       padding: 5px;
-      margin: 5px 0 0 2px;
+      margin-left: 2px;
       background-color: rgb(255, 255, 255);
       border-radius: 5px;
       cursor: pointer;
-
-      &.overlay {
-        position: relative;
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 5px;
-        cursor: default;
-
-        > * {
-          opacity: 0.5;
-        }
-        .text{
-          opacity: 1;
-        }
-        .check{
-          position: absolute;
-          right: -5px;
-          top: -2px;
-          font-size: 12px;
-          background-color: rgb(216, 218, 226);
-          border-radius: 5px;
-          padding: 2px;
-          opacity: 1;
-          z-index: 2;
-          cursor: pointer;
-        }
-      }
 
       .image {
         display: flex;
@@ -222,7 +202,6 @@ const deleteAppItem = async (id: number) => {
         justify-content: center;
         width: 28px;
         height: 28px;
-        z-index: 1;
       }
 
       .text {

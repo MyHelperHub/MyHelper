@@ -1,6 +1,6 @@
 <template>
-  <div class="add-item">
-    <div class="add-btn-container" @click="showModal = true">
+  <div class="edit-item">
+    <div class="edit-btn-container" @click="showModal = true">
       <slot></slot>
     </div>
 
@@ -8,7 +8,7 @@
       v-model:visible="showModal"
       @hide="closeModal"
       :dismissableMask="true"
-      :header="formData.id === -1 ? '添加网站' : '编辑网站'"
+      header="编辑软件"
       modal
       appendTo="self"
       :closable="false">
@@ -24,17 +24,8 @@
             v-model="formData.title"
             class="input"
             :label="'网站名称'" />
-          <CustomInput
-            v-model="formData.url"
-            class="input"
-            :label="'网站地址'" />
           <transition name="icon">
-            <div
-              v-if="urlRegex.test(formData.url)"
-              class="get-icon"
-              @click="getIcon">
-              获取图标
-            </div>
+            <div class="get-icon" @click="getIcon">获取图标</div>
           </transition>
         </div>
         <div class="modal-footer">
@@ -53,27 +44,23 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { showMessage } from "@/utils/message.ts";
 import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
-import { WebItem } from "@/interface/web";
 import Dialog from "primevue/dialog";
-import { ipcGetWebIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
+import { ipcGetAppIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
+import { AppItem } from "@/interface/app";
 
-const emit = defineEmits(["addWebItem", "editWebItem"]);
+const emit = defineEmits(["editAppItem"]);
 
-/** 网址正则表达式 */
-const urlRegex =
-  /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6})(?:\/[\w\.\-%]+)*\/?(\?[\w\.\-%]+(?:=[\w\.\-%]+)*)?(?:\&[\w\.\-%]+(?:=[\w\.\-%]+)*)*$/i;
-
-const formData = ref<WebItem>({
+const formData = ref<AppItem>({
   /** -1时为编辑 */
   id: -1,
   title: "",
-  url: "",
+  src: "",
   logo: "",
 });
 const showModal = ref(false);
 
 /** 打开AddItem弹窗 */
-const openModal = (item: WebItem) => {
+const openModal = (item: AppItem) => {
   formData.value = item;
   showModal.value = true;
 };
@@ -83,19 +70,20 @@ const closeModal = () => {
     formData.value = {
       id: -1,
       title: "",
-      url: "",
+      src: "",
       logo: "",
     };
   }
 };
 /** 获取图标方法 */
 const getIcon = () => {
-  if (!formData.value.url) {
-    showMessage("请输入网站地址");
+  if (!formData.value.src) {
+    showMessage("未查询到软件路径");
     return;
   }
   showLoading();
-  ipcGetWebIcon(formData.value.url)
+
+  ipcGetAppIcon(formData.value.src.replace(/\//g, "\\"))
     .then((res) => {
       formData.value.logo = (res as string).replace(/\\/g, "/");
     })
@@ -121,7 +109,7 @@ const selectLocalImage = async () => {
   });
 
   if (filePath) {
-    ipcSetLocalIcon(filePath, 0)
+    ipcSetLocalIcon(filePath, 1)
       .then((res) => {
         formData.value.logo = (res as string).replace(/\\/g, "/");
       })
@@ -133,34 +121,20 @@ const selectLocalImage = async () => {
 
 /** 确认按钮处理逻辑 */
 const handleConfirm = async () => {
-  if (!formData.value.title || !formData.value.url) {
+  if (!formData.value.title || !formData.value.src) {
     showMessage("请完整填写内容!");
-    return;
-  }
-  // 校验网址格式
-  if (!urlRegex.test(formData.value.url)) {
-    showMessage("请输入正确的网址格式!");
     return;
   }
   if (!formData.value.logo) {
     showMessage("请选择图标!");
     return;
   }
-  // 检查 URL 是否以 http:// 或 https:// 开头
-  if (!/^https?:\/\//i.test(formData.value.url)) {
-    formData.value.url = `http://${formData.value.url}`; // 默认添加 http://
-  }
-  // formData.value.id为-1时为新增
-  if (formData.value.id === -1) {
-    emit("addWebItem", formData.value);
-  } else {
-    emit("editWebItem", formData.value);
-  }
+  emit("editAppItem", formData.value);
   showModal.value = false;
   formData.value = {
     id: -1,
     title: "",
-    url: "",
+    src: "",
     logo: "",
   };
 };
@@ -173,11 +147,11 @@ defineExpose({
 <style lang="less">
 @import "../../assets/css/variable.less";
 
-.add-item {
+.edit-item {
   display: block;
 }
 
-.add-btn-container {
+.edit-btn-container {
   cursor: pointer;
 }
 
