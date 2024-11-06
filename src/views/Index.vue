@@ -15,7 +15,7 @@
           :radius="55"
           type="quarter-circle"
           direction="down-left"
-          :tooltipOptions="{ position: 'left' }" />
+          :tooltipOptions="{ position: 'left', event: 'hover' }" />
       </div>
       <Search class="search" />
       <span class="parting-line"></span>

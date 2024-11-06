@@ -1,8 +1,4 @@
-@tailwind base;
-@tailwind components;
-/* @tailwind utilities; */
-
-/* Primary and Surface Palettes */
+/* 主题和表面调色板 */
 :root {
   --p-primary-50: var(--p-surface-50);
   --p-primary-100: var(--p-surface-100);
@@ -15,6 +11,8 @@
   --p-primary-800: var(--p-surface-800);
   --p-primary-900: var(--p-surface-900);
   --p-primary-950: var(--p-surface-950);
+  
+  /* 表面颜色保持不变 */
   --p-surface-0: #ffffff;
   --p-surface-50: #f8fafc;
   --p-surface-100: #f1f5f9;
@@ -27,6 +25,7 @@
   --p-surface-800: #1e293b;
   --p-surface-900: #0f172a;
   --p-surface-950: #020617;
+  
   --p-content-border-radius: 6px;
 }
 
@@ -49,15 +48,8 @@
   --p-text-hover-muted-color: var(--p-surface-600);
 }
 
-/* 
-* Dark Mode
-* Change the .p-dark to match the darkMode in tailwind.config.
-* For example; 
-*  darkMode: ['selector', '[class*="app-dark"]'] 
-*  should match;
-* :root.app-dark
-*/
-:root.p-dark {
+/* Dark Mode */
+:root.dark {  /* 改为与 UnoCSS 暗色模式配置匹配 */
   --p-primary-color: var(--p-primary-400);
   --p-primary-contrast-color: var(--p-surface-900);
   --p-primary-hover-color: var(--p-primary-300);
@@ -65,17 +57,9 @@
   --p-content-border-color: var(--p-surface-700);
   --p-content-hover-background: var(--p-surface-800);
   --p-content-hover-color: var(--p-surface-0);
-  --p-highlight-background: color-mix(
-    in srgb,
-    var(--p-primary-400),
-    transparent 84%
-  );
+  --p-highlight-background: color-mix(in srgb, var(--p-primary-400), transparent 84%);
   --p-highlight-color: rgba(255, 255, 255, 0.87);
-  --p-highlight-focus-background: color-mix(
-    in srgb,
-    var(--p-primary-400),
-    transparent 76%
-  );
+  --p-highlight-focus-background: color-mix(in srgb, var(--p-primary-400), transparent 76%);
   --p-highlight-focus-color: rgba(255, 255, 255, 0.87);
   --p-text-color: var(--p-surface-0);
   --p-text-hover-color: var(--p-surface-0);
@@ -83,6 +67,7 @@
   --p-text-hover-muted-color: var(--p-surface-300);
 }
 
+/* 滚动条样式 */
 ::-webkit-scrollbar {
   border-radius: 8px;
   background-color: #cbe4de;

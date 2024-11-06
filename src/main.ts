@@ -1,5 +1,6 @@
 import "@/assets/css/main.css";
 import "@/assets//css/base.css";
+import 'virtual:uno.css'
 
 import { createApp } from "vue";
 import App from "./App.vue";

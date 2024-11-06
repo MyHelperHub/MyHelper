@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "APPDATA",
+    "confirmationservice",
     "dismissable",
     "fileupload",
     "myhelper",
@@ -9,8 +10,6 @@
     "primeui",
     "primevue",
     "speeddial",
-    "tailwindcss",
     "toggleswitch"
-  ],
-  "css.lint.unknownAtRules": "ignore" // 忽略base.css里的@tailwind警告
+  ]
 }

@@ -510,6 +510,9 @@ onMounted(() => {
 </script>
 
 <style>
+.outline {
+  outline-style: unset;
+}
 .MochiShiba path,
 .MochiPaws path {
   fill: none;
@@ -1368,67 +1371,5 @@ onMounted(() => {
   100% {
     opacity: 0;
   }
-}
-
-h2 {
-  font-size: 20px;
-  margin: 5px 0 0;
-  font-weight: 600;
-  font-family: "Kosugi Maru";
-}
-
-h3 {
-  font-size: 32px;
-  margin: 0 0 5px;
-  font-weight: 200;
-  letter-spacing: -0.06em;
-  line-height: 0.8;
-}
-
-p {
-  margin: 5px 0;
-}
-
-p.shop {
-  background: #002a57;
-  border-radius: 20px;
-  display: inline-block;
-  color: white;
-  font-size: 12px;
-  font-family: "Kosugi Maru";
-  padding: 3px 6px;
-}
-
-p.shop.uemachi {
-  background: #356320;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-a.show,
-a:hover {
-  color: #002a57;
-}
-
-button {
-  color: #301d0b;
-  margin-top: 50px;
-  background: #c2ab96;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  padding: 8px 12px;
-  font-family: monaco, consolas, "courier new", monospace;
-  cursor: pointer;
-}
-
-button:hover {
-  border-color: #5f3d1e;
-}
-
-* {
-  box-sizing: border-box;
 }
 </style>
