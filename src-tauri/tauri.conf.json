@@ -36,6 +36,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": ["nsis", "dmg", "app", "appimage", "deb", "rpm"],
     "icon": [
       "icons/32x32.png",
@@ -52,6 +53,12 @@
         "installMode": "both",
         "installerIcon": "icons/icon.ico"
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": ["https://api.ialtone.xyz/myhelper/update.json"],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IERFQkJBNjQ4MTIyNzVCODcKUldTSFd5Y1NTS2E3M2lZN3NGUUFUWGRtVHBXbXJ4blRJQSt6VGVqVmFGNFpGVUlPU3pXM2xja1IK"
     }
   }
 }

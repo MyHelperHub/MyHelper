@@ -1,5 +1,5 @@
-use std::{fs, path::PathBuf};
 use directories::BaseDirs;
+use std::{fs, path::PathBuf};
 
 pub fn get_myhelper_path() -> Result<PathBuf, String> {
     let myhelper_path = BaseDirs::new()

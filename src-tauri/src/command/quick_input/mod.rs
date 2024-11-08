@@ -1,5 +1,5 @@
-pub mod paste;
 pub mod clipboard;
+pub mod paste;
 
-pub use paste::*;
 pub use clipboard::*;
+pub use paste::*;

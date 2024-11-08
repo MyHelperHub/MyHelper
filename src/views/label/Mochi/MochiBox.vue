@@ -120,4 +120,3 @@ if (shibaAttribute.value == "random") {
   randomize();
 }
 </script>
-

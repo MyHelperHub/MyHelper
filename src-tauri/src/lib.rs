@@ -26,6 +26,7 @@ fn init() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let window = Arc::new(RwLock::new(app.get_webview_window("main").unwrap()));
             // 获取主屏幕的尺寸

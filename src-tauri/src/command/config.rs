@@ -77,7 +77,7 @@ pub fn delete_config(keys: Vec<String>) -> Result<(), String> {
     if keys.is_empty() {
         match data {
             Value::Object(ref mut map) => {
-                map.clear(); 
+                map.clear();
             }
             _ => {
                 return Err("无法从非对象类型的配置数据中删除所有键".to_string());

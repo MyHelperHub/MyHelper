@@ -2,8 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "setting", "label","my"],
+  "windows": ["main", "setting", "label", "my"],
   "permissions": [
+    "updater:default",
     "core:app:default",
     "dialog:allow-open",
     "dialog:default",
