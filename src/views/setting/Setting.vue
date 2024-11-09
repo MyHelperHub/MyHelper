@@ -3,7 +3,10 @@
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <div class="layout-container">
       <div class="menu-container">
-        <Menu :model="menuItems" @menuitem-click="handleMenuClick" />
+        <Menu
+          :model="menuItems"
+          class="h-full"
+          @menuitem-click="handleMenuClick" />
       </div>
       <div class="content-container" data-tauri-drag-region>
         <div v-show="activeMenu === 'general'" class="setting-section">
@@ -210,7 +213,6 @@ const dataReset = (key: string[], event: { currentTarget: any }) => {
     .menu-container {
       width: 200px;
       height: 100%;
-      background-color: #ffffff;
       border-right: 1px solid #e0e0e0;
 
       :deep(.p-menu) {
