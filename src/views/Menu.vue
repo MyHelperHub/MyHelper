@@ -41,10 +41,11 @@ import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
 import MyPlugin from "@/views/my-plugin/MyPlugin.vue";
 import { ref } from "vue";
-import { CommonState, ContainState } from "@/interface/menu";
+import { CommonState, ContainState } from "@/interface/menu.d";
 import { ipcCloseWindow, ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { on } from "@/utils/eventBus";
 import { showMessage } from "@/utils/message";
+import { NewWindowEnum } from "@/interface/enum";
 
 // 控制每个菜单项的展开与关闭状态
 const commonState = ref<CommonState>({
@@ -84,14 +85,19 @@ const openLabel = () => {
   /** 创建桌面便签 */
   if (containState.value.label) {
     containState.value.label = false;
-    ipcCloseWindow("label").catch((err) => {
-      if (err === "label") {
-        ipcCreateNewWindow("label", "桌面便签", "#/label", [210, 250]);
+    ipcCloseWindow(NewWindowEnum.Label).catch((err) => {
+      if (err === NewWindowEnum.Label) {
+        ipcCreateNewWindow(
+          NewWindowEnum.Label,
+          "桌面便签",
+          "#/label",
+          [210, 250],
+        );
         containState.value.label = true;
       }
     });
   } else {
-    ipcCreateNewWindow("label", "桌面便签", "#/label", [210, 250]);
+    ipcCreateNewWindow(NewWindowEnum.Label, "桌面便签", "#/label", [210, 250]);
     containState.value.label = true;
   }
 };

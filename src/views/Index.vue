@@ -37,6 +37,7 @@ import {
 import { listen } from "@tauri-apps/api/event";
 import { checkLogoPath } from "@/utils/avatar";
 import { emit } from "@/utils/eventBus";
+import { NewWindowEnum } from "@/interface/enum";
 
 const isShowMenu = ref(false);
 const avatarLogo = ref("/logo.png");
@@ -62,14 +63,24 @@ const menuItems = ref({
     command: () => {
       if (menuItems.value.settings.isOpen) {
         menuItems.value.settings.isOpen = false;
-        ipcCloseWindow("setting").catch((err) => {
-          if (err === "setting") {
-            ipcCreateNewWindow("setting", "设置", "#/setting", [350, 550]);
+        ipcCloseWindow(NewWindowEnum.Setting).catch((err) => {
+          if (err === NewWindowEnum.Setting) {
+            ipcCreateNewWindow(
+              NewWindowEnum.Setting,
+              "设置",
+              "#/setting",
+              [670, 520],
+            );
             menuItems.value.settings.isOpen = true;
           }
         });
       } else {
-        ipcCreateNewWindow("setting", "设置", "#/setting", [350, 550]);
+        ipcCreateNewWindow(
+          NewWindowEnum.Setting,
+          "设置",
+          "#/setting",
+          [670, 520],
+        );
         menuItems.value.settings.isOpen = true;
       }
     },
@@ -81,14 +92,14 @@ const menuItems = ref({
     command: () => {
       if (menuItems.value.my.isOpen) {
         menuItems.value.my.isOpen = false;
-        ipcCloseWindow("my").catch((err) => {
-          if (err === "my") {
-            ipcCreateNewWindow("my", "我的", "#/my", [600, 400]);
+        ipcCloseWindow(NewWindowEnum.My).catch((err) => {
+          if (err === NewWindowEnum.My) {
+            ipcCreateNewWindow(NewWindowEnum.My, "我的", "#/my", [600, 400]);
             menuItems.value.my.isOpen = true;
           }
         });
       } else {
-        ipcCreateNewWindow("my", "我的", "#/my", [600, 400]);
+        ipcCreateNewWindow(NewWindowEnum.My, "我的", "#/my", [600, 400]);
         menuItems.value.my.isOpen = true;
       }
     },
