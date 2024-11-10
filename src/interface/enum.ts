@@ -3,3 +3,8 @@ export enum NewWindowEnum {
   My = "my",
   Setting = "setting",
 }
+
+export enum SettingMenuItemEnum {
+  General = "general",
+  About = "about",
+}

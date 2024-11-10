@@ -54,6 +54,7 @@ import { VueCropper } from "vue-cropper";
 import "vue-cropper/dist/index.css";
 import { emit } from "@tauri-apps/api/event";
 import { checkLogoPath } from "@/utils/avatar";
+import { NewWindowEnum } from "@/interface/enum";
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态
@@ -103,7 +104,7 @@ const cancelCrop = () => {
 };
 
 const handleClose = () => {
-  ipcCloseWindow("my");
+  ipcCloseWindow(NewWindowEnum.My);
 };
 </script>
 

@@ -1,6 +1,6 @@
 {
   "productName": "myhelper",
-  "version": "1.0.0",
+  "version": "../package.json",
   "identifier": "myhelper",
   "build": {
     "beforeDevCommand": "npm run dev",

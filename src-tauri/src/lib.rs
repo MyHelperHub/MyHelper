@@ -187,9 +187,7 @@ pub fn run() {
             mh_plugin_install,
             mh_plugin_uninstall
         ])
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_notification::init())
         .run(tauri::generate_context!())
         .expect("MyHelper启动失败...");
 }

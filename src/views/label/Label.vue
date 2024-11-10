@@ -33,11 +33,12 @@ import { ref } from "vue";
 import Mochi from "./Mochi/Mochi.vue";
 import { ipcCloseWindow } from "@/api/ipc/window.api";
 import { showContextMenu } from "./utils/contextMenu";
+import { NewWindowEnum } from "@/interface/enum";
 
 const showCloseButton = ref(false);
 
 const handleClose = () => {
-  ipcCloseWindow("label");
+  ipcCloseWindow(NewWindowEnum.Label);
 };
 </script>
 
