@@ -27,7 +27,7 @@ impl Manager {
     }
 
     fn handle_text(&self) {
-        // 如果监听已经停止，不处理剪切板事件
+        // 如果监听已经停止，不处理剪贴板事件
         if !CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
             return;
         }

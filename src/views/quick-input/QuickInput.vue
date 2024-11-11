@@ -12,7 +12,7 @@
         class="tab"
         :class="{ active: activeTab === 1 }"
         @click="activeTab = 1">
-        剪切板
+        剪贴板
       </div>
     </div>
     <div class="tab-content-wrapper">
@@ -36,7 +36,7 @@ import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
 import { emit } from "@/utils/eventBus";
 
-/** 0为常用，1为剪切板 */
+/** 0为常用，1为剪贴板 */
 const activeTab = ref(0);
 const close = () => {
   emit("closeAllMenu");

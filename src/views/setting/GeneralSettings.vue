@@ -2,7 +2,7 @@
   <div class="setting-section">
     <h3>常用设置</h3>
     <div class="item">
-      <h4>剪切板监听</h4>
+      <h4>剪贴板监听</h4>
       <ToggleSwitch
         v-model="settingData.clipboardListening"
         @change="
@@ -128,7 +128,7 @@ const handleDataReset = (key: string[], event: { currentTarget: any }) => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .setting-section {
   h3 {
     margin-bottom: 20px;

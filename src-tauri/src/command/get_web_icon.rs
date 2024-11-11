@@ -66,14 +66,16 @@ pub fn get_web_icon(url: &str) -> Result<String, IconError> {
     if response.status().is_client_error() {
         // 如果返回的状态码是4xx，尝试从meta标签中获取图标
         url = response.url().clone();
-
+        let user_agent = match std::env::consts::OS {
+            "windows" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "macos" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "linux" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            _ => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        };
         // 获取网页内容
         let html = client
             .get(url.as_str())
-            .header(
-                USER_AGENT,
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            )
+            .header(USER_AGENT, user_agent)
             .send()
             .map_err(|e| IconError::RequestError(e.to_string()))?
             .text()

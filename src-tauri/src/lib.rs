@@ -3,7 +3,7 @@ mod core;
 mod utils;
 
 use command::*;
-use core::app::observe_app;
+use core::clipboard::observe_app;
 use serde_json::json;
 use std::{
     collections::HashMap,

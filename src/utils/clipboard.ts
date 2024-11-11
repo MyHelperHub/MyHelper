@@ -6,12 +6,13 @@ import {
   ipcStartClipboardListener,
   ipcStopClipboardListener,
 } from "@/api/ipc/clipboard.api";
+import { showMessage } from "./message";
 
 let clipboardListener: UnlistenFn | null = null;
 let clipboardData = ref<QuickInputItem[]>([]);
 GlobalData.set("clipboardList", clipboardData);
 
-/** 启动剪切板监听 */
+/** 启动剪贴板监听 */
 export async function startClipboardListening() {
   // 如果已经有监听器，先移除
   if (clipboardListener) {
@@ -43,7 +44,7 @@ export async function startClipboardListening() {
   await ipcStartClipboardListener();
 }
 
-/** 停止剪切板监听 */
+/** 停止剪贴板监听 */
 export async function stopClipboardListening() {
   if (clipboardListener) {
     clipboardListener();
@@ -51,4 +52,10 @@ export async function stopClipboardListening() {
   }
 
   await ipcStopClipboardListener();
+}
+
+/** 复制到剪贴板 */
+export function copyToClipboard(text: string) {
+  navigator.clipboard.writeText(text);
+  showMessage("已复制到剪贴板", 2500, 1);
 }

@@ -23,9 +23,17 @@
             https://github.com/ialtone/myhelper
           </div>
         </div>
+        <div class="intro-item">
+          <div class="intro-item-left">作者邮箱：</div>
+          <div class="intro-item-right" @click="copyToClipboard('ialtone@ialtone.xyz')">ialtone@ialtone.xyz</div>
+        </div>
       </div>
       <div class="footer">
-        <div class="footer-item">🐧群：110</div>
+        <div
+          class="footer-item cursor-pointer"
+          @click="copyToClipboard('206028763')">
+          🐧群：206028763
+        </div>
         <div class="footer-item">❤️ made by ialtone ❤️</div>
       </div>
     </div>
@@ -104,6 +112,7 @@ import {
   downloadAndInstallUpdate,
 } from "@/api/ipc/update.api";
 import { showMessage } from "@/utils/message";
+import { copyToClipboard } from "@/utils/clipboard";
 import type { UpdateState } from "@/interface/update";
 import { ipcOpen } from "@/api/ipc/launch.api";
 import { marked } from "marked";
@@ -193,7 +202,7 @@ const handleClick = (e: MouseEvent) => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .setting-section {
   h3 {
     margin-bottom: 20px;
@@ -224,6 +233,7 @@ const handleClick = (e: MouseEvent) => {
       .intro-item {
         display: flex;
         align-items: center;
+        user-select: text;
         .intro-item-left {
           color: unset;
         }
