@@ -1,5 +1,6 @@
+use crate::get_previous_window;
+
 use super::wait;
-use crate::core::clipboard::get_previous_window;
 use enigo::{
     Direction::{Click, Press, Release},
     Enigo, Key, Keyboard, Settings,

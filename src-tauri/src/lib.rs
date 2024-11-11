@@ -1,9 +1,7 @@
 mod command;
-mod core;
 mod utils;
 
 use command::*;
-use core::clipboard::observe_app;
 use serde_json::json;
 use std::{
     collections::HashMap,
@@ -171,7 +169,8 @@ pub fn run() {
             get_app_icon,
             get_web_icon,
             set_local_icon,
-            set_local_logo,
+            set_logo,
+            delete_icon,
             file_exists,
             get_config,
             set_config,

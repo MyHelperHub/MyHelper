@@ -1,5 +1,7 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use image::{DynamicImage, ImageOutputFormat};
+use image::codecs::png::PngEncoder;
+use image::DynamicImage;
+use image::ImageEncoder;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::fs;
@@ -61,8 +63,14 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconErr
     // 写入图片到指定路径
     let mut writer =
         BufWriter::new(File::create(&output_path).map_err(|e| IconError::IoError(e.to_string()))?);
-    resized_img
-        .write_to(&mut writer, ImageOutputFormat::Png)
+    let encoder = PngEncoder::new(&mut writer);
+    encoder
+        .write_image(
+            resized_img.as_bytes(),
+            resized_img.width(),
+            resized_img.height(),
+            resized_img.color().into(),
+        )
         .map_err(|e| IconError::ImageError(e.to_string()))?;
 
     Ok(output_path.display().to_string())
@@ -73,7 +81,7 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconErr
  * @param image_base64 图片的 base64 编码
  */
 #[tauri::command]
-pub fn set_local_logo(image_base64: &str) -> Result<String, IconError> {
+pub fn set_logo(image_base64: &str) -> Result<String, IconError> {
     let myhelper_path = get_myhelper_path().map_err(|e| IconError::HomeDirError(e))?;
     let logo_path = myhelper_path.join("Image").join("logo.png");
 
@@ -90,7 +98,14 @@ pub fn set_local_logo(image_base64: &str) -> Result<String, IconError> {
     // 写入原始图片到指定路径
     let mut writer =
         BufWriter::new(File::create(&logo_path).map_err(|e| IconError::IoError(e.to_string()))?);
-    img.write_to(&mut writer, ImageOutputFormat::Png)
+    let encoder = PngEncoder::new(&mut writer);
+    encoder
+        .write_image(
+            img.as_bytes(),
+            img.width(),
+            img.height(),
+            img.color().into(),
+        )
         .map_err(|e| IconError::ImageError(e.to_string()))?;
 
     Ok(logo_path.display().to_string())

@@ -42,13 +42,21 @@ export const ipcGetWebIcon = async (url: string) => {
 export const ipcSetLocalIcon = async (imagePath: string, appType: number) => {
   return invoke("set_local_icon", { imagePath, appType });
 };
-
+/**
+ * 删除图标
+ * @param filename 文件名
+ * @param app_type 应用类型，0 为网页图标，1 为应用图标
+ * @returns
+ */
+export const ipcDeleteIcon = async (filename: string, appType: number) => {
+  return invoke("delete_icon", { filename, appType });
+};
 /**
  * 设置本地文件为图标
  * @param imageBase64 图标路径
  */
-export const ipcSetLocalLogo = async (imageBase64: string) => {
-  return invoke("set_local_logo", { imageBase64 });
+export const ipcSetLogo = async (imageBase64: string) => {
+  return invoke("set_logo", { imageBase64 });
 };
 
 /**

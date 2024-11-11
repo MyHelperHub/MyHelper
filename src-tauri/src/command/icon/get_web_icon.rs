@@ -1,4 +1,5 @@
-use image::ImageOutputFormat;
+use image::codecs::png::PngEncoder;
+use image::ImageEncoder;
 use reqwest::blocking::Client;
 use reqwest::header::USER_AGENT;
 use scraper::{Html, Selector};
@@ -139,8 +140,15 @@ pub fn get_web_icon(url: &str) -> Result<String, IconError> {
     let output_file =
         File::create(&output_path).map_err(|e| IconError::ImageError(e.to_string()))?;
     let mut writer = BufWriter::new(output_file);
-    resized_img
-        .write_to(&mut writer, ImageOutputFormat::Png)
+
+    let encoder = PngEncoder::new(&mut writer);
+    encoder
+        .write_image(
+            resized_img.as_bytes(),
+            resized_img.width(),
+            resized_img.height(),
+            resized_img.color().into(),
+        )
         .map_err(|e| IconError::ImageError(e.to_string()))?;
 
     Ok(output_path.display().to_string())

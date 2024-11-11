@@ -15,9 +15,9 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.3", features = [] }
 
 [dependencies]
-image = "0.24.5" 
+image = "0.25.5"
 url = "2.5.2"
-reqwest = { version = "0.12.8", features = ["blocking", "native-tls-vendored"] }
+reqwest = { version = "0.12.9", features = ["blocking", "native-tls-vendored"] }
 tauri = { version = "2.1.0", features = [ "protocol-asset", "tray-icon", "image-png"] }
 tauri-plugin-dialog = "2.0.3"
 serde = { version = "1", features = ["derive"] }
@@ -35,19 +35,20 @@ sha2 = "0.10.8"
 [target."cfg(target_os = \"macos\")".dependencies]
 cocoa = "0.26.0"
 objc = "0.2.7"
-macos-accessibility-client = "0.0.1"
+core-foundation = "0.10.0"
 
 [target."cfg(target_os = \"windows\")".dependencies]
 winapi = { version = "0.3.9", features = ["winuser", "windef", "winbase", "wingdi", "shellapi"] }
 enigo = "0.2.1"
 
 [target."cfg(target_os = \"linux\")".dependencies]
-showfile = "0.1.1"
 x11 = "2.21.0"
 rdev = "0.5.3"
+gtk = "0.18.1"
+gio = "0.20.5"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-updater = "2"
+tauri-plugin-updater = "2.0.2"
 
 [profile.dev]
 opt-level = 0 #没有优化

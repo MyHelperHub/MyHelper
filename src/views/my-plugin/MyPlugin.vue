@@ -36,6 +36,9 @@ defineExpose({ openPopover });
 
 <style lang="less">
 @import "../../assets/css/variable.less";
+.p-drawer-header{
+  padding: 0.2rem 1rem 0 1rem !important;
+}
 .icons-container {
   display: flex;
   flex-wrap: wrap;

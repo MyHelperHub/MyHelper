@@ -49,7 +49,7 @@ import FileUpload from "primevue/fileupload";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { ipcCloseWindow } from "@/api/ipc/window.api";
-import { ipcSetLocalLogo } from "@/api/ipc/launch.api";
+import { ipcSetLogo } from "@/api/ipc/launch.api";
 import { VueCropper } from "vue-cropper";
 import "vue-cropper/dist/index.css";
 import { emit } from "@tauri-apps/api/event";
@@ -88,7 +88,7 @@ const confirmCrop = () => {
         /^data:image\/[a-zA-Z]+;base64,/,
         "",
       );
-      ipcSetLocalLogo(base64); // 将裁剪后的图片上传
+      ipcSetLogo(base64); // 将裁剪后的图片上传
       avatarLogo.value = data;
       cropperImage.value = "";
       showCropperModal.value = false; // 隐藏裁剪框

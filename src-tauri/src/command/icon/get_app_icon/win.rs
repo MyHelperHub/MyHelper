@@ -1,4 +1,6 @@
-use image::{DynamicImage, ImageBuffer, ImageOutputFormat, Rgba};
+use image::codecs::png::PngEncoder;
+use image::ImageEncoder;
+use image::{DynamicImage, ImageBuffer, Rgba};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::fs::{self, File};
@@ -15,7 +17,6 @@ use winapi::um::winuser::{DestroyIcon, GetIconInfo, ICONINFO};
 
 use crate::utils::path::get_myhelper_path;
 
-#[tauri::command]
 pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
     // 获取用户目录
     let myhelper_path = get_myhelper_path()
@@ -67,7 +68,14 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
     let img = DynamicImage::ImageRgba8(img_buffer);
     let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
     let mut writer = BufWriter::new(output_file);
-    img.write_to(&mut writer, ImageOutputFormat::Png)
+    let encoder = PngEncoder::new(&mut writer);
+    encoder
+        .write_image(
+            img.as_bytes(),
+            img.width(),
+            img.height(),
+            img.color().into(),
+        )
         .map_err(|e| e.to_string())?;
 
     unsafe {

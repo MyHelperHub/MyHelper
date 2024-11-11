@@ -1,4 +1,4 @@
-use crate::core::app::get_previous_window;
+use crate::get_previous_window;
 use cocoa::{
     appkit::{NSApplicationActivationOptions, NSRunningApplication},
     base::nil,

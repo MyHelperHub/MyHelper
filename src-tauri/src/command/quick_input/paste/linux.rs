@@ -1,5 +1,5 @@
 use super::wait;
-use crate::core::app::get_previous_window;
+use crate::get_previous_window;
 use rdev::{simulate, EventType, Key};
 use x11::xlib::{self, XCloseDisplay, XOpenDisplay, XRaiseWindow, XSetInputFocus};
 

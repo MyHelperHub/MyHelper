@@ -25,12 +25,27 @@
         </div>
         <div class="intro-item">
           <div class="intro-item-left">作者邮箱：</div>
-          <div class="intro-item-right" @click="copyToClipboard('ialtone@ialtone.xyz')">ialtone@ialtone.xyz</div>
+          <div
+            class="intro-item-right"
+            @click="copyToClipboard('ialtone@ialtone.xyz')">
+            ialtone@ialtone.xyz
+          </div>
         </div>
       </div>
       <div class="footer">
         <div
           class="footer-item cursor-pointer"
+          v-tooltip.top="{
+            value: '点击复制',
+            showDelay: 100,
+            pt: {
+              text: {
+                style: {
+                  fontSize: '15px',
+                },
+              },
+            },
+          }"
           @click="copyToClipboard('206028763')">
           🐧群：206028763
         </div>

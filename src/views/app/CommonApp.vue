@@ -40,7 +40,7 @@ import { ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { emit, on } from "@/utils/eventBus";
-import { ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
+import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import EditItem from "./EditItem.vue";
 
 const dataList = ref<AppItem[]>([]);
@@ -124,10 +124,14 @@ const deleteAppItem = async (id: number) => {
   const index = dataList.value.findIndex((item) => item.id === id);
   // 如果找到了，则删除该元素
   if (index !== -1) {
+    //暂存logo文件名
+    const filePath = dataList.value[index].logo;
+    const fileName = dataList.value[index].logo.substring(filePath.lastIndexOf('\\') + 1);
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {
       await setConfig(["appConfig", "dataList"], dataList.value);
+      await ipcDeleteIcon(fileName, 1);
       showMessage("删除成功!", 3000, 1);
     } catch (error) {
       showMessage("删除失败!", 3000, 2);

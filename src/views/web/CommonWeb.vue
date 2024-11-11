@@ -44,7 +44,7 @@ import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { emit, on } from "@/utils/eventBus";
-import { ipcOpen } from "@/api/ipc/launch.api";
+import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
@@ -124,10 +124,17 @@ const deleteWebItem = async (id: number) => {
   const index = dataList.value.findIndex((item) => item.id === id);
   // 如果找到了，则删除该元素
   if (index !== -1) {
+    //暂存logo文件名
+    const filePath = dataList.value[index].logo;
+    const fileName = dataList.value[index].logo.substring(
+      filePath.lastIndexOf("/") + 1,
+    );
+    
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {
       await setConfig(["webConfig", "dataList"], dataList.value);
+      await ipcDeleteIcon(fileName, 0);
       showMessage("删除成功!", 3000, 1);
     } catch (error) {
       showMessage("删除失败!", 3000, 2);
