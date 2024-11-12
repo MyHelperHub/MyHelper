@@ -10,8 +10,17 @@ pub async fn set_window_size(
     height: f64,
 ) -> Result<(), String> {
     if let Some(window) = app_handle.get_webview_window("main") {
+        // 获取窗口当前的缩放因子
+        let scale_factor = window.scale_factor().map_err(|e| e.to_string())?;
+        // 根据缩放因子调整窗口大小
+        let adjusted_width = width / scale_factor;
+        let adjusted_height = height / scale_factor;
+        
         window
-            .set_size(tauri::Size::Logical(LogicalSize { width, height }))
+            .set_size(tauri::Size::Logical(LogicalSize { 
+                width: adjusted_width, 
+                height: adjusted_height 
+            }))
             .map_err(|e| e.to_string())?;
     } else {
         return Err("未找到 main 窗口".to_string());
@@ -29,11 +38,14 @@ pub async fn create_new_window(
     size: Option<(f64, f64)>,
     position: Option<(f64, f64)>,
 ) -> Result<(), String> {
-    // 克隆 app_handle
-    let app_handle_clone = app_handle.clone();
+    // 获取主屏幕的大小和缩放比例
+    let primary_monitor = app_handle.primary_monitor().map_err(|e| e.to_string())?;
+    let monitor = primary_monitor.ok_or("未找到主监视器".to_string())?;
+    let monitor_size = monitor.size();
+    let scale_factor = monitor.scale_factor();
 
     let mut builder =
-        WebviewWindowBuilder::new(&app_handle_clone, &window_id, WebviewUrl::App(url.into()))
+        WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
             .title(title)
             .shadow(false)
             .transparent(true)
@@ -42,16 +54,10 @@ pub async fn create_new_window(
 
     // 设置窗口大小
     let (width, height) = match size {
-        Some((w, h)) => (w, h),
-        None => (400.0, 300.0), // 默认大小
+        Some((w, h)) => (w / scale_factor, h / scale_factor), // 根据缩放因子调整窗口大小
+        None => (400.0 / scale_factor, 300.0 / scale_factor), // 默认大小也需要调整
     };
     builder = builder.inner_size(width, height);
-
-    // 获取主屏幕的大小和缩放比例
-    let primary_monitor = app_handle.primary_monitor().map_err(|e| e.to_string())?;
-    let monitor = primary_monitor.ok_or("未找到主监视器".to_string())?;
-    let monitor_size = monitor.size();
-    let scale_factor = monitor.scale_factor();
 
     // 如果未指定位置，则计算窗口中心位置
     let (x, y) = if let Some(pos) = position {

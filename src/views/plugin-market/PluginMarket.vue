@@ -5,8 +5,8 @@
       <div class="container">
         <div class="search-wrapper">
           <div class="search-input">
-            <InputText v-model="searchQuery" placeholder="搜索插件..." />
-            <Button 
+            <InputText v-model="state.searchQuery" placeholder="搜索插件..." />
+            <Button
               class="search-button"
               icon="pi pi-search"
               @click="handleSearch" />
@@ -27,7 +27,13 @@
             </template>
             <template #content>
               <div class="menu-wrapper">
-                <Menu :model="categoryMenuItems" />
+                <Listbox
+                  v-model="state.selectedCategory"
+                  :options="categoryMenuItems"
+                  optionLabel="label"
+                  optionValue="value"
+                  class="category-menu-list"
+                  @change="selectCategory" />
               </div>
             </template>
           </Card>
@@ -39,7 +45,7 @@
           <Toolbar class="toolbar">
             <template #start>
               <Select
-                v-model="currentSort"
+                v-model="state.currentSort"
                 :options="sortOptions"
                 optionLabel="label"
                 optionValue="value"
@@ -49,7 +55,7 @@
             </template>
             <template #end>
               <Select
-                v-model="timeFilter"
+                v-model="state.timeFilter"
                 :options="timeFilterOptions"
                 optionLabel="label"
                 optionValue="value"
@@ -105,9 +111,9 @@
           <!-- 分页 -->
           <div class="pagination">
             <Paginator
-              v-model:first="first"
+              v-model:first="state.first"
               :rows="9"
-              :total-records="total"
+              :total-records="state.total"
               :rows-per-page-options="[9, 18, 27]" />
           </div>
         </div>
@@ -121,7 +127,7 @@ import { ref } from "vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Card from "primevue/card";
-import Menu from "primevue/menu";
+import Listbox from "primevue/listbox";
 import Toolbar from "primevue/toolbar";
 import Select from "primevue/select";
 import Image from "primevue/image";
@@ -142,58 +148,75 @@ interface Plugin {
 }
 
 // 状态定义
-const searchQuery = ref("");
-const selectedCategory = ref(1);
-const currentSort = ref("downloads");
-const timeFilter = ref("all");
-const first = ref(0);
-const total = ref(100);
+interface State {
+  searchQuery: string;
+  selectedCategory: number;
+  currentSort: number;
+  timeFilter: string;
+  first: number;
+  total: number;
+}
+
+enum SortType {
+  Downloads = 0,
+  Rating = 1,
+  Latest = 2,
+}
+
+const state = ref<State>({
+  searchQuery: "",
+  selectedCategory: 1,
+  currentSort: SortType.Downloads,
+  timeFilter: "all",
+  first: 0,
+  total: 100,
+});
 
 // 分类菜单项
 const categoryMenuItems = ref([
   {
     label: "全部插件",
     icon: "pi pi-list",
-    command: () => selectCategory(1),
     badge: "1234",
+    value: 1,
   },
   {
     label: "开发工具",
     icon: "pi pi-code",
-    command: () => selectCategory(2),
     badge: "328",
+    value: 2,
   },
   {
     label: "效率工具",
     icon: "pi pi-clock",
-    command: () => selectCategory(3),
     badge: "246",
+    value: 3,
   },
   {
     label: "网络工具",
     icon: "pi pi-wifi",
-    command: () => selectCategory(4),
     badge: "185",
+    value: 4,
   },
   {
     label: "系统工具",
     icon: "pi pi-desktop",
-    command: () => selectCategory(5),
     badge: "142",
+    value: 5,
   },
   {
     label: "娱乐工具",
     icon: "pi pi-play",
-    command: () => selectCategory(6),
     badge: "98",
+    value: 6,
   },
 ]);
 
 // 排序选项
 const sortOptions = ref([
-  { label: "下载量", value: "downloads" },
-  { label: "好评数", value: "rating" },
-  { label: "最新", value: "latest" },
+  { label: "下载量", value: 0 },
+  { label: "好评数", value: 1 },
+  { label: "最新", value: 2 },
 ]);
 
 // 时间筛选选项
@@ -238,12 +261,115 @@ const plugins = ref<Plugin[]>([
     downloads: 34567,
     tags: ["网络工具", "测速"],
   },
+  {
+    id: 4,
+    name: "系统监控助手",
+    author: "SystemPro",
+    icon: "https://placeholder.co/48",
+    description: "实时监控系统资源占用，包括CPU、内存、硬盘等使用情况。",
+    rating: 4.6,
+    downloads: 23456,
+    tags: ["系统工具", "监控"],
+  },
+  {
+    id: 5,
+    name: "音乐播放器",
+    author: "MusicLover",
+    icon: "https://placeholder.co/48",
+    description: "支持多种音频格式，提供均衡器、歌词显示等高级功能。",
+    rating: 4.5,
+    downloads: 78901,
+    tags: ["娱乐工具", "音乐"],
+  },
+  {
+    id: 6,
+    name: "Git可视化工具",
+    author: "GitMaster",
+    icon: "https://placeholder.co/48",
+    description: "图形化展示Git操作，简化版本控制流程，适合团队协作。",
+    rating: 4.8,
+    downloads: 56789,
+    tags: ["开发工具", "Git"],
+  },
+  {
+    id: 7,
+    name: "文件同步器",
+    author: "SyncPro",
+    icon: "https://placeholder.co/48",
+    description: "自动同步文件到多个设备或云端，支持实时同步和定时备份。",
+    rating: 4.7,
+    downloads: 34567,
+    tags: ["效率工具", "同步"],
+  },
+  {
+    id: 8,
+    name: "防火墙管理器",
+    author: "SecurityExpert",
+    icon: "https://placeholder.co/48",
+    description: "可视化管理系统防火墙，提供实时网络安全监控和威胁防护。",
+    rating: 4.9,
+    downloads: 45678,
+    tags: ["网络工具", "安全"],
+  },
+  {
+    id: 9,
+    name: "硬件诊断工具",
+    author: "HardwarePro",
+    icon: "https://placeholder.co/48",
+    description: "全面检测电脑硬件状态，提供详细的诊断报告和优化建议。",
+    rating: 4.6,
+    downloads: 23456,
+    tags: ["系统工具", "诊断"],
+  },
+  {
+    id: 10,
+    name: "视频编辑器",
+    author: "VideoMaster",
+    icon: "https://placeholder.co/48",
+    description: "简单易用的视频编辑工具，支持剪辑、特效、字幕等能。",
+    rating: 4.8,
+    downloads: 67890,
+    tags: ["娱乐工具", "视频"],
+  },
+  {
+    id: 11,
+    name: "数据库管理工具",
+    author: "DBMaster",
+    icon: "https://placeholder.co/48",
+    description: "支持多种数据库的可视化管理，简化数据库操作和维护。",
+    rating: 4.7,
+    downloads: 45678,
+    tags: ["开发工具", "数据库"],
+  },
+  {
+    id: 12,
+    name: "任务自动化工具",
+    author: "AutoPro",
+    icon: "https://placeholder.co/48",
+    description: "通过简单的配置实现任务自动化，提高工作效率。",
+    rating: 4.8,
+    downloads: 34567,
+    tags: ["效率工具", "自动化"],
+  },
+  {
+    id: 13,
+    name: "网络抓包工具",
+    author: "PacketMaster",
+    icon: "https://placeholder.co/48",
+    description: "专业的网络数据包分析工具，支持多协议解析和流量监控。",
+    rating: 4.6,
+    downloads: 23456,
+    tags: ["网络工具", "抓包"],
+  },
 ]);
 
 // 方法定义
-const selectCategory = (id: number) => {
-  selectedCategory.value = id;
-  // 这里可以添加获取分类插件的逻辑
+const selectCategory = (event: { value: any }) => {
+  const selectedValue = event.value;
+  if (selectedValue) {
+    state.value.selectedCategory = selectedValue;
+    // 这里可以添加获取分类插件的逻辑
+  }
 };
 
 const formatNumber = (num: number) => {
@@ -252,8 +378,14 @@ const formatNumber = (num: number) => {
 
 // 搜索方法
 const handleSearch = () => {
-  // 这里实现搜索逻辑
-  console.log("执行搜索:", searchQuery.value);
+  console.log("执行搜索:", state.value.searchQuery);
+  // 现在可以直接将 state 对象发送到后端
+  // const params = {
+  //   searchQuery: state.value.searchQuery,
+  //   currentSort: state.value.currentSort,
+  //   timeFilter: state.value.timeFilter,
+  //   page: state.value.first / 9 + 1
+  // };
 };
 </script>
 
@@ -329,11 +461,14 @@ const handleSearch = () => {
   .content-wrapper {
     display: flex;
     gap: 1.5rem;
+    height: calc(100vh - 120px);
+    overflow: hidden;
   }
 
   .category-menu {
     width: 12rem;
     flex: none;
+    overflow-y: hidden;
 
     .menu-card {
       :deep(.p-card) {
@@ -344,15 +479,18 @@ const handleSearch = () => {
       .card-title {
         padding: 0 0.75rem;
       }
-
-      .menu-wrapper {
-        overflow-x: hidden;
+      :deep(.p-listbox-list-container) {
+        overflow: hidden;
+        width: 100%;
+        max-height: unset !important;
       }
     }
   }
 
   .plugin-list {
     flex: 1;
+    overflow-y: auto;
+    padding-right: 1rem;
 
     .toolbar {
       margin-bottom: 1rem;
@@ -454,20 +592,6 @@ const handleSearch = () => {
 }
 
 /* PrimeVue 组件样式覆盖 */
-:deep(.p-menu) {
-  border: none;
-  padding: 0;
-  background: transparent;
-
-  .p-menuitem {
-    margin: 0;
-  }
-
-  .p-menuitem-link {
-    padding: 0.75rem 1rem;
-  }
-}
-
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {
   color: #fbbf24;
 }

@@ -1,7 +1,9 @@
 mod command;
+mod mh_plugin;
 mod utils;
 
 use command::*;
+use mh_plugin::*;
 use serde_json::json;
 use std::{
     collections::HashMap,
