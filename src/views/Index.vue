@@ -28,16 +28,13 @@ import SpeedDial from "primevue/speeddial";
 import { hideMessage } from "@/utils/message";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
-import { computed, ref } from "vue";
-import {
-  ipcCloseWindow,
-  ipcCreateNewWindow,
-  ipcSetWindowSize,
-} from "@/api/ipc/window.api";
+import { computed, ref, toRef } from "vue";
+import { ipcSetWindowSize } from "@/api/ipc/window.api";
 import { listen } from "@tauri-apps/api/event";
 import { checkLogoPath } from "@/utils/avatar";
 import { emit } from "@/utils/eventBus";
-import { NewWindowEnum } from "@/interface/enum";
+import { handleWindowToggle } from "@/utils/windowManager";
+import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 
 const isShowMenu = ref(false);
 const avatarLogo = ref("/logo.png");
@@ -61,28 +58,10 @@ const menuItems = ref({
     icon: "pi pi-wrench",
     isOpen: false,
     command: () => {
-      if (menuItems.value.settings.isOpen) {
-        menuItems.value.settings.isOpen = false;
-        ipcCloseWindow(NewWindowEnum.Setting).catch((err) => {
-          if (err === NewWindowEnum.Setting) {
-            ipcCreateNewWindow(
-              NewWindowEnum.Setting,
-              "设置",
-              "#/setting",
-              [670, 520],
-            );
-            menuItems.value.settings.isOpen = true;
-          }
-        });
-      } else {
-        ipcCreateNewWindow(
-          NewWindowEnum.Setting,
-          "设置",
-          "#/setting",
-          [670, 520],
-        );
-        menuItems.value.settings.isOpen = true;
-      }
+      handleWindowToggle(
+        WINDOW_CONFIG[NewWindowEnum.Setting],
+        toRef(menuItems.value.settings, "isOpen"),
+      );
     },
   },
   my: {
@@ -90,18 +69,10 @@ const menuItems = ref({
     icon: "pi pi-user",
     isOpen: false,
     command: () => {
-      if (menuItems.value.my.isOpen) {
-        menuItems.value.my.isOpen = false;
-        ipcCloseWindow(NewWindowEnum.My).catch((err) => {
-          if (err === NewWindowEnum.My) {
-            ipcCreateNewWindow(NewWindowEnum.My, "我的", "#/my", [600, 400]);
-            menuItems.value.my.isOpen = true;
-          }
-        });
-      } else {
-        ipcCreateNewWindow(NewWindowEnum.My, "我的", "#/my", [600, 400]);
-        menuItems.value.my.isOpen = true;
-      }
+      handleWindowToggle(
+        WINDOW_CONFIG[NewWindowEnum.My],
+        toRef(menuItems.value.my, "isOpen"),
+      );
     },
   },
 });

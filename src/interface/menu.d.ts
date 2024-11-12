@@ -6,4 +6,5 @@ export interface CommonState {
 }
 export interface ContainState {
   label: boolean;
+  pluginMarket: boolean;
 }
