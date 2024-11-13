@@ -1,19 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
+import { WindowConfig } from "@/interface/window";
 
 /**
  * 创建新窗口
- * @param windowId 窗口唯一标识符
- * @param title 窗口标题
- * @param url 窗口加载的路径
- * @param size 窗口大小，数组包含宽度和高度
+ * @param options 窗口配置选项
  */
-export const ipcCreateNewWindow = async (
-  windowId: string,
-  title: string,
-  url: string,
-  size: [number, number],
-) => {
-  invoke("create_new_window", { windowId, title, url, size });
+export const ipcCreateNewWindow = async (options: WindowConfig) => {
+  invoke("create_new_window", { ...options });
 };
 
 /**

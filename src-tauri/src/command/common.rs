@@ -1,27 +1,45 @@
 use std::path::Path;
 
 use tauri::{LogicalSize, Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::image::Image;
+use reqwest;
 
-/** 设置窗口大小的命令 */
+// 定义参考分辨率（比如以2560x1440为基准）
+const REFERENCE_WIDTH: f64 = 2560.0;
+const REFERENCE_HEIGHT: f64 = 1440.0;
+
+// 设置窗口大小的函数也需要相应修改
 #[tauri::command]
 pub async fn set_window_size(
     app_handle: tauri::AppHandle,
-    width: f64,
-    height: f64,
+    width: f64,  // 基于参考分辨率的宽度
+    height: f64, // 基于参考分辨率的高度
 ) -> Result<(), String> {
     if let Some(window) = app_handle.get_webview_window("main") {
-        // 获取窗口当前的缩放因子
-        let scale_factor = window.scale_factor().map_err(|e| e.to_string())?;
-        // 根据缩放因子调整窗口大小
-        let adjusted_width = width / scale_factor;
-        let adjusted_height = height / scale_factor;
-        
+        let monitor = window
+            .current_monitor()
+            .map_err(|e| e.to_string())?
+            .ok_or("未找到监视器".to_string())?;
+        let monitor_size = monitor.size();
+
+        // 计算缩放比例
+        let scale_width = monitor_size.width as f64 / REFERENCE_WIDTH;
+        let scale_height = monitor_size.height as f64 / REFERENCE_HEIGHT;
+        let scale_factor = scale_width.min(scale_height);
+
+        // 应用缩放
+        let scaled_width = width * scale_factor;
+        let scaled_height = height * scale_factor;
+
         window
-            .set_size(tauri::Size::Logical(LogicalSize { 
-                width: adjusted_width, 
-                height: adjusted_height 
+            .set_size(tauri::Size::Logical(LogicalSize {
+                width: scaled_width,
+                height: scaled_height,
             }))
             .map_err(|e| e.to_string())?;
+            
+        // 设置网页内容的缩放比例
+        window.set_zoom(scale_factor).map_err(|e| e.to_string())?;
     } else {
         return Err("未找到 main 窗口".to_string());
     }
@@ -35,44 +53,77 @@ pub async fn create_new_window(
     window_id: String,
     title: String,
     url: String,
-    size: Option<(f64, f64)>,
+    size: Option<(f64, f64)>, 
     position: Option<(f64, f64)>,
+    always_on_top: Option<bool>,
+    resizable: Option<bool>,
+    icon: Option<String>,
 ) -> Result<(), String> {
-    // 获取主屏幕的大小和缩放比例
-    let primary_monitor = app_handle.primary_monitor().map_err(|e| e.to_string())?;
-    let monitor = primary_monitor.ok_or("未找到主监视器".to_string())?;
+    // 获取主监视器信息并计算缩放比例
+    let monitor = app_handle
+        .primary_monitor()
+        .map_err(|e| e.to_string())?
+        .ok_or("未找到主监视器".to_string())?;
     let monitor_size = monitor.size();
-    let scale_factor = monitor.scale_factor();
+    let scale_factor = (monitor_size.width as f64 / REFERENCE_WIDTH)
+        .min(monitor_size.height as f64 / REFERENCE_HEIGHT);
 
-    let mut builder =
-        WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
-            .title(title)
-            .shadow(false)
-            .transparent(true)
-            .visible(false)
-            .decorations(false);
-
-    // 设置窗口大小
-    let (width, height) = match size {
-        Some((w, h)) => (w / scale_factor, h / scale_factor), // 根据缩放因子调整窗口大小
-        None => (400.0 / scale_factor, 300.0 / scale_factor), // 默认大小也需要调整
-    };
-    builder = builder.inner_size(width, height);
-
-    // 如果未指定位置，则计算窗口中心位置
+    // 计算窗口大小和位置
+    let (base_width, base_height) = size.unwrap_or((600.0, 400.0));
+    let (width, height) = (base_width * scale_factor, base_height * scale_factor);
     let (x, y) = if let Some(pos) = position {
-        (pos.0 / scale_factor, pos.1 / scale_factor) // 调整位置
+        (pos.0 * scale_factor, pos.1 * scale_factor)
     } else {
-        // 计算窗口的左上角位置，使窗口位于屏幕中央
-        let center_x = (monitor_size.width as f64 / scale_factor - width) / 2.0;
-        let center_y = (monitor_size.height as f64 / scale_factor - height) / 2.0;
-        (center_x, center_y)
+        (
+            (monitor_size.width as f64 - width) / 2.0,
+            (monitor_size.height as f64 - height) / 2.0,
+        )
     };
 
-    // 设置窗口位置
-    builder = builder.position(x, y);
+    // 构建基础窗口配置
+    let mut builder = WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
+        .title(title)
+        .shadow(false)
+        .transparent(true)
+        .visible(false)
+        .decorations(false)
+        .always_on_top(always_on_top.unwrap_or(false))
+        .resizable(resizable.unwrap_or(true))
+        .inner_size(width, height)
+        .position(x, y);
+
+    // 处理图标设置
+    if let Some(icon_path) = icon {
+        if !icon_path.starts_with("http") {
+            if Path::new(&icon_path).exists() {
+                if let Ok(icon_bytes) = std::fs::read(&icon_path) {
+                    if let Ok(icon) = Image::from_bytes(&icon_bytes) {
+                        builder = builder.icon(icon).map_err(|e| e.to_string())?;
+                    }
+                }
+            }
+        } else {
+            let window_id_clone = window_id.clone();
+            let app_handle_clone = app_handle.clone();
+            let icon_path_clone = icon_path.clone();
+            
+            tauri::async_runtime::spawn(async move {
+                if let Ok(response) = reqwest::get(&icon_path_clone).await {
+                    if let Ok(bytes) = response.bytes().await {
+                        if let Ok(icon) = Image::from_bytes(&bytes.to_vec()) {
+                            if let Some(window) = app_handle_clone.get_webview_window(&window_id_clone) {
+                                let _ = window.set_icon(icon);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     // 创建并显示窗口
     let new_window = builder.build().map_err(|e| e.to_string())?;
+    new_window.set_zoom(scale_factor).map_err(|e| e.to_string())?;
     new_window.show().map_err(|e| e.to_string())?;
 
     Ok(())

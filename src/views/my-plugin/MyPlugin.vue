@@ -8,12 +8,9 @@
       </template>
 
       <div class="icons-container">
-        <div v-for="i in 8" :key="i" class="icon-wrapper">
+        <div v-for="i in 8" :key="i" class="icon-wrapper" @click="oop">
           <i class="icon">
-            <img 
-              src="../../assets/images/engine/baidu.png" 
-              alt="icon"
-            />
+            <img src="../../assets/images/engine/baidu.png" alt="icon" />
           </i>
         </div>
       </div>
@@ -22,11 +19,25 @@
 </template>
 
 <script setup lang="ts">
+import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import Drawer from "primevue/drawer";
 import { ref } from "vue";
+import { appDataDir } from '@tauri-apps/api/path';
+import { NewWindowEnum } from "@/interface/windowEnum";
+
 
 const popoverRef = ref(false);
-
+const oop = async () => {
+  const appDataPath = await appDataDir();
+  const pluginUrl = `http://asset.localhost/${appDataPath}/plugins/after/index.html`;
+  
+  ipcCreateNewWindow({
+    windowId: NewWindowEnum.Plugin,
+    title: "设置",
+    url: pluginUrl,
+    size: [670, 520]
+  });
+};
 const openPopover = () => {
   popoverRef.value = true;
 };
@@ -36,7 +47,7 @@ defineExpose({ openPopover });
 
 <style lang="less">
 @import "../../assets/css/variable.less";
-.p-drawer-header{
+.p-drawer-header {
   padding: 0.2rem 1rem 0 1rem !important;
 }
 .icons-container {

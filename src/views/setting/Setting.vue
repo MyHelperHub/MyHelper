@@ -72,14 +72,14 @@ const handleMenuClick = (event: any) => {
     height: 100%;
 
     .menu-container {
-      width: 200px;
+      width: 170px;
       height: 100%;
-      border-right: 1px solid #e0e0e0;
 
       .p-menu {
         height: 100%;
         width: 100%;
         border: none;
+        min-width: 80%;
       }
     }
 

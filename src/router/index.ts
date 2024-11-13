@@ -24,6 +24,10 @@ const routes = [
     name: "PluginMarket",
     path: "/plugin-market",
     component: () => import("@/views/plugin-market/PluginMarket.vue"),
+  }, {
+    name: "Develop",
+    path: "/develop",
+    component: () => import("@/views/plugin-market/Develop.vue"),
   },
 ];
 
