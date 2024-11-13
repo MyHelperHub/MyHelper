@@ -202,8 +202,8 @@ on("closeAllMenu", closeAllMenu);
 
         &::before {
           top: 0;
-          border-top: 2px solid rgb(54, 56, 55);
-          border-right: 2px solid rgb(54, 56, 55);
+          border-top: 1vw solid rgb(54, 56, 55);
+          border-right: 1vw solid rgb(54, 56, 55);
           transition:
             height 0.15s ease-in,
             width 0.2s 0.15s linear,
@@ -212,7 +212,7 @@ on("closeAllMenu", closeAllMenu);
 
         &::after {
           bottom: 0;
-          border-bottom: 2px solid rgb(54, 56, 55);
+          border-bottom: 1vw solid rgb(54, 56, 55);
           transition:
             width 0.25s ease-in,
             opacity 0s 0.35s;
