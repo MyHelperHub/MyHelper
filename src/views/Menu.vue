@@ -169,7 +169,7 @@ on("closeAllMenu", closeAllMenu);
         }
 
         &::before {
-          height: 100%;
+          height: 96%;
           transition: height 0.2s ease-in;
         }
       }

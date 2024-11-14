@@ -155,6 +155,17 @@ const handleDataReset = (key: string[], event: { currentTarget: any }) => {
       cursor: pointer;
     }
   }
+
+  :deep(.p-toggleswitch.p-component) {
+    &.p-toggleswitch-checked {
+      .p-toggleswitch-slider {
+        background: rgb(74, 159, 238);
+      }
+      &:hover .p-toggleswitch-slider {
+        background: rgb(0, 132, 255);
+      }
+    }
+  }
 }
 
 .modal-content {

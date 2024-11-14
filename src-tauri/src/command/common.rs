@@ -28,9 +28,9 @@ pub async fn set_window_size(
         let scale_height = monitor_size.height as f64 / REFERENCE_HEIGHT;
         let scale_factor = scale_width.min(scale_height);
 
-        // 当实际分辨率小于等于参考分辨率时，将缩放因子稍微调大
-        let adjusted_scale_factor = if monitor_size.width as f64 <= REFERENCE_WIDTH
-            && monitor_size.height as f64 <= REFERENCE_HEIGHT
+        // 只在屏幕分辨率小于参考分辨率时才应用 SMALL_SCREEN_SCALE_FACTOR
+        let adjusted_scale_factor = if (monitor_size.width as f64) < REFERENCE_WIDTH
+            && (monitor_size.height as f64) < REFERENCE_HEIGHT
         {
             scale_factor * SMALL_SCREEN_SCALE_FACTOR
         } else {
@@ -77,19 +77,14 @@ pub async fn create_new_window(
         .map_err(|e| e.to_string())?
         .ok_or("未找到主监视器".to_string())?;
     let monitor_size = monitor.size();
-    let scale_factor = if monitor_size.width as f64 <= REFERENCE_WIDTH
-        && monitor_size.height as f64 <= REFERENCE_HEIGHT
-    {
-        (monitor_size.width as f64 / (REFERENCE_WIDTH * SMALL_SCREEN_SCALE_FACTOR))
-            .min(monitor_size.height as f64 / (REFERENCE_HEIGHT * SMALL_SCREEN_SCALE_FACTOR))
-    } else {
-        (monitor_size.width as f64 / REFERENCE_WIDTH)
-            .min(monitor_size.height as f64 / REFERENCE_HEIGHT)
-    };
+    
+    // 简化缩放计算逻辑
+    let scale_factor = (monitor_size.width as f64 / REFERENCE_WIDTH)
+        .min(monitor_size.height as f64 / REFERENCE_HEIGHT);
 
-    // 当实际分辨率小于等于参考分辨率时，将缩放因子稍微调大
-    let adjusted_scale_factor = if monitor_size.width as f64 <= REFERENCE_WIDTH
-        && monitor_size.height as f64 <= REFERENCE_HEIGHT
+    // 只在屏幕分辨率小于参考分辨率时才应用 SMALL_SCREEN_SCALE_FACTOR
+    let adjusted_scale_factor = if (monitor_size.width as f64) < REFERENCE_WIDTH
+        && (monitor_size.height as f64) < REFERENCE_HEIGHT
     {
         scale_factor * SMALL_SCREEN_SCALE_FACTOR
     } else {
