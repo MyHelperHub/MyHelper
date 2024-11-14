@@ -16,7 +16,18 @@
             },
           },
         }" />
-      <Popover ref="popoverRef">
+      <Popover
+        ref="popoverRef"
+        append-to="self"
+        position="bottom"
+        :pt="{
+          root: {
+            style: {
+              marginTop: '-68px',
+              marginLeft: '-10px',
+            },
+          },
+        }">
         <div class="dropdown-list">
           <div
             v-for="(engine, index) in searchEngines"
@@ -121,7 +132,7 @@ function handleSearch() {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 2;
 
   .search-list {
     position: relative;
@@ -176,10 +187,13 @@ function handleSearch() {
   }
 }
 
-.p-popover:after,
-.p-popover:before {
-  transform: translateX(-20%);
+.p-popover {
+  &:after,
+  &:before {
+    transform: translateX(-5px);
+  }
 }
+
 .p-popover-content {
   padding: 5px !important;
   .dropdown-list {

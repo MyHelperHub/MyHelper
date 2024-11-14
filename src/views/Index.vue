@@ -126,6 +126,7 @@ const showMenu = () => {
     position: absolute;
     right: 0;
     top: 10px;
+    z-index: 3;
     .speed-dial {
       .p-speeddial-button {
         width: 30px;
