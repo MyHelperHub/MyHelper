@@ -1,4 +1,5 @@
 <template>
+  <Toast />
   <Loading ref="loadingRef" />
   <Message ref="messageRef" />
   <RouterView> </RouterView>
@@ -8,6 +9,7 @@
 import { onMounted, ref } from "vue";
 import Message from "./components/Message.vue";
 import Loading from "./components/Loading.vue";
+import Toast from "primevue/toast";
 import { setMessageRef } from "./utils/message";
 import { setLoadingRef } from "./utils/loading";
 

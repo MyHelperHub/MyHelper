@@ -7,10 +7,17 @@
         <div class="search-wrapper">
           <div class="search-input">
             <InputText v-model="state.searchQuery" placeholder="搜索插件..." />
-            <Button class="search-button" icon="pi pi-search" @click="handleSearch" />
+            <Button
+              class="search-button"
+              icon="pi pi-search"
+              @click="handleSearch" />
           </div>
           <div class="button-group">
-            <Button icon="pi pi-list" label="已安装插件" class="installed-button" @click="showInstalledPlugins" />
+            <Button
+              icon="pi pi-list"
+              label="已安装插件"
+              class="installed-button"
+              @click="showInstalledPlugins" />
           </div>
         </div>
       </div>
@@ -27,8 +34,13 @@
             </template>
             <template #content>
               <div class="menu-wrapper">
-                <Listbox v-model="state.selectedCategory" :options="categoryMenuItems" optionLabel="label"
-                  optionValue="value" class="category-menu-list" @change="selectCategory" />
+                <Listbox
+                  v-model="state.selectedCategory"
+                  :options="categoryMenuItems"
+                  optionLabel="label"
+                  optionValue="value"
+                  class="category-menu-list"
+                  @change="selectCategory" />
               </div>
             </template>
           </Card>
@@ -39,22 +51,41 @@
           <!-- 排序和筛选工具栏 -->
           <Toolbar class="toolbar">
             <template #start>
-              <Select v-model="state.currentSort" :options="sortOptions" optionLabel="label" optionValue="value"
-                class="sort-select" placeholder="排序方式" :panelStyle="{ width: '200px' }" />
+              <Select
+                v-model="state.currentSort"
+                :options="sortOptions"
+                optionLabel="label"
+                optionValue="value"
+                class="sort-select"
+                placeholder="排序方式"
+                :panelStyle="{ width: '200px' }" />
             </template>
             <template #end>
-              <Select v-model="state.timeFilter" :options="timeFilterOptions" optionLabel="label" optionValue="value"
-                placeholder="选择时间范围" class="time-filter-select" :panelStyle="{ width: '200px' }" />
+              <Select
+                v-model="state.timeFilter"
+                :options="timeFilterOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="选择时间范围"
+                class="time-filter-select"
+                :panelStyle="{ width: '200px' }" />
             </template>
           </Toolbar>
 
           <!-- 插件网格 -->
           <div class="plugin-grid">
-            <Card v-for="plugin in filteredPlugins" :key="plugin.id" class="plugin-card"
+            <Card
+              v-for="plugin in filteredPlugins"
+              :key="plugin.id"
+              class="plugin-card"
               @click="showPluginDetail(plugin)">
               <template #header>
                 <div class="card-header">
-                  <Image :src="plugin.icon" :alt="plugin.name" width="48" height="48" />
+                  <Image
+                    :src="plugin.icon"
+                    :alt="plugin.name"
+                    width="48"
+                    height="48" />
                   <div class="plugin-info">
                     <h3>{{ plugin.name }}</h3>
                     <p>{{ plugin.author }}</p>
@@ -73,7 +104,11 @@
                 </p>
                 <div class="card-footer">
                   <div class="plugin-tags">
-                    <Tag v-for="tag in plugin.tags" :key="tag" :value="tag" severity="info" />
+                    <Tag
+                      v-for="tag in plugin.tags"
+                      :key="tag"
+                      :value="tag"
+                      severity="info" />
                   </div>
                   <Button icon="pi pi-download" label="下载" size="small" />
                 </div>
@@ -83,7 +118,10 @@
 
           <!-- 分页 -->
           <div class="pagination">
-            <Paginator v-model:first="state.first" :rows="20" :total-records="state.total"
+            <Paginator
+              v-model:first="state.first"
+              :rows="20"
+              :total-records="state.total"
               :rows-per-page-options="[20, 40, 60]" />
           </div>
         </div>
@@ -91,40 +129,55 @@
     </div>
 
     <!-- 详情对话框 -->
-    <Dialog v-model:visible="showDetail" :modal="true" :style="{ width: '50vw' }" :header="selectedPlugin?.name"
-      class="plugin-detail-dialog" dismissableMask>
+    <Dialog
+      v-model:visible="showDetail"
+      :modal="true"
+      :style="{ width: '50vw' }"
+      :header="selectedPlugin?.name"
+      class="plugin-detail-dialog"
+      dismissableMask>
       <div class="plugin-detail" v-if="selectedPlugin">
         <!-- 插件头部信息 -->
         <div class="plugin-header">
-          <Image :src="selectedPlugin.icon" :alt="selectedPlugin.name" width="64" height="64" />
+          <Image
+            :src="selectedPlugin.icon"
+            :alt="selectedPlugin.name"
+            width="64"
+            height="64" />
           <div class="plugin-info">
             <p class="author">作者：{{ selectedPlugin.author }}</p>
             <div class="stats">
               <div class="rating-wrapper">
-                <Rating 
+                <Rating
                   v-if="isPluginInstalled(selectedPlugin)"
-                  v-model="userRating" 
+                  v-model="userRating"
                   :cancel="false"
-                  @change="handleRating"
-                />
-                <Rating 
+                  @change="handleRating" />
+                <Rating
                   v-else
-                  :modelValue="selectedPlugin.rating" 
-                  :cancel="false" 
-                  readonly 
-                />
-                <small v-if="isPluginInstalled(selectedPlugin)" class="rating-hint">
-                  {{ userRating ? '您的评分' : '点击星星进行评分' }}
+                  :modelValue="selectedPlugin.rating"
+                  :cancel="false"
+                  readonly />
+                <small
+                  v-if="isPluginInstalled(selectedPlugin)"
+                  class="rating-hint">
+                  {{ userRating ? "您的评分" : "点击星星进行评分" }}
                 </small>
               </div>
-              <span class="downloads">{{ formatNumber(selectedPlugin.downloads) }}次下载</span>
+              <span class="downloads"
+                >{{ formatNumber(selectedPlugin.downloads) }}次下载</span
+              >
             </div>
           </div>
         </div>
 
         <!-- 插件标签 -->
         <div class="plugin-tags">
-          <Tag v-for="tag in selectedPlugin.tags" :key="tag" :value="tag" severity="info" />
+          <Tag
+            v-for="tag in selectedPlugin.tags"
+            :key="tag"
+            :value="tag"
+            severity="info" />
         </div>
 
         <!-- 插件详细描述 -->
@@ -135,12 +188,22 @@
 
         <!-- 插件截图 -->
         <div class="screenshots" v-if="selectedPlugin.screenshots?.length">
-          <h3>插截图</h3>
-          <Carousel :value="selectedPlugin.screenshots" :numVisible="1" :numScroll="1" :circular="true"
-            :showIndicators="true" :showNavigators="true" class="screenshot-carousel">
+          <h3>插件截图</h3>
+          <Carousel
+            :value="selectedPlugin.screenshots"
+            :numVisible="1"
+            :numScroll="1"
+            :circular="true"
+            :showIndicators="true"
+            :showNavigators="true"
+            class="screenshot-carousel">
             <template #item="slotProps">
               <div class="screenshot-container">
-                <Image :src="slotProps.data" alt="screenshot" preview imageClass="screenshot-image" />
+                <Image
+                  :src="slotProps.data"
+                  alt="screenshot"
+                  preview
+                  imageClass="screenshot-image" />
               </div>
             </template>
           </Carousel>
@@ -158,28 +221,57 @@
         <div class="dialog-footer">
           <Button label="取消" class="p-button-text" @click="closeDetail" />
           <template v-if="isPluginInstalled(selectedPlugin)">
-            <Button v-if="selectedPlugin?.hasUpdate" label="更新" icon="pi pi-sync" severity="info"
+            <Button
+              v-if="selectedPlugin?.hasUpdate"
+              label="更新"
+              icon="pi pi-sync"
+              severity="info"
               @click="updatePlugin(selectedPlugin)" />
-            <Button v-else label="已安装" icon="pi pi-check" severity="success" disabled />
+            <Button
+              v-else
+              label="已安装"
+              icon="pi pi-check"
+              severity="success"
+              disabled />
           </template>
-          <Button v-else label="下载" severity="primary" @click="handleDownload" />
+          <Button
+            v-else
+            label="下载"
+            severity="primary"
+            @click="handleDownload" />
         </div>
       </template>
     </Dialog>
 
     <!-- 已安装插件对话框 -->
-    <Dialog v-model:visible="showInstalled" :modal="true" header="已安装插件" :style="{ width: '80vw' }"
+    <Dialog
+      v-model:visible="showInstalled"
+      :modal="true"
+      header="已安装插件"
+      :style="{ width: '80vw' }"
       class="installed-plugins-dialog">
       <div class="installed-plugins-list">
-        <DataTable :value="installedPlugins" :paginator="true" :rows="5" tableStyle="min-width: 50rem"
+        <DataTable
+          :value="installedPlugins"
+          :paginator="true"
+          :rows="5"
+          tableStyle="min-width: 50rem"
           class="installed-table">
           <Column field="name" header="插件名称" :sortable="true">
             <template #body="slotProps">
-              <div class="plugin-name-cell clickable" @click="showPluginDetail(slotProps.data)">
-                <Image :src="slotProps.data.icon" :alt="slotProps.data.name" width="32" height="32" />
+              <div
+                class="plugin-name-cell clickable"
+                @click="showPluginDetail(slotProps.data)">
+                <Image
+                  :src="slotProps.data.icon"
+                  :alt="slotProps.data.name"
+                  width="32"
+                  height="32" />
                 <div class="plugin-basic-info">
                   <span class="name">{{ slotProps.data.name }}</span>
-                  <span class="description">{{ slotProps.data.description }}</span>
+                  <span class="description">{{
+                    slotProps.data.description
+                  }}</span>
                 </div>
               </div>
             </template>
@@ -187,8 +279,14 @@
           <Column field="version" header="版本" :sortable="true">
             <template #body="slotProps">
               <div class="version-cell">
-                <span class="current-version">{{ slotProps.data.version }}</span>
-                <Tag v-if="slotProps.data.hasUpdate" severity="warning" value="有更新" class="update-tag" />
+                <span class="current-version">{{
+                  slotProps.data.version
+                }}</span>
+                <Tag
+                  v-if="slotProps.data.hasUpdate"
+                  severity="warning"
+                  value="有更新"
+                  class="update-tag" />
               </div>
             </template>
           </Column>
@@ -209,48 +307,46 @@
           <Column field="status" header="状态" :sortable="true">
             <template #body="slotProps">
               <div class="status-cell">
-                <Tag :severity="getStatusSeverity(slotProps.data.status)" :value="slotProps.data.status" />
+                <Tag
+                  :severity="getStatusSeverity(slotProps.data.status)"
+                  :value="slotProps.data.status" />
               </div>
             </template>
           </Column>
           <Column header="操作" :style="{ width: '8rem' }">
             <template #body="slotProps">
               <div class="action-cell">
-                <Button 
-                  v-if="slotProps.data.hasUpdate" 
-                  icon="pi pi-sync" 
-                  severity="info" 
+                <Button
+                  v-if="slotProps.data.hasUpdate"
+                  icon="pi pi-sync"
+                  severity="info"
                   text
                   v-tooltip.top="'更新插件'"
-                  @click="updatePlugin(slotProps.data)" 
-                  class="action-button" 
-                />
-                <Button 
-                  v-if="slotProps.data.status === '已启用'" 
-                  icon="pi pi-power-off" 
-                  severity="warning" 
+                  @click="updatePlugin(slotProps.data)"
+                  class="action-button" />
+                <Button
+                  v-if="slotProps.data.status === '已启用'"
+                  icon="pi pi-power-off"
+                  severity="warning"
                   text
                   v-tooltip.top="'禁用插件'"
-                  @click="togglePlugin(slotProps.data, false)" 
-                  class="action-button" 
-                />
-                <Button 
-                  v-else 
-                  icon="pi pi-power-off" 
-                  severity="success" 
+                  @click="togglePlugin(slotProps.data, false)"
+                  class="action-button" />
+                <Button
+                  v-else
+                  icon="pi pi-power-off"
+                  severity="success"
                   text
                   v-tooltip.top="'启用插件'"
-                  @click="togglePlugin(slotProps.data, true)" 
-                  class="action-button" 
-                />
-                <Button 
-                  icon="pi pi-trash" 
-                  severity="danger" 
+                  @click="togglePlugin(slotProps.data, true)"
+                  class="action-button" />
+                <Button
+                  icon="pi pi-trash"
+                  severity="danger"
                   text
                   v-tooltip.top="'卸载插件'"
-                  @click="uninstallPlugin(slotProps.data)" 
-                  class="action-button" 
-                />
+                  @click="uninstallPlugin(slotProps.data)"
+                  class="action-button" />
               </div>
             </template>
           </Column>
@@ -260,13 +356,12 @@
 
     <!-- 添加开发者按钮 -->
     <div class="developer-button">
-      <Button 
-        icon="pi pi-code" 
-        label="我是开发者" 
-        text 
+      <Button
+        icon="pi pi-code"
+        label="我是开发者"
+        text
         @click="gotoDevelop"
-        class="developer-link"
-      />
+        class="developer-link" />
     </div>
   </div>
 </template>
@@ -285,11 +380,11 @@ import Tag from "primevue/tag";
 import Paginator from "primevue/paginator";
 import { ipcCloseWindow } from "@/api/ipc/window.api";
 import { NewWindowEnum } from "@/interface/windowEnum";
-import Dialog from 'primevue/dialog';
-import Carousel from 'primevue/carousel';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import { useRouter } from 'vue-router';
+import Dialog from "primevue/dialog";
+import Carousel from "primevue/carousel";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import { useRouter } from "vue-router";
 
 /** 插件对象接口 */
 interface Plugin {
@@ -407,8 +502,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/600x1450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 2,
@@ -425,8 +520,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 3,
@@ -442,12 +537,12 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 4,
-    name: "统监控助手",
+    name: "系统监控助手",
     author: "SystemPro",
     icon: "https://placeholder.co/48",
     description: "实时监控统资源占用，包括CPU、内存、硬盘等使用情况。",
@@ -459,8 +554,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 5,
@@ -476,8 +571,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 6,
@@ -487,14 +582,14 @@ const plugins = ref<Plugin[]>([
     description: "图形化展示Git操作，简化版本控制流程，适合团队协作。",
     rating: 4.8,
     downloads: 56789,
-    tags: ["开工具", "Git"],
+    tags: ["开发工具", "Git"],
     version: "1.0.0",
     updateTime: "2024-02-20",
     screenshots: [
       "https://placeholder.co/800x450",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 7,
@@ -510,8 +605,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 8,
@@ -527,8 +622,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 9,
@@ -544,8 +639,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 10,
@@ -561,8 +656,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 11,
@@ -578,8 +673,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 12,
@@ -595,12 +690,12 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 13,
-    name: "网抓包工具",
+    name: "网络抓包工具",
     author: "PacketMaster",
     icon: "https://placeholder.co/48",
     description: "专业的网络数据包分析工，支持多协议解析流量监控。",
@@ -612,8 +707,8 @@ const plugins = ref<Plugin[]>([
     screenshots: [
       "https://placeholder.co/800x450.png",
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
 ]);
 
@@ -622,7 +717,7 @@ const handleClose = () => {
   ipcCloseWindow(NewWindowEnum.PluginMarket);
 };
 
-/** 
+/**
  * 选择插件分类
  * @param event - 分类选择事件对象
  */
@@ -632,7 +727,7 @@ const selectCategory = (event: { value: number }) => {
   }
 };
 
-/** 
+/**
  * 格式化数字为本地字符串
  * @param num - 需要格式化的数字
  * @returns 格式化后的字符串
@@ -650,17 +745,19 @@ const handleSearch = () => {
 const showDetail = ref(false);
 const selectedPlugin = ref<Plugin | null>(null);
 
-/** 
+/**
  * 显示插件详情
  * @param plugin - 要显示的插件对象
  */
 const showPluginDetail = async (plugin: Plugin) => {
   if (isPluginInstalled(plugin)) {
-    const installedPlugin = installedPlugins.value.find(p => p.id === plugin.id);
+    const installedPlugin = installedPlugins.value.find(
+      (p) => p.id === plugin.id,
+    );
     selectedPlugin.value = {
       ...plugin,
       hasUpdate: installedPlugin?.hasUpdate || false,
-      status: installedPlugin?.status || '已启用'
+      status: installedPlugin?.status || "已启用",
     };
     userRating.value = plugin.rating;
   } else {
@@ -681,11 +778,11 @@ const handleDownload = async () => {
   if (!selectedPlugin.value) return;
 
   try {
-    console.log('开始下载插件:', selectedPlugin.value.name);
+    console.log("开始下载插件:", selectedPlugin.value.name);
     // TODO: 实现下载逻辑
     closeDetail();
   } catch (error) {
-    console.error('下载插件失败:', error);
+    console.error("下载插件失败:", error);
     // TODO: 添加错误提示
   }
 };
@@ -708,8 +805,8 @@ const installedPlugins = ref([
     tags: ["开发工具", "VSCode"],
     screenshots: [
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
   {
     id: 2,
@@ -726,8 +823,8 @@ const installedPlugins = ref([
     tags: ["效率工具", "截图"],
     screenshots: [
       "https://placeholder.co/800x450.png",
-      "https://placeholder.co/800x450.png"
-    ]
+      "https://placeholder.co/800x450.png",
+    ],
   },
 ]);
 
@@ -736,41 +833,41 @@ const showInstalledPlugins = () => {
   showInstalled.value = true;
 };
 
-/** 
+/**
  * 卸载插件
  * @param plugin - 要卸载的插件对象
  */
 const uninstallPlugin = (plugin: Plugin) => {
-  console.log('卸载插件:', plugin.name);
+  console.log("卸载插件:", plugin.name);
   // TODO: 实现卸载逻辑
 };
 
-/** 
+/**
  * 格式化日期
  * @param date - 日期字符串
  * @returns 格式化后的日期字符串
  */
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('zh-CN');
+  return new Date(date).toLocaleDateString("zh-CN");
 };
 
-/** 
+/**
  * 获取状态标签的样式
  * @param status - 插件状态
  * @returns 对应的样式类型
  */
 const getStatusSeverity = (status: string) => {
   switch (status) {
-    case '已启用':
-      return 'success';
-    case '已禁用':
-      return 'danger';
+    case "已启用":
+      return "success";
+    case "已禁用":
+      return "danger";
     default:
-      return 'info';
+      return "info";
   }
 };
 
-/** 
+/**
  * 更新插件
  * @param plugin - 要更新的插件对象
  */
@@ -778,41 +875,45 @@ const updatePlugin = async (plugin: Plugin | null) => {
   if (!plugin) return;
 
   try {
-    console.log('更新插件:', plugin.name);
+    console.log("更新插件:", plugin.name);
     // TODO: 实现更新逻辑
     closeDetail();
   } catch (error) {
-    console.error('更新插件失败:', error);
+    console.error("更新插件失败:", error);
     // TODO: 添加错误提示
   }
 };
 
-/** 
+/**
  * 切换插件启用状态
  * @param plugin - 要切换状态的插件对象
  * @param enable - 是否启用
  */
 const togglePlugin = (plugin: Plugin, enable: boolean) => {
-  console.log(enable ? '启用插件:' : '禁用插件:', plugin.name);
-  plugin.status = enable ? '已启用' : '已禁用';
+  console.log(enable ? "启用插件:" : "禁用插件:", plugin.name);
+  plugin.status = enable ? "已启用" : "已禁用";
 };
 
-/** 
+/**
  * 检查插件是否已安装
  * @param plugin - 要检查的插件对象
  * @returns 是否已安装
  */
 const isPluginInstalled = (plugin: Plugin | null) => {
   if (!plugin) return false;
-  return installedPlugins.value.some(p => p.id === plugin.id);
+  return installedPlugins.value.some((p) => p.id === plugin.id);
 };
 
 /** 使用计算属性优化过滤逻辑 */
 const filteredPlugins = computed(() => {
-  return plugins.value.filter(plugin => {
+  return plugins.value.filter((plugin) => {
     if (state.searchQuery) {
-      return plugin.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-        plugin.description.toLowerCase().includes(state.searchQuery.toLowerCase());
+      return (
+        plugin.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+        plugin.description
+          .toLowerCase()
+          .includes(state.searchQuery.toLowerCase())
+      );
     }
     return true;
   });
@@ -821,28 +922,28 @@ const filteredPlugins = computed(() => {
 // 添加评分相关的状态
 const userRating = ref(0);
 
-/** 
+/**
  * 处理用户评分
  * @param event - 用户评分事件对象
  */
 const handleRating = async (event: { value: number }) => {
   if (!selectedPlugin.value) return;
-  
+
   try {
-    console.log('提交评分:', {
+    console.log("提交评分:", {
       pluginId: selectedPlugin.value.id,
-      rating: event.value
+      rating: event.value,
     });
-    
+
     // TODO: 调用评分 API
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // 更新本地评分显示
     userRating.value = event.value;
-    
-    console.log('评分成功');
+
+    console.log("评分成功");
   } catch (error) {
-    console.error('评分失败:', error);
+    console.error("评分失败:", error);
     userRating.value = 0;
   }
 };
@@ -850,7 +951,7 @@ const handleRating = async (event: { value: number }) => {
 const router = useRouter();
 
 const gotoDevelop = () => {
-  router.push('/develop');
+  router.push("/develop");
 };
 </script>
 
@@ -986,7 +1087,9 @@ const gotoDevelop = () => {
 
     .plugin-card {
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.3s;
+      transition:
+        transform 0.2s,
+        box-shadow 0.3s;
 
       &:hover {
         transform: translateY(-2px);
@@ -1272,11 +1375,11 @@ const gotoDevelop = () => {
 
     // 添加按钮样式
     :deep(.p-button) {
-      padding: 0.4rem 0.8rem;  // 减小内边距
-      font-size: 0.875rem;     // 减小字体大小
+      padding: 0.4rem 0.8rem; // 减小内边距
+      font-size: 0.875rem; // 减小字体大小
 
       .p-button-icon {
-        font-size: 0.875rem;   // 减小图标大小
+        font-size: 0.875rem; // 减小图标大小
       }
     }
 
@@ -1371,4 +1474,8 @@ const gotoDevelop = () => {
     }
   }
 }
+</style>
+
+<style lang="less">
+@import "../../assets/css/variable.less";
 </style>
