@@ -19,7 +19,6 @@
       <Popover
         ref="popoverRef"
         append-to="self"
-        position="bottom"
         :pt="{
           root: {
             style: {
@@ -44,7 +43,7 @@
                 },
               },
             }"
-            @click="selectEngine(engine)">
+            @click.stop="selectEngine(engine)">
             <img :src="engine.logo" :alt="engine.title" />
           </div>
         </div>
