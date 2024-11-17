@@ -13,6 +13,7 @@
     "primevue",
     "reqwest",
     "speeddial",
-    "toggleswitch"
+    "toggleswitch",
+    "unocss"
   ]
 }

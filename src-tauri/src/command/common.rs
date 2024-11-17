@@ -70,6 +70,7 @@ pub async fn create_new_window(
     always_on_top: Option<bool>,
     resizable: Option<bool>,
     icon: Option<String>,
+    loading: Option<bool>,
 ) -> Result<(), String> {
     // 获取主监视器信息并计算缩放比例
     let monitor = app_handle
@@ -112,7 +113,7 @@ pub async fn create_new_window(
             .title(title)
             .shadow(false)
             .transparent(true)
-            .visible(false)
+            .visible(loading.unwrap_or(false))
             .decorations(false)
             .always_on_top(always_on_top.unwrap_or(false))
             .resizable(resizable.unwrap_or(true))
@@ -155,7 +156,11 @@ pub async fn create_new_window(
     new_window
         .set_zoom(adjusted_scale_factor)
         .map_err(|e| e.to_string())?;
-    new_window.show().map_err(|e| e.to_string())?;
+    
+    // 只有在 loading 为 false 时才需要手动显示窗口
+    if !loading.unwrap_or(false) {
+        new_window.show().map_err(|e| e.to_string())?;
+    }
 
     Ok(())
 }

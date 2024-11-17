@@ -367,7 +367,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Card from "primevue/card";
@@ -385,6 +385,7 @@ import Carousel from "primevue/carousel";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useRouter } from "vue-router";
+import { showLoading, hideLoading } from "@/utils/loading";
 
 /** 插件对象接口 */
 interface Plugin {
@@ -681,7 +682,7 @@ const plugins = ref<Plugin[]>([
     name: "任务自动化工具",
     author: "AutoPro",
     icon: "https://placeholder.co/48",
-    description: "通过简单的配置实现任务自动化，提高工作效率。",
+    description: "通过简单的配置��现任务自动化，提高工作效率。",
     rating: 4.8,
     downloads: 34567,
     tags: ["效率工具", "自动化"],
@@ -953,6 +954,24 @@ const router = useRouter();
 const gotoDevelop = () => {
   router.push("/develop");
 };
+
+// 添加初始化数据的方法
+const initializeData = async () => {
+  try {
+    showLoading(); // 显示加载状态
+
+    // TODO: 这里添加实际的数据加载逻辑
+  } catch (error) {
+    console.error("初始化数据失败:", error);
+  } finally {
+    hideLoading(); // 隐藏加载状态
+  }
+};
+
+// 在组件挂载时初始化数据
+onMounted(() => {
+  initializeData();
+});
 </script>
 
 <style lang="less" scoped>
