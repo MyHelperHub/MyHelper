@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import pluginConfig from "../../plugin/myhelper-plugin/mhPlugin.json";
+import pluginConfig from "../../plugin/mh-plugin/mhPlugin.json";
 
 // 基础路由配置
 const baseRoutes = [
@@ -36,18 +36,21 @@ const baseRoutes = [
 ];
 
 // mhPlugin.json中读取windowId创建插件路由
-const pluginRoute = {
+const pluginRoute = import.meta.env.DEV ? {
   path: '/plugin',
   children: [
     {
       name: pluginConfig.windowId,
-      path: pluginConfig.windowId,
+      path: pluginConfig.windowId, 
       beforeEnter: () => {
         window.location.href = 'http://localhost:1421'
         return false
       }
     }
   ]
+} : {
+  path: '/plugin',
+  children: []
 };
 
 // 合并路由

@@ -21,16 +21,11 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // 只打包使用到的 primevue 组件
-            if (id.includes('primevue')) {
-              const componentName = id.split('primevue/')[1]?.split('/')[0]
-              if (componentName) {
-                return `primevue-${componentName}`
-              }
+            if (id.includes('vue')) {
+              return 'vendor-vue'
             }
-            // 其他第三方库单独打包
             return 'vendor'
           }
         }

@@ -32,7 +32,7 @@ const oop = async () => {
   const pluginUrl = `http://asset.localhost/${appDataPath}/plugins/after/index.html`;
   
   ipcCreateNewWindow({
-    windowId: NewWindowEnum.Plugin,
+    windowId: NewWindowEnum.MyPlugin,
     title: "设置",
     url: pluginUrl,
     size: [670, 520]
