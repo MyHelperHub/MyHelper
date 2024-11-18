@@ -1,5 +1,5 @@
 import { WindowConfig } from "./window";
-import pluginConfig from "../../plugin/mh-plugin/mhPlugin.json"
+import pluginConfig from "../../plugin/mh-plugin/mhPlugin.json";
 
 export const NewWindowEnum = {
   Label: "label",
@@ -10,7 +10,10 @@ export const NewWindowEnum = {
   MhPlugin: pluginConfig.windowId,
 } as const;
 
-export const WINDOW_CONFIG: Record<typeof NewWindowEnum[keyof typeof NewWindowEnum], WindowConfig> = {
+export const WINDOW_CONFIG: Record<
+  (typeof NewWindowEnum)[keyof typeof NewWindowEnum],
+  WindowConfig
+> = {
   [NewWindowEnum.Label]: {
     windowId: NewWindowEnum.Label,
     title: "桌面便签",

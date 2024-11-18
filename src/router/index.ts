@@ -36,22 +36,24 @@ const baseRoutes = [
 ];
 
 // mhPlugin.json中读取windowId创建插件路由
-const pluginRoute = import.meta.env.DEV ? {
-  path: '/plugin',
-  children: [
-    {
-      name: pluginConfig.windowId,
-      path: pluginConfig.windowId, 
-      beforeEnter: () => {
-        window.location.href = 'http://localhost:1421'
-        return false
-      }
+const pluginRoute = import.meta.env.DEV
+  ? {
+      path: "/plugin",
+      children: [
+        {
+          name: pluginConfig.windowId,
+          path: pluginConfig.windowId,
+          beforeEnter: () => {
+            window.location.href = "http://localhost:1421";
+            return false;
+          },
+        },
+      ],
     }
-  ]
-} : {
-  path: '/plugin',
-  children: []
-};
+  : {
+      path: "/plugin",
+      children: [],
+    };
 
 // 合并路由
 const routes = [...baseRoutes, pluginRoute];

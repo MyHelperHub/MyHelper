@@ -129,7 +129,7 @@ const deleteWebItem = async (id: number) => {
     const fileName = dataList.value[index].logo.substring(
       filePath.lastIndexOf("/") + 1,
     );
-    
+
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {

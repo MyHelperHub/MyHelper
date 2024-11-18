@@ -126,7 +126,9 @@ const deleteAppItem = async (id: number) => {
   if (index !== -1) {
     //暂存logo文件名
     const filePath = dataList.value[index].logo;
-    const fileName = dataList.value[index].logo.substring(filePath.lastIndexOf('\\') + 1);
+    const fileName = dataList.value[index].logo.substring(
+      filePath.lastIndexOf("\\") + 1,
+    );
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {

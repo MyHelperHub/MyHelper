@@ -10,7 +10,12 @@
         @click="handleCheckUpdate">
         {{ updateState.checking ? "检查中..." : "检查更新" }}
       </Button>
-      <Button class="button" label="Info" severity="info" variant="outlined" @click="openLink('https://github.com/ialtone/MyHelper/issues')"
+      <Button
+        class="button"
+        label="Info"
+        severity="info"
+        variant="outlined"
+        @click="openLink('https://github.com/ialtone/MyHelper/issues')"
         >意见反馈</Button
       >
       <div></div>

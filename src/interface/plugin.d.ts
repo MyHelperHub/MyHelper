@@ -14,7 +14,7 @@ import { WindowConfig } from "./window";
  * @param icon 可选的插件图标路径
  * @param loading 可选的窗口是否显示加载动画，需自定义动画
  */
-interface PluginConfig extends Omit<WindowConfig, 'windowId'> {
+interface PluginConfig extends Omit<WindowConfig, "windowId"> {
   windowId: string;
   uuid: string;
 }

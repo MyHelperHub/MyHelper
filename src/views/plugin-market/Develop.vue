@@ -4,11 +4,18 @@
     <!-- 左侧边栏 -->
     <div class="sidebar">
       <div class="menu-header">
-        <Button icon="pi pi-arrow-left" class="p-button-text p-button-sm back-button" @click="goBack" />
+        <Button
+          icon="pi pi-arrow-left"
+          class="p-button-text p-button-sm back-button"
+          @click="goBack" />
         <span>插件管理</span>
       </div>
       <div class="menu-items">
-        <div v-for="item in menuItems" :key="item.key" class="menu-item" :class="{ active: activeMenu === item.key }"
+        <div
+          v-for="item in menuItems"
+          :key="item.key"
+          class="menu-item"
+          :class="{ active: activeMenu === item.key }"
           @click="handleMenuClick(item.key as MenuKey)">
           <i :class="item.icon"></i>
           <span>{{ item.label }}</span>
@@ -18,54 +25,109 @@
 
     <!-- 添加调试按钮 -->
     <div class="debug-button" v-if="isDev">
-      <Button icon="pi pi-hammer" label="插件调试" text @click="()=>{
-        ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin])
-      }" class="debug-link" />
+      <Button
+        icon="pi pi-hammer"
+        label="插件调试"
+        text
+        @click="
+          () => {
+            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]).catch(
+              () => {
+                toast.add({
+                  severity: 'error',
+                  summary: '错误',
+                  detail: '窗口已打开或无法创建窗口',
+                  life: 3000,
+                });
+              },
+            );
+          }
+        "
+        class="debug-link" />
     </div>
 
     <!-- 主内容区 -->
     <div class="main-content">
       <div class="content-header">
         <h2>{{ menuTitles[activeMenu] }}</h2>
-        <Button v-if="activeMenu === 'my-plugins'" label="上传插件" icon="pi pi-upload" @click="showPluginDialog = true" />
+        <Button
+          v-if="activeMenu === 'my-plugins'"
+          label="上传插件"
+          icon="pi pi-upload"
+          @click="showPluginDialog = true" />
       </div>
 
-      <DataTable :value="getCurrentData()" selectionMode="single" :loading="loading" class="content-table"
+      <DataTable
+        :value="getCurrentData()"
+        selectionMode="single"
+        :loading="loading"
+        class="content-table"
         @rowClick="onRowClick">
         <Column field="name" header="插件名称">
           <template #body="{ data }">
             <div class="plugin-name">
               <span>{{ data.name }}</span>
-              <Tag v-if="data.status" :value="data.status" :severity="getStatusSeverity(data.status)" />
+              <Tag
+                v-if="data.status"
+                :value="data.status"
+                :severity="getStatusSeverity(data.status)" />
             </div>
           </template>
         </Column>
         <Column field="version" header="版本" style="width: 100px" />
-        <Column v-if="activeMenu === 'my-plugins'" field="downloads" header="下载次数" style="width: 100px" />
-        <Column v-if="activeMenu === 'upload-history'" field="uploadTime" header="上传时间" style="width: 150px">
+        <Column
+          v-if="activeMenu === 'my-plugins'"
+          field="downloads"
+          header="下载次数"
+          style="width: 100px" />
+        <Column
+          v-if="activeMenu === 'upload-history'"
+          field="uploadTime"
+          header="上传时间"
+          style="width: 150px">
           <template #body="{ data }">
             {{ formatDate(data.uploadTime) }}
           </template>
         </Column>
-        <Column v-else field="updateTime" header="更新时间" style="width: 150px">
+        <Column
+          v-else
+          field="updateTime"
+          header="更新时间"
+          style="width: 150px">
           <template #body="{ data }">
             {{ formatDate(data.updateTime) }}
           </template>
         </Column>
-        <Column v-if="activeMenu === 'upload-history'" field="message" header="备注" />
-        <Column v-if="activeMenu === 'my-plugins'" header="操作" style="width: 150px">
+        <Column
+          v-if="activeMenu === 'upload-history'"
+          field="message"
+          header="备注" />
+        <Column
+          v-if="activeMenu === 'my-plugins'"
+          header="操作"
+          style="width: 150px">
           <template #body="{ data }">
-            <Button icon="pi pi-pencil" class="p-button-text" @click="editPlugin(data)"
+            <Button
+              icon="pi pi-pencil"
+              class="p-button-text"
+              @click="editPlugin(data)"
               v-tooltip.top="getEditTooltip()" />
-            <Button icon="pi pi-trash" class="p-button-text p-button-danger"
-              @click="($event) => confirmDelete(data, $event)" v-tooltip.top="getDeleteTooltip()" />
+            <Button
+              icon="pi pi-trash"
+              class="p-button-text p-button-danger"
+              @click="($event) => confirmDelete(data, $event)"
+              v-tooltip.top="getDeleteTooltip()" />
           </template>
         </Column>
       </DataTable>
     </div>
 
     <!-- 上传/编辑对话框 -->
-    <Dialog v-model:visible="showPluginDialog" :header="isEditMode ? '编辑插件' : '上传插件'" :modal="true" class="w-[700px]"
+    <Dialog
+      v-model:visible="showPluginDialog"
+      :header="isEditMode ? '编辑插件' : '上传插件'"
+      :modal="true"
+      class="w-[700px]"
       @hide="closeDialog">
       <div class="p-6 p-t-0">
         <!-- 基本信息 -->
@@ -73,14 +135,24 @@
           <h3 class="text-lg font-medium mb-4">基本信息</h3>
           <div class="space-y-4">
             <!-- 上传区域 - 仅在上传时显示 -->
-            <div v-if="!isEditMode"
+            <div
+              v-if="!isEditMode"
               class="border-2 border-dashed border-gray-200 rounded-lg p-8 mb-6 bg-gray-50 transition-all duration-300"
-              :class="{ 'border-primary': isDragging }" @drop.prevent="handleDrop" @dragover.prevent="isDragging = true"
+              :class="{ 'border-primary': isDragging }"
+              @drop.prevent="handleDrop"
+              @dragover.prevent="isDragging = true"
               @dragleave.prevent="isDragging = false">
-              <input type="file" ref="fileInput" accept=".zip" class="hidden" @change="handleFileSelect" />
+              <input
+                type="file"
+                ref="fileInput"
+                accept=".zip"
+                class="hidden"
+                @change="handleFileSelect" />
 
               <template v-if="!pluginForm.file">
-                <div class="text-center cursor-pointer p-8" @click="triggerFileInput">
+                <div
+                  class="text-center cursor-pointer p-8"
+                  @click="triggerFileInput">
                   <i class="pi pi-cloud-upload text-4xl text-primary mb-4"></i>
                   <p class="text-lg mb-2">点击或拖拽上传插件包</p>
                   <small class="text-gray-500">支持 10MB 以内的 zip 文件</small>
@@ -98,7 +170,10 @@
                       formatFileSize(pluginForm.file.size)
                     }}</span>
                   </div>
-                  <Button icon="pi pi-times" class="p-button-text" @click="removeFile" />
+                  <Button
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    @click="removeFile" />
                 </div>
               </template>
             </div>
@@ -110,12 +185,22 @@
                 <label class="block mb-2">插件图标</label>
                 <div
                   class="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
-                  <img v-if="pluginForm.icon" :src="pluginForm.icon" class="w-full h-full object-cover" />
+                  <img
+                    v-if="pluginForm.icon"
+                    :src="pluginForm.icon"
+                    class="w-full h-full object-cover" />
                   <i v-else class="pi pi-image text-3xl text-gray-400"></i>
-                  <input type="file" ref="iconInput" accept="image/*" class="hidden" @change="handleIconSelect" />
+                  <input
+                    type="file"
+                    ref="iconInput"
+                    accept="image/*"
+                    class="hidden"
+                    @change="handleIconSelect" />
                   <div
                     class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button icon="pi pi-upload" class="p-button-rounded p-button-text p-button-white"
+                    <Button
+                      icon="pi pi-upload"
+                      class="p-button-rounded p-button-text p-button-white"
                       @click="triggerIconInput" />
                   </div>
                 </div>
@@ -124,16 +209,26 @@
               <!-- 名称和版本 -->
               <div class="space-y-4">
                 <div>
-                  <label class="block mb-2">插件名称 <span class="text-red-500">*</span></label>
-                  <InputText v-model="pluginForm.name" class="w-full" :class="{ 'p-invalid': errors.name }"
+                  <label class="block mb-2"
+                    >插件名称 <span class="text-red-500">*</span></label
+                  >
+                  <InputText
+                    v-model="pluginForm.name"
+                    class="w-full"
+                    :class="{ 'p-invalid': errors.name }"
                     placeholder="请输入插件名称" />
                   <small class="text-red-500" v-if="errors.name">{{
                     errors.name
                   }}</small>
                 </div>
                 <div>
-                  <label class="block mb-2">版本号 <span class="text-red-500">*</span></label>
-                  <InputText v-model="pluginForm.version" class="w-full" :class="{ 'p-invalid': errors.version }"
+                  <label class="block mb-2"
+                    >版本号 <span class="text-red-500">*</span></label
+                  >
+                  <InputText
+                    v-model="pluginForm.version"
+                    class="w-full"
+                    :class="{ 'p-invalid': errors.version }"
                     placeholder="输入版本号: 1.0.0" />
                   <small class="text-red-500" v-if="errors.version">{{
                     errors.version
@@ -144,9 +239,15 @@
 
             <!-- 描述和标签 -->
             <div>
-              <label class="block mb-2">插件描述 <span class="text-red-500">*</span></label>
-              <Textarea v-model="pluginForm.description" class="w-full" :class="{ 'p-invalid': errors.description }"
-                rows="3" placeholder="请输入插件描述" />
+              <label class="block mb-2"
+                >插件描述 <span class="text-red-500">*</span></label
+              >
+              <Textarea
+                v-model="pluginForm.description"
+                class="w-full"
+                :class="{ 'p-invalid': errors.description }"
+                rows="3"
+                placeholder="请输入插件描述" />
               <small class="text-red-500" v-if="errors.description">{{
                 errors.description
               }}</small>
@@ -154,7 +255,11 @@
 
             <div>
               <label class="block mb-2">标签</label>
-              <InputChips v-model="pluginForm.tags" class="w-full" placeholder="输入标签后按回车" :max="5"
+              <InputChips
+                v-model="pluginForm.tags"
+                class="w-full"
+                placeholder="输入标签后按回车"
+                :max="5"
                 :allowDuplicate="false" />
               <small class="text-gray-500">最多添加5个标签</small>
             </div>
@@ -168,16 +273,26 @@
             <!-- 窗口ID和标题 -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block mb-2">窗口ID <span class="text-red-500">*</span></label>
-                <InputText v-model="pluginForm.windowId" class="w-full" :class="{ 'p-invalid': errors.windowId }"
+                <label class="block mb-2"
+                  >窗口ID <span class="text-red-500">*</span></label
+                >
+                <InputText
+                  v-model="pluginForm.windowId"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.windowId }"
                   placeholder="请输入窗口ID" />
                 <small class="text-red-500" v-if="errors.windowId">{{
                   errors.windowId
                 }}</small>
               </div>
               <div>
-                <label class="block mb-2">窗口标题 <span class="text-red-500">*</span></label>
-                <InputText v-model="pluginForm.title" class="w-full" :class="{ 'p-invalid': errors.title }"
+                <label class="block mb-2"
+                  >窗口标题 <span class="text-red-500">*</span></label
+                >
+                <InputText
+                  v-model="pluginForm.title"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.title }"
                   placeholder="请输入窗口标题" />
                 <small class="text-red-500" v-if="errors.title">{{
                   errors.title
@@ -188,13 +303,25 @@
             <!-- 窗大小 -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block mb-2">窗口宽度 <span class="text-red-500">*</span></label>
-                <InputNumber v-model="pluginForm.size[0]" class="w-full" :min="200" :max="2000"
+                <label class="block mb-2"
+                  >窗口宽度 <span class="text-red-500">*</span></label
+                >
+                <InputNumber
+                  v-model="pluginForm.size[0]"
+                  class="w-full"
+                  :min="200"
+                  :max="2000"
                   placeholder="窗口宽度(px)" />
               </div>
               <div>
-                <label class="block mb-2">窗口高度 <span class="text-red-500">*</span></label>
-                <InputNumber v-model="pluginForm.size[1]" class="w-full" :min="200" :max="2000"
+                <label class="block mb-2"
+                  >窗口高度 <span class="text-red-500">*</span></label
+                >
+                <InputNumber
+                  v-model="pluginForm.size[1]"
+                  class="w-full"
+                  :min="200"
+                  :max="2000"
                   placeholder="窗口高度(px)" />
               </div>
             </div>
@@ -204,10 +331,15 @@
               <div>
                 <label class="block mb-2">
                   窗口位置X <span class="text-red-500">*</span>
-                  <i class="pi pi-question-circle ml-1 text-gray-400 cursor-help" v-tooltip.top="'默认值 -1 表示窗口水平居中'" />
+                  <i
+                    class="pi pi-question-circle ml-1 text-gray-400 cursor-help"
+                    v-tooltip.top="'默认值 -1 表示窗口水平居中'" />
                 </label>
-                <InputNumber :modelValue="pluginForm.position?.[0] ?? -1"
-                  @update:modelValue="(val) => updatePositionX(val)" class="w-full" placeholder="水平位置(逻辑像素)" />
+                <InputNumber
+                  :modelValue="pluginForm.position?.[0] ?? -1"
+                  @update:modelValue="(val) => updatePositionX(val)"
+                  class="w-full"
+                  placeholder="水平位置(逻辑像素)" />
                 <small class="text-red-500" v-if="errors.position">{{
                   errors.position
                 }}</small>
@@ -215,10 +347,15 @@
               <div>
                 <label class="block mb-2">
                   窗口置Y <span class="text-red-500">*</span>
-                  <i class="pi pi-question-circle ml-1 text-gray-400 cursor-help" v-tooltip.top="'默认值 -1 表示窗口垂直居中'" />
+                  <i
+                    class="pi pi-question-circle ml-1 text-gray-400 cursor-help"
+                    v-tooltip.top="'默认值 -1 表示窗口垂直居中'" />
                 </label>
-                <InputNumber :modelValue="pluginForm.position?.[1] ?? -1"
-                  @update:modelValue="(val) => updatePositionY(val)" class="w-full" placeholder="垂直位置(逻辑像素)" />
+                <InputNumber
+                  :modelValue="pluginForm.position?.[1] ?? -1"
+                  @update:modelValue="(val) => updatePositionY(val)"
+                  class="w-full"
+                  placeholder="垂直位置(逻辑像素)" />
               </div>
             </div>
 
@@ -242,19 +379,34 @@
           <div class="screenshot-upload">
             <!-- 预览区域 -->
             <div class="screenshot-preview">
-              <div v-for="(screenshot, index) in pluginForm.screenshots" :key="index" class="preview-item">
+              <div
+                v-for="(screenshot, index) in pluginForm.screenshots"
+                :key="index"
+                class="preview-item">
                 <div class="image-container">
                   <Image :src="screenshot" preview />
                 </div>
-                <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text delete-btn"
+                <Button
+                  icon="pi pi-times"
+                  class="p-button-rounded p-button-danger p-button-text delete-btn"
                   @click="removeScreenshot(index)" />
               </div>
 
               <!-- 上传按钮 -->
-              <div v-if="pluginForm.screenshots.length < 5" class="upload-button" @drop.prevent="handleScreenshotDrop"
-                @dragover.prevent="isDraggingScreenshot = true" @dragleave.prevent="isDraggingScreenshot = false"
-                :class="{ dragging: isDraggingScreenshot }" @click="triggerScreenshotInput">
-                <input type="file" ref="screenshotInput" accept="image/*" multiple class="hidden"
+              <div
+                v-if="pluginForm.screenshots.length < 5"
+                class="upload-button"
+                @drop.prevent="handleScreenshotDrop"
+                @dragover.prevent="isDraggingScreenshot = true"
+                @dragleave.prevent="isDraggingScreenshot = false"
+                :class="{ dragging: isDraggingScreenshot }"
+                @click="triggerScreenshotInput">
+                <input
+                  type="file"
+                  ref="screenshotInput"
+                  accept="image/*"
+                  multiple
+                  class="hidden"
                   @change="handleScreenshotSelect" />
                 <div class="upload-content">
                   <i class="pi pi-plus text-xl mb-1"></i>
@@ -269,27 +421,45 @@
 
       <template #footer>
         <div class="flex justify-end gap-4">
-          <Button label="取消" class="p-button-text" @click="closeDialog" :disabled="uploading" />
-          <Button :label="isEditMode ? '保存' : '上传'" :icon="isEditMode ? 'pi pi-save' : 'pi pi-upload'"
-            @click="isEditMode ? updatePlugin() : submitPlugin()" :loading="uploading" />
+          <Button
+            label="取消"
+            class="p-button-text"
+            @click="closeDialog"
+            :disabled="uploading" />
+          <Button
+            :label="isEditMode ? '保存' : '上传'"
+            :icon="isEditMode ? 'pi pi-save' : 'pi pi-upload'"
+            @click="isEditMode ? updatePlugin() : submitPlugin()"
+            :loading="uploading" />
         </div>
       </template>
     </Dialog>
 
     <!-- 详情对话框 -->
-    <Dialog v-model:visible="showDetailDialog" header="插件详情" :modal="true" class="w-[700px]" dismissableMask>
+    <Dialog
+      v-model:visible="showDetailDialog"
+      header="插件详情"
+      :modal="true"
+      class="w-[700px]"
+      dismissableMask>
       <div class="p-6" v-if="selectedPlugin">
         <div class="space-y-4">
           <!-- 插件头部信息 -->
-          <div class="flex items-center justify-between pb-4 border-bottom-1 surface-border">
+          <div
+            class="flex items-center justify-between pb-4 border-bottom-1 surface-border">
             <div class="flex items-center gap-3">
-              <Image :src="selectedPlugin.icon || 'https://placeholder.co/48'" width="48" height="48" />
+              <Image
+                :src="selectedPlugin.icon || 'https://placeholder.co/48'"
+                width="48"
+                height="48" />
               <div>
                 <h3 class="text-xl font-semibold">{{ selectedPlugin.name }}</h3>
                 <p class="text-sm text-gray-600">{{ selectedPlugin.author }}</p>
               </div>
             </div>
-            <Tag v-if="selectedPlugin.status" :value="selectedPlugin.status"
+            <Tag
+              v-if="selectedPlugin.status"
+              :value="selectedPlugin.status"
               :severity="getStatusSeverity(selectedPlugin.status)" />
           </div>
 
@@ -314,7 +484,10 @@
             <div>
               <label class="text-sm text-gray-600">评分</label>
               <div class="mt-1 flex items-center gap-2">
-                <Rating :modelValue="selectedPlugin.rating || 0" :cancel="false" readonly />
+                <Rating
+                  :modelValue="selectedPlugin.rating || 0"
+                  :cancel="false"
+                  readonly />
                 <span class="text-sm text-gray-600">{{
                   selectedPlugin.rating || "暂评分"
                 }}</span>
@@ -326,7 +499,11 @@
           <div v-if="selectedPlugin.tags?.length">
             <label class="text-sm text-gray-600">标签</label>
             <div class="mt-2 flex flex-wrap gap-2">
-              <Tag v-for="tag in selectedPlugin.tags" :key="tag" :value="tag" severity="info" />
+              <Tag
+                v-for="tag in selectedPlugin.tags"
+                :key="tag"
+                :value="tag"
+                severity="info" />
             </div>
           </div>
 
@@ -348,11 +525,20 @@
           <div v-if="selectedPlugin.screenshots?.length">
             <label class="text-sm text-gray-600">截图预览</label>
             <div class="mt-2">
-              <Carousel :value="selectedPlugin.screenshots" :numVisible="1" :numScroll="1" :circular="true"
-                :showIndicators="true" class="screenshot-carousel">
+              <Carousel
+                :value="selectedPlugin.screenshots"
+                :numVisible="1"
+                :numScroll="1"
+                :circular="true"
+                :showIndicators="true"
+                class="screenshot-carousel">
                 <template #item="slotProps">
                   <div class="screenshot-container">
-                    <Image :src="slotProps.data" alt="screenshot" preview imageClass="screenshot-image" />
+                    <Image
+                      :src="slotProps.data"
+                      alt="screenshot"
+                      preview
+                      imageClass="screenshot-image" />
                   </div>
                 </template>
               </Carousel>
@@ -392,7 +578,7 @@ import { isDev } from "@/utils/common";
 
 const toast = useToast();
 const confirm = useConfirm();
-type MenuKey = 'my-plugins' | 'upload-history';
+type MenuKey = "my-plugins" | "upload-history";
 const activeMenu = ref<MenuKey>("my-plugins");
 const showPluginDialog = ref(false);
 const showDetailDialog = ref(false);
@@ -402,8 +588,8 @@ const isDragging = ref(false);
 
 // 菜单配置
 const MENU_ITEMS = [
-  { key: 'my-plugins', label: '我的插件', icon: 'pi pi-list' },
-  { key: 'upload-history', label: '上传记录', icon: 'pi pi-history' }
+  { key: "my-plugins", label: "我的插件", icon: "pi pi-list" },
+  { key: "upload-history", label: "上传记录", icon: "pi pi-history" },
 ] as const;
 
 const menuTitles = {
@@ -414,7 +600,7 @@ const menuTitles = {
 const menuItems = ref(MENU_ITEMS);
 
 // 修改 Plugin 接口
-type PluginStatus = '已发布' | '审核中' | '已驳回' | '成功' | '失败' | '处理中';
+type PluginStatus = "已发布" | "审核中" | "已驳回" | "成功" | "失败" | "处理中";
 
 interface Plugin {
   id: number;
@@ -726,7 +912,7 @@ const handleFile = (file: File) => {
 const removeFile = () => {
   pluginForm.value.file = null;
   if (fileInput.value) {
-    fileInput.value.value = '';
+    fileInput.value.value = "";
   }
 };
 
@@ -757,7 +943,7 @@ const submitPlugin = async () => {
       severity: "error",
       summary: "错误",
       detail: "请选择插件文件",
-      life: 3000
+      life: 3000,
     });
     return;
   }
@@ -765,7 +951,7 @@ const submitPlugin = async () => {
   uploading.value = true;
   try {
     // 模拟上传
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // 模拟成功响应
     const mockResponse = {
@@ -774,7 +960,7 @@ const submitPlugin = async () => {
       createdTime: new Date().toISOString(),
       updateTime: new Date().toISOString(),
       author: "我",
-      downloads: 0
+      downloads: 0,
     };
 
     // 添加到插件列表
@@ -792,7 +978,7 @@ const submitPlugin = async () => {
       size: pluginForm.value.size,
       position: pluginForm.value.position,
       alwaysOnTop: pluginForm.value.alwaysOnTop,
-      resizable: pluginForm.value.resizable
+      resizable: pluginForm.value.resizable,
     });
 
     // 添加到上传历史
@@ -802,14 +988,14 @@ const submitPlugin = async () => {
       version: pluginForm.value.version,
       uploadTime: new Date().toISOString(),
       status: "处理中",
-      message: "正在处理上传请求"
+      message: "正在处理上传请求",
     });
 
     toast.add({
       severity: "success",
       summary: "成功",
       detail: "插件上传成功",
-      life: 3000
+      life: 3000,
     });
     closeDialog();
   } catch (error) {
@@ -817,7 +1003,7 @@ const submitPlugin = async () => {
       severity: "error",
       summary: "错误",
       detail: "插件上传失败",
-      life: 3000
+      life: 3000,
     });
   } finally {
     uploading.value = false;
@@ -969,22 +1155,22 @@ const handleScreenshotSelect = (event: Event) => {
   if (!input.files?.length) return;
 
   const files = Array.from(input.files)
-    .filter(file => file.type.startsWith('image/'))
-    .filter(file => {
+    .filter((file) => file.type.startsWith("image/"))
+    .filter((file) => {
       const isValidSize = file.size <= 5 * 1024 * 1024;
       if (!isValidSize) {
         toast.add({
-          severity: 'error',
-          summary: '文件过大',
+          severity: "error",
+          summary: "文件过大",
           detail: `文件 ${file.name} 超过5MB`,
-          life: 3000
+          life: 3000,
         });
       }
       return isValidSize;
     })
     .slice(0, 5 - pluginForm.value.screenshots.length);
 
-  files.forEach(file => {
+  files.forEach((file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
@@ -1135,7 +1321,6 @@ const updatePlugin = async () => {
     uploading.value = false;
   }
 };
-
 </script>
 
 <style lang="less" scoped>

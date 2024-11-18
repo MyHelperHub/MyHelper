@@ -20,7 +20,7 @@ import { ipcCloseWindow } from "@/api/ipc/window.api";
 import { initSetting } from "./utils/settingRegistry";
 import GeneralSettings from "@/views/setting/GeneralSettings.vue";
 import AboutSettings from "@/views/setting/AboutSettings.vue";
-import {  SettingMenuItemEnum } from "@/interface/enum";
+import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
 const activeMenu = ref(SettingMenuItemEnum.General);

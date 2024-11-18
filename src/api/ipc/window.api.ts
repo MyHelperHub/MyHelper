@@ -6,7 +6,11 @@ import { WindowConfig } from "@/interface/window";
  * @param options 窗口配置选项
  */
 export const ipcCreateNewWindow = async (options: WindowConfig) => {
-  invoke("create_new_window", { ...options });
+  try {
+    await invoke("create_new_window", { ...options });
+  } catch (e) {
+    return 0;
+  }
 };
 
 /**

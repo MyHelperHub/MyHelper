@@ -22,20 +22,19 @@
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import Drawer from "primevue/drawer";
 import { ref } from "vue";
-import { appDataDir } from '@tauri-apps/api/path';
+import { appDataDir } from "@tauri-apps/api/path";
 import { NewWindowEnum } from "@/interface/windowEnum";
-
 
 const popoverRef = ref(false);
 const oop = async () => {
   const appDataPath = await appDataDir();
   const pluginUrl = `http://asset.localhost/${appDataPath}/plugins/after/index.html`;
-  
+
   ipcCreateNewWindow({
     windowId: NewWindowEnum.MyPlugin,
     title: "设置",
     url: pluginUrl,
-    size: [670, 520]
+    size: [670, 520],
   });
 };
 const openPopover = () => {
