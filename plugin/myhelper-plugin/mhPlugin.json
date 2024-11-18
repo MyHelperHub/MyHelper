@@ -1,0 +1,10 @@
+{
+  "windowId": "myPlugin",
+  "title": "我的插件",
+  "size": [800, 600],
+  "position": [-1, -1],
+  "alwaysOnTop": false,
+  "resizable": true,
+  "icon": "./icon.png",
+  "loading": false
+}

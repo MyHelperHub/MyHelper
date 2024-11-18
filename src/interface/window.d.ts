@@ -10,7 +10,7 @@ import { NewWindowEnum } from "./windowEnum";
  * @param alwaysOnTop 是否置顶
  * @param resizable 是否可调整大小
  * @param icon 窗口图标路径
- * @param loading 是否显示加载状态
+ * @param loading 窗口是否显示加载动画，需自定义动画
  */
 export interface WindowConfig {
   windowId: NewWindowEnum;

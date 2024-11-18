@@ -682,7 +682,7 @@ const plugins = ref<Plugin[]>([
     name: "任务自动化工具",
     author: "AutoPro",
     icon: "https://placeholder.co/48",
-    description: "通过简单的配置��现任务自动化，提高工作效率。",
+    description: "通过简单的配置现任务自动化，提高工作效率。",
     rating: 4.8,
     downloads: 34567,
     tags: ["效率工具", "自动化"],

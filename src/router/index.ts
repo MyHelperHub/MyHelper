@@ -1,5 +1,8 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-const routes = [
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import pluginConfig from "../../plugin/myhelper-plugin/mhPlugin.json";
+
+// 基础路由配置
+const baseRoutes = [
   {
     name: "Index",
     path: "/",
@@ -24,15 +27,33 @@ const routes = [
     name: "PluginMarket",
     path: "/plugin-market",
     component: () => import("@/views/plugin-market/PluginMarket.vue"),
-  }, {
+  },
+  {
     name: "Develop",
     path: "/develop",
     component: () => import("@/views/plugin-market/Develop.vue"),
   },
 ];
 
+// mhPlugin.json中读取windowId创建插件路由
+const pluginRoute = {
+  path: '/plugin',
+  children: [
+    {
+      name: pluginConfig.windowId,
+      path: pluginConfig.windowId,
+      beforeEnter: () => {
+        window.location.href = 'http://localhost:1421'
+        return false
+      }
+    }
+  ]
+};
+
+// 合并路由
+const routes = [...baseRoutes, pluginRoute];
 const router = createRouter({
-  routes,
+  routes: routes as RouteRecordRaw[],
   history: createWebHashHistory(),
 });
 

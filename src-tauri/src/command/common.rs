@@ -92,33 +92,43 @@ pub async fn create_new_window(
         scale_factor
     };
 
-    // 计算窗口大小和位置
+    // 计算窗口大小
     let (base_width, base_height) = size.unwrap_or((600.0, 400.0));
     let (width, height) = (
         base_width * adjusted_scale_factor,
         base_height * adjusted_scale_factor,
     );
-    let (x, y) = if let Some(pos) = position {
-        (pos.0 * adjusted_scale_factor, pos.1 * adjusted_scale_factor)
-    } else {
-        (
+
+    // 处理窗口位置，-1 表示居中
+    let (x, y) = match position {
+        Some((pos_x, pos_y)) => {
+            let center_x = (monitor_size.width as f64 - width) / 2.0;
+            let center_y = (monitor_size.height as f64 - height) / 2.0;
+            
+            match (pos_x, pos_y) {
+                (-1.0, -1.0) => (center_x, center_y),                    // 完全居中
+                (-1.0, y) => (center_x, y * adjusted_scale_factor),      // 水平居中
+                (x, -1.0) => (x * adjusted_scale_factor, center_y),      // 垂直居中
+                (x, y) => (x * adjusted_scale_factor, y * adjusted_scale_factor), // 指定位置
+            }
+        }
+        None => (
             (monitor_size.width as f64 - width) / 2.0,
             (monitor_size.height as f64 - height) / 2.0,
-        )
+        ),
     };
 
     // 构建基础窗口配置
-    let mut builder =
-        WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
-            .title(title)
-            .shadow(false)
-            .transparent(true)
-            .visible(loading.unwrap_or(false))
-            .decorations(false)
-            .always_on_top(always_on_top.unwrap_or(false))
-            .resizable(resizable.unwrap_or(true))
-            .inner_size(width, height)
-            .position(x, y);
+    let mut builder = WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
+        .title(title)
+        .shadow(false)
+        .transparent(true)
+        .visible(loading.unwrap_or(false))
+        .decorations(false)
+        .always_on_top(always_on_top.unwrap_or(false))
+        .resizable(resizable.unwrap_or(true))
+        .inner_size(width, height)
+        .position(x, y);
 
     // 处理图标设置
     if let Some(icon_path) = icon {
