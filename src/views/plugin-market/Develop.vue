@@ -31,14 +31,16 @@
         text
         @click="
           () => {
-            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]).catch(
-              () => {
-                toast.add({
-                  severity: 'error',
-                  summary: '错误',
-                  detail: '窗口已打开或无法创建窗口',
-                  life: 3000,
-                });
+            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]).then(
+              (res) => {
+                if (res === 0) {
+                  toast.add({
+                    severity: 'error',
+                    summary: '错误',
+                    detail: '该窗口已存在',
+                    life: 3000,
+                  });
+                }
               },
             );
           }

@@ -30,18 +30,18 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
     };
 
     // 解析网站 URL
-    let mut url = Url::parse(&url).map_err(|e| AppError::SystemError(format!("Invalid URL: {}", e)))?;
+    let mut url = Url::parse(&url).map_err(|e| AppError::Error(format!("Invalid URL: {}", e)))?;
     let domain = url
         .host_str()
-        .ok_or_else(|| AppError::SystemError("Invalid URL: no host found".to_string()))?
+        .ok_or_else(|| AppError::Error("Invalid URL: no host found".to_string()))?
         .replace(".", "_");
 
     // 获取用户目录
     let myhelper_path = get_myhelper_path()
         .map(|path| path.join("Image").join("WebIcon"))
-        .map_err(|e| AppError::SystemError(e))?;
+        .map_err(|e| AppError::Error(e))?;
     if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path).map_err(|e| AppError::SystemError(e.to_string()))?;
+        fs::create_dir_all(&myhelper_path).map_err(|e| AppError::Error(e.to_string()))?;
     }
 
     let output_path = myhelper_path.join(format!("{}.png", domain));
@@ -51,17 +51,17 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
         .timeout(Duration::from_secs(3))
         .redirect(reqwest::redirect::Policy::limited(10))
         .build()
-        .map_err(|e| AppError::SystemError(format!("Failed to create HTTP client: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to create HTTP client: {}", e)))?;
 
     // 优先尝试从 /favicon.ico 获取图标
     let favicon_url = url
         .join("/favicon.ico")
-        .map_err(|e| AppError::SystemError(format!("Failed to join URL: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to join URL: {}", e)))?;
     let mut response = client.get(favicon_url.as_str()).send().map_err(|e| {
         if e.is_timeout() {
-            AppError::SystemError("Request timeout".to_string())
+            AppError::Error("Request timeout".to_string())
         } else {
-            AppError::SystemError(format!("Request failed: {}", e))
+            AppError::Error(format!("Request failed: {}", e))
         }
     })?;
 
@@ -79,9 +79,9 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
             .get(url.as_str())
             .header(USER_AGENT, user_agent)
             .send()
-            .map_err(|e| AppError::SystemError(format!("Failed to fetch webpage: {}", e)))?
+            .map_err(|e| AppError::Error(format!("Failed to fetch webpage: {}", e)))?
             .text()
-            .map_err(|e| AppError::SystemError(format!("Failed to read response: {}", e)))?;
+            .map_err(|e| AppError::Error(format!("Failed to read response: {}", e)))?;
 
         let document = Html::parse_document(&html);
 
@@ -96,18 +96,18 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
         let mut img_url = None;
         for selector_str in &selectors {
             let selector = Selector::parse(selector_str)
-                .map_err(|e| AppError::SystemError(format!("Invalid selector: {}", e)))?;
+                .map_err(|e| AppError::Error(format!("Invalid selector: {}", e)))?;
             if let Some(element) = document.select(&selector).next() {
                 let href = element
                     .value()
                     .attr("href")
                     .or_else(|| element.value().attr("content"))
-                    .ok_or_else(|| AppError::SystemError("Icon URL not found".to_string()))?;
+                    .ok_or_else(|| AppError::Error("Icon URL not found".to_string()))?;
                 img_url = Some(if href.starts_with("http") {
                     href.to_string()
                 } else {
                     url.join(href)
-                        .map_err(|e| AppError::SystemError(format!("Failed to join URL: {}", e)))?
+                        .map_err(|e| AppError::Error(format!("Failed to join URL: {}", e)))?
                         .to_string()
                 });
                 break;
@@ -118,28 +118,28 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
             response = client
                 .get(&url)
                 .send()
-                .map_err(|e| AppError::SystemError(format!("Failed to fetch icon: {}", e)))?;
+                .map_err(|e| AppError::Error(format!("Failed to fetch icon: {}", e)))?;
         } else {
-            return Err(AppError::SystemError("No icon found".to_string()));
+            return Err(AppError::Error("No icon found".to_string()));
         }
     }
 
     let favicon_data = response
         .bytes()
-        .map_err(|e| AppError::SystemError(format!("Failed to read icon data: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to read icon data: {}", e)))?;
 
     // 如果数据为空，返回错误
     if favicon_data.is_empty() {
-        return Err(AppError::SystemError("Icon data is empty".to_string()));
+        return Err(AppError::Error("Icon data is empty".to_string()));
     }
 
     let img = image::load_from_memory(&favicon_data)
-        .map_err(|e| AppError::SystemError(format!("Failed to load image: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to load image: {}", e)))?;
 
     // 将图标保存为 32x32 PNG 图片
     let resized_img = img.resize_exact(32, 32, image::imageops::FilterType::Lanczos3);
     let output_file = File::create(&output_path)
-        .map_err(|e| AppError::SystemError(format!("Failed to create output file: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to create output file: {}", e)))?;
     let mut writer = BufWriter::new(output_file);
 
     let encoder = PngEncoder::new(&mut writer);
@@ -150,7 +150,7 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
             resized_img.height(),
             resized_img.color().into(),
         )
-        .map_err(|e| AppError::SystemError(format!("Failed to encode image: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to encode image: {}", e)))?;
 
     Ok(output_path.display().to_string())
 }

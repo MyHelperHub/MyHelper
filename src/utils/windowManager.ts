@@ -20,7 +20,7 @@ export const handleWindowToggle = async (
       } catch (err) {
         // 如果关闭失败，说明窗口可能已经不存在
         // 这种情况下创建新窗口
-        if ((err as { WindowError: string }).WindowError === config.windowId) {
+        if ((err as { Error: string }).Error === config.windowId) {
           const res = await ipcCreateNewWindow(config);
           isOpen.value = res !== 0;
         }

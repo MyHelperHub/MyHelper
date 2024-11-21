@@ -58,12 +58,12 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         )
     } == 0
     {
-        return Err(AppError::SystemError("Failed to get file info".to_string()));
+        return Err(AppError::Error("Failed to get file info".to_string()));
     }
 
     let hicon: HICON = shinfo.hIcon;
     if hicon.is_null() {
-        return Err(AppError::SystemError("Failed to get icon".to_string()));
+        return Err(AppError::Error("Failed to get icon".to_string()));
     }
 
     let icon_info = get_icon_info(hicon)?;
@@ -74,7 +74,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     // 创建图像缓冲区并保存
     let img_buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels)
-        .ok_or(AppError::SystemError("Failed to create image buffer".to_string()))?;
+        .ok_or(AppError::Error("Failed to create image buffer".to_string()))?;
     let img = DynamicImage::ImageRgba8(img_buffer);
     let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
     let mut writer = BufWriter::new(output_file);
@@ -105,7 +105,7 @@ unsafe fn cleanup_resources(icon_info: ICONINFO, hicon: HICON) {
 fn get_icon_info(hicon: HICON) -> AppResult<ICONINFO> {
     let mut icon_info: ICONINFO = unsafe { std::mem::zeroed() };
     if unsafe { GetIconInfo(hicon, &mut icon_info) == 0 } {
-        return Err(AppError::SystemError("Failed to get icon info".to_string()));
+        return Err(AppError::Error("Failed to get icon info".to_string()));
     }
     Ok(icon_info)
 }
@@ -121,7 +121,7 @@ fn get_bitmap(icon_info: &ICONINFO) -> AppResult<BITMAP> {
         )
     };
     if result == 0 {
-        return Err(AppError::SystemError("Failed to get bitmap".to_string()));
+        return Err(AppError::Error("Failed to get bitmap".to_string()));
     }
     Ok(bmp)
 }
@@ -136,7 +136,7 @@ fn get_pixels(
     let _ = hicon;
     let hdc = unsafe { CreateCompatibleDC(null_mut()) };
     if hdc.is_null() {
-        return Err(AppError::SystemError("Failed to create compatible DC".to_string()));
+        return Err(AppError::Error("Failed to create compatible DC".to_string()));
     }
 
     let mut pixels = vec![0u8; width * height * 4]; // 4 bytes per pixel (RGBA)
@@ -176,7 +176,7 @@ fn get_pixels(
     };
 
     if success == 0 {
-        return Err(AppError::SystemError("Failed to get DIB bits".to_string()));
+        return Err(AppError::Error("Failed to get DIB bits".to_string()));
     }
 
     // 将颜色通道从 BGRA 转换为 RGBA，并垂直翻转图像

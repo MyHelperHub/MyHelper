@@ -1,12 +1,11 @@
 import { WindowConfig } from "./window";
-import pluginConfig from "../../plugin/mh-plugin/mhPlugin.json";
+import pluginConfig from "mh-plugin/public/mhPlugin.json";
 
 export const NewWindowEnum = {
   Label: "label",
   My: "my",
   Setting: "setting",
   PluginMarket: "pluginMarket",
-  MyPlugin: "myPlugin",
   MhPlugin: pluginConfig.windowId,
 } as const;
 
@@ -39,17 +38,9 @@ export const WINDOW_CONFIG: Record<
     size: [1300, 700],
     loading: true,
   },
-  [NewWindowEnum.MyPlugin]: {
-    windowId: NewWindowEnum.MyPlugin,
-    title: "插件",
-    url: "#/plugin",
-    size: [670, 520],
-    resizable: true,
-    alwaysOnTop: false,
-  },
   [NewWindowEnum.MhPlugin]: {
     windowId: NewWindowEnum.MhPlugin,
-    title: pluginConfig.windowId,
+    title: pluginConfig.title,
     url: `#/plugin/${pluginConfig.windowId}`,
     size: [670, 520],
   },

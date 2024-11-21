@@ -8,12 +8,12 @@ fn focus_previous_window() -> AppResult<()> {
     unsafe {
         let display = XOpenDisplay(std::ptr::null_mut());
         if display.is_null() {
-            return Err(AppError::SystemError("Could not open display".to_string()));
+            return Err(AppError::Error("Could not open display".to_string()));
         }
         
         let window = match get_previous_window() {
             Some(window) => window,
-            None => return Err(AppError::WindowError("Could not get active window".to_string())),
+            None => return Err(AppError::Error("Could not get active window".to_string())),
         };
 
         XRaiseWindow(display, window);
@@ -27,7 +27,7 @@ fn focus_previous_window() -> AppResult<()> {
 pub async fn paste() -> AppResult<()> {
     fn dispatch(event_type: &EventType) -> AppResult<()> {
         wait(20);
-        simulate(event_type).map_err(|e| AppError::SystemError(format!("Failed to simulate key event: {}", e)))
+        simulate(event_type).map_err(|e| AppError::Error(format!("Failed to simulate key event: {}", e)))
     }
 
     focus_previous_window()?;

@@ -96,7 +96,7 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
     let (tx, _rx) = mpsc::channel::<String>(10);
     let manager = Manager::new(tx.clone(), app_handle.clone());
     let mut watcher = ClipboardWatcherContext::new()
-        .map_err(|e| AppError::ClipboardError(format!("Failed to create clipboard watcher: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to create clipboard watcher: {}", e)))?;
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
     unsafe {
@@ -131,10 +131,10 @@ pub async fn stop_clipboard_listener() -> AppResult<()> {
 #[tauri::command]
 pub async fn write_clipboard(text: String) -> AppResult<()> {
     let ctx = ClipboardContext::new()
-        .map_err(|e| AppError::ClipboardError(format!("Failed to create clipboard context: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to create clipboard context: {}", e)))?;
     
     ctx.set_text(text)
-        .map_err(|e| AppError::ClipboardError(format!("Failed to set clipboard content: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to set clipboard content: {}", e)))?;
     
     Ok(())
 }

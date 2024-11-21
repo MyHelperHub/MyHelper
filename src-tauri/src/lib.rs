@@ -17,7 +17,7 @@ use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
 
 /** 初始化 */
 fn init() -> AppResult<()> {
-    observe_app().map_err(|e| AppError::SystemError(format!("Failed to initialize app observer: {}", e)))?;
+    observe_app().map_err(|e| AppError::Error(format!("Failed to initialize app observer: {}", e)))?;
     Ok(())
 }
 
@@ -25,8 +25,8 @@ fn init() -> AppResult<()> {
 fn get_screen_info(app: &tauri::App) -> AppResult<(f64, f64, f64)> {
     let monitor = app
         .primary_monitor()
-        .map_err(|e| AppError::SystemError(format!("无法获取主显示器: {}", e)))?
-        .ok_or_else(|| AppError::SystemError("未找到主显示器".into()))?;
+        .map_err(|e| AppError::Error(format!("无法获取主显示器: {}", e)))?
+        .ok_or_else(|| AppError::Error("未找到主显示器".into()))?;
 
     let size = monitor.size();
     Ok((
@@ -42,22 +42,22 @@ fn get_window_position(
     screen_height: f64,
     scale_factor: f64,
 ) -> AppResult<LogicalPosition<f64>> {
-    match utils::config::utils_get_config(vec!["position".to_string()]) {
+    match utils::config::utils_get_config("config",vec!["position".to_string()]) {
         Ok(Some(value)) => {
             let pos = value
                 .as_object()
-                .ok_or_else(|| AppError::ConfigError("position 配置格式错误".into()))?;
+                .ok_or_else(|| AppError::Error("position 配置格式错误".into()))?;
 
             let x = pos
                 .get("x")
                 .and_then(|v| v.as_f64())
-                .ok_or_else(|| AppError::ConfigError("position.x 配置格式错误".into()))?
+                .ok_or_else(|| AppError::Error("position.x 配置格式错误".into()))?
                 / scale_factor;
 
             let y = pos
                 .get("y")
                 .and_then(|v| v.as_f64())
-                .ok_or_else(|| AppError::ConfigError("position.y 配置格式错误".into()))?
+                .ok_or_else(|| AppError::Error("position.y 配置格式错误".into()))?
                 / scale_factor;
 
             if x >= 0.0 && x <= screen_width && y >= 0.0 && y <= screen_height {
@@ -67,7 +67,7 @@ fn get_window_position(
             }
         }
         Ok(None) => Ok(LogicalPosition::new(500.0, 300.0)),
-        Err(e) => Err(AppError::ConfigError(format!("读取配置失败: {}", e))),
+        Err(e) => Err(AppError::Error(format!("读取配置失败: {}", e))),
     }
 }
 
@@ -78,13 +78,13 @@ fn setup_window(
 ) -> AppResult<()> {
     let window_write = window
         .write()
-        .map_err(|_| AppError::WindowError("无法获取窗口写锁".into()))?;
+        .map_err(|_| AppError::Error("无法获取窗口写锁".into()))?;
     window_write
         .set_position(position)
-        .map_err(|e| AppError::WindowError(e.to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?;
     window_write
         .show()
-        .map_err(|e| AppError::WindowError(e.to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?;
     Ok(())
 }
 
@@ -92,7 +92,7 @@ fn setup_window(
 fn setup_window_events(window: &Arc<RwLock<tauri::WebviewWindow>>) -> AppResult<()> {
     let window_read = window
         .read()
-        .map_err(|_| AppError::WindowError("无法获取窗口读锁".into()))?;
+        .map_err(|_| AppError::Error("无法获取窗口读锁".into()))?;
     let window_clone = Arc::clone(window);
 
     // 创建移动窗口时所需的时间记录
@@ -117,7 +117,7 @@ fn setup_window_events(window: &Arc<RwLock<tauri::WebviewWindow>>) -> AppResult<
                                 "position".to_string(),
                                 json!({"x": position.x, "y": position.y}),
                             );
-                            if let Err(e) = utils_set_config(data) {
+                            if let Err(e) = utils_set_config("config",data) {
                                 eprintln!("保存位置时出错: {}", e);
                             }
                         }
@@ -143,14 +143,14 @@ fn setup_tray<R: Runtime>(
         let handle_clone = handle.clone();
         MenuItemBuilder::with_id("show", "显示窗口")
             .build(&handle_clone)
-            .map_err(|e| AppError::SystemError(format!("创建菜单项失败: {}", e)))?
+            .map_err(|e| AppError::Error(format!("创建菜单项失败: {}", e)))?
     };
 
     let exit_item = {
         let handle_clone = handle.clone();
         MenuItemBuilder::with_id("exit", "退出")
             .build(&handle_clone)
-            .map_err(|e| AppError::SystemError(format!("创建退出菜单项失败: {}", e)))?
+            .map_err(|e| AppError::Error(format!("创建退出菜单项失败: {}", e)))?
     };
 
     // 创建菜单
@@ -161,11 +161,11 @@ fn setup_tray<R: Runtime>(
             .separator()
             .item(&exit_item)
             .build()
-            .map_err(|e| AppError::SystemError(format!("创建菜单失败: {}", e)))?
+            .map_err(|e| AppError::Error(format!("创建菜单失败: {}", e)))?
     };
 
     let icon = Image::from_bytes(include_bytes!("../icons/32x32.png"))
-        .map_err(|e| AppError::SystemError(format!("加载图标失败: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("加载图标失败: {}", e)))?;
 
     let window_for_menu = Arc::clone(&window_clone);
     let tray = TrayIconBuilder::new()
@@ -204,11 +204,11 @@ fn setup_tray<R: Runtime>(
             }
         })
         .build(handle)
-        .map_err(|e| AppError::SystemError(format!("无法创建系统托盘: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("无法创建系统托盘: {}", e)))?;
 
     // 设置托盘图标
     tray.set_icon(Some(icon))
-        .map_err(|e| AppError::SystemError(format!("设置托盘图标失败: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("设置托盘图标失败: {}", e)))?;
 
     Ok(())
 }
@@ -220,7 +220,7 @@ pub fn run() {
         .setup(|app| {
             let window = app
                 .get_webview_window("main")
-                .ok_or_else(|| AppError::WindowError("主窗口未找到".into()))?;
+                .ok_or_else(|| AppError::Error("主窗口未找到".into()))?;
             let window = Arc::new(RwLock::new(window));
 
             let (screen_width, screen_height, scale_factor) = get_screen_info(app)?;
@@ -253,7 +253,10 @@ pub fn run() {
             write_clipboard,
             paste,
             mh_plugin_install,
-            mh_plugin_uninstall
+            mh_plugin_uninstall,
+            get_plugin_config,
+            set_plugin_config,
+            delete_plugin_config
         ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())

@@ -8,10 +8,22 @@
       </template>
 
       <div class="icons-container">
-        <div v-for="i in 8" :key="i" class="icon-wrapper" @click="oop">
-          <i class="icon">
-            <img src="../../assets/images/engine/baidu.png" alt="icon" />
-          </i>
+        <div v-for="item in pluginList" :key="item.uuid" class="icon-wrapper" v-tooltip.bottom="{
+          value: item.title,
+          showDelay: 200,
+          pt: {
+            text: {
+              style: {
+                fontSize: '15px',
+              },
+            },
+          },
+        }" @click="handleClick(item)">
+          <div class="app-item">
+            <i class="icon">
+              <img :src="item.icon" :alt="item.title" />
+            </i>
+          </div>
         </div>
       </div>
     </Drawer>
@@ -23,21 +35,27 @@ import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import Drawer from "primevue/drawer";
 import { ref } from "vue";
 import { appDataDir } from "@tauri-apps/api/path";
-import { NewWindowEnum } from "@/interface/windowEnum";
+import type { PluginConfig } from "@/interface/plugin";
+import { getPluginConfig } from "@/utils/plugin";
 
 const popoverRef = ref(false);
-const oop = async () => {
-  const appDataPath = await appDataDir();
-  const pluginUrl = `http://asset.localhost/${appDataPath}/plugins/after/index.html`;
+const pluginList = ref<PluginConfig[]>([]);
 
+const init = async () => {
+  pluginList.value = (await getPluginConfig(["pluginList"])) as PluginConfig[];
+};
+
+const handleClick = async (item: PluginConfig) => {
+  const appDataPath = await appDataDir();
+  const pluginUrl = `http://asset.localhost/${appDataPath}/plugins/${item.windowId}/index.html`;
   ipcCreateNewWindow({
-    windowId: NewWindowEnum.MyPlugin,
-    title: "设置",
-    url: pluginUrl,
-    size: [670, 520],
+    ...item,
+    url: pluginUrl
   });
 };
+
 const openPopover = () => {
+  init();
   popoverRef.value = true;
 };
 
@@ -46,30 +64,58 @@ defineExpose({ openPopover });
 
 <style lang="less">
 @import "../../assets/css/variable.less";
+
 .p-drawer-header {
   padding: 0.2rem 1rem 0 1rem !important;
 }
+
 .icons-container {
   display: flex;
   flex-wrap: wrap;
-  padding: 1rem;
-  gap: 1rem;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  justify-content: flex-start;
 }
 
 .icon-wrapper {
-  width: calc(25% - 0.75rem); /* 4个图标等分,减去间距 */
+  width: calc(33.33% - 1rem);
   display: flex;
   justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+
+    .icon {
+      background-color: #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+.app-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .icon {
-  width: 32px;
-  height: 32px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f3f4f6;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+
+  img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
 }
 </style>

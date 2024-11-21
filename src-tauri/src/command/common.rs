@@ -24,12 +24,12 @@ pub async fn set_window_size(
 ) -> AppResult<()> {
     let window = app_handle
         .get_webview_window("main")
-        .ok_or_else(|| AppError::WindowError("未找到 main 窗口".to_string()))?;
+        .ok_or_else(|| AppError::Error("未找到 main 窗口".to_string()))?;
 
     let monitor = window
         .current_monitor()
-        .map_err(|e| AppError::WindowError(e.to_string()))?
-        .ok_or_else(|| AppError::WindowError("未找到监视器".to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?
+        .ok_or_else(|| AppError::Error("未找到监视器".to_string()))?;
 
     let monitor_size = monitor.size();
 
@@ -56,12 +56,12 @@ pub async fn set_window_size(
             width: scaled_width,
             height: scaled_height,
         }))
-        .map_err(|e| AppError::WindowError(e.to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?;
 
     // 设置网页内容的缩放比例
     window
         .set_zoom(adjusted_scale_factor)
-        .map_err(|e| AppError::WindowError(e.to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?;
 
     Ok(())
 }
@@ -95,8 +95,8 @@ pub async fn create_new_window(
 ) -> AppResult<()> {
     let monitor = app_handle
         .primary_monitor()
-        .map_err(|e| AppError::WindowError(e.to_string()))?
-        .ok_or_else(|| AppError::WindowError("未找到主监视器".to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?
+        .ok_or_else(|| AppError::Error("未找到主监视器".to_string()))?;
 
     let monitor_size = monitor.size();
     
@@ -200,20 +200,34 @@ pub async fn create_new_window(
 /// 
 /// # Arguments
 /// 
+/// * `window` - 触发该命令的窗口
 /// * `app_handle` - Tauri应用句柄
 /// * `window_id` - 要关闭的窗口ID
 #[tauri::command]
 pub async fn close_new_window(
+    window: tauri::Window,
     app_handle: tauri::AppHandle,
-    window_id: String,
+    window_id: Option<String>,
 ) -> AppResult<()> {
-    let window = app_handle
-        .get_webview_window(&window_id)
-        .ok_or_else(|| AppError::WindowError(format!("{}", window_id)))?;
+    let target_window_id = match window_id {
+        Some(id) => id,
+        None => window.label().to_string()
+    };
 
-    window
+    // 检查权限：main窗口可以关闭任何窗口，其他窗口只能关闭自己
+    if window.label() != "main" && target_window_id != window.label() {
+        return Err(AppError::Error(
+            "不允许关闭其他插件的窗口".to_string()
+        ));
+    }
+
+    let target_window = app_handle
+        .get_webview_window(&target_window_id)
+        .ok_or_else(|| AppError::Error(format!("{}", target_window_id)))?;
+
+    target_window
         .close()
-        .map_err(|e| AppError::WindowError(e.to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?;
 
     Ok(())
 }
@@ -227,17 +241,25 @@ pub async fn close_new_window(
 /// * `is_always_on_top` - 是否置顶
 #[tauri::command]
 pub async fn set_window_always_on_top(
+    window: tauri::Window,
     app_handle: tauri::AppHandle,
     window_id: String,
     is_always_on_top: bool,
 ) -> AppResult<()> {
-    let window = app_handle
-        .get_webview_window(&window_id)
-        .ok_or_else(|| AppError::WindowError(format!("未找到窗口: {}", window_id)))?;
+    // 权限检查：main窗口可以修改任何窗口，其他窗口只能修改自己
+    if window.label() != "main" && window_id != window.label() {
+        return Err(AppError::Error(
+            "不允许修改其他插件的窗口状态".to_string()
+        ));
+    }
 
-    window
+    let target_window = app_handle
+        .get_webview_window(&window_id)
+        .ok_or_else(|| AppError::Error(format!("未找到窗口: {}", window_id)))?;
+
+    target_window
         .set_always_on_top(is_always_on_top)
-        .map_err(|e| AppError::WindowError(e.to_string()))?;
+        .map_err(|e| AppError::Error(e.to_string()))?;
 
     Ok(())
 }

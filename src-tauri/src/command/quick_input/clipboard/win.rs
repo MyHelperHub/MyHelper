@@ -63,7 +63,7 @@ pub fn observe_app() -> AppResult<()> {
         );
 
         if hook.is_null() {
-            return Err(AppError::SystemError("Failed to set event hook".to_string()));
+            return Err(AppError::Error("Failed to set event hook".to_string()));
         }
     }
     Ok(())
@@ -71,7 +71,7 @@ pub fn observe_app() -> AppResult<()> {
 
 pub fn get_previous_window() -> Option<isize> {
     PREVIOUS_WINDOW.lock()
-        .map_err(|_| AppError::SystemError("Failed to acquire lock".to_string()))
+        .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
         .ok()?
         .clone()
 }

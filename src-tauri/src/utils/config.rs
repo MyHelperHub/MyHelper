@@ -7,11 +7,16 @@ use std::path::{Path, PathBuf};
 use super::path::get_myhelper_path;
 
 // 获取配置文件的路径并确保目录存在
-pub fn get_config_path() -> Result<PathBuf, String> {
+pub fn get_config_path(config_type: &str) -> Result<PathBuf, String> {
     let myhelper_path = get_myhelper_path()?;
-    let config_path = myhelper_path.join("config.json");
+    let file_name = match config_type {
+        "config" => "config.json",
+        "plugin" => "plugin.json",
+        _ => return Err("Invalid config type".to_string()),
+    };
+    let config_path = myhelper_path.join(file_name);
 
-    // 如果 config.json 文件不存在，则创建它
+    // 如果配置文件不存在，则创建它
     if !config_path.exists() {
         fs::File::create(&config_path).map_err(|e| e.to_string())?;
     }
@@ -33,8 +38,8 @@ fn read_config(config_path: &Path) -> Result<HashMap<String, Value>, String> {
 }
 
 // 保存配置数据
-pub fn utils_set_config(data: HashMap<String, Value>) -> Result<(), String> {
-    let config_path = get_config_path()?;
+pub fn utils_set_config(config_type: &str, data: HashMap<String, Value>) -> Result<(), String> {
+    let config_path = get_config_path(config_type)?;
 
     let config_data = serde_json::to_string_pretty(&data).map_err(|e| e.to_string())?;
     let mut file = File::create(config_path).map_err(|e| e.to_string())?;
@@ -45,8 +50,8 @@ pub fn utils_set_config(data: HashMap<String, Value>) -> Result<(), String> {
 }
 
 // 获取配置数据，支持嵌套字段访问
-pub fn utils_get_config(keys: Vec<String>) -> Result<Option<Value>, String> {
-    let config_path = get_config_path()?;
+pub fn utils_get_config(config_type: &str, keys: Vec<String>) -> Result<Option<Value>, String> {
+    let config_path = get_config_path(config_type)?;
     let data = read_config(&config_path)?;
 
     let mut current_value = Value::Object(data.into_iter().collect::<Map<_, _>>());

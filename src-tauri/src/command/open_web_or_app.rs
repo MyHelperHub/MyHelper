@@ -10,7 +10,9 @@ use crate::utils::error::{AppError, AppResult};
 /// # Returns
 /// 
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
+
+#[permission_macro::permission("main")]
 #[tauri::command]
 pub fn open_web_or_app(path: String) -> AppResult<()> {
-    that(&path).map_err(|e| AppError::SystemError(format!("Failed to open {}: {}", path, e)))
+    that(&path).map_err(|e| AppError::Error(format!("Failed to open {}: {}", path, e)))
 }

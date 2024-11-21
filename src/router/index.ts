@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import pluginConfig from "../../plugin/mh-plugin/mhPlugin.json";
+import pluginConfig from "mh-plugin/public/mhPlugin.json";
 
 // 基础路由配置
 const baseRoutes = [

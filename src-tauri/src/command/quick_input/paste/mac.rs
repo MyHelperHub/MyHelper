@@ -8,7 +8,7 @@ use cocoa::{
 fn focus_previous_window() -> AppResult<()> {
     let process_id = match get_previous_window() {
         Some(process_id) => process_id,
-        None => return Err(AppError::WindowError("No previous window found".to_string())),
+        None => return Err(AppError::Error("No previous window found".to_string())),
     };
 
     unsafe {
@@ -30,7 +30,7 @@ pub async fn paste() -> AppResult<()> {
         .arg("-c")
         .arg(script)
         .output()
-        .map_err(|e| AppError::SystemError(format!("Failed to execute paste command: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("Failed to execute paste command: {}", e)))?;
 
     Ok(())
 }

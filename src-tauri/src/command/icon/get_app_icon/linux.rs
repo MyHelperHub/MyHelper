@@ -43,7 +43,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         .map_err(|e| e.to_string())?;
 
     if !output.status.success() {
-        return Err(AppError::SystemError("Failed to query icon".to_string()));
+        return Err(AppError::Error("Failed to query icon".to_string()));
     }
 
     // 解析输出获取图标路径

@@ -41,7 +41,7 @@ fn get_net_wm_name(display: *mut Display, window: u64) -> AppResult<String> {
         unsafe { XFree(prop as *mut _) };
         Ok(name)
     } else {
-        Err(AppError::SystemError(format!("{}", window)))
+        Err(AppError::Error(format!("{}", window)))
     }
 }
 
@@ -90,7 +90,7 @@ pub fn observe_app() -> AppResult<()> {
 /// 获取前一个窗口的ID
 pub fn get_previous_window() -> Option<u64> {
     PREVIOUS_WINDOW.lock()
-        .map_err(|_| AppError::SystemError("Failed to acquire lock".to_string()))
+        .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
         .ok()?
         .clone()
 }

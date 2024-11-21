@@ -14,7 +14,6 @@ import Button from "primevue/button";
 import { useToast } from 'primevue/usetoast';
 //注意：引入地址中的@/是以根目录下的src为基准
 import { ipcCloseWindow } from '@/api/ipc/window.api';
-import { NewWindowEnum } from '@/interface/windowEnum';
 const toast = useToast();
 const handleClick = () => {
   toast.add({
@@ -25,7 +24,7 @@ const handleClick = () => {
   });
 }
 const handleClose = () => {
-  ipcCloseWindow(NewWindowEnum.MhPlugin);
+  ipcCloseWindow();
 };
 </script>
 <style lang="less" scoped>

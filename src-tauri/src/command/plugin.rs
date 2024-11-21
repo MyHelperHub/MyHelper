@@ -1,25 +1,15 @@
 use crate::utils::error::{AppError, AppResult};
-use crate::utils::config::{utils_get_config, utils_set_config};
+use crate::utils::config::{utils_get_config, utils_set_config}; 
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 
-/// 获取配置数据
-/// 
-/// # Arguments
-/// 
-/// * `keys` - 配置键的路径，以数组形式表示嵌套层级
-/// 
-/// # Returns
-/// 
-/// * `AppResult<Option<Value>>` - 成功返回配置值，失败返回错误信息
-
-#[permission_macro::permission("main","setting")]
+#[permission_macro::permission("main")]
 #[tauri::command]
-pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
-    utils_get_config("config",keys).map_err(|e| AppError::Error(e))
+pub fn get_plugin_config(keys: Vec<String>) -> AppResult<Option<Value>> {
+    utils_get_config("plugin", keys).map_err(|e| AppError::Error(e))
 }
 
-/// 保存配置数据
+/// 保存插件配置数据
 /// 
 /// # Arguments
 /// 
@@ -29,11 +19,10 @@ pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
 /// # Returns
 /// 
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
-
-#[permission_macro::permission("main","setting")]
+#[permission_macro::permission("main")]
 #[tauri::command]
-pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
-    let mut config_data = utils_get_config("config",vec![])
+pub fn set_plugin_config(keys: Vec<String>, value: Value) -> AppResult<()> {
+    let mut config_data = utils_get_config("plugin", vec![])
         .map_err(|e| AppError::Error(e))?
         .unwrap_or_default();
 
@@ -90,10 +79,10 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
         .into_iter()
         .collect();
 
-    utils_set_config("config",config_hashmap).map_err(|e| AppError::Error(e))
+    utils_set_config("plugin", config_hashmap).map_err(|e| AppError::Error(e))
 }
 
-/// 删除配置数据
+/// 删除插件配置数据
 /// 
 /// # Arguments
 /// 
@@ -102,11 +91,10 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
 /// # Returns
 /// 
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
-
-#[permission_macro::permission("main","setting")]
+#[permission_macro::permission("main")]
 #[tauri::command]
-pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
-    let mut data = utils_get_config("config",vec![])
+pub fn delete_plugin_config(keys: Vec<String>) -> AppResult<()> {
+    let mut data = utils_get_config("plugin", vec![])
         .map_err(|e| AppError::Error(e))?
         .unwrap_or_default();
 
@@ -169,5 +157,5 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
         .into_iter()
         .collect();
 
-    utils_set_config("config",config_hashmap).map_err(|e| AppError::Error(e))
+    utils_set_config("plugin", config_hashmap).map_err(|e| AppError::Error(e))
 }
