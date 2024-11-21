@@ -24,10 +24,14 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
+use crate::utils::error::{AppError, AppResult};
 
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
 static mut WATCHER_SHUTDOWN: Option<WatcherShutdown> = None; // 存储关闭信号
 
+/// 剪贴板管理器
+/// 
+/// 负责处理剪贴板事件和内容更新
 struct Manager {
     ctx: ClipboardContext,
     sender: mpsc::Sender<String>, // 发送器
@@ -35,6 +39,7 @@ struct Manager {
 }
 
 impl Manager {
+    /// 创建新的剪贴板管理器实例
     pub fn new(sender: mpsc::Sender<String>, app_handle: AppHandle) -> Self {
         let ctx = ClipboardContext::new().unwrap();
         Manager {
@@ -44,6 +49,7 @@ impl Manager {
         }
     }
 
+    /// 处理剪贴板文本内容
     fn handle_text(&self) {
         // 如果监听已经停止，不处理剪贴板事件
         if !CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
@@ -76,47 +82,60 @@ impl ClipboardHandler for Manager {
     }
 }
 
+/// 启动剪贴板监听
+/// 
+/// 开始监听系统剪贴板的变化，当内容更新时触发事件
 #[tauri::command]
-pub async fn start_clipboard_listener(app_handle: AppHandle) -> Result<(), String> {
+pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        return Ok(()); // 已在监听，直接返回
+        return Ok(());
     }
 
-    CLIPBOARD_LISTENER.store(true, Ordering::SeqCst); // 设置为监听状态
+    CLIPBOARD_LISTENER.store(true, Ordering::SeqCst);
 
-    let (tx, _rx) = mpsc::channel::<String>(10); // 发送剪贴板内容
-    let manager = Manager::new(tx.clone(), app_handle.clone()); // 克隆 tx 以传递给 Manager
-    let mut watcher = ClipboardWatcherContext::new().unwrap();
+    let (tx, _rx) = mpsc::channel::<String>(10);
+    let manager = Manager::new(tx.clone(), app_handle.clone());
+    let mut watcher = ClipboardWatcherContext::new()
+        .map_err(|e| AppError::ClipboardError(format!("Failed to create clipboard watcher: {}", e)))?;
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
     unsafe {
-        WATCHER_SHUTDOWN = Some(watcher_shutdown); // 存储关闭信号
+        WATCHER_SHUTDOWN = Some(watcher_shutdown);
     }
 
-    watcher.start_watch(); // 启动监听
-
+    watcher.start_watch();
     Ok(())
 }
 
+/// 停止剪贴板监听
+/// 
+/// 停止监听系统剪贴板的变化
 #[tauri::command]
-pub async fn stop_clipboard_listener() -> Result<(), String> {
+pub async fn stop_clipboard_listener() -> AppResult<()> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
         unsafe {
             if let Some(shutdown) = WATCHER_SHUTDOWN.take() {
-                shutdown.stop(); // 停止监听
+                shutdown.stop();
             }
         }
-        CLIPBOARD_LISTENER.store(false, Ordering::SeqCst); // 更新状态为停止
+        CLIPBOARD_LISTENER.store(false, Ordering::SeqCst);
     }
     Ok(())
 }
 
+/// 写入内容到剪贴板
+/// 
+/// # Arguments
+/// 
+/// * `text` - 要写入剪贴板的文本内容
 #[tauri::command]
-pub async fn write_clipboard(text: String) -> Result<(), String> {
-    let ctx = ClipboardContext::new().unwrap();
-    if let Err(e) = ctx.set_text(text) {
-        return Err(format!("Failed to set clipboard content: {}", e));
-    }
+pub async fn write_clipboard(text: String) -> AppResult<()> {
+    let ctx = ClipboardContext::new()
+        .map_err(|e| AppError::ClipboardError(format!("Failed to create clipboard context: {}", e)))?;
+    
+    ctx.set_text(text)
+        .map_err(|e| AppError::ClipboardError(format!("Failed to set clipboard content: {}", e)))?;
+    
     Ok(())
 }
 

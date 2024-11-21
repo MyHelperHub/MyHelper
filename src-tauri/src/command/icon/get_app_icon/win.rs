@@ -1,3 +1,4 @@
+use crate::utils::error::{AppError, AppResult};
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
 use image::{DynamicImage, ImageBuffer, Rgba};
@@ -17,7 +18,16 @@ use winapi::um::winuser::{DestroyIcon, GetIconInfo, ICONINFO};
 
 use crate::utils::path::get_myhelper_path;
 
-pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
+/// 获取应用程序图标
+/// 
+/// # Arguments
+/// 
+/// * `exe_path` - 应用程序可执行文件路径
+/// 
+/// # Returns
+/// 
+/// * `AppResult<String>` - 成功返回保存的图标文件路径
+pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 获取用户目录
     let myhelper_path = get_myhelper_path()
         .map(|path| path.join("Image").join("AppIcon"))
@@ -48,15 +58,15 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
         )
     } == 0
     {
-        return Err("Failed to get file info".to_string());
+        return Err(AppError::SystemError("Failed to get file info".to_string()));
     }
 
     let hicon: HICON = shinfo.hIcon;
     if hicon.is_null() {
-        return Err("Failed to get icon".to_string());
+        return Err(AppError::SystemError("Failed to get icon".to_string()));
     }
 
-    let icon_info: ICONINFO = get_icon_info(hicon)?;
+    let icon_info = get_icon_info(hicon)?;
     let bmp = get_bitmap(&icon_info)?;
 
     let (width, height) = (bmp.bmWidth as usize, bmp.bmHeight as usize);
@@ -64,7 +74,7 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
 
     // 创建图像缓冲区并保存
     let img_buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels)
-        .ok_or("Failed to create image buffer")?;
+        .ok_or(AppError::SystemError("Failed to create image buffer".to_string()))?;
     let img = DynamicImage::ImageRgba8(img_buffer);
     let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
     let mut writer = BufWriter::new(output_file);
@@ -91,15 +101,17 @@ unsafe fn cleanup_resources(icon_info: ICONINFO, hicon: HICON) {
     DestroyIcon(hicon);
 }
 
-fn get_icon_info(hicon: HICON) -> Result<ICONINFO, String> {
+/// 获取图标信息
+fn get_icon_info(hicon: HICON) -> AppResult<ICONINFO> {
     let mut icon_info: ICONINFO = unsafe { std::mem::zeroed() };
     if unsafe { GetIconInfo(hicon, &mut icon_info) == 0 } {
-        return Err("Failed to get icon info".to_string());
+        return Err(AppError::SystemError("Failed to get icon info".to_string()));
     }
     Ok(icon_info)
 }
 
-fn get_bitmap(icon_info: &ICONINFO) -> Result<BITMAP, String> {
+/// 获取位图信息
+fn get_bitmap(icon_info: &ICONINFO) -> AppResult<BITMAP> {
     let mut bmp: BITMAP = unsafe { std::mem::zeroed() };
     let result = unsafe {
         GetObjectW(
@@ -109,21 +121,22 @@ fn get_bitmap(icon_info: &ICONINFO) -> Result<BITMAP, String> {
         )
     };
     if result == 0 {
-        return Err("Failed to get bitmap".to_string());
+        return Err(AppError::SystemError("Failed to get bitmap".to_string()));
     }
     Ok(bmp)
 }
 
+/// 获取图标像素数据
 fn get_pixels(
     hicon: HICON,
     icon_info: &ICONINFO,
     width: usize,
     height: usize,
-) -> Result<Vec<u8>, String> {
+) -> AppResult<Vec<u8>> {
     let _ = hicon;
     let hdc = unsafe { CreateCompatibleDC(null_mut()) };
     if hdc.is_null() {
-        return Err("Failed to create compatible DC".to_string());
+        return Err(AppError::SystemError("Failed to create compatible DC".to_string()));
     }
 
     let mut pixels = vec![0u8; width * height * 4]; // 4 bytes per pixel (RGBA)
@@ -163,7 +176,7 @@ fn get_pixels(
     };
 
     if success == 0 {
-        return Err("Failed to get DIB bits".to_string());
+        return Err(AppError::SystemError("Failed to get DIB bits".to_string()));
     }
 
     // 将颜色通道从 BGRA 转换为 RGBA，并垂直翻转图像

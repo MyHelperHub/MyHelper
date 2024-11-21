@@ -1,3 +1,4 @@
+use crate::utils::error::{AppError, AppResult};
 use std::sync::Mutex;
 use x11::xlib::{
     self, Atom, Display, XDefaultRootWindow, XFree, XGetInputFocus, XGetWindowProperty,
@@ -6,7 +7,8 @@ use x11::xlib::{
 
 static PREVIOUS_WINDOW: Mutex<Option<u64>> = Mutex::new(None);
 
-fn get_net_wm_name(display: *mut Display, window: u64) -> std::result::Result<String, String> {
+/// 获取窗口标题
+fn get_net_wm_name(display: *mut Display, window: u64) -> AppResult<String> {
     let mut actual_type: Atom = 0;
     let mut actual_format: i32 = 0;
     let mut nitems: u64 = 0;
@@ -39,11 +41,12 @@ fn get_net_wm_name(display: *mut Display, window: u64) -> std::result::Result<St
         unsafe { XFree(prop as *mut _) };
         Ok(name)
     } else {
-        Err(format!("{}", window))
+        Err(AppError::SystemError(format!("{}", window)))
     }
 }
 
-pub fn observe_app() {
+/// 开始观察应用程序切换
+pub fn observe_app() -> AppResult<()> {
     std::thread::spawn(|| unsafe {
         let display = XOpenDisplay(std::ptr::null_mut());
         if display.is_null() {
@@ -81,8 +84,13 @@ pub fn observe_app() {
             let _ = previous_window.insert(window);
         }
     });
+    Ok(())
 }
 
+/// 获取前一个窗口的ID
 pub fn get_previous_window() -> Option<u64> {
-    return PREVIOUS_WINDOW.lock().unwrap().clone();
+    PREVIOUS_WINDOW.lock()
+        .map_err(|_| AppError::SystemError("Failed to acquire lock".to_string()))
+        .ok()?
+        .clone()
 }

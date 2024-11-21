@@ -1,11 +1,10 @@
 mod command;
-mod error;
 mod mh_plugin;
 mod utils;
 
 use crate::utils::config::utils_set_config;
+use crate::utils::error::{AppError, AppResult};
 use command::*;
-use error::{AppError, AppResult};
 use mh_plugin::*;
 use serde_json::json;
 use std::collections::HashMap;
@@ -18,7 +17,7 @@ use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
 
 /** 初始化 */
 fn init() -> AppResult<()> {
-    observe_app();
+    observe_app().map_err(|e| AppError::SystemError(format!("Failed to initialize app observer: {}", e)))?;
     Ok(())
 }
 

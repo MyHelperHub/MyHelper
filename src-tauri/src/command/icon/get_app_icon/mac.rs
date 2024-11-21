@@ -1,3 +1,4 @@
+use crate::utils::error::AppResult;
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSData, NSString};
 use image::codecs::png::PngEncoder;
@@ -10,7 +11,16 @@ use std::io::BufWriter;
 
 use crate::utils::path::get_myhelper_path;
 
-pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
+/// 获取应用程序图标
+/// 
+/// # Arguments
+/// 
+/// * `exe_path` - 应用程序可执行文件路径
+/// 
+/// # Returns
+/// 
+/// * `AppResult<String>` - 成功返回保存的图标文件路径
+pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 获取用户目录
     let myhelper_path = get_myhelper_path()
         .map(|path| path.join("Image").join("AppIcon"))

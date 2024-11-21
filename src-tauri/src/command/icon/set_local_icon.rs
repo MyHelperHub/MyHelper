@@ -9,15 +9,7 @@ use std::fs::File;
 use std::io::BufWriter;
 
 use crate::utils::path::get_myhelper_path;
-
-#[derive(Debug, serde::Serialize)]
-pub enum IconError {
-    HomeDirError(String),
-    ImageError(String),
-    IoError(String),
-    InvalidAppType,
-    InvalidBase64(String),
-}
+use crate::utils::error::{AppError, AppResult};
 
 /**
  * 设置本地图标
@@ -25,12 +17,12 @@ pub enum IconError {
  * @param app_type 应用类型，0为网页图标，1为应用图标
  */
 #[tauri::command]
-pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconError> {
-    let myhelper_path = get_myhelper_path().map_err(|e| IconError::HomeDirError(e))?;
+pub fn set_local_icon(image_path: &str, app_type: u32) -> AppResult<String> {
+    let myhelper_path = get_myhelper_path().map_err(|e| AppError::HomeDirError(e))?;
     let icon_path = myhelper_path.join("Image");
 
     // 加载图片
-    let img = image::open(image_path).map_err(|e| IconError::ImageError(e.to_string()))?;
+    let img = image::open(image_path).map_err(|e| AppError::ImageError(e.to_string()))?;
 
     // 调整图片大小为 32x32
     let resized_img = img.resize_exact(32, 32, image::imageops::FilterType::Lanczos3);
@@ -50,19 +42,19 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconErr
             let file_name = format!("{}{}.png", prefix, generate_random_string(6));
             sub_path.join(file_name)
         }
-        _ => return Err(IconError::InvalidAppType),
+        _ => return Err(AppError::InvalidAppType),
     };
 
     // 确保目录存在
     if let Some(parent) = output_path.parent() {
         if !parent.exists() {
-            fs::create_dir_all(parent).map_err(|e| IconError::IoError(e.to_string()))?;
+            fs::create_dir_all(parent).map_err(|e| AppError::IoError(e.to_string()))?;
         }
     }
 
     // 写入图片到指定路径
     let mut writer =
-        BufWriter::new(File::create(&output_path).map_err(|e| IconError::IoError(e.to_string()))?);
+        BufWriter::new(File::create(&output_path).map_err(|e| AppError::IoError(e.to_string()))?);
     let encoder = PngEncoder::new(&mut writer);
     encoder
         .write_image(
@@ -71,7 +63,7 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconErr
             resized_img.height(),
             resized_img.color().into(),
         )
-        .map_err(|e| IconError::ImageError(e.to_string()))?;
+        .map_err(|e| AppError::ImageError(e.to_string()))?;
 
     Ok(output_path.display().to_string())
 }
@@ -81,8 +73,8 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<String, IconErr
  * @param image_base64 图片的 base64 编码
  */
 #[tauri::command]
-pub fn set_logo(image_base64: &str) -> Result<String, IconError> {
-    let myhelper_path = get_myhelper_path().map_err(|e| IconError::HomeDirError(e))?;
+pub fn set_logo(image_base64: &str) -> Result<String, AppError> {
+    let myhelper_path = get_myhelper_path().map_err(|e| AppError::HomeDirError(e))?;
     let logo_path = myhelper_path.join("Image").join("logo.png");
 
     // 从 base64 字符串加载图片
@@ -91,13 +83,13 @@ pub fn set_logo(image_base64: &str) -> Result<String, IconError> {
     // 确保目录存在
     if let Some(parent) = logo_path.parent() {
         if !parent.exists() {
-            fs::create_dir_all(parent).map_err(|e| IconError::IoError(e.to_string()))?;
+            fs::create_dir_all(parent).map_err(|e| AppError::IoError(e.to_string()))?;
         }
     }
 
     // 写入原始图片到指定路径
     let mut writer =
-        BufWriter::new(File::create(&logo_path).map_err(|e| IconError::IoError(e.to_string()))?);
+        BufWriter::new(File::create(&logo_path).map_err(|e| AppError::IoError(e.to_string()))?);
     let encoder = PngEncoder::new(&mut writer);
     encoder
         .write_image(
@@ -106,18 +98,18 @@ pub fn set_logo(image_base64: &str) -> Result<String, IconError> {
             img.height(),
             img.color().into(),
         )
-        .map_err(|e| IconError::ImageError(e.to_string()))?;
+        .map_err(|e| AppError::ImageError(e.to_string()))?;
 
     Ok(logo_path.display().to_string())
 }
 
 // 从 base64 字符串加载图片
-fn load_image_from_base64(base64_str: &str) -> Result<DynamicImage, IconError> {
+fn load_image_from_base64(base64_str: &str) -> Result<DynamicImage, AppError> {
     let decoded_data = STANDARD
         .decode(base64_str)
-        .map_err(|e| IconError::InvalidBase64(e.to_string()))?;
+        .map_err(|e| AppError::InvalidBase64(e.to_string()))?;
     let img =
-        image::load_from_memory(&decoded_data).map_err(|e| IconError::ImageError(e.to_string()))?;
+        image::load_from_memory(&decoded_data).map_err(|e| AppError::ImageError(e.to_string()))?;
     Ok(img)
 }
 

@@ -1,3 +1,4 @@
+use crate::utils::error::{AppError, AppResult};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSAutoreleasePool, NSString};
 use objc::declare::ClassDecl;
@@ -9,6 +10,7 @@ use std::thread;
 
 static PREVIOUS_WINDOW: Mutex<Option<i32>> = Mutex::new(None);
 
+/// 应用程序激活回调
 extern "C" fn application_did_activate(_self: &Object, _cmd: Sel, notification: id) {
     unsafe {
         let ns_app_key = NSString::alloc(nil).init_str("NSWorkspaceApplicationKey");
@@ -39,7 +41,8 @@ extern "C" fn application_did_activate(_self: &Object, _cmd: Sel, notification: 
     }
 }
 
-pub fn observe_app() {
+/// 开始观察应用程序切换
+pub fn observe_app() -> AppResult<()> {
     thread::spawn(|| unsafe {
         let _pool = NSAutoreleasePool::new(nil);
 
@@ -67,8 +70,13 @@ pub fn observe_app() {
         let run_loop: id = msg_send![Class::get("NSRunLoop").unwrap(), currentRunLoop];
         let _: () = msg_send![run_loop, run];
     });
+    Ok(())
 }
 
+/// 获取前一个窗口的进程ID
 pub fn get_previous_window() -> Option<i32> {
-    return PREVIOUS_WINDOW.lock().unwrap().clone();
+    PREVIOUS_WINDOW.lock()
+        .map_err(|_| AppError::SystemError("Failed to acquire lock".to_string()))
+        .ok()?
+        .clone()
 }

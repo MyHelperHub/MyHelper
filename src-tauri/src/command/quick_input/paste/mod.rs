@@ -16,9 +16,13 @@ pub use win::*;
 #[cfg(target_os = "linux")]
 pub use linux::*;
 
+/// 等待指定的毫秒数
+/// 
+/// # Arguments
+/// 
+/// * `millis` - 等待时间（毫秒）
 #[cfg(not(target_os = "macos"))]
 pub fn wait(millis: u64) {
     use std::{thread, time};
-
     thread::sleep(time::Duration::from_millis(millis));
 }

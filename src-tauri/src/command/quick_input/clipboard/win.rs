@@ -8,6 +8,7 @@ use winapi::um::winuser::{
     GetWindowTextLengthW, GetWindowTextW, SetWinEventHook, EVENT_SYSTEM_FOREGROUND,
     WINEVENT_OUTOFCONTEXT,
 };
+use crate::utils::error::{AppError, AppResult};
 
 static PREVIOUS_WINDOW: Mutex<Option<isize>> = Mutex::new(None);
 
@@ -49,9 +50,8 @@ unsafe extern "system" fn event_hook_callback(
     }
 }
 
-pub fn observe_app() {
+pub fn observe_app() -> AppResult<()> {
     unsafe {
-        // 设置事件钩子
         let hook = SetWinEventHook(
             EVENT_SYSTEM_FOREGROUND,
             EVENT_SYSTEM_FOREGROUND,
@@ -63,12 +63,15 @@ pub fn observe_app() {
         );
 
         if hook.is_null() {
-            println!("设置事件钩子失败");
-            return;
+            return Err(AppError::SystemError("Failed to set event hook".to_string()));
         }
     }
+    Ok(())
 }
 
 pub fn get_previous_window() -> Option<isize> {
-    return PREVIOUS_WINDOW.lock().unwrap().clone();
+    PREVIOUS_WINDOW.lock()
+        .map_err(|_| AppError::SystemError("Failed to acquire lock".to_string()))
+        .ok()?
+        .clone()
 }

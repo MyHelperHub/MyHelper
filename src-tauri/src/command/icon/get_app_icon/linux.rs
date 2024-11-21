@@ -1,3 +1,4 @@
+use crate::utils::error::{AppError, AppResult};
 use image::codecs::png::PngEncoder;
 use image::{DynamicImage, ImageBuffer, Rgba};
 use rand::distributions::Alphanumeric;
@@ -8,7 +9,16 @@ use std::process::Command;
 
 use crate::utils::path::get_myhelper_path;
 
-pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
+/// 获取应用程序图标
+/// 
+/// # Arguments
+/// 
+/// * `exe_path` - 应用程序可执行文件路径
+/// 
+/// # Returns
+/// 
+/// * `AppResult<String>` - 成功返回保存的图标文件路径
+pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 获取用户目录
     let myhelper_path = get_myhelper_path()
         .map(|path| path.join("Image").join("AppIcon"))
@@ -33,7 +43,7 @@ pub fn get_app_icon(exe_path: &str) -> Result<String, String> {
         .map_err(|e| e.to_string())?;
 
     if !output.status.success() {
-        return Err("Failed to query icon".to_string());
+        return Err(AppError::SystemError("Failed to query icon".to_string()));
     }
 
     // 解析输出获取图标路径
