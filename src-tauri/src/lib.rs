@@ -256,7 +256,8 @@ pub fn run() {
             mh_plugin_uninstall,
             get_plugin_config,
             set_plugin_config,
-            delete_plugin_config
+            delete_plugin_config,
+            open_devtools
         ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())

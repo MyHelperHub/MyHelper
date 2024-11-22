@@ -1,5 +1,6 @@
 import { WindowConfig } from "./window";
-import pluginConfig from "mh-plugin/public/mhPlugin.json";
+import pluginConfig from "mh-plugin/mhPlugin.json";
+
 
 export const NewWindowEnum = {
   Label: "label",

@@ -19,14 +19,16 @@
         "shadow": false,
         "resizable": false,
         "skipTaskbar": true,
-        "transparent": true
+        "transparent": true,
+        "devtools": true
       }
     ],
     "security": {
       "csp": {
-        "default-src": "'self' 'unsafe-inline' asset: http://asset.localhost",
-        "media-src": "'self' 'unsafe-inline' asset: http://asset.localhost",
-        "img-src": "'self' 'unsafe-inline' asset: http://asset.localhost"
+        "default-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https",
+        "media-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https",
+        "img-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https data: blob: *",
+        "connect-src": "'self' 'unsafe-inline' asset: ipc: http://ipc.localhost http://asset.localhost http https"
       },
       "assetProtocol": {
         "enable": true,
