@@ -45,13 +45,18 @@ fn read_config(config_path: &Path) -> Result<HashMap<String, Value>, String> {
 }
 
 // 保存配置数据
-pub fn utils_set_config(config_type: &str, data: HashMap<String, Value>) -> Result<(), String> {
+pub fn utils_set_config(config_type: &str, new_data: HashMap<String, Value>) -> Result<(), String> {
     let config_path = get_config_path(config_type)?;
+    let mut current_data = read_config(&config_path)?;
 
-    let config_data = serde_json::to_string_pretty(&data).map_err(|e| e.to_string())?;
-    let mut file = File::create(config_path).map_err(|e| e.to_string())?;
-    file.write_all(config_data.as_bytes())
-        .map_err(|e| e.to_string())?;
+    // 合并新数据
+    for (key, value) in new_data {
+        current_data.insert(key, value);
+    }
+
+    let config_data = serde_json::to_string_pretty(&current_data).map_err(|e| e.to_string())?;
+
+    std::fs::write(&config_path, config_data).map_err(|e| e.to_string())?;
 
     Ok(())
 }

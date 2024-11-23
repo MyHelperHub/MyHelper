@@ -17,16 +17,26 @@ use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
 
 /** 初始化 */
 fn init() -> AppResult<()> {
-    observe_app().map_err(|e| AppError::Error(format!("Failed to initialize app observer: {}", e)))?;
+    observe_app()
+        .map_err(|e| AppError::Error(format!("Failed to initialize app observer: {}", e)))?;
     Ok(())
 }
 
 // 获取屏幕信息
 fn get_screen_info(app: &tauri::App) -> AppResult<(f64, f64, f64)> {
-    let monitor = app
-        .primary_monitor()
-        .map_err(|e| AppError::Error(format!("无法获取主显示器: {}", e)))?
-        .ok_or_else(|| AppError::Error("未找到主显示器".into()))?;
+    // 首先尝试获取主显示器
+    let monitor = match app.primary_monitor() {
+        Ok(Some(m)) => m,
+        Ok(None) => {
+            // 如果没有主显示器,尝试获取任何可用显示器
+            app.available_monitors()
+                .map_err(|e| AppError::Error(format!("无法获取显示器列表: {}", e)))?
+                .into_iter()
+                .next()
+                .ok_or_else(|| AppError::Error("未找到任何显示器".into()))?
+        }
+        Err(e) => return Err(AppError::Error(format!("无法获取显示器信息: {}", e))),
+    };
 
     let size = monitor.size();
     Ok((
@@ -42,7 +52,7 @@ fn get_window_position(
     screen_height: f64,
     scale_factor: f64,
 ) -> AppResult<LogicalPosition<f64>> {
-    match utils::config::utils_get_config("config",vec!["position".to_string()]) {
+    match utils::config::utils_get_config("config", vec!["position".to_string()]) {
         Ok(Some(value)) => {
             let pos = value
                 .as_object()
@@ -117,7 +127,7 @@ fn setup_window_events(window: &Arc<RwLock<tauri::WebviewWindow>>) -> AppResult<
                                 "position".to_string(),
                                 json!({"x": position.x, "y": position.y}),
                             );
-                            if let Err(e) = utils_set_config("config",data) {
+                            if let Err(e) = utils_set_config("config", data) {
                                 eprintln!("保存位置时出错: {}", e);
                             }
                         }
@@ -132,8 +142,8 @@ fn setup_window_events(window: &Arc<RwLock<tauri::WebviewWindow>>) -> AppResult<
 
 // 辅助函数：设置系统托盘
 fn setup_tray<R: Runtime>(
-    app: &tauri::App<R>, 
-    window: &Arc<RwLock<tauri::WebviewWindow>>
+    app: &tauri::App<R>,
+    window: &Arc<RwLock<tauri::WebviewWindow>>,
 ) -> AppResult<()> {
     let handle = app.app_handle();
     let window_clone = Arc::clone(window);
