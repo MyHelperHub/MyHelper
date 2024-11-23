@@ -1,6 +1,6 @@
 use crate::utils::error::{AppError, AppResult};
 use image::codecs::png::PngEncoder;
-use image::{DynamicImage, ImageBuffer, Rgba};
+use image::ImageEncoder;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::fs::{self, File};
@@ -10,13 +10,13 @@ use std::process::Command;
 use crate::utils::path::get_myhelper_path;
 
 /// 获取应用程序图标
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `exe_path` - 应用程序可执行文件路径
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `AppResult<String>` - 成功返回保存的图标文件路径
 pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 获取用户目录
@@ -82,7 +82,12 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
                         // 编码并写入
                         encoder
-                            .encode(img.as_bytes(), img.width(), img.height(), img.color())
+                            .write_image(
+                                img.as_bytes(),
+                                img.width(),
+                                img.height(),
+                                img.color().into(),
+                            )
                             .map_err(|e| e.to_string())?;
 
                         return Ok(output_path.display().to_string());
@@ -107,7 +112,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     // 编码并写入
     encoder
-        .encode(
+        .write_image(
             img.as_bytes(),
             img.width(),
             img.height(),

@@ -50,7 +50,6 @@ pub fn observe_app() -> AppResult<()> {
     std::thread::spawn(|| unsafe {
         let display = XOpenDisplay(std::ptr::null_mut());
         if display.is_null() {
-            log::error!("Could not open display");
             return;
         }
 
@@ -76,7 +75,6 @@ pub fn observe_app() -> AppResult<()> {
             let wm_name = get_net_wm_name(display, window).unwrap_or_default();
 
             if wm_name.is_empty() || wm_name.eq("myhelper") {
-                log::warn!("Ignore window: 0x{:x}", window);
                 continue;
             }
 

@@ -16,9 +16,10 @@ pub fn get_config_path(config_type: &str) -> Result<PathBuf, String> {
     };
     let config_path = myhelper_path.join(file_name);
 
-    // 如果配置文件不存在，则创建它
+    // 如果配置文件不存在，则创建它并初始化为空的 JSON 对象
     if !config_path.exists() {
-        fs::File::create(&config_path).map_err(|e| e.to_string())?;
+        let mut file = fs::File::create(&config_path).map_err(|e| e.to_string())?;
+        file.write_all(b"{}").map_err(|e| e.to_string())?;
     }
 
     Ok(config_path)
@@ -31,6 +32,12 @@ fn read_config(config_path: &Path) -> Result<HashMap<String, Value>, String> {
         let mut contents = String::new();
         file.read_to_string(&mut contents)
             .map_err(|e| e.to_string())?;
+
+        // 如果文件为空，返回空的 HashMap
+        if contents.trim().is_empty() {
+            return Ok(HashMap::new());
+        }
+
         serde_json::from_str(&contents).map_err(|e| e.to_string())
     } else {
         Ok(HashMap::new())
