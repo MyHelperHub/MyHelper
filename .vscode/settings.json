@@ -15,5 +15,6 @@
     "speeddial",
     "toggleswitch",
     "unocss"
-  ]
+  ],
+  "workbench.activityBar.orientation": "vertical"
 }

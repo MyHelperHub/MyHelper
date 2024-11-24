@@ -58,19 +58,25 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         )
     } == 0
     {
-        return Err(AppError::Error("Failed to get file info".to_string()));
+        return Ok(String::new());
     }
 
     let hicon: HICON = shinfo.hIcon;
     if hicon.is_null() {
-        return Err(AppError::Error("Failed to get icon".to_string()));
+        return Ok(String::new());
     }
 
     let icon_info = get_icon_info(hicon)?;
     let bmp = get_bitmap(&icon_info)?;
 
     let (width, height) = (bmp.bmWidth as usize, bmp.bmHeight as usize);
-    let pixels = get_pixels(hicon, &icon_info, width, height)?;
+    let pixels = match get_pixels(hicon, &icon_info, width, height) {
+        Ok(p) => p,
+        Err(_) => {
+            unsafe { cleanup_resources(icon_info, hicon) };
+            return Ok(String::new());
+        }
+    };
 
     // 创建图像缓冲区并保存
     let img_buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels)

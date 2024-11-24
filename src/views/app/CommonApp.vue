@@ -133,7 +133,9 @@ const deleteAppItem = async (id: number) => {
     // 将数据存储到本地配置中
     try {
       await setConfig(["appConfig", "dataList"], dataList.value);
-      await ipcDeleteIcon(fileName, 1);
+      ipcDeleteIcon(fileName, 1).catch(() => {
+        showMessage("图标删除失败,不影响使用😢", 3000, 0);
+      });
       showMessage("删除成功!", 3000, 1);
     } catch (error) {
       showMessage("删除失败!", 3000, 2);

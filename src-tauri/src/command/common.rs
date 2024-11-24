@@ -93,10 +93,20 @@ pub async fn create_new_window(
     icon: Option<String>,
     loading: Option<bool>,
 ) -> AppResult<()> {
-    let monitor = app_handle
-        .primary_monitor()
-        .map_err(|e| AppError::Error(e.to_string()))?
-        .ok_or_else(|| AppError::Error("未找到主监视器".to_string()))?;
+    // 获取显示器信息，增加容错处理
+    let monitor = match app_handle.primary_monitor() {
+        Ok(Some(m)) => m,
+        Ok(None) => {
+            // 如果没有主显示器，尝试获取任何可用显示器
+            app_handle
+                .available_monitors()
+                .map_err(|e| AppError::Error(format!("无法获取显示器列表: {}", e)))?
+                .into_iter()
+                .next()
+                .ok_or_else(|| AppError::Error("未找到任何可用显示器".to_string()))?
+        },
+        Err(e) => return Err(AppError::Error(format!("获取显示器信息失败: {}", e)))
+    };
 
     let monitor_size = monitor.size();
     

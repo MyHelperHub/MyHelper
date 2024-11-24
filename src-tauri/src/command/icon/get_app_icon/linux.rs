@@ -1,4 +1,3 @@
-use crate::utils::error::{AppError, AppResult};
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
 use rand::distributions::Alphanumeric;
@@ -17,15 +16,18 @@ use crate::utils::path::get_myhelper_path;
 ///
 /// # Returns
 ///
-/// * `AppResult<String>` - 成功返回保存的图标文件路径
-pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
+/// * `String` - 成功返回保存的图标文件路径，失败返回空字符串
+pub fn get_app_icon(exe_path: &str) -> String {
     // 获取用户目录
-    let myhelper_path = get_myhelper_path()
-        .map(|path| path.join("Image").join("AppIcon"))
-        .map_err(|e| e.to_string())?;
+    let myhelper_path = match get_myhelper_path().map(|path| path.join("Image").join("AppIcon")) {
+        Ok(path) => path,
+        Err(_) => return String::new(),
+    };
 
     if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
+        if let Err(_) = fs::create_dir_all(&myhelper_path) {
+            return String::new();
+        }
     }
 
     // 生成随机文件名
@@ -37,20 +39,26 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let output_path = myhelper_path.join(format!("app_image_{}.png", random_chars));
 
     // 使用 GTK 的 icon-query 工具获取图标
-    let output = Command::new("gtk-query-immodules-3.0")
+    let output = match Command::new("gtk-query-immodules-3.0")
         .arg(exe_path)
         .output()
-        .map_err(|e| e.to_string())?;
+    {
+        Ok(output) => output,
+        Err(_) => return String::new(),
+    };
 
     if !output.status.success() {
-        return Err(AppError::Error("Failed to query icon".to_string()));
+        return String::new();
     }
 
     // 解析输出获取图标路径
-    let icon_theme = Command::new("gtk-query-settings")
+    let icon_theme = match Command::new("gtk-query-settings")
         .arg("gtk-icon-theme-name")
         .output()
-        .map_err(|e| e.to_string())?;
+    {
+        Ok(output) => output,
+        Err(_) => return String::new(),
+    };
 
     // 尝试从多个标准位置查找图标
     let icon_paths = vec![
@@ -71,26 +79,32 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
                 if let Ok(entry) = entry {
                     if entry.path().to_string_lossy().contains(exe_path) {
                         // 打开源文件
-                        let img = image::open(entry.path()).map_err(|e| e.to_string())?;
+                        let img = match image::open(entry.path()) {
+                            Ok(img) => img,
+                            Err(_) => return String::new(),
+                        };
 
                         // 创建输出文件
-                        let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
+                        let output_file = match File::create(&output_path) {
+                            Ok(file) => file,
+                            Err(_) => return String::new(),
+                        };
                         let writer = BufWriter::new(output_file);
 
                         // 创建 PngEncoder
                         let encoder = PngEncoder::new(writer);
 
                         // 编码并写入
-                        encoder
-                            .write_image(
-                                img.as_bytes(),
-                                img.width(),
-                                img.height(),
-                                img.color().into(),
-                            )
-                            .map_err(|e| e.to_string())?;
+                        if let Err(_) = encoder.write_image(
+                            img.as_bytes(),
+                            img.width(),
+                            img.height(),
+                            img.color().into(),
+                        ) {
+                            return String::new();
+                        }
 
-                        return Ok(output_path.display().to_string());
+                        return output_path.display().to_string();
                     }
                 }
             }
@@ -101,24 +115,30 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let default_icon = "/usr/share/icons/hicolor/128x128/apps/application-x-executable.png";
 
     // 打开默认图标
-    let img = image::open(default_icon).map_err(|e| e.to_string())?;
+    let img = match image::open(default_icon) {
+        Ok(img) => img,
+        Err(_) => return String::new(),
+    };
 
     // 创建输出文件
-    let output_file = File::create(&output_path).map_err(|e| e.to_string())?;
+    let output_file = match File::create(&output_path) {
+        Ok(file) => file,
+        Err(_) => return String::new(),
+    };
     let writer = BufWriter::new(output_file);
 
     // 创建 PngEncoder
     let encoder = PngEncoder::new(writer);
 
     // 编码并写入
-    encoder
-        .write_image(
-            img.as_bytes(),
-            img.width(),
-            img.height(),
-            img.color().into(),
-        )
-        .map_err(|e| e.to_string())?;
+    if let Err(_) = encoder.write_image(
+        img.as_bytes(),
+        img.width(),
+        img.height(),
+        img.color().into(),
+    ) {
+        return String::new();
+    }
 
-    Ok(output_path.display().to_string())
+    output_path.display().to_string()
 }

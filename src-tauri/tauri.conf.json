@@ -55,6 +55,14 @@
         "installMode": "both",
         "installerIcon": "icons/icon.ico"
       }
+    },
+    "linux": {
+      "deb": {
+        "desktopTemplate": "./MyHelper.desktop"
+      },
+      "rpm": {
+        "desktopTemplate": "./MyHelper.desktop"
+      }
     }
   },
   "plugins": {
