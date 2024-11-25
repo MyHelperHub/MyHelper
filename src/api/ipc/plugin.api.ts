@@ -51,26 +51,24 @@ export const ipcDeletePluginConfig = async (keys: Array<string>) => {
  * 安装插件
  * @param url 插件下载地址
  * @param expectedHash 插件文件的预期哈希值
- * @param uuid 插件的唯一标识符
  * 
  * @example
  * await ipcInstallPlugin(
  *   'https://helper.ialtone.xyz/plugins/my-plugin.zip',
  *   'abc123...',
- *   '550e8400-e29b-41d4-a716-446655440000'
  * );
  */
-export const ipcInstallPlugin = async (url: string, expectedHash: string, uuid: string) => {
-  return invoke("mh_plugin_install", { url, expectedHash, uuid });
+export const ipcInstallPlugin = async (url: string, expectedHash: string) => {
+  return invoke("mh_plugin_install", { url, expectedHash });
 };
 
 /**
  * 卸载插件
- * @param uuid 要卸载的插件的唯一标识符
+ * @param windowId 要卸载的插件的窗口ID
  * 
  * @example
- * await ipcUninstallPlugin('550e8400-e29b-41d4-a716-446655440000');
+ * await ipcUninstallPlugin('my-plugin-window');
  */
-export const ipcUninstallPlugin = async (uuid: string) => {
-  return invoke("mh_plugin_uninstall", { uuid });
+export const ipcUninstallPlugin = async (windowId: string) => {
+  return invoke("mh_plugin_uninstall", { windowId });
 };

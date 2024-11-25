@@ -8,7 +8,7 @@
       </template>
 
       <div class="icons-container">
-        <div v-for="item in pluginList" :key="item.uuid" class="icon-wrapper" v-tooltip.bottom="{
+        <div v-for="item in pluginList" :key="item.windowId" class="icon-wrapper" v-tooltip.bottom="{
           value: item.title,
           showDelay: 200,
           pt: {

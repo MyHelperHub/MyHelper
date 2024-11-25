@@ -80,7 +80,6 @@ export const deletePluginConfig = async (keys: Array<string>): Promise<void> => 
  * 安装插件
  * @param {string} url - 插件下载地址，必须是以 https://helper.ialtone.xyz/ 开头的URL
  * @param {string} expectedHash - 插件文件的预期SHA-256哈希值
- * @param {string} uuid - 插件的唯一标识符（32位十六进制字符串）
  * @returns {Promise<void>} - 安装成功返回void
  * @throws 如果安装失败或参数无效，将抛出错误
  * 
@@ -88,16 +87,14 @@ export const deletePluginConfig = async (keys: Array<string>): Promise<void> => 
  * await installPlugin(
  *   'https://helper.ialtone.xyz/plugins/my-plugin.zip',
  *   'abc123def456...',  // 64位SHA-256哈希值
- *   '550e8400e29b41d4a716446655440000'
  * );
  */
 export const installPlugin = async (
   url: string,
   expectedHash: string,
-  uuid: string,
 ): Promise<void> => {
   try {
-    await ipcInstallPlugin(url, expectedHash, uuid);
+    await ipcInstallPlugin(url, expectedHash);
   } catch (error) {
     console.error("安装插件失败:", error);
     throw error;
@@ -106,16 +103,16 @@ export const installPlugin = async (
 
 /**
  * 卸载插件
- * @param {string} uuid - 要卸载的插件的唯一标识符（32位十六进制字符串）
+ * @param {string} windowId - 要卸载的插件的窗口ID
  * @returns {Promise<void>} - 卸载成功返回void
- * @throws 如果卸载失败或UUID无效，将抛出错误
+ * @throws 如果卸载失败或窗口ID无效，将抛出错误
  * 
  * @example
- * await uninstallPlugin('550e8400e29b41d4a716446655440000');
+ * await uninstallPlugin('my-plugin-window');
  */
-export const uninstallPlugin = async (uuid: string): Promise<void> => {
+export const uninstallPlugin = async (windowId: string): Promise<void> => {
   try {
-    await ipcUninstallPlugin(uuid);
+    await ipcUninstallPlugin(windowId);
   } catch (error) {
     console.error("卸载插件失败:", error);
     throw error;

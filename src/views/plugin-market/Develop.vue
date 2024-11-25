@@ -706,7 +706,6 @@ const pluginForm = ref({
   windowId: "",
   title: "",
   size: [800, 600] as [number, number],
-  uuid: "",
   position: [-1, -1] as [number, number],
   alwaysOnTop: false,
   resizable: true,
@@ -756,7 +755,6 @@ const resetForm = () => {
     position: [-1, -1],
     alwaysOnTop: false,
     resizable: true,
-    uuid: "",
   };
   errors.value = {
     name: "",

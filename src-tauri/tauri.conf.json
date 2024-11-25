@@ -58,9 +58,11 @@
     },
     "linux": {
       "deb": {
+        "depends": [],
         "desktopTemplate": "./MyHelper.desktop"
       },
       "rpm": {
+        "depends": [],
         "desktopTemplate": "./MyHelper.desktop"
       }
     }

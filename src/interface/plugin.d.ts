@@ -4,7 +4,6 @@ import { WindowConfig } from "./window";
  * 创建插件时的配置项
  * @extends WindowConfig
  * @param windowId 插件窗口ID，字符串类型，用于标识插件窗口
- * @param uuid 插件实例唯一ID，用于区分同一插件的不同实例
  * @param title 窗口标题
  * @param size 窗口大小，数组包含宽度和高度 [width, height]
  * @param position 可选的窗口位置，数组包含x和y坐标 [x, y]
@@ -15,5 +14,4 @@ import { WindowConfig } from "./window";
  */
 interface PluginConfig extends Omit<WindowConfig, "windowId" | "url"> {
   windowId: string;
-  uuid: string;
 }
