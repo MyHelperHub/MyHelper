@@ -39,6 +39,10 @@
         <Button label="取消" @click="cancelCrop" class="p-button-secondary" />
       </template>
     </Dialog>
+
+    <Fieldset legend="账号管理" class="account-section">
+      <Login />
+    </Fieldset>
   </div>
 </template>
 
@@ -55,6 +59,7 @@ import "vue-cropper/dist/index.css";
 import { emit } from "@tauri-apps/api/event";
 import { checkLogoPath } from "@/utils/avatar";
 import { NewWindowEnum } from "@/interface/windowEnum";
+import Login from "./Login.vue";
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态

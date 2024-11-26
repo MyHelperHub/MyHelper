@@ -134,8 +134,8 @@ const deleteWebItem = async (id: number) => {
     // 将数据存储到本地配置中
     try {
       await setConfig(["webConfig", "dataList"], dataList.value);
-      ipcDeleteIcon(fileName, 0).catch(() => {
-        showMessage("图标删除失败,不影响使用😢", 3000, 0);
+      ipcDeleteIcon(fileName, 0).catch((err) => {
+        console.log("图标删除失败:", err);
       });
       showMessage("删除成功!", 3000, 1);
     } catch (error) {

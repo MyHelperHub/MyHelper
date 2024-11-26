@@ -1,7 +1,6 @@
 import { WindowConfig } from "./window";
 import pluginConfig from "mh-plugin/mhPlugin.json";
 
-
 export const NewWindowEnum = {
   Label: "label",
   My: "my",
@@ -24,7 +23,7 @@ export const WINDOW_CONFIG: Record<
     windowId: NewWindowEnum.My,
     title: "我的",
     url: "#/my",
-    size: [600, 400],
+    size: [800, 600],
   },
   [NewWindowEnum.Setting]: {
     windowId: NewWindowEnum.Setting,

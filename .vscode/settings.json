@@ -14,7 +14,8 @@
     "reqwest",
     "speeddial",
     "toggleswitch",
-    "unocss"
+    "unocss",
+    "VITE"
   ],
   "workbench.activityBar.orientation": "vertical"
 }
