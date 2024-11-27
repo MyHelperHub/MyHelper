@@ -2,7 +2,7 @@
   <div class="clipboard-container">
     <div class="scroll-container">
       <div
-        v-for="item in formData"
+        v-for="item in clipboardData"
         :key="item.id"
         class="item"
         @click="pasteTo(item)">
@@ -17,9 +17,7 @@
 <script setup lang="ts">
 import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { QuickInputItem } from "@/interface/quickInput";
-import GlobalData from "@/utils/globalData";
-
-const formData = GlobalData.get("clipboardList");
+import { clipboardData } from "@/utils/clipboard";
 
 /** 处理复制到剪贴板的功能 */
 const pasteTo = (item: QuickInputItem) => {

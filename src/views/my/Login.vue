@@ -1,6 +1,9 @@
 <template>
   <div class="login-section">
-    <Button label="登录/注册" @click="openModal" />
+    <Button 
+      :label="props.userData.token ? '注销' : '登录/注册'" 
+      @click="handleLogin" 
+    />
   </div>
   <Dialog
     v-model:visible="showModal"
@@ -9,12 +12,13 @@
     :style="{ width: '350px' }"
     position="center">
     <div class="login-content">
-      <div class="form-item">
+      <div v-if="isRegisterMode" class="form-item">
         <FloatLabel variant="on">
           <InputText
             id="username"
-            v-model="formData.username"
-            :invalid="submitted && !formData.username.trim()"
+            v-model="registerFormData.username"
+            autocomplete="off"
+            :invalid="submitted && !registerFormData.username.trim()"
             @keyup.enter="handleSubmit" />
           <label for="username">用户名</label>
         </FloatLabel>
@@ -22,12 +26,25 @@
 
       <div class="form-item">
         <FloatLabel variant="on">
+          <InputText
+            id="email"
+            v-model="registerFormData.email"
+            autocomplete="off"
+            :invalid="submitted && (!registerFormData.email.trim() || (isRegisterMode && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerFormData.email)))"
+            @keyup.enter="handleSubmit" />
+          <label for="email">邮箱</label>
+        </FloatLabel>
+      </div>
+
+      <div class="form-item">
+        <FloatLabel variant="on">
           <Password
             id="password"
-            v-model="formData.password"
+            v-model="registerFormData.password"
+            autocomplete="off"
             :feedback="false"
             :toggleMask="true"
-            :invalid="submitted && !formData.password.trim()"
+            :invalid="submitted && !registerFormData.password.trim()"
             @keyup.enter="handleSubmit" />
           <label for="password">密码</label>
         </FloatLabel>
@@ -37,14 +54,15 @@
         <FloatLabel variant="on">
           <Password
             id="confirmPassword"
-            v-model="formData.confirmPassword"
+            v-model="registerFormData.confirmPassword"
+            autocomplete="off"
             :feedback="false"
             :toggleMask="true"
             :invalid="
               submitted &&
               isRegisterMode &&
-              (!formData.confirmPassword.trim() ||
-                formData.password !== formData.confirmPassword)
+              (!registerFormData.confirmPassword.trim() ||
+                registerFormData.password !== registerFormData.confirmPassword)
             "
             @keyup.enter="handleSubmit" />
           <label for="confirmPassword">确认密码</label>
@@ -55,8 +73,8 @@
         <Button
           :label="isRegisterMode ? '注册' : '登录'"
           @click="handleSubmit"
-          :loading="loading"
-          :disabled="loading" />
+          :submitLoading="submitLoading"
+          :disabled="submitLoading" />
 
         <div class="form-links">
           <a href="#" @click.prevent="toggleMode">
@@ -83,13 +101,22 @@ import Button from "primevue/button";
 import FloatLabel from "primevue/floatlabel";
 import { login } from "@/api/network/user.api";
 import { showMessage } from "@/utils/message";
+import { getUserConfig, setUserConfig } from "@/utils/user";
+import {  RegisterForm, User } from "@/interface/user";
+
+const props = defineProps<{
+  userData: User;
+}>();
+const emit = defineEmits(["update:userData"]);
 
 const showModal = ref(false);
-const loading = ref(false);
+const submitLoading = ref(false);
 const isRegisterMode = ref(false);
 
-const formData = ref({
+
+const registerFormData = ref<RegisterForm>({
   username: "",
+  email: "",
   password: "",
   confirmPassword: "",
 });
@@ -97,19 +124,25 @@ const formData = ref({
 const submitted = ref(false);
 
 const validateForm = () => {
-  if (!formData.value.username.trim() || !formData.value.password.trim()) {
-    return false;
-  }
-
   if (isRegisterMode.value) {
-    if (
-      !formData.value.confirmPassword.trim() ||
-      formData.value.password !== formData.value.confirmPassword
-    ) {
+    if (!registerFormData.value.username.trim() || 
+        !registerFormData.value.email.trim() || 
+        !registerFormData.value.password.trim() ||
+        !registerFormData.value.confirmPassword.trim()) {
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerFormData.value.email)) {
+      return false;
+    }
+    if (registerFormData.value.password !== registerFormData.value.confirmPassword) {
+      return false;
+    }
+  } else {
+    if (!registerFormData.value.email.trim() || !registerFormData.value.password.trim()) {
       return false;
     }
   }
-
   return true;
 };
 
@@ -117,7 +150,7 @@ const handleSubmit = async () => {
   submitted.value = true;
   if (!validateForm()) return;
 
-  loading.value = true;
+  submitLoading.value = true;
   try {
     if (isRegisterMode.value) {
       // 调用注册 API
@@ -125,8 +158,14 @@ const handleSubmit = async () => {
       showMessage("注册成功!", 3000, 1);
     } else {
       // 调用登录 API
-      await login(formData.value.username, formData.value.password);
-      showMessage("登录成功!", 3000, 1);
+      await login(registerFormData.value.username, registerFormData.value.password).then(
+        (res) => {
+          showMessage(`${res.username}, 欢迎回来!`, 3000, 1);
+          setUserConfig([], res as User);
+          emit("update:userData");
+        },
+      );
+      console.log(await getUserConfig([]));
     }
     closeModal();
   } catch (error) {
@@ -138,18 +177,14 @@ const handleSubmit = async () => {
       2,
     );
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 
 const toggleMode = () => {
   isRegisterMode.value = !isRegisterMode.value;
   submitted.value = false;
-  formData.value = {
-    username: "",
-    password: "",
-    confirmPassword: "",
-  };
+  resetForm();
 };
 
 const handleForgotPassword = () => {
@@ -161,15 +196,36 @@ const openModal = () => {
   showModal.value = true;
   isRegisterMode.value = false;
   submitted.value = false;
-  formData.value = {
+  resetForm();
+};
+
+const closeModal = () => {
+  showModal.value = false;
+};
+
+const resetForm = () => {
+  registerFormData.value = {
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
   };
 };
 
-const closeModal = () => {
-  showModal.value = false;
+const handleLogin = async () => {
+  if (props.userData.token) {
+    // 注销逻辑
+    try {
+      await setUserConfig([], {});
+      showMessage("注销成功!", 3000, 1);
+      emit("update:userData");
+    } catch (error) {
+      showMessage("注销失败，请重试!", 3000, 2);
+    }
+  } else {
+    // 打开登录弹窗
+    openModal();
+  }
 };
 </script>
 

@@ -41,7 +41,7 @@
     </Dialog>
 
     <Fieldset legend="账号管理" class="account-section">
-      <Login />
+      <Login :userData="userData" @update:userData="init" />
     </Fieldset>
   </div>
 </template>
@@ -57,17 +57,30 @@ import { ipcSetLogo } from "@/api/ipc/launch.api";
 import { VueCropper } from "vue-cropper";
 import "vue-cropper/dist/index.css";
 import { emit } from "@tauri-apps/api/event";
-import { checkLogoPath } from "@/utils/avatar";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
+import { User } from "@/interface/user";
+import { checkLogoPath, getUserConfig } from "@/utils/user";
+
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态
 const cropper = ref();
 const cropperImage = ref();
 
+const userData = ref<User>({
+  id: -1,
+  username: "",
+  email: "",
+  avatar: "",
+  token: "",
+});
+
 const init = () => {
   checkLogoPath().then((path) => {
+    getUserConfig([]).then((res) => {
+      userData.value = res as User;
+    });
     avatarLogo.value = path;
   });
 };

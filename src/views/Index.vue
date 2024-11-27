@@ -31,10 +31,10 @@ import Menu from "./Menu.vue";
 import { computed, ref, toRef } from "vue";
 import { ipcSetWindowSize } from "@/api/ipc/window.api";
 import { listen } from "@tauri-apps/api/event";
-import { checkLogoPath } from "@/utils/avatar";
 import { emit } from "@/utils/eventBus";
 import { handleWindowToggle } from "@/utils/windowManager";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
+import { checkLogoPath } from "@/utils/user";
 
 const isShowMenu = ref(false);
 const avatarLogo = ref("/logo.png");

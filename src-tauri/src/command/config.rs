@@ -13,7 +13,7 @@ use std::collections::HashMap;
 /// 
 /// * `AppResult<Option<Value>>` - 成功返回配置值，失败返回错误信息
 
-#[permission_macro::permission("main","setting")]
+#[permission_macro::permission("main","setting","my")]
 #[tauri::command]
 pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
     utils_get_config("config",keys).map_err(|e| AppError::Error(e))
@@ -30,7 +30,7 @@ pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
 /// 
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
 
-#[permission_macro::permission("main","setting")]
+#[permission_macro::permission("main","setting","my")]
 #[tauri::command]
 pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
     let mut config_data = utils_get_config("config",vec![])
@@ -103,7 +103,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
 /// 
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
 
-#[permission_macro::permission("main","setting")]
+#[permission_macro::permission("main","setting","my")]
 #[tauri::command]
 pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
     let mut data = utils_get_config("config",vec![])

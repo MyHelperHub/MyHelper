@@ -226,6 +226,7 @@ fn setup_tray<R: Runtime>(
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+    .manage(Arc::new(GlobalData::default()))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let window = app
@@ -267,6 +268,9 @@ pub fn run() {
             get_plugin_config,
             set_plugin_config,
             delete_plugin_config,
+            set_global_data,
+            get_global_data,
+            delete_global_data,
             open_devtools
         ])
         .plugin(tauri_plugin_dialog::init())
