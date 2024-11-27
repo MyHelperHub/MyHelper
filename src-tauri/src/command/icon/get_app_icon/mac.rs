@@ -1,9 +1,9 @@
 use crate::utils::error::AppResult;
 use cocoa::base::{id, nil};
-use cocoa::foundation::{NSData, NSString};
+use cocoa::foundation::{NSString, NSSize};
 use image::codecs::png::PngEncoder;
-use image::{DynamicImage, ImageBuffer, Rgba};
-use objc::{msg_send, sel, sel_impl};
+use image::ImageEncoder;
+use objc::{msg_send, sel, sel_impl, class};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::fs::{self, File};
@@ -90,7 +90,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         let encoder = PngEncoder::new(writer);
 
         // 编码并写入
-        if let Err(_) = encoder.encode(
+        if let Err(_) = encoder.write_image(
             img.as_bytes(),
             img.width(),
             img.height(),
