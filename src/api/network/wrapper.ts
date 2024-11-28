@@ -1,3 +1,5 @@
+import { ServerResponse } from "@/interface/request";
+import { showMessage } from "@/utils/message";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
 // 创建 axios 实例
@@ -26,18 +28,24 @@ instance.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    console.error("API请求失败:", error);
+    // 检查是否为超时错误
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      showMessage("网络请求超时，请检查网络连接", 3000, 2);
+    } else {
+      showMessage("网络请求失败", 3000, 2);
+      console.error("API请求失败:", error);
+    }
     return Promise.reject(error);
   },
 );
 
 // 封装请求方法
 export const request = {
-  get: <T>(url: string, config?: AxiosRequestConfig) => {
-    return instance.get<any, T>(url, config);
+  get: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
+    return instance.get(url, config);
   },
 
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
-    return instance.post<any, T>(url, data, config);
+  post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
+    return instance.post(url, data, config);
   },
 };

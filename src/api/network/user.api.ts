@@ -1,22 +1,11 @@
-import {  User } from "@/interface/user";
+import { LoginDTO } from "@/interface/user";
 import { request } from "./wrapper";
 
 
-export const login = async (
-  username: string,
-  password: string,
-): Promise<User> => {
-  // 模拟延时0.2秒
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  return {
-    token: "1234567890",
-    username: "admin",
-    id: 1,
-    email: "admin@example.com",
-  };
+export const login = (formData: { Email: string; Password: string }) => {
+  return request.post<LoginDTO>("/api/user/login", formData);
+};
 
-  // return request.post<LoginResponse>("/api/login", {
-  //   username,
-  //   password,
-  // });
+export const register = (formData: { Username: string; Email: string; Password: string; }) => {
+  return request.post("/api/user/register", formData);
 };

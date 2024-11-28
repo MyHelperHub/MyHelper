@@ -20,6 +20,9 @@ import { listen } from "@tauri-apps/api/event";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
+import { getUserConfig } from "./utils/user";
+import GlobalData from "./utils/globalData";
+import { User } from "./interface/user";
 
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
@@ -43,6 +46,22 @@ if (Window.getCurrent().label === "main") {
       );
       await runStartupTasks((key) => {
         return settingData[key] === true;
+      });
+
+      // 初始化登录状态
+      getUserConfig([]).then(async (res) => {
+        if (!res) {
+          await GlobalData.set("userInfo", {
+            Id: -1,
+            Username: "",
+            Email: "",
+            Avatar: "",
+            Token: "",
+          } as User);
+          console.log("初始化登录状态");
+        } else {
+          await GlobalData.set("userInfo", res as User);
+        }
       });
     } catch (error) {
       console.error("初始化失败:", error);
