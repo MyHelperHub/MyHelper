@@ -15,3 +15,67 @@ import { WindowConfig } from "./window";
 interface PluginConfig extends Omit<WindowConfig, "windowId" | "url"> {
   windowId: string;
 }
+
+/** 插件状态枚举 */
+export enum PluginStatus {
+  REVIEWING = 'REVIEWING',
+  PUBLISHED = 'PUBLISHED', 
+  REJECTED = 'REJECTED',
+  ENABLED = 'ENABLED',
+  DISABLED = 'DISABLED'
+}
+
+/** 插件分类枚举 */
+export enum PluginCategory {
+  DEVELOPMENT = 'DEVELOPMENT',
+  EFFICIENCY = 'EFFICIENCY', 
+  NETWORK = 'NETWORK',
+  SYSTEM = 'SYSTEM',
+  ENTERTAINMENT = 'ENTERTAINMENT',
+  OTHER = 'OTHER'
+}
+
+/** 插件信息接口 */
+export interface Plugin {
+  id?: number;
+  name: string;
+  description: string;
+  version: string;
+  author?: string;
+  email?: string;
+  icon?: string;
+  tags?: string[];
+  rating?: number;
+  downloads?: number;
+  status?: string;
+  category?: string;
+  windowId?: string;
+  title?: string;
+  size?: [number, number];
+  position?: [number, number];
+  alwaysOnTop?: boolean;
+  resizable?: boolean;
+  screenshots?: string[];
+  hasUpdate?: boolean;
+  createTime?: string;
+  updateTime?: string;
+  message?: string;
+}
+
+/** 插件更新DTO */
+export interface PluginUpdateDTO {
+  windowId: string;
+  name?: string;
+  description?: string;
+  version?: string;
+  icon?: string;
+  tags?: string[];
+  category?: PluginCategory;
+  title?: string;
+  size?: [number, number];
+  position?: [number, number];
+  alwaysOnTop?: boolean;
+  resizable?: boolean;
+  status?: PluginStatus;
+  screenshots?: string[];
+}
