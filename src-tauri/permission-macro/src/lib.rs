@@ -53,12 +53,13 @@ pub fn permission(attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_return = &input_fn.sig.output;
     let fn_body = &input_fn.block;
     let attrs = &input_fn.attrs;
+    let asyncness = &input_fn.sig.asyncness; // 获取函数的异步标记
 
     let expanded = if has_window_param {
         // 如果函数已经有 window 参数，只添加权限检查
         quote! {
             #(#attrs)*
-            pub fn #fn_name(#fn_args) #fn_return {
+            pub #asyncness fn #fn_name(#fn_args) #fn_return {
                 // 检查窗口权限
                 let window_label = window.label();
                 if ![#(#window_labels),*].contains(&window_label) {
@@ -75,7 +76,7 @@ pub fn permission(attr: TokenStream, item: TokenStream) -> TokenStream {
         // 如果函数没有 window 参数，注入 window 参数并添加权限检查
         quote! {
             #(#attrs)*
-            pub fn #fn_name(window: tauri::Window, #fn_args) #fn_return {
+            pub #asyncness fn #fn_name(window: tauri::Window, #fn_args) #fn_return {
                 // 检查窗口权限
                 let window_label = window.label();
                 if ![#(#window_labels),*].contains(&window_label) {

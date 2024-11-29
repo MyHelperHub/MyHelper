@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tauri::State;
+use crate::utils::error::AppResult;
 
 #[derive(Default)]
 #[allow(dead_code)]
@@ -9,22 +10,24 @@ pub struct GlobalData {
     data: Mutex<HashMap<String, String>>,
 }
 
+#[permission_macro::permission("main","setting","my")]
 #[tauri::command]
 pub async fn set_global_data(
     state: State<'_, Arc<GlobalData>>,
     key: String,
     value: String,
-) -> Result<(), ()> {
+) -> AppResult<()> {
     let mut data = state.data.lock().await;
     data.insert(key, value);
     Ok(())
 }
 
+#[permission_macro::permission("main","setting","my")]
 #[tauri::command]
 pub async fn get_global_data(
     state: State<'_, Arc<GlobalData>>,
     key: Option<String>,
-) -> Result<Option<String>, ()> {
+) -> AppResult<Option<String>> {
     let data = state.data.lock().await;
     match key {
         Some(k) => Ok(data.get(&k).cloned()),
@@ -32,11 +35,12 @@ pub async fn get_global_data(
     }
 }
 
+#[permission_macro::permission("main","setting","my")]
 #[tauri::command]
 pub async fn delete_global_data(
     state: State<'_, Arc<GlobalData>>,
     key: String,
-) -> Result<(), ()> {
+) -> AppResult<()> {
     let mut data = state.data.lock().await;
     data.remove(&key);
     Ok(())

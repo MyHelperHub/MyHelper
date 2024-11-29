@@ -5,6 +5,5 @@
   "position": [-1, -1],
   "alwaysOnTop": false,
   "resizable": true,
-  "icon": "./icon.png",
-  "loading": false
+  "icon": "./icon.png"
 }
