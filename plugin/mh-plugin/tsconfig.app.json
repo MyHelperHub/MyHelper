@@ -25,7 +25,8 @@
     "paths": {
       "@/*": ["src/*"],
       "vue": ["node_modules/vue"],
-      "primevue/*": ["node_modules/primevue/*"]
+      "primevue/*": ["node_modules/primevue/*"],
+      "@mh-helper": ["../../src/*"]
     }
   },
   "include": [
