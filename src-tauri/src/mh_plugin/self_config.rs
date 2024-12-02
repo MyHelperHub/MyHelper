@@ -2,10 +2,12 @@ use crate::utils::path::get_myhelper_path;
 use serde_json::{Value, json};
 use std::fs;
 use std::path::PathBuf;
+use tauri::Window;
 
 /// 获取插件自身配置
 #[tauri::command]
-pub async fn mh_get_self_config(window_id: &str, keys: Vec<String>) -> Result<Value, String> {
+pub async fn mh_get_self_config(window: Window, keys: Vec<String>) -> Result<Value, String> {
+    let window_id = window.label();
     let config_path = get_config_path(window_id)?;
     let config = read_config(&config_path)?;
     
@@ -24,7 +26,8 @@ pub async fn mh_get_self_config(window_id: &str, keys: Vec<String>) -> Result<Va
 
 /// 设置插件自身配置
 #[tauri::command]
-pub async fn mh_set_self_config(window_id: &str, keys: Vec<String>, value: Value) -> Result<(), String> {
+pub async fn mh_set_self_config(window: Window, keys: Vec<String>, value: Value) -> Result<(), String> {
+    let window_id = window.label();
     let config_path = get_config_path(window_id)?;
     let mut config = read_config(&config_path)?;
     
@@ -46,7 +49,8 @@ pub async fn mh_set_self_config(window_id: &str, keys: Vec<String>, value: Value
 
 /// 删除插件自身配置
 #[tauri::command]
-pub async fn mh_delete_self_config(window_id: &str, keys: Vec<String>) -> Result<(), String> {
+pub async fn mh_delete_self_config(window: Window, keys: Vec<String>) -> Result<(), String> {
+    let window_id = window.label();
     let config_path = get_config_path(window_id)?;
     
     if keys.is_empty() {

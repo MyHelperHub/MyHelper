@@ -52,13 +52,12 @@ if (Window.getCurrent().label === "main") {
       getUserConfig([]).then(async (res) => {
         if (!res) {
           await GlobalData.set("userInfo", {
-            Id: -1,
+            UserId: -1,
             Username: "",
             Email: "",
             Avatar: "",
             Token: "",
           } as User);
-          console.log("初始化登录状态");
         } else {
           await GlobalData.set("userInfo", res as User);
         }

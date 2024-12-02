@@ -8,17 +8,22 @@
       </template>
 
       <div class="icons-container">
-        <div v-for="item in pluginList" :key="item.windowId" class="icon-wrapper" v-tooltip.bottom="{
-          value: item.title,
-          showDelay: 200,
-          pt: {
-            text: {
-              style: {
-                fontSize: '15px',
+        <div
+          v-for="item in pluginList"
+          :key="item.windowId"
+          class="icon-wrapper"
+          v-tooltip.bottom="{
+            value: item.title,
+            showDelay: 200,
+            pt: {
+              text: {
+                style: {
+                  fontSize: '15px',
+                },
               },
             },
-          },
-        }" @click="handleClick(item)">
+          }"
+          @click="handleClick(item)">
           <div class="app-item">
             <i class="icon">
               <img :src="item.icon" :alt="item.title" />
@@ -47,10 +52,10 @@ const init = async () => {
 
 const handleClick = async (item: PluginConfig) => {
   const appDataPath = await appDataDir();
-  const pluginUrl = `http://asset.localhost/${appDataPath}/plugins/${item.windowId}/index.html`;
+  const pluginUrl = `http://asset.localhost/${appDataPath}/Plugin/${item.windowId}/index.html`;
   ipcCreateNewWindow({
     ...item,
-    url: pluginUrl
+    url: pluginUrl,
   });
 };
 
