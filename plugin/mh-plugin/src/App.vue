@@ -4,14 +4,29 @@
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <h3>mh-plugin</h3>
     <Button @click="handleClick"> 你好 </Button>
+    <p>{{ config }}</p>
   </div>
 </template>
 <script setup lang="ts">
 import Toast from "primevue/toast";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
-import { closeWindow } from "./plugin-api/plugin.api";
+import {
+  closeWindow,
+  getSelfConfig,
+  setSelfConfig,
+} from "./plugin-api/plugin.api";
+import { ref } from "vue";
 const toast = useToast();
+
+const config = ref<Awaited<ReturnType<typeof getSelfConfig>>>("");
+
+const init = async () => {
+  await setSelfConfig(["config"], "我是持久化的配置");
+  config.value = await getSelfConfig(["config"]);
+};
+init();
+
 const handleClick = () => {
   toast.add({
     severity: "success",
