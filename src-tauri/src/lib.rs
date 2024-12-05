@@ -274,7 +274,8 @@ pub fn run() {
             mh_get_self_config,
             mh_set_self_config,
             mh_delete_self_config,
-            open_devtools
+            open_devtools,
+            write_log
         ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())

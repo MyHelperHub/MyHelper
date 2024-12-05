@@ -23,6 +23,7 @@ import ToastService from "primevue/toastservice";
 import { getUserConfig } from "./utils/user";
 import GlobalData from "./utils/globalData";
 import { User } from "./interface/user";
+import { ErrorHandler } from "./utils/errorHandler";
 
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
@@ -76,6 +77,17 @@ if (!import.meta.env.DEV) {
   };
 }
 const app = createApp(App);
+
+// 注入全局错误处理
+app.config.errorHandler = async (err, _, info) => {
+  await ErrorHandler.handleError(err, info);
+};
+
+// 捕获未处理的 Promise 错误
+window.addEventListener("unhandledrejection", async (event) => {
+  await ErrorHandler.handleError(event.reason, "Unhandled Promise Rejection");
+});
+
 app.use(router);
 app.use(PrimeVue, {
   theme: {
