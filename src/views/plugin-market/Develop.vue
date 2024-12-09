@@ -72,7 +72,12 @@
               <Tag
                 v-if="data.status"
                 :value="data.status"
-                :severity="getStatusSeverity(data.status)" />
+                :severity="getStatusSeverity(data.Status)" />
+              <Tag
+                v-if="data.hasUpdate"
+                value="有更新"
+                severity="warning"
+                class="ml-2" />
             </div>
           </template>
         </Column>
@@ -577,6 +582,7 @@ import { ipcCloseWindow } from "@/api/ipc/window.api";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
+import { getPluginList } from "@/api/network/plugin.api";
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -601,15 +607,34 @@ const menuTitles = {
 
 const menuItems = ref(MENU_ITEMS);
 
-// 修改 Plugin 接口
-type PluginStatus = "已发布" | "审核中" | "已驳回" | "成功" | "失败" | "处理中";
+// 修改状态映射
+const statusMap: Record<string, string> = {
+  PUBLISHED: '已发布',
+  ENABLED: '已启用',
+  DISABLED: '已禁用',
+  REJECTED: '已驳回',
+  REVIEWING: '审核中'
+};
 
+// 修改状态样式映射
+const getStatusSeverity = (status: string) => {
+  const map: Record<string, string> = {
+    PUBLISHED: "success",
+    ENABLED: "success",
+    DISABLED: "danger",
+    REJECTED: "danger",
+    REVIEWING: "warning",
+  };
+  return map[status] || "info";
+};
+
+// 修改 Plugin 接口定义
 interface Plugin {
   id: number;
   name: string;
   description: string;
   version: string;
-  status?: PluginStatus;
+  status?: string;
   downloads?: number;
   createdTime: string;
   updateTime: string;
@@ -625,47 +650,13 @@ interface Plugin {
   alwaysOnTop?: boolean;
   resizable?: boolean;
   message?: string;
+  hasUpdate?: boolean;
+  category?: string;
+  email?: string;
 }
 
-// 修改模拟数据
-const plugins = ref<Plugin[]>([
-  {
-    id: 1,
-    name: "代码格式化工具",
-    description: "一个强大的代码格式化工具，支持多种编程语言。",
-    version: "1.0.0",
-    status: "已发布",
-    downloads: 12580,
-    createdTime: "2024-02-20",
-    updateTime: "2024-03-20",
-    author: "JohnDoe",
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    name: "截图工具Pro",
-    description: "专业的屏幕截图工具，支持区域截图、滚动截图。",
-    version: "1.1.0",
-    status: "审核中",
-    downloads: 4567,
-    createdTime: "2024-02-15",
-    updateTime: "2024-03-15",
-    author: "Jane Smith",
-    rating: 4.2,
-  },
-  {
-    id: 3,
-    name: "网络测大师",
-    description: "准确测试网络速度，支持多节测速。",
-    version: "1.0.0",
-    status: "已驳回",
-    downloads: 3456,
-    createdTime: "2024-02-10",
-    updateTime: "2024-03-10",
-    author: "NetMaster",
-    rating: 3.8,
-  },
-]);
+// 修改 ref 定义
+const pluginsData = ref<Plugin[]>([]);
 
 const uploadHistory = ref([
   {
@@ -725,7 +716,7 @@ const errors = ref({
   position: "",
 });
 
-// 移除 showEditDialog，使用 editingPlugin 判断是否为编辑模式
+// 移除 showEditDialog，使 editingPlugin 判断是否为编辑模式
 const isEditMode = computed(() => !!editingPlugin.value);
 
 // 更新模板的判断
@@ -950,10 +941,8 @@ const submitPlugin = async () => {
 
   uploading.value = true;
   try {
-    // 模拟上传
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // 模拟成功响应
     const mockResponse = {
       id: Date.now(),
       status: "审核中",
@@ -963,8 +952,7 @@ const submitPlugin = async () => {
       downloads: 0,
     };
 
-    // 添加到插件列表
-    plugins.value.unshift({
+    pluginsData.value.unshift({
       ...mockResponse,
       name: pluginForm.value.name,
       description: pluginForm.value.description,
@@ -981,7 +969,6 @@ const submitPlugin = async () => {
       resizable: pluginForm.value.resizable,
     });
 
-    // 添加到上传历史
     uploadHistory.value.unshift({
       id: mockResponse.id,
       name: pluginForm.value.name,
@@ -1015,29 +1002,42 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleString();
 };
 
-const getStatusSeverity = (status: string) => {
-  const map: Record<string, string> = {
-    已发布: "success",
-    审核中: "warning",
-    已驳回: "danger",
-    成功: "success",
-    失败: "danger",
-    处理中: "warning",
-  };
-  return map[status] || "info";
-};
-
 // 数据加载函数
-const loadData = () => {
+const loadData = async () => {
   loading.value = true;
   try {
-    // 直接使用模拟数据,不发送请求
     switch (activeMenu.value) {
       case "my-plugins":
-        // 使用已有的模拟数据
+        const response = await getPluginList({ author: "我" });
+        // 处理返回的数据
+        if (response.Code === "0001" && response.Data) {
+          pluginsData.value = response.Data.map(item => ({
+            ...item,
+            id: item.Id,
+            name: item.Name,
+            description: item.Description,
+            version: item.Version,
+            status: statusMap[item.Status] || item.Status,
+            downloads: item.Downloads,
+            createdTime: item.CreateTime,
+            updateTime: item.UpdateTime,
+            author: item.Author,
+            icon: item.Icon,
+            tags: item.Tags,
+            rating: item.Rating,
+            screenshots: item.Screenshots,
+            windowId: item.WindowId,
+            title: item.Title,
+            size: item.Size,
+            position: item.Position,
+            alwaysOnTop: item.AlwaysOnTop,
+            resizable: item.Resizable,
+            message: item.Message
+          }));
+        }
         break;
       case "upload-history":
-        // 使用已有的模拟据
+        // 使用已有的模拟数据
         break;
     }
   } catch (error) {
@@ -1076,20 +1076,15 @@ const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
 
 const deletePlugin = async (plugin: any) => {
   try {
-    // 模拟删除延迟
     await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // 数组中移除
-    const index = plugins.value.findIndex((p) => p.id === plugin.id);
+    const index = pluginsData.value.findIndex((p) => p.id === plugin.id);
     if (index > -1) {
-      plugins.value.splice(index, 1);
+      pluginsData.value.splice(index, 1);
     }
-
     toast.add({
       severity: "success",
       summary: "成功",
       detail: "插件已删除",
-
       life: 3000,
     });
   } catch (error) {
@@ -1122,7 +1117,7 @@ const goBack = () => {
 const getCurrentData = () => {
   switch (activeMenu.value) {
     case "my-plugins":
-      return plugins.value;
+      return pluginsData.value;
     case "upload-history":
       return uploadHistory.value;
     default:
@@ -1205,7 +1200,7 @@ const processScreenshots = (files: File[]) => {
     return true;
   });
 
-  // 检查总数限制
+  // 检查总数限
   const remainingSlots = 5 - pluginForm.value.screenshots.length;
   if (validFiles.length > remainingSlots) {
     toast.add({
@@ -1290,16 +1285,14 @@ const updatePlugin = async () => {
 
   uploading.value = true;
   try {
-    // 模拟更新操作
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // 更新本地数据
     if (editingPlugin.value) {
-      const index = plugins.value.findIndex(
+      const index = pluginsData.value.findIndex(
         (p) => p.id === editingPlugin.value?.id,
       );
       if (index > -1) {
-        plugins.value[index] = { ...editingPlugin.value, ...pluginForm.value };
+        pluginsData.value[index] = { ...editingPlugin.value, ...pluginForm.value };
       }
     }
 
@@ -1326,8 +1319,9 @@ const updatePlugin = async () => {
 <style lang="less" scoped>
 .plugin-develop {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #fff;
+  overflow: hidden;
 
   .close-button {
     position: absolute;
@@ -1341,7 +1335,9 @@ const updatePlugin = async () => {
     width: 240px;
     background: #ffffff;
     border-right: 1px solid #e4e4e4;
-    padding: 1rem 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 
     .menu-header {
       display: flex;
@@ -1351,7 +1347,7 @@ const updatePlugin = async () => {
       font-weight: 600;
       color: #2c3e50;
       border-bottom: 1px solid #e4e4e4;
-      margin-bottom: 0.5rem;
+      flex-shrink: 0;
 
       .back-button {
         padding: 0.3rem;
@@ -1368,6 +1364,10 @@ const updatePlugin = async () => {
     }
 
     .menu-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+
       .menu-item {
         display: flex;
         align-items: center;
@@ -1400,14 +1400,19 @@ const updatePlugin = async () => {
 
   .main-content {
     flex: 1;
-    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
     background: #ffffff;
 
     .content-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid #e4e4e4;
+      flex-shrink: 0;
 
       h2 {
         margin: 0;
@@ -1417,12 +1422,22 @@ const updatePlugin = async () => {
     }
 
     .content-table {
-      border: 1px solid #e4e4e4;
-      border-radius: 8px;
-      overflow: hidden;
+      flex: 1;
+      overflow: auto;
+      padding: 0 2rem 2rem;
+
+      :deep(.p-datatable-wrapper) {
+        border-radius: 8px;
+        border: 1px solid #e4e4e4;
+        overflow: hidden;
+      }
 
       :deep(.p-datatable-tbody > tr) {
         cursor: pointer;
+      }
+
+      :deep(.p-datatable-tbody > tr:hover) {
+        background-color: #f8f9fa;
       }
     }
   }
@@ -1451,15 +1466,16 @@ const updatePlugin = async () => {
 .screenshot-upload {
   .screenshot-preview {
     display: grid;
-    grid-template-columns: repeat(3, 180px);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1.5rem;
+    margin-top: 1rem;
 
     .preview-item {
       position: relative;
       border-radius: 6px;
       overflow: hidden;
       border: 1px solid #e4e4e4;
-      height: 101px;
+      aspect-ratio: 16/9;
 
       .image-container {
         width: 100%;
@@ -1494,8 +1510,7 @@ const updatePlugin = async () => {
     }
 
     .upload-button {
-      width: 180px;
-      height: 101px;
+      aspect-ratio: 16/9;
       border: 2px dashed #e4e4e4;
       border-radius: 6px;
       background: #f8f9fa;
@@ -1534,11 +1549,32 @@ const updatePlugin = async () => {
   }
 }
 
-// 优化图片预览弹窗样式
+// 优化对话框样式
+:deep(.p-dialog) {
+  .p-dialog-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e4e4e4;
+  }
+
+  .p-dialog-content {
+    padding: 0;
+    overflow: auto;
+    max-height: calc(90vh - 120px);
+  }
+
+  .p-dialog-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e4e4e4;
+  }
+}
+
+// 优化图片预览样式
 :deep(.p-image) {
   .p-image-preview-container {
     img {
       display: block;
+      max-width: 100%;
+      height: auto;
     }
   }
 
@@ -1570,6 +1606,33 @@ const updatePlugin = async () => {
       background-color: var(--surface-100);
     }
   }
+}
+
+// 添加滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #999;
+  }
+}
+
+// 优化表单样式
+.form-container {
+  height: 100%;
+  overflow: auto;
+  padding: 1.5rem;
 }
 </style>
 
