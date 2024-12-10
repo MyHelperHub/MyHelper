@@ -62,29 +62,28 @@
       <DataTable
         :value="getCurrentData()"
         selectionMode="single"
-        :loading="loading"
         class="content-table"
         @rowClick="onRowClick">
-        <Column field="name" header="插件名称">
+        <Column field="Name" header="插件名称">
           <template #body="{ data }">
             <div class="plugin-name">
-              <span>{{ data.name }}</span>
+              <span>{{ data.Name }}</span>
               <Tag
-                v-if="data.status"
-                :value="data.status"
+                v-if="data.Status"
+                :value="data.Status"
                 :severity="getStatusSeverity(data.Status)" />
               <Tag
-                v-if="data.hasUpdate"
+                v-if="data.HasUpdate"
                 value="有更新"
                 severity="warning"
                 class="ml-2" />
             </div>
           </template>
         </Column>
-        <Column field="version" header="版本" style="width: 100px" />
+        <Column field="Version" header="版本" style="width: 100px" />
         <Column
           v-if="activeMenu === 'my-plugins'"
-          field="downloads"
+          field="Downloads"
           header="下载次数"
           style="width: 100px" />
         <Column
@@ -93,7 +92,7 @@
           header="上传时间"
           style="width: 150px">
           <template #body="{ data }">
-            {{ formatDate(data.uploadTime) }}
+            {{ data.CreateTime }}
           </template>
         </Column>
         <Column
@@ -102,7 +101,7 @@
           header="更新时间"
           style="width: 150px">
           <template #body="{ data }">
-            {{ formatDate(data.updateTime) }}
+            {{ data.UpdateTime }}
           </template>
         </Column>
         <Column
@@ -156,7 +155,7 @@
                 class="hidden"
                 @change="handleFileSelect" />
 
-              <template v-if="!pluginForm.file">
+              <template v-if="!pluginForm.File">
                 <div
                   class="text-center cursor-pointer p-8"
                   @click="triggerFileInput">
@@ -171,10 +170,10 @@
                   <i class="pi pi-file-zip text-2xl text-primary mr-4"></i>
                   <div class="flex-1">
                     <span class="block font-medium">{{
-                      pluginForm.file.name
+                      pluginForm.File.name
                     }}</span>
                     <span class="text-sm text-gray-500">{{
-                      formatFileSize(pluginForm.file.size)
+                      formatFileSize(pluginForm.File.size)
                     }}</span>
                   </div>
                   <Button
@@ -193,8 +192,8 @@
                 <div
                   class="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
                   <img
-                    v-if="pluginForm.icon"
-                    :src="pluginForm.icon"
+                    v-if="pluginForm.Icon"
+                    :src="pluginForm.Icon"
                     class="w-full h-full object-cover" />
                   <i v-else class="pi pi-image text-3xl text-gray-400"></i>
                   <input
@@ -220,12 +219,12 @@
                     >插件名称 <span class="text-red-500">*</span></label
                   >
                   <InputText
-                    v-model="pluginForm.name"
+                    v-model="pluginForm.Name"
                     class="w-full"
-                    :class="{ 'p-invalid': errors.name }"
+                    :class="{ 'p-invalid': errors.Name }"
                     placeholder="请输入插件名称" />
-                  <small class="text-red-500" v-if="errors.name">{{
-                    errors.name
+                  <small class="text-red-500" v-if="errors.Name">{{
+                    errors.Name
                   }}</small>
                 </div>
                 <div>
@@ -233,12 +232,12 @@
                     >版本号 <span class="text-red-500">*</span></label
                   >
                   <InputText
-                    v-model="pluginForm.version"
+                    v-model="pluginForm.Version"
                     class="w-full"
-                    :class="{ 'p-invalid': errors.version }"
+                    :class="{ 'p-invalid': errors.Version }"
                     placeholder="输入版本号: 1.0.0" />
-                  <small class="text-red-500" v-if="errors.version">{{
-                    errors.version
+                  <small class="text-red-500" v-if="errors.Version">{{
+                    errors.Version
                   }}</small>
                 </div>
               </div>
@@ -250,20 +249,20 @@
                 >插件描述 <span class="text-red-500">*</span></label
               >
               <Textarea
-                v-model="pluginForm.description"
+                v-model="pluginForm.Description"
                 class="w-full"
-                :class="{ 'p-invalid': errors.description }"
+                :class="{ 'p-invalid': errors.Description }"
                 rows="3"
                 placeholder="请输入插件描述" />
-              <small class="text-red-500" v-if="errors.description">{{
-                errors.description
+              <small class="text-red-500" v-if="errors.Description">{{
+                errors.Description
               }}</small>
             </div>
 
             <div>
               <label class="block mb-2">标签</label>
               <InputChips
-                v-model="pluginForm.tags"
+                v-model="pluginForm.Tags"
                 class="w-full"
                 placeholder="输入标签后按回车"
                 :max="5"
@@ -284,12 +283,12 @@
                   >窗口ID <span class="text-red-500">*</span></label
                 >
                 <InputText
-                  v-model="pluginForm.windowId"
+                  v-model="pluginForm.WindowId"
                   class="w-full"
-                  :class="{ 'p-invalid': errors.windowId }"
+                  :class="{ 'p-invalid': errors.WindowId }"
                   placeholder="请输入窗口ID" />
-                <small class="text-red-500" v-if="errors.windowId">{{
-                  errors.windowId
+                <small class="text-red-500" v-if="errors.WindowId">{{
+                  errors.WindowId
                 }}</small>
               </div>
               <div>
@@ -297,12 +296,12 @@
                   >窗口标题 <span class="text-red-500">*</span></label
                 >
                 <InputText
-                  v-model="pluginForm.title"
+                  v-model="pluginForm.Title"
                   class="w-full"
-                  :class="{ 'p-invalid': errors.title }"
+                  :class="{ 'p-invalid': errors.Title }"
                   placeholder="请输入窗口标题" />
-                <small class="text-red-500" v-if="errors.title">{{
-                  errors.title
+                <small class="text-red-500" v-if="errors.Title">{{
+                  errors.Title
                 }}</small>
               </div>
             </div>
@@ -314,7 +313,7 @@
                   >窗口宽度 <span class="text-red-500">*</span></label
                 >
                 <InputNumber
-                  v-model="pluginForm.size[0]"
+                  v-model="pluginForm.Size[0]"
                   class="w-full"
                   :min="200"
                   :max="2000"
@@ -325,7 +324,7 @@
                   >窗口高度 <span class="text-red-500">*</span></label
                 >
                 <InputNumber
-                  v-model="pluginForm.size[1]"
+                  v-model="pluginForm.Size[1]"
                   class="w-full"
                   :min="200"
                   :max="2000"
@@ -343,12 +342,12 @@
                     v-tooltip.top="'默认值 -1 表示窗口水平居中'" />
                 </label>
                 <InputNumber
-                  :modelValue="pluginForm.position?.[0] ?? -1"
+                  :modelValue="pluginForm.Position?.[0] ?? -1"
                   @update:modelValue="(val) => updatePositionX(val)"
                   class="w-full"
                   placeholder="水平位置(逻辑像素)" />
-                <small class="text-red-500" v-if="errors.position">{{
-                  errors.position
+                <small class="text-red-500" v-if="errors.Position">{{
+                  errors.Position
                 }}</small>
               </div>
               <div>
@@ -359,7 +358,7 @@
                     v-tooltip.top="'默认值 -1 表示窗口垂直居中'" />
                 </label>
                 <InputNumber
-                  :modelValue="pluginForm.position?.[1] ?? -1"
+                  :modelValue="pluginForm.Position?.[1] ?? -1"
                   @update:modelValue="(val) => updatePositionY(val)"
                   class="w-full"
                   placeholder="垂直位置(逻辑像素)" />
@@ -369,11 +368,11 @@
             <!-- 窗口属性 -->
             <div class="flex gap-6">
               <div class="flex items-center">
-                <Checkbox v-model="pluginForm.alwaysOnTop" :binary="true" />
+                <Checkbox v-model="pluginForm.AlwaysOnTop" :binary="true" />
                 <label class="ml-2">窗口置顶</label>
               </div>
               <div class="flex items-center">
-                <Checkbox v-model="pluginForm.resizable" :binary="true" />
+                <Checkbox v-model="pluginForm.Resizable" :binary="true" />
                 <label class="ml-2">允许调整大小</label>
               </div>
             </div>
@@ -387,7 +386,7 @@
             <!-- 预览区域 -->
             <div class="screenshot-preview">
               <div
-                v-for="(screenshot, index) in pluginForm.screenshots"
+                v-for="(screenshot, index) in pluginForm.Screenshots"
                 :key="index"
                 class="preview-item">
                 <div class="image-container">
@@ -401,7 +400,7 @@
 
               <!-- 上传按钮 -->
               <div
-                v-if="pluginForm.screenshots.length < 5"
+                v-if="pluginForm.Screenshots.length < 5"
                 class="upload-button"
                 @drop.prevent="handleScreenshotDrop"
                 @dragover.prevent="isDraggingScreenshot = true"
@@ -431,13 +430,11 @@
           <Button
             label="取消"
             class="p-button-text"
-            @click="closeDialog"
-            :disabled="uploading" />
+            @click="closeDialog"/>
           <Button
             :label="isEditMode ? '保存' : '上传'"
             :icon="isEditMode ? 'pi pi-save' : 'pi pi-upload'"
-            @click="isEditMode ? updatePlugin() : submitPlugin()"
-            :loading="uploading" />
+            @click="isEditMode ? updatePlugin() : submitPlugin()" />
         </div>
       </template>
     </Dialog>
@@ -456,58 +453,58 @@
             class="flex items-center justify-between pb-4 border-bottom-1 surface-border">
             <div class="flex items-center gap-3">
               <Image
-                :src="selectedPlugin.icon || 'https://placeholder.co/48'"
+                :src="selectedPlugin.Icon || 'https://placeholder.co/48'"
                 width="48"
                 height="48" />
               <div>
-                <h3 class="text-xl font-semibold">{{ selectedPlugin.name }}</h3>
-                <p class="text-sm text-gray-600">{{ selectedPlugin.author }}</p>
+                <h3 class="text-xl font-semibold">{{ selectedPlugin.Name }}</h3>
+                <p class="text-sm text-gray-600">{{ selectedPlugin.Author }}</p>
               </div>
             </div>
             <Tag
-              v-if="selectedPlugin.status"
-              :value="selectedPlugin.status"
-              :severity="getStatusSeverity(selectedPlugin.status)" />
+              v-if="selectedPlugin.Status"
+              :value="selectedPlugin.Status"
+              :severity="getStatusSeverity(selectedPlugin.Status)" />
           </div>
 
           <!-- 插件统计信息 -->
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="text-sm text-gray-600">版本</label>
-              <p class="mt-1">{{ selectedPlugin.version }}</p>
+              <p class="mt-1">{{ selectedPlugin.Version }}</p>
             </div>
-            <div v-if="selectedPlugin.downloads !== undefined">
+            <div v-if="selectedPlugin.Downloads !== undefined">
               <label class="text-sm text-gray-600">下载次数</label>
-              <p class="mt-1">{{ formatNumber(selectedPlugin.downloads) }}</p>
+              <p class="mt-1">{{ formatNumber(selectedPlugin.Downloads) }}</p>
             </div>
             <div>
               <label class="text-sm text-gray-600">创建时间</label>
-              <p class="mt-1">{{ formatDate(selectedPlugin.createdTime) }}</p>
+              <p class="mt-1">{{ selectedPlugin.CreateTime }}</p>
             </div>
             <div>
               <label class="text-sm text-gray-600">更新时间</label>
-              <p class="mt-1">{{ formatDate(selectedPlugin.updateTime) }}</p>
+              <p class="mt-1">{{ selectedPlugin.UpdateTime }}</p>
             </div>
             <div>
               <label class="text-sm text-gray-600">评分</label>
               <div class="mt-1 flex items-center gap-2">
                 <Rating
-                  :modelValue="selectedPlugin.rating || 0"
+                  :modelValue="selectedPlugin.Rating || 0"
                   :cancel="false"
                   readonly />
                 <span class="text-sm text-gray-600">{{
-                  selectedPlugin.rating || "暂评分"
+                  selectedPlugin.Rating || "暂无评分"
                 }}</span>
               </div>
             </div>
           </div>
 
           <!-- 插件标签 -->
-          <div v-if="selectedPlugin.tags?.length">
+          <div v-if="selectedPlugin.Tags?.length">
             <label class="text-sm text-gray-600">标签</label>
             <div class="mt-2 flex flex-wrap gap-2">
               <Tag
-                v-for="tag in selectedPlugin.tags"
+                v-for="tag in selectedPlugin.Tags"
                 :key="tag"
                 :value="tag"
                 severity="info" />
@@ -515,25 +512,25 @@
           </div>
 
           <!-- 插件描述 -->
-          <div v-if="selectedPlugin.description">
+          <div v-if="selectedPlugin.Description">
             <label class="text-sm text-gray-600">描述</label>
             <p class="mt-1 text-gray-700 whitespace-pre-line">
-              {{ selectedPlugin.description }}
+              {{ selectedPlugin.Description }}
             </p>
           </div>
 
           <!-- 备注信息 -->
-          <div v-if="selectedPlugin.message">
+          <div v-if="selectedPlugin.Message">
             <label class="text-sm text-gray-600">备注</label>
-            <p class="mt-1 text-gray-700">{{ selectedPlugin.message }}</p>
+            <p class="mt-1 text-gray-700">{{ selectedPlugin.Message }}</p>
           </div>
 
           <!-- 图预览 -->
-          <div v-if="selectedPlugin.screenshots?.length">
+          <div v-if="selectedPlugin.Screenshots?.length">
             <label class="text-sm text-gray-600">截图预览</label>
             <div class="mt-2">
               <Carousel
-                :value="selectedPlugin.screenshots"
+                :value="selectedPlugin.Screenshots"
                 :numVisible="1"
                 :numScroll="1"
                 :circular="true"
@@ -583,6 +580,8 @@ import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
 import { getPluginList } from "@/api/network/plugin.api";
+import { PluginStatus } from "@/interface/plugin";
+import { showLoading, hideLoading } from "@/utils/loading";
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -590,8 +589,6 @@ type MenuKey = "my-plugins" | "upload-history";
 const activeMenu = ref<MenuKey>("my-plugins");
 const showPluginDialog = ref(false);
 const showDetailDialog = ref(false);
-const loading = ref(false);
-const uploading = ref(false);
 const isDragging = ref(false);
 
 // 菜单配置
@@ -630,29 +627,29 @@ const getStatusSeverity = (status: string) => {
 
 // 修改 Plugin 接口定义
 interface Plugin {
-  id: number;
-  name: string;
-  description: string;
-  version: string;
-  status?: string;
-  downloads?: number;
-  createdTime: string;
-  updateTime: string;
-  author: string;
-  icon?: string;
-  tags?: string[];
-  rating?: number;
-  screenshots?: string[];
-  windowId?: string;
-  title?: string;
-  size?: [number, number];
-  position?: [number, number];
-  alwaysOnTop?: boolean;
-  resizable?: boolean;
-  message?: string;
-  hasUpdate?: boolean;
-  category?: string;
-  email?: string;
+  Id: number;
+  Name: string;
+  Description: string;
+  Version: string;
+  Status?: string;
+  Downloads?: number;
+  CreateTime: string;
+  UpdateTime: string;
+  Author: string;
+  Icon?: string;
+  Tags?: string[];
+  Rating?: number;
+  Screenshots?: string[];
+  WindowId?: string;
+  Title?: string;
+  Size?: [number, number];
+  Position?: [number, number];
+  AlwaysOnTop?: boolean;
+  Resizable?: boolean;
+  Message?: string;
+  HasUpdate?: boolean;
+  Category?: string;
+  Email?: string;
 }
 
 // 修改 ref 定义
@@ -687,19 +684,19 @@ const uploadHistory = ref([
 
 // 表单状态
 const pluginForm = ref({
-  name: "",
-  description: "",
-  version: "",
-  tags: [] as string[],
-  file: null as File | null,
-  icon: "" as string,
-  screenshots: [] as string[],
-  windowId: "",
-  title: "",
-  size: [800, 600] as [number, number],
-  position: [-1, -1] as [number, number],
-  alwaysOnTop: false,
-  resizable: true,
+  Name: "",
+  Description: "",
+  Version: "",
+  Tags: [] as string[],
+  File: null as File | null,
+  Icon: "" as string,
+  Screenshots: [] as string[],
+  WindowId: "",
+  Title: "",
+  Size: [800, 600] as [number, number],
+  Position: [-1, -1] as [number, number],
+  AlwaysOnTop: false,
+  Resizable: true,
 });
 
 const selectedPlugin = ref<Plugin | null>(null);
@@ -707,13 +704,13 @@ const editingPlugin = ref<Plugin | null>(null);
 
 // 简化为一个对象管理所有错误信息
 const errors = ref({
-  name: "",
-  version: "",
-  description: "",
-  windowId: "",
-  title: "",
-  size: "",
-  position: "",
+  Name: "",
+  Version: "",
+  Description: "",
+  WindowId: "",
+  Title: "",
+  Size: "",
+  Position: "",
 });
 
 // 移除 showEditDialog，使 editingPlugin 判断是否为编辑模式
@@ -733,28 +730,28 @@ const closeDialog = () => {
 // 表单重置逻辑独立
 const resetForm = () => {
   pluginForm.value = {
-    name: "",
-    description: "",
-    version: "",
-    tags: [],
-    file: null,
-    icon: "",
-    screenshots: [],
-    windowId: "",
-    title: "",
-    size: [800, 600],
-    position: [-1, -1],
-    alwaysOnTop: false,
-    resizable: true,
+    Name: "",
+    Description: "",
+    Version: "",
+    Tags: [],
+    File: null,
+    Icon: "",
+    Screenshots: [],
+    WindowId: "",
+    Title: "",
+    Size: [800, 600],
+    Position: [-1, -1],
+    AlwaysOnTop: false,
+    Resizable: true,
   };
   errors.value = {
-    name: "",
-    version: "",
-    description: "",
-    windowId: "",
-    title: "",
-    size: "",
-    position: "",
+    Name: "",
+    Version: "",
+    Description: "",
+    WindowId: "",
+    Title: "",
+    Size: "",
+    Position: "",
   };
 };
 
@@ -764,13 +761,13 @@ const editPlugin = (plugin: Plugin) => {
   showPluginDialog.value = true;
   Object.assign(pluginForm.value, {
     ...plugin,
-    file: null,
-    tags: plugin.tags || [],
-    screenshots: plugin.screenshots || [],
-    size: plugin.size || [800, 600],
-    position: plugin.position || [-1, -1],
-    alwaysOnTop: plugin.alwaysOnTop ?? false,
-    resizable: plugin.resizable ?? true,
+    File: null,
+    Tags: plugin.Tags || [],
+    Screenshots: plugin.Screenshots || [],
+    Size: plugin.Size || [800, 600],
+    Position: plugin.Position || [-1, -1],
+    AlwaysOnTop: plugin.AlwaysOnTop ?? false,
+    Resizable: plugin.Resizable ?? true,
   });
 };
 
@@ -784,7 +781,7 @@ const handleIconSelect = (event: Event) => {
     const file = input.files[0];
     const reader = new FileReader();
     reader.onload = (e) => {
-      pluginForm.value.icon = e.target?.result as string;
+      pluginForm.value.Icon = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   }
@@ -797,62 +794,62 @@ const triggerIconInput = () => {
 // 验证表单
 const validateForm = () => {
   errors.value = {
-    name: "",
-    version: "",
-    description: "",
-    windowId: "",
-    title: "",
-    size: "",
-    position: "",
+    Name: "",
+    Version: "",
+    Description: "",
+    WindowId: "",
+    Title: "",
+    Size: "",
+    Position: "",
   };
 
   let isValid = true;
 
   // 名称验证
-  if (!pluginForm.value.name) {
-    errors.value.name = "请输入插件名称";
+  if (!pluginForm.value.Name) {
+    errors.value.Name = "请输入插件名称";
     isValid = false;
   }
 
   // 版本验证
-  if (!pluginForm.value.version) {
-    errors.value.version = "请输入版本号";
+  if (!pluginForm.value.Version) {
+    errors.value.Version = "请输入版本号";
     isValid = false;
-  } else if (!/^\d+\.\d+\.\d+$/.test(pluginForm.value.version)) {
-    errors.value.version = "版本号格式不正确";
-    isValid = false;
-  }
-
-  if (!pluginForm.value.description) {
-    errors.value.description = "请输入插件描述";
+  } else if (!/^\d+\.\d+\.\d+$/.test(pluginForm.value.Version)) {
+    errors.value.Version = "版本号格式不正确";
     isValid = false;
   }
 
-  if (!pluginForm.value.windowId) {
-    errors.value.windowId = "请输入窗口ID";
+  if (!pluginForm.value.Description) {
+    errors.value.Description = "请输入插件描述";
     isValid = false;
-  } else if (!/^[a-zA-Z][a-zA-Z0-9-_]*$/.test(pluginForm.value.windowId)) {
-    errors.value.windowId =
+  }
+
+  if (!pluginForm.value.WindowId) {
+    errors.value.WindowId = "请输入窗口ID";
+    isValid = false;
+  } else if (!/^[a-zA-Z][a-zA-Z0-9-_]*$/.test(pluginForm.value.WindowId)) {
+    errors.value.WindowId =
       "窗口ID必须以字母开头，只能包含字母、数字、下划线和横线";
     isValid = false;
   }
 
-  if (!pluginForm.value.title) {
-    errors.value.title = "请输入窗口标题";
+  if (!pluginForm.value.Title) {
+    errors.value.Title = "请输入窗口标题";
     isValid = false;
   }
 
-  if (!pluginForm.value.size[0] || !pluginForm.value.size[1]) {
-    errors.value.size = "请设置窗大小";
+  if (!pluginForm.value.Size[0] || !pluginForm.value.Size[1]) {
+    errors.value.Size = "请设置窗大小";
     isValid = false;
   }
 
   if (
-    !pluginForm.value.position ||
-    pluginForm.value.position[0] === undefined ||
-    pluginForm.value.position[1] === undefined
+    !pluginForm.value.Position ||
+    pluginForm.value.Position[0] === undefined ||
+    pluginForm.value.Position[1] === undefined
   ) {
-    errors.value.position = "请设置窗口位置";
+    errors.value.Position = "请设置窗口位置";
     isValid = false;
   }
 
@@ -897,11 +894,11 @@ const handleFile = (file: File) => {
     });
     return;
   }
-  pluginForm.value.file = file;
+  pluginForm.value.File = file;
 };
 
 const removeFile = () => {
-  pluginForm.value.file = null;
+  pluginForm.value.File = null;
   if (fileInput.value) {
     fileInput.value.value = "";
   }
@@ -929,7 +926,7 @@ const submitPlugin = async () => {
     return;
   }
 
-  if (!pluginForm.value.file) {
+  if (!pluginForm.value.File) {
     toast.add({
       severity: "error",
       summary: "错误",
@@ -939,8 +936,8 @@ const submitPlugin = async () => {
     return;
   }
 
-  uploading.value = true;
   try {
+    showLoading();
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const mockResponse = {
@@ -954,25 +951,29 @@ const submitPlugin = async () => {
 
     pluginsData.value.unshift({
       ...mockResponse,
-      name: pluginForm.value.name,
-      description: pluginForm.value.description,
-      version: pluginForm.value.version,
-      status: "审核中" as PluginStatus,
-      tags: pluginForm.value.tags,
-      icon: pluginForm.value.icon,
-      screenshots: pluginForm.value.screenshots,
-      windowId: pluginForm.value.windowId,
-      title: pluginForm.value.title,
-      size: pluginForm.value.size,
-      position: pluginForm.value.position,
-      alwaysOnTop: pluginForm.value.alwaysOnTop,
-      resizable: pluginForm.value.resizable,
+      Name: pluginForm.value.Name,
+      Description: pluginForm.value.Description,
+      Version: pluginForm.value.Version,
+      Status: "审核中" as PluginStatus,
+      Tags: pluginForm.value.Tags,
+      Icon: pluginForm.value.Icon,
+      Screenshots: pluginForm.value.Screenshots,
+      WindowId: pluginForm.value.WindowId,
+      Title: pluginForm.value.Title,
+      Size: pluginForm.value.Size,
+      Position: pluginForm.value.Position,
+      AlwaysOnTop: pluginForm.value.AlwaysOnTop,
+      Resizable: pluginForm.value.Resizable,
+      Id: mockResponse.id,
+      CreateTime: new Date().toISOString(),
+      UpdateTime: new Date().toISOString(),
+      Author: "我",
     });
 
     uploadHistory.value.unshift({
       id: mockResponse.id,
-      name: pluginForm.value.name,
-      version: pluginForm.value.version,
+      name: pluginForm.value.Name,
+      version: pluginForm.value.Version,
       uploadTime: new Date().toISOString(),
       status: "处理中",
       message: "正在处理上传请求",
@@ -993,51 +994,26 @@ const submitPlugin = async () => {
       life: 3000,
     });
   } finally {
-    uploading.value = false;
+    hideLoading();
   }
-};
-
-// 工具函数
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleString();
 };
 
 // 数据加载函数
 const loadData = async () => {
-  loading.value = true;
   try {
+    showLoading();
     switch (activeMenu.value) {
       case "my-plugins":
         const response = await getPluginList({ author: "我" });
-        // 处理返回的数据
         if (response.Code === "0001" && response.Data) {
-          pluginsData.value = response.Data.map(item => ({
+          pluginsData.value = (response.Data as unknown as Plugin[]).map(item => ({
             ...item,
-            id: item.Id,
-            name: item.Name,
-            description: item.Description,
-            version: item.Version,
-            status: statusMap[item.Status] || item.Status,
-            downloads: item.Downloads,
-            createdTime: item.CreateTime,
-            updateTime: item.UpdateTime,
-            author: item.Author,
-            icon: item.Icon,
-            tags: item.Tags,
-            rating: item.Rating,
-            screenshots: item.Screenshots,
-            windowId: item.WindowId,
-            title: item.Title,
-            size: item.Size,
-            position: item.Position,
-            alwaysOnTop: item.AlwaysOnTop,
-            resizable: item.Resizable,
-            message: item.Message
+            Status: statusMap[item.Status as keyof typeof statusMap] || item.Status
           }));
         }
         break;
       case "upload-history":
-        // 使用已有的模拟数据
+        // 处理上传历史记录...
         break;
     }
   } catch (error) {
@@ -1048,7 +1024,7 @@ const loadData = async () => {
       life: 3000,
     });
   } finally {
-    loading.value = false;
+    hideLoading();
   }
 };
 
@@ -1077,7 +1053,7 @@ const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
 const deletePlugin = async (plugin: any) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const index = pluginsData.value.findIndex((p) => p.id === plugin.id);
+    const index = pluginsData.value.findIndex((p) => p.Id === plugin.Id);
     if (index > -1) {
       pluginsData.value.splice(index, 1);
     }
@@ -1163,13 +1139,13 @@ const handleScreenshotSelect = (event: Event) => {
       }
       return isValidSize;
     })
-    .slice(0, 5 - pluginForm.value.screenshots.length);
+    .slice(0, 5 - pluginForm.value.Screenshots.length);
 
   files.forEach((file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        pluginForm.value.screenshots.push(e.target.result as string);
+        pluginForm.value.Screenshots.push(e.target.result as string);
       }
     };
     reader.readAsDataURL(file);
@@ -1201,7 +1177,7 @@ const processScreenshots = (files: File[]) => {
   });
 
   // 检查总数限
-  const remainingSlots = 5 - pluginForm.value.screenshots.length;
+  const remainingSlots = 5 - pluginForm.value.Screenshots.length;
   if (validFiles.length > remainingSlots) {
     toast.add({
       severity: "warn",
@@ -1217,7 +1193,7 @@ const processScreenshots = (files: File[]) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        pluginForm.value.screenshots.push(e.target.result as string);
+        pluginForm.value.Screenshots.push(e.target.result as string);
       }
     };
     reader.readAsDataURL(file);
@@ -1229,16 +1205,16 @@ const triggerScreenshotInput = () => {
 };
 
 const removeScreenshot = (index: number) => {
-  pluginForm.value.screenshots.splice(index, 1);
+  pluginForm.value.Screenshots.splice(index, 1);
 };
 
 // 添加位置更新处理函数
 const updatePositionX = (val: number) => {
-  pluginForm.value.position[0] = val ?? -1;
+  pluginForm.value.Position[0] = val ?? -1;
 };
 
 const updatePositionY = (val: number) => {
-  pluginForm.value.position[1] = val ?? -1;
+  pluginForm.value.Position[1] = val ?? -1;
 };
 
 const onRowClick = (event: { data: Plugin | UploadRecord }) => {
@@ -1247,15 +1223,15 @@ const onRowClick = (event: { data: Plugin | UploadRecord }) => {
     // 上传记录的详情展示
     const record = event.data as UploadRecord;
     selectedPlugin.value = {
-      id: record.id,
-      name: record.name,
-      version: record.version,
-      status: record.status as PluginStatus,
-      updateTime: record.uploadTime,
-      createdTime: record.uploadTime,
-      message: record.message,
-      author: "我",
-      description: "",
+      Id: record.Id,
+      Name: record.Name,
+      Version: record.Version,
+      Status: record.Status as PluginStatus,
+      UpdateTime: record.UploadTime,
+      CreateTime: record.CreateTime,
+      Message: record.Message,
+      Author: "我",
+      Description: "",
     };
   } else {
     // 我的插件的详情展示
@@ -1266,12 +1242,13 @@ const onRowClick = (event: { data: Plugin | UploadRecord }) => {
 
 // 添加上传记录的接口定义
 interface UploadRecord {
-  id: number;
-  name: string;
-  version: string;
-  uploadTime: string;
-  status: string;
-  message: string;
+  Id: number;
+  Name: string;
+  Version: string;
+  UploadTime: string;
+  CreateTime: string;
+  Status: string;
+  Message: string;
 }
 
 // 修改详情对话框的条件渲染
@@ -1281,15 +1258,14 @@ const updatePlugin = async () => {
   if (!validateForm()) {
     return;
   }
-  console.log(pluginForm.value);
 
-  uploading.value = true;
   try {
+    showLoading();
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (editingPlugin.value) {
       const index = pluginsData.value.findIndex(
-        (p) => p.id === editingPlugin.value?.id,
+        (p) => p.Id === editingPlugin.value?.Id
       );
       if (index > -1) {
         pluginsData.value[index] = { ...editingPlugin.value, ...pluginForm.value };
@@ -1306,12 +1282,12 @@ const updatePlugin = async () => {
   } catch (error) {
     toast.add({
       severity: "error",
-      summary: "错误",
+      summary: "错误", 
       detail: "插件更新失败",
       life: 3000,
     });
   } finally {
-    uploading.value = false;
+    hideLoading();
   }
 };
 </script>
