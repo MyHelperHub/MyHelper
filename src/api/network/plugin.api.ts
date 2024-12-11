@@ -3,11 +3,22 @@ import { request } from './wrapper';
 
 /**
  * 获取插件列表
+ * @param params 查询参数
+ * @param params.category 插件分类
+ * @param params.status 插件状态
+ * @param params.author 作者
+ * @param params.userId 用户ID
+ * @param params.pageIndex 页码
+ * @param params.pageSize 每页数量
+ * @returns 插件列表数据
  */
 export const getPluginList = (params?: {
   category?: string;
   status?: string;
   author?: string;
+  userId?: number;
+  pageIndex:number;
+  pageSize:number
 }) => {
   return request.get<Plugin[]>('/api/plugin/list', { params });
 };
@@ -73,4 +84,33 @@ export const updatePluginStatus = (
   return request.post('/api/plugin/status', null, {
     params: { windowId, status, message }
   });
-}; 
+};
+
+/**
+ * 上传插件文件
+ */
+export const uploadPluginFile = (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request.post<string>('/api/plugin/file/upload', formData);
+};
+
+/**
+ * 下载插件文件
+ */
+export const downloadPluginFile = (fileName: string) => {
+  return request.get('/api/plugin/file/download', {
+    params: { fileName },
+    responseType: 'blob'
+  });
+};
+
+/**
+ * 删除插件文件
+ */
+export const deletePluginFile = (fileName: string) => {
+  return request.delete('/api/plugin/file', {
+    params: { fileName }
+  });
+};
+ 

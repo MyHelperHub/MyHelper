@@ -38,7 +38,6 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
 // 封装请求方法
 export const request = {
   get: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
@@ -47,5 +46,9 @@ export const request = {
 
   post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
     return instance.post(url, data, config);
+  },
+
+  delete: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
+    return instance.delete(url, config);
   },
 };

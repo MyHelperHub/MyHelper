@@ -53,7 +53,7 @@
       <div class="content-header">
         <h2>{{ menuTitles[activeMenu] }}</h2>
         <Button
-          v-if="activeMenu === 'my-plugins'"
+          v-if="activeMenu === MenuKey.MyPlugins"
           label="上传插件"
           icon="pi pi-upload"
           @click="showPluginDialog = true" />
@@ -82,12 +82,12 @@
         </Column>
         <Column field="Version" header="版本" style="width: 100px" />
         <Column
-          v-if="activeMenu === 'my-plugins'"
+          v-if="activeMenu === MenuKey.MyPlugins"
           field="Downloads"
           header="下载次数"
           style="width: 100px" />
         <Column
-          v-if="activeMenu === 'upload-history'"
+          v-if="activeMenu === MenuKey.UploadHistory"
           field="uploadTime"
           header="上传时间"
           style="width: 150px">
@@ -105,11 +105,11 @@
           </template>
         </Column>
         <Column
-          v-if="activeMenu === 'upload-history'"
+          v-if="activeMenu === MenuKey.UploadHistory"
           field="message"
           header="备注" />
         <Column
-          v-if="activeMenu === 'my-plugins'"
+          v-if="activeMenu === MenuKey.MyPlugins"
           header="操作"
           style="width: 150px">
           <template #body="{ data }">
@@ -126,6 +126,19 @@
           </template>
         </Column>
       </DataTable>
+
+      <!-- 修改分页器位置和样式 -->
+      <div class="pagination">
+        <Paginator
+          v-if="activeMenu === MenuKey.MyPlugins"
+          :rows="rowsPerPage"
+          :totalRecords="totalRecords"
+          :first="(currentPage - 1) * rowsPerPage"
+          template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+          :rowsPerPageOptions="[10, 20, 50]"
+          @page="onPageChange"
+        />
+      </div>
     </div>
 
     <!-- 上传/编辑对话框 -->
@@ -427,10 +440,7 @@
 
       <template #footer>
         <div class="flex justify-end gap-4">
-          <Button
-            label="取消"
-            class="p-button-text"
-            @click="closeDialog"/>
+          <Button label="取消" class="p-button-text" @click="closeDialog" />
           <Button
             :label="isEditMode ? '保存' : '上传'"
             :icon="isEditMode ? 'pi pi-save' : 'pi pi-upload'"
@@ -525,24 +535,25 @@
             <p class="mt-1 text-gray-700">{{ selectedPlugin.Message }}</p>
           </div>
 
-          <!-- 图预览 -->
-          <div v-if="selectedPlugin.Screenshots?.length">
+          <!-- 截图预览 -->
+          <div v-if="selectedPlugin.Screenshots?.length" class="screenshot-carousel-container">
             <label class="text-sm text-gray-600">截图预览</label>
-            <div class="mt-2">
+            <div class="mt-2 carousel-wrapper">
               <Carousel
                 :value="selectedPlugin.Screenshots"
                 :numVisible="1"
                 :numScroll="1"
-                :circular="true"
-                :showIndicators="true"
-                class="screenshot-carousel">
+                :circular="selectedPlugin.Screenshots.length > 1"
+                :showIndicators="selectedPlugin.Screenshots.length > 1"
+                :showNavigators="selectedPlugin.Screenshots.length > 1"
+                class="custom-carousel">
                 <template #item="slotProps">
-                  <div class="screenshot-container">
+                  <div class="carousel-item">
                     <Image
                       :src="slotProps.data"
                       alt="screenshot"
                       preview
-                      imageClass="screenshot-image" />
+                      imageClass="carousel-image" />
                   </div>
                 </template>
               </Carousel>
@@ -557,7 +568,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
@@ -582,35 +593,50 @@ import { isDev } from "@/utils/common";
 import { getPluginList } from "@/api/network/plugin.api";
 import { PluginStatus } from "@/interface/plugin";
 import { showLoading, hideLoading } from "@/utils/loading";
+import GlobalData from "@/utils/globalData";
+import Paginator from "primevue/paginator";
 
 const toast = useToast();
 const confirm = useConfirm();
-type MenuKey = "my-plugins" | "upload-history";
-const activeMenu = ref<MenuKey>("my-plugins");
+
+enum MenuKey {
+  MyPlugins = 0,    // 我的插件
+  UploadHistory = 1 // 上传记录
+}
+
+const activeMenu = ref<MenuKey>(MenuKey.MyPlugins);
 const showPluginDialog = ref(false);
 const showDetailDialog = ref(false);
 const isDragging = ref(false);
 
 // 菜单配置
 const MENU_ITEMS = [
-  { key: "my-plugins", label: "我的插件", icon: "pi pi-list" },
-  { key: "upload-history", label: "上传记录", icon: "pi pi-history" },
+  { key: MenuKey.MyPlugins, label: "我的插件", icon: "pi pi-list" },
+  { key: MenuKey.UploadHistory, label: "上传记录", icon: "pi pi-history" },
 ] as const;
 
 const menuTitles = {
-  "my-plugins": "我的插件",
-  "upload-history": "上传记录",
+  [MenuKey.MyPlugins]: "我的插件",
+  [MenuKey.UploadHistory]: "上传记录",
 };
 
 const menuItems = ref(MENU_ITEMS);
 
+// 添加用户信息相关的ref
+const userInfo = ref<{
+  UserId: number;
+  Email: string;
+  Username: string;
+  Avatar: string | null;
+} | null>(null);
+
 // 修改状态映射
 const statusMap: Record<string, string> = {
-  PUBLISHED: '已发布',
-  ENABLED: '已启用',
-  DISABLED: '已禁用',
-  REJECTED: '已驳回',
-  REVIEWING: '审核中'
+  PUBLISHED: "已发布",
+  ENABLED: "已启用",
+  DISABLED: "已禁用",
+  REJECTED: "已驳回",
+  REVIEWING: "审核中",
 };
 
 // 修改状态样式映射
@@ -791,68 +817,49 @@ const triggerIconInput = () => {
   iconInput.value?.click();
 };
 
-// 验证表单
+// 单独定义每个字段的验证规则
+const validateField = (field: string, value: any) => {
+  switch (field) {
+    case 'Name':
+      return value ? '' : '请输入插件名称';
+    case 'Version':
+      if (!value) return '请输入版本号';
+      return /^\d+\.\d+\.\d+$/.test(value) ? '' : '版本号格式不正确，例如0.0.1';
+    case 'Description':
+      return value ? '' : '请输入插件描述';
+    case 'WindowId':
+      if (!value) return '请输入窗口ID';
+      return /^[a-zA-Z][a-zA-Z0-9-_]*$/.test(value) ? '' : '窗口ID必须以字母开头，只能包含字母、数字、下划线和横线';
+    case 'Title':
+      return value ? '' : '请输入窗口标题';
+    default:
+      return '';
+  }
+};
+
+// 监听上传时表单变化
+watch(
+  () => ({ ...pluginForm.value }),
+  (newVal, oldVal) => {
+    if (!oldVal) return;
+    
+    (Object.keys(errors.value) as Array<keyof typeof errors.value>).forEach(key => {
+      if (newVal[key as keyof typeof newVal] !== oldVal[key as keyof typeof oldVal]) {
+        errors.value[key] = validateField(key, newVal[key as keyof typeof newVal]); 
+      }
+    });
+  },
+  { deep: true }
+);
+
+// 完整表单验证仍然保留
 const validateForm = () => {
-  errors.value = {
-    Name: "",
-    Version: "",
-    Description: "",
-    WindowId: "",
-    Title: "",
-    Size: "",
-    Position: "",
-  };
-
   let isValid = true;
-
-  // 名称验证
-  if (!pluginForm.value.Name) {
-    errors.value.Name = "请输入插件名称";
-    isValid = false;
-  }
-
-  // 版本验证
-  if (!pluginForm.value.Version) {
-    errors.value.Version = "请输入版本号";
-    isValid = false;
-  } else if (!/^\d+\.\d+\.\d+$/.test(pluginForm.value.Version)) {
-    errors.value.Version = "版本号格式不正确";
-    isValid = false;
-  }
-
-  if (!pluginForm.value.Description) {
-    errors.value.Description = "请输入插件描述";
-    isValid = false;
-  }
-
-  if (!pluginForm.value.WindowId) {
-    errors.value.WindowId = "请输入窗口ID";
-    isValid = false;
-  } else if (!/^[a-zA-Z][a-zA-Z0-9-_]*$/.test(pluginForm.value.WindowId)) {
-    errors.value.WindowId =
-      "窗口ID必须以字母开头，只能包含字母、数字、下划线和横线";
-    isValid = false;
-  }
-
-  if (!pluginForm.value.Title) {
-    errors.value.Title = "请输入窗口标题";
-    isValid = false;
-  }
-
-  if (!pluginForm.value.Size[0] || !pluginForm.value.Size[1]) {
-    errors.value.Size = "请设置窗大小";
-    isValid = false;
-  }
-
-  if (
-    !pluginForm.value.Position ||
-    pluginForm.value.Position[0] === undefined ||
-    pluginForm.value.Position[1] === undefined
-  ) {
-    errors.value.Position = "请设置窗口位置";
-    isValid = false;
-  }
-
+  Object.keys(errors.value).forEach(key => {
+    const error = validateField(key, pluginForm.value[key as keyof typeof pluginForm.value]);
+    errors.value[key as keyof typeof errors.value] = error;
+    if (error) isValid = false;
+  });
   return isValid;
 };
 
@@ -912,7 +919,6 @@ const formatFileSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
-// 添加 ref 定义
 const fileInput = ref<HTMLInputElement | null>(null);
 
 // 实现点击触发文件选择的方法
@@ -998,21 +1004,50 @@ const submitPlugin = async () => {
   }
 };
 
-// 数据加载函数
+// 分页相关的状态
+const currentPage = ref(1);
+const rowsPerPage = ref(10);
+const totalRecords = ref(0);
+
+// 修改 loadData 函数
 const loadData = async () => {
   try {
     showLoading();
+    const userData = await GlobalData.get("userInfo");
+    
+    if (!userData) {
+      toast.add({
+        severity: "warn",
+        summary: "提示",
+        detail: "请先登录后再访问",
+        life: 3000,
+      });
+      hideLoading();
+      return;
+    }
+    
+    userInfo.value = userData;
+    
     switch (activeMenu.value) {
-      case "my-plugins":
-        const response = await getPluginList({ author: "我" });
+      case MenuKey.MyPlugins:
+        const response = await getPluginList({ 
+          userId: userInfo.value?.UserId,
+          pageIndex: currentPage.value,
+          pageSize: rowsPerPage.value 
+        });
+        
         if (response.Code === "0001" && response.Data) {
-          pluginsData.value = (response.Data as unknown as Plugin[]).map(item => ({
-            ...item,
-            Status: statusMap[item.Status as keyof typeof statusMap] || item.Status
-          }));
+          pluginsData.value = (response.Data as unknown as Plugin[]).map(
+            (item) => ({
+              ...item,
+              Status: statusMap[item.Status as keyof typeof statusMap] || item.Status,
+            }),
+          );
+          // 从返回的Page对象中获取总记录数
+          totalRecords.value = response.Page.TotalRecords;
         }
         break;
-      case "upload-history":
+      case MenuKey.UploadHistory:
         // 处理上传历史记录...
         break;
     }
@@ -1026,6 +1061,13 @@ const loadData = async () => {
   } finally {
     hideLoading();
   }
+};
+
+// 处理分页更改
+const onPageChange = (event: { page: number; rows: number }) => {
+  currentPage.value = event.page + 1; // PrimeVue 的 page 是从 0 开始的
+  rowsPerPage.value = event.rows;
+  loadData();
 };
 
 const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
@@ -1092,9 +1134,9 @@ const goBack = () => {
 // 获取当前应该显示的数据
 const getCurrentData = () => {
   switch (activeMenu.value) {
-    case "my-plugins":
+    case MenuKey.MyPlugins:
       return pluginsData.value;
-    case "upload-history":
+    case MenuKey.UploadHistory:
       return uploadHistory.value;
     default:
       return [];
@@ -1103,12 +1145,12 @@ const getCurrentData = () => {
 
 // 获取编辑按钮的提示信息
 const getEditTooltip = () => {
-  return activeMenu.value === "my-plugins" ? "编辑插件" : "";
+  return activeMenu.value === MenuKey.MyPlugins ? "编辑插件" : "";
 };
 
 // 获取删除按钮的提示信息
 const getDeleteTooltip = () => {
-  return activeMenu.value === "my-plugins" ? "删除插件" : "";
+  return activeMenu.value === MenuKey.MyPlugins ? "删除插件" : "";
 };
 
 // 添加数字格式化函数
@@ -1182,7 +1224,7 @@ const processScreenshots = (files: File[]) => {
     toast.add({
       severity: "warn",
       summary: "超出限制",
-      detail: `最多只能上传5张截图`,
+      detail: `最多上传5张截图`,
       life: 3000,
     });
     validFiles.splice(remainingSlots);
@@ -1219,7 +1261,7 @@ const updatePositionY = (val: number) => {
 
 const onRowClick = (event: { data: Plugin | UploadRecord }) => {
   // 根据当前菜单判断数据类型
-  if (activeMenu.value === "upload-history") {
+  if (activeMenu.value === MenuKey.UploadHistory) {
     // 上传记录的详情展示
     const record = event.data as UploadRecord;
     selectedPlugin.value = {
@@ -1265,10 +1307,13 @@ const updatePlugin = async () => {
 
     if (editingPlugin.value) {
       const index = pluginsData.value.findIndex(
-        (p) => p.Id === editingPlugin.value?.Id
+        (p) => p.Id === editingPlugin.value?.Id,
       );
       if (index > -1) {
-        pluginsData.value[index] = { ...editingPlugin.value, ...pluginForm.value };
+        pluginsData.value[index] = {
+          ...editingPlugin.value,
+          ...pluginForm.value,
+        };
       }
     }
 
@@ -1282,7 +1327,7 @@ const updatePlugin = async () => {
   } catch (error) {
     toast.add({
       severity: "error",
-      summary: "错误", 
+      summary: "错误",
       detail: "插件更新失败",
       life: 3000,
     });
@@ -1359,14 +1404,13 @@ const updatePlugin = async () => {
           font-size: 1.1rem;
         }
 
-        &:hover {
+        &:hover,
+        &.active {
           background: #f0f7ff;
           color: var(--primary-color);
         }
 
         &.active {
-          background: #f0f7ff;
-          color: var(--primary-color);
           font-weight: 500;
           border-left: 3px solid var(--primary-color);
         }
@@ -1415,6 +1459,13 @@ const updatePlugin = async () => {
       :deep(.p-datatable-tbody > tr:hover) {
         background-color: #f8f9fa;
       }
+    }
+
+    .pagination {
+      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      padding: 0 2rem;
     }
   }
 }
@@ -1525,9 +1576,9 @@ const updatePlugin = async () => {
   }
 }
 
-// 优化对话框样式
 :deep(.p-dialog) {
-  .p-dialog-header {
+  .p-dialog-header,
+  .p-dialog-footer {
     padding: 1.5rem;
     border-bottom: 1px solid #e4e4e4;
   }
@@ -1537,14 +1588,8 @@ const updatePlugin = async () => {
     overflow: auto;
     max-height: calc(90vh - 120px);
   }
-
-  .p-dialog-footer {
-    padding: 1.5rem;
-    border-top: 1px solid #e4e4e4;
-  }
 }
 
-// 优化图片预览样式
 :deep(.p-image) {
   .p-image-preview-container {
     img {
@@ -1584,7 +1629,6 @@ const updatePlugin = async () => {
   }
 }
 
-// 添加滚动条样式
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -1598,17 +1642,96 @@ const updatePlugin = async () => {
 ::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 4px;
-  
+
   &:hover {
     background: #999;
   }
 }
 
-// 优化表单样式
 .form-container {
   height: 100%;
   overflow: auto;
   padding: 1.5rem;
+}
+
+.screenshot-carousel-container {
+  .carousel-wrapper {
+    position: relative;
+    margin: 0 -1rem;
+
+    :deep(.custom-carousel) {
+      .p-carousel-container {
+        position: relative;
+        padding: 0 3rem;
+      }
+
+      .carousel-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 400px;
+        padding: 1rem;
+
+        .p-image {
+          width: 100%;
+          height: 100%;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        }
+      }
+
+      .p-carousel-prev,
+      .p-carousel-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3rem;
+        height: 3rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        margin: 0;
+
+        &:enabled:hover {
+          background: rgba(255, 255, 255, 1);
+        }
+      }
+
+      .p-carousel-prev {
+        left: 0;
+      }
+
+      .p-carousel-next {
+        right: 0;
+      }
+
+      .p-carousel-indicators {
+        margin-top: 1rem;
+
+        .p-carousel-indicator {
+          button {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: #ccc;
+
+            &.p-highlight {
+              background: var(--primary-color);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+:deep(.carousel-image) {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: cover !important;
 }
 </style>
 

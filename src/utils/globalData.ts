@@ -8,8 +8,7 @@ class GlobalData {
    */
   static async set(key: string, value: any) {
     try {
-      const strValue = JSON.stringify(value);
-      await ipcSetGlobalData(key, strValue);
+      await ipcSetGlobalData(key, value);
       return value;
     } catch (error) {
       console.error("设置全局数据失败:", error);
@@ -26,7 +25,7 @@ class GlobalData {
     try {
       const value = await ipcGetGlobalData(key);
       if (!value) return null;
-      return JSON.parse(value);
+      return value;
     } catch (error) {
       console.error("获取全局数据失败:", error);
       throw error;
