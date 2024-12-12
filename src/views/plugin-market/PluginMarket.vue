@@ -634,7 +634,7 @@ onMounted(() => {
     top: 5px;
     right: 12px;
     cursor: pointer;
-    z-index: 1;
+    z-index: 5001;
   }
 
   .search-area {

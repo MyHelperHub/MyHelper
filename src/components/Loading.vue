@@ -46,7 +46,7 @@ defineExpose({ showLoading, hideLoading });
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000;
+  z-index: 5000;
   transition: opacity 0.3s ease-in-out;
 
   .loading-spinner {

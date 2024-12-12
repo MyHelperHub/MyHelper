@@ -56,7 +56,7 @@
 1. 克隆项目
 
 ```bash
-git clone https://github.com/ialtone/myhelper.git
+git clone https://github.com/MyHelperHub/myhelper.git
 cd myhelper
 ```
 
@@ -100,8 +100,8 @@ npm run dev
 
 ## 🔗 相关链接
 
-- 📚 [项目文档](https://github.com/ialtone/myhelper/wiki)
-- 🐛 [问题反馈](https://github.com/ialtone/myhelper/issues)
+- 📚 [项目文档](https://github.com/MyHelperHub/myhelper/wiki)
+- 🐛 [问题反馈](https://github.com/MyHelperHub/myhelper/issues)
 
 ## 📞 联系方式
 

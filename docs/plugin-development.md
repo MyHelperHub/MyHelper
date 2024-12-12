@@ -193,5 +193,5 @@ A: 修改 `myPlugin.json` 中的版本号，重新打包提交即可。
 ## 联系我们
 
 - 开发者社区：[链接]
-- 问题反馈：[Issues](https://github.com/ialtone/myhelper/issues)
+- 问题反馈：[Issues](https://github.com/MyHelperHub/myhelper/issues)
 - QQ交流群：206028763 

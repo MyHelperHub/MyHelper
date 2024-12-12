@@ -1,6 +1,20 @@
 import { ServerResponse } from "@/interface/request";
 import { showMessage } from "@/utils/message";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import GlobalData from "@/utils/globalData";
+
+let cachedToken: string | null = null;
+
+// 初始化token
+const initToken = async () => {
+  try {
+    const userInfo = await GlobalData.get('userInfo');
+    cachedToken = userInfo?.Token || null;
+  } catch (error) {
+    console.error('初始化token失败:', error);
+    cachedToken = null;
+  }
+};
 
 // 创建 axios 实例
 const instance: AxiosInstance = axios.create({
@@ -13,14 +27,19 @@ const instance: AxiosInstance = axios.create({
 
 // 请求拦截器
 instance.interceptors.request.use(
-  (config) => {
-    // 这里可以添加token等通用处理
+  async (config) => {
+    if (cachedToken) {
+      config.headers['Token'] = cachedToken;
+    }
     return config;
   },
   (error) => {
     return Promise.reject(error);
   },
 );
+
+// 初始化token
+initToken();
 
 // 响应拦截器
 instance.interceptors.response.use(
@@ -31,6 +50,10 @@ instance.interceptors.response.use(
     // 检查是否为超时错误
     if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
       showMessage("网络请求超时，请检查网络连接", 3000, 2);
+    } else if (error.response?.status === 401) {
+      // token 失效或未登录
+      showMessage("登录已过期，请重新登录", 3000, 2);
+      // 这里可以添加跳转到登录页面的逻辑
     } else {
       showMessage("网络请求失败", 3000, 2);
       console.error("API请求失败:", error);
@@ -38,6 +61,7 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
 // 封装请求方法
 export const request = {
   get: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
@@ -51,4 +75,9 @@ export const request = {
   delete: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
     return instance.delete(url, config);
   },
+};
+
+// 提供更新token的方法
+export const updateToken = (token: string | null) => {
+  cachedToken = token;
 };

@@ -15,7 +15,7 @@
         label="Info"
         severity="info"
         variant="outlined"
-        @click="openLink('https://github.com/ialtone/MyHelper/issues')"
+        @click="openLink('https://github.com/MyHelperHub/myhelper/issues')"
         >意见反馈</Button
       >
       <div></div>
@@ -24,8 +24,8 @@
           <div class="intro-item-left">项目地址：</div>
           <div
             class="intro-item-right"
-            @click="openLink('https://github.com/ialtone/myhelper')">
-            https://github.com/ialtone/myhelper
+            @click="openLink('https://github.com/MyHelperHub/myhelper')">
+            https://github.com/MyHelperHub/myhelper
           </div>
         </div>
         <div class="intro-item">
@@ -134,9 +134,9 @@ import {
 import { showMessage } from "@/utils/message";
 import { copyToClipboard } from "@/utils/clipboard";
 import type { UpdateState } from "@/interface/update";
-import { ipcOpen } from "@/api/ipc/launch.api";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { open } from "@tauri-apps/plugin-shell";
 
 const showUpdateModal = ref(false);
 const updateState = ref<UpdateState>({
@@ -205,8 +205,8 @@ const handleUpdate = async () => {
   }
 };
 
-const openLink = (url: string) => {
-  ipcOpen(url);
+const openLink = async (url: string) => {
+  await open(url);
 };
 
 /** 在更新说明中的点击事件，如果点击外部链接，则用默认浏览器打开 */
@@ -216,7 +216,7 @@ const handleClick = (e: MouseEvent) => {
     e.preventDefault();
     const href = target.getAttribute("href");
     if (href) {
-      ipcOpen(href);
+      open(href);
     }
   }
 };
@@ -247,15 +247,17 @@ const handleClick = (e: MouseEvent) => {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 20px 50px;
       white-space: nowrap;
       gap: 6px;
+      max-width: 400px;
+      margin: 20px auto;
       .intro-item {
         display: flex;
         align-items: center;
         user-select: text;
         .intro-item-left {
           color: unset;
+          min-width: 80px;
         }
         .intro-item-right {
           color: #666;

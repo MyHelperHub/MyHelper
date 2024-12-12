@@ -20,6 +20,7 @@
     "core:webview:allow-internal-toggle-devtools",
     "core:webview:default",
     "core:event:default",
-    "core:event:allow-listen"
+    "core:event:allow-listen",
+    "shell:allow-open"
   ]
 }

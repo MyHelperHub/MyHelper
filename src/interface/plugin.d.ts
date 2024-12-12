@@ -18,64 +18,63 @@ interface PluginConfig extends Omit<WindowConfig, "windowId" | "url"> {
 
 /** 插件状态枚举 */
 export enum PluginStatus {
-  REVIEWING = 'REVIEWING',
-  PUBLISHED = 'PUBLISHED', 
-  REJECTED = 'REJECTED',
-  ENABLED = 'ENABLED',
-  DISABLED = 'DISABLED'
+  REVIEWING = 0,  // 审核中
+  PUBLISHED = 1,  // 已发布
+  REJECTED = 2,   // 已驳回
+  DISABLED = 3    // 已停用
 }
 
 /** 插件分类枚举 */
 export enum PluginCategory {
-  DEVELOPMENT = 'DEVELOPMENT',
-  EFFICIENCY = 'EFFICIENCY', 
-  NETWORK = 'NETWORK',
-  SYSTEM = 'SYSTEM',
-  ENTERTAINMENT = 'ENTERTAINMENT',
-  OTHER = 'OTHER'
+  DEVELOPMENT = 0,    // 开发工具
+  EFFICIENCY = 1,     // 效率工具
+  NETWORK = 2,        // 网络工具
+  SYSTEM = 3,         // 系统工具
+  ENTERTAINMENT = 4,  // 娱乐工具
+  OTHER = 5           // 其他
 }
 
 /** 插件信息接口 */
 export interface Plugin {
-  id?: number;
-  name: string;
-  description: string;
-  version: string;
-  author?: string;
-  email?: string;
-  icon?: string;
-  tags?: string[];
-  rating?: number;
-  downloads?: number;
-  status?: string;
-  category?: string;
-  windowId?: string;
-  title?: string;
-  size?: [number, number];
-  position?: [number, number];
-  alwaysOnTop?: boolean;
-  resizable?: boolean;
-  screenshots?: string[];
-  hasUpdate?: boolean;
-  createTime?: string;
-  updateTime?: string;
-  message?: string;
+  Id?: number;
+  Name: string; 
+  Description: string;
+  Version: string;
+  Author?: string;
+  Email?: string;
+  Icon?: string;
+  Tags?: string[];
+  Rating?: number;
+  Downloads?: number;
+  Status?: PluginStatus;
+  Category?: PluginCategory;
+  WindowId?: string;
+  Title?: string;
+  Size?: [number, number];
+  Position?: [number, number];
+  AlwaysOnTop?: boolean;
+  Resizable?: boolean;
+  Screenshots?: string[];
+  HasUpdate?: boolean;
+  CreateTime?: string;
+  UpdateTime?: string;
+  Message?: string;
 }
 
 /** 插件更新DTO */
 export interface PluginUpdateDTO {
-  windowId: string;
-  name?: string;
-  description?: string;
-  version?: string;
-  icon?: string;
-  tags?: string[];
-  category?: PluginCategory;
-  title?: string;
-  size?: [number, number];
-  position?: [number, number];
-  alwaysOnTop?: boolean;
-  resizable?: boolean;
-  status?: PluginStatus;
-  screenshots?: string[];
+  WindowId: string;
+  Name?: string;
+  Description?: string;
+  Version?: string;
+  Icon?: string;
+  Tags?: string[];
+  Category?: PluginCategory;
+  Title?: string;
+  Size?: [number, number];
+  Position?: [number, number];
+  AlwaysOnTop?: boolean;
+  Resizable?: boolean;
+  Status?: PluginStatus;
+  Screenshots?: string[];
 }

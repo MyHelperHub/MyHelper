@@ -70,7 +70,7 @@
               <span>{{ data.Name }}</span>
               <Tag
                 v-if="data.Status"
-                :value="data.Status"
+                :value="statusMap[data.Status]"
                 :severity="getStatusSeverity(data.Status)" />
               <Tag
                 v-if="data.HasUpdate"
@@ -444,7 +444,7 @@
           <Button
             :label="isEditMode ? '保存' : '上传'"
             :icon="isEditMode ? 'pi pi-save' : 'pi pi-upload'"
-            @click="isEditMode ? updatePlugin() : submitPlugin()" />
+            @click="isEditMode ? handleUpdatePlugin() : submitPlugin()" />
         </div>
       </template>
     </Dialog>
@@ -473,7 +473,7 @@
             </div>
             <Tag
               v-if="selectedPlugin.Status"
-              :value="selectedPlugin.Status"
+              :value="statusMap[selectedPlugin.Status]"
               :severity="getStatusSeverity(selectedPlugin.Status)" />
           </div>
 
@@ -590,8 +590,8 @@ import { ipcCloseWindow } from "@/api/ipc/window.api";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
-import { getPluginList } from "@/api/network/plugin.api";
-import { PluginStatus } from "@/interface/plugin";
+import { createPlugin, getPluginList, updatePlugin, uploadPluginFile } from "@/api/network/plugin.api";
+import { PluginStatus } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/utils/loading";
 import GlobalData from "@/utils/globalData";
 import Paginator from "primevue/paginator";
@@ -631,22 +631,21 @@ const userInfo = ref<{
 } | null>(null);
 
 // 修改状态映射
-const statusMap: Record<string, string> = {
-  PUBLISHED: "已发布",
-  ENABLED: "已启用",
-  DISABLED: "已禁用",
-  REJECTED: "已驳回",
-  REVIEWING: "审核中",
+const statusMap: Record<number, string> = {
+  0: "审核中",
+  1: "已发布", 
+  2: "已驳回",
+  3: "已停用"
 };
 
+
 // 修改状态样式映射
-const getStatusSeverity = (status: string) => {
-  const map: Record<string, string> = {
-    PUBLISHED: "success",
-    ENABLED: "success",
-    DISABLED: "danger",
-    REJECTED: "danger",
-    REVIEWING: "warning",
+const getStatusSeverity = (status: number) => {
+  const map: Record<number, string> = {
+    0: "warning", // 审核中
+    1: "success", // 已发布
+    2: "danger",  // 已驳回
+    3: "danger"   // 已停用
   };
   return map[status] || "info";
 };
@@ -657,7 +656,7 @@ interface Plugin {
   Name: string;
   Description: string;
   Version: string;
-  Status?: string;
+  Status?: PluginStatus;
   Downloads?: number;
   CreateTime: string;
   UpdateTime: string;
@@ -713,6 +712,7 @@ const pluginForm = ref({
   Name: "",
   Description: "",
   Version: "",
+  Status: PluginStatus.REVIEWING,
   Tags: [] as string[],
   File: null as File | null,
   Icon: "" as string,
@@ -759,6 +759,7 @@ const resetForm = () => {
     Name: "",
     Description: "",
     Version: "",
+    Status: PluginStatus.REVIEWING,
     Tags: [],
     File: null,
     Icon: "",
@@ -934,7 +935,7 @@ const submitPlugin = async () => {
 
   if (!pluginForm.value.File) {
     toast.add({
-      severity: "error",
+      severity: "error", 
       summary: "错误",
       detail: "请选择插件文件",
       life: 3000,
@@ -944,23 +945,16 @@ const submitPlugin = async () => {
 
   try {
     showLoading();
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const mockResponse = {
-      id: Date.now(),
-      status: "审核中",
-      createdTime: new Date().toISOString(),
-      updateTime: new Date().toISOString(),
-      author: "我",
-      downloads: 0,
-    };
-
-    pluginsData.value.unshift({
-      ...mockResponse,
+    
+    // 1. 先上传插件文件
+    const fileResponse = await uploadPluginFile(pluginForm.value.File);
+    
+    // 2. 创建插件信息
+    const pluginData = {
       Name: pluginForm.value.Name,
       Description: pluginForm.value.Description,
       Version: pluginForm.value.Version,
-      Status: "审核中" as PluginStatus,
+      Status: pluginForm.value.Status,
       Tags: pluginForm.value.Tags,
       Icon: pluginForm.value.Icon,
       Screenshots: pluginForm.value.Screenshots,
@@ -970,33 +964,91 @@ const submitPlugin = async () => {
       Position: pluginForm.value.Position,
       AlwaysOnTop: pluginForm.value.AlwaysOnTop,
       Resizable: pluginForm.value.Resizable,
-      Id: mockResponse.id,
-      CreateTime: new Date().toISOString(),
-      UpdateTime: new Date().toISOString(),
-      Author: "我",
-    });
+      FileName: fileResponse.Data, // 使用上传返回的文件名
+    };
 
-    uploadHistory.value.unshift({
-      id: mockResponse.id,
-      name: pluginForm.value.Name,
-      version: pluginForm.value.Version,
-      uploadTime: new Date().toISOString(),
-      status: "处理中",
-      message: "正在处理上传请求",
-    });
-
-    toast.add({
-      severity: "success",
-      summary: "成功",
-      detail: "插件上传成功",
-      life: 3000,
-    });
-    closeDialog();
+    const response = await createPlugin(pluginData);
+    
+    if (response.Code === "0001") {
+      toast.add({
+        severity: "success",
+        summary: "成功",
+        detail: "插件上传成功",
+        life: 3000,
+      });
+      closeDialog();
+      loadData(); // 重新加载列表
+    } else {
+      throw new Error(response.Message);
+    }
+    
   } catch (error) {
     toast.add({
       severity: "error",
       summary: "错误",
-      detail: "插件上传失败",
+      detail: error instanceof Error ? error.message : "插件上传失败",
+      life: 3000,
+    });
+  } finally {
+    hideLoading();
+  }
+};
+
+// 重命名方法以避免与 API 函数冲突
+const handleUpdatePlugin = async () => {
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    showLoading();
+    
+    let fileName = undefined;
+    
+    // 如果有新文件，先上传
+    if (pluginForm.value.File) {
+      const fileResponse = await uploadPluginFile(pluginForm.value.File);
+      fileName = fileResponse.Data;
+    }
+
+    const updateData = {
+      Id: editingPlugin.value?.Id,
+      Name: pluginForm.value.Name,
+      Description: pluginForm.value.Description,
+      Version: pluginForm.value.Version,
+      Tags: pluginForm.value.Tags,
+      Icon: pluginForm.value.Icon,
+      Screenshots: pluginForm.value.Screenshots,
+      WindowId: pluginForm.value.WindowId,
+      Title: pluginForm.value.Title,
+      Size: pluginForm.value.Size,
+      Position: pluginForm.value.Position,
+      AlwaysOnTop: pluginForm.value.AlwaysOnTop,
+      Resizable: pluginForm.value.Resizable,
+      FileName: fileName, // 如果有新文件则更新，否则保持原值
+    };
+
+    // 这里使用从 API 导入的 updatePlugin 函数
+    const response = await updatePlugin(updateData);
+    
+    if (response.Code === "0001") {
+      toast.add({
+        severity: "success",
+        summary: "成功",
+        detail: "插件更新成功",
+        life: 3000,
+      });
+      closeDialog();
+      loadData(); // 重新加载列表
+    } else {
+      throw new Error(response.Message);
+    }
+
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "错误",
+      detail: error instanceof Error ? error.message : "插件更新失败",
       life: 3000,
     });
   } finally {
@@ -1037,12 +1089,7 @@ const loadData = async () => {
         });
         
         if (response.Code === "0001" && response.Data) {
-          pluginsData.value = (response.Data as unknown as Plugin[]).map(
-            (item) => ({
-              ...item,
-              Status: statusMap[item.Status as keyof typeof statusMap] || item.Status,
-            }),
-          );
+          pluginsData.value = (response.Data as unknown as Plugin[]);
           // 从返回的Page对象中获取总记录数
           totalRecords.value = response.Page.TotalRecords;
         }
@@ -1289,52 +1336,10 @@ interface UploadRecord {
   Version: string;
   UploadTime: string;
   CreateTime: string;
-  Status: string;
+  Status: PluginStatus;
   Message: string;
 }
 
-// 修改详情对话框的条件渲染
-
-// 添加更新插件方法
-const updatePlugin = async () => {
-  if (!validateForm()) {
-    return;
-  }
-
-  try {
-    showLoading();
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (editingPlugin.value) {
-      const index = pluginsData.value.findIndex(
-        (p) => p.Id === editingPlugin.value?.Id,
-      );
-      if (index > -1) {
-        pluginsData.value[index] = {
-          ...editingPlugin.value,
-          ...pluginForm.value,
-        };
-      }
-    }
-
-    toast.add({
-      severity: "success",
-      summary: "成功",
-      detail: "插件更新成功",
-      life: 3000,
-    });
-    closeDialog();
-  } catch (error) {
-    toast.add({
-      severity: "error",
-      summary: "错误",
-      detail: "插件更新失败",
-      life: 3000,
-    });
-  } finally {
-    hideLoading();
-  }
-};
 </script>
 
 <style lang="less" scoped>
@@ -1349,7 +1354,7 @@ const updatePlugin = async () => {
     top: 5px;
     right: 12px;
     cursor: pointer;
-    z-index: 1;
+    z-index: 5001;
   }
 
   .sidebar {
