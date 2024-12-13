@@ -15,10 +15,10 @@
   "dependencies": {
     "@primevue/themes": "^4.2.4",
     "@tauri-apps/api": "^2.1.1",
-    "@tauri-apps/plugin-dialog": "^2.0.1",
-    "@tauri-apps/plugin-process": "^2.0.0",
+    "@tauri-apps/plugin-dialog": "^2.2.0",
+    "@tauri-apps/plugin-process": "^2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",
-    "@tauri-apps/plugin-updater": "^2.0.0",
+    "@tauri-apps/plugin-updater": "^2.3.0",
     "axios": "^1.7.7",
     "dompurify": "^3.1.7",
     "less": "^4.2.1",

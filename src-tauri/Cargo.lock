@@ -668,9 +668,9 @@ dependencies = [
 
 [[package]]
 name = "clipboard-rs"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd61885ce9f906c60f40d384b132fed04685f51d3da3576d27b8e4f274b6100d"
+checksum = "c525d1554fa31abe88c8aa853d3cf0170320f6553dbc322642d4fe0a5cb2cda1"
 dependencies = [
  "clipboard-win",
  "image",
@@ -2853,11 +2853,15 @@ dependencies = [
  "gtk",
  "image",
  "objc",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
  "open",
  "permission-macro",
  "rand 0.8.5",
  "rdev",
  "reqwest",
+ "scopeguard",
  "scraper",
  "serde",
  "serde_json",
@@ -2870,6 +2874,7 @@ dependencies = [
  "tokio",
  "url",
  "winapi",
+ "windows 0.58.0",
  "x11",
  "zip",
 ]
@@ -5085,9 +5090,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-dialog"
-version = "2.0.3"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4307310e1d2c09ab110235834722e7c2b85099b683e1eb7342ab351b0be5ada3"
+checksum = "8b59fd750551b1066744ab956a1cd6b1ea3e1b3763b0b9153ac27a044d596426"
 dependencies = [
  "log",
  "raw-window-handle",
@@ -5097,15 +5102,15 @@ dependencies = [
  "tauri",
  "tauri-plugin",
  "tauri-plugin-fs",
- "thiserror 1.0.63",
+ "thiserror 2.0.3",
  "url",
 ]
 
 [[package]]
 name = "tauri-plugin-fs"
-version = "2.0.3"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96ba7d46e86db8c830d143ef90ab5a453328365b0cc834c24edea4267b16aba0"
+checksum = "a1a1edf18000f02903a7c2e5997fb89aca455ecbc0acc15c6535afbb883be223"
 dependencies = [
  "anyhow",
  "dunce",
@@ -5117,7 +5122,9 @@ dependencies = [
  "serde_repr",
  "tauri",
  "tauri-plugin",
- "thiserror 1.0.63",
+ "tauri-utils",
+ "thiserror 2.0.3",
+ "toml 0.8.2",
  "url",
  "uuid",
 ]
@@ -5145,9 +5152,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-updater"
-version = "2.0.2"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dd3d2fe0f02bf52eebb5a9d23b987fffac6684646ab6fd683d706dafb18da87"
+checksum = "b7351014c140906bcfff59d96e04b1170c8f602557f40eb37f7de356d4e7067b"
 dependencies = [
  "base64 0.22.1",
  "dirs",
@@ -5165,7 +5172,7 @@ dependencies = [
  "tauri",
  "tauri-plugin",
  "tempfile",
- "thiserror 1.0.63",
+ "thiserror 2.0.3",
  "time",
  "tokio",
  "url",

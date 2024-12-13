@@ -1,12 +1,17 @@
-use image::codecs::png::PngEncoder;
-use image::ImageEncoder;
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use std::path::Path;
 use std::fs::{self, File};
 use std::io::BufWriter;
-use std::process::Command;
+
+use gio::{prelude::*, File as GioFile, FileQueryInfoFlags, Cancellable};
+use gtk::{prelude::IconThemeExt, IconLookupFlags};
+use image::{DynamicImage, ImageBuffer, Rgba};
+use image::codecs::png::PngEncoder;
+use image::ImageEncoder;
+use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
 
 use crate::utils::path::get_myhelper_path;
+use crate::utils::error::AppResult;
 
 /// 获取应用程序图标
 ///
@@ -16,18 +21,21 @@ use crate::utils::path::get_myhelper_path;
 ///
 /// # Returns
 ///
-/// * `String` - 成功返回保存的图标文件路径，失败返回空字符串
-pub fn get_app_icon(exe_path: &str) -> String {
+/// * `AppResult<String>` - 成功返回保存的图标文件路径
+pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
+    // 检查路径是否存在
+    if !Path::new(exe_path).exists() {
+        return Ok(String::new());
+    }
+
     // 获取用户目录
-    let myhelper_path = match get_myhelper_path().map(|path| path.join("Image").join("AppIcon")) {
-        Ok(path) => path,
-        Err(_) => return String::new(),
-    };
+    let myhelper_path = get_myhelper_path()
+        .map(|path| path.join("Image").join("AppIcon"))
+        .map_err(|e| e.to_string())?;
 
     if !myhelper_path.exists() {
-        if let Err(_) = fs::create_dir_all(&myhelper_path) {
-            return String::new();
-        }
+        fs::create_dir_all(&myhelper_path)
+            .map_err(|e| e.to_string())?;
     }
 
     // 生成随机文件名
@@ -38,107 +46,86 @@ pub fn get_app_icon(exe_path: &str) -> String {
         .collect();
     let output_path = myhelper_path.join(format!("app_image_{}.png", random_chars));
 
-    // 使用 GTK 的 icon-query 工具获取图标
-    let output = match Command::new("gtk-query-immodules-3.0")
-        .arg(exe_path)
-        .output()
-    {
-        Ok(output) => output,
-        Err(_) => return String::new(),
-    };
-
-    if !output.status.success() {
-        return String::new();
+    // 初始化 GTK
+    if gtk::init().is_err() {
+        return Ok(String::new());
     }
 
-    // 解析输出获取图标路径
-    let icon_theme = match Command::new("gtk-query-settings")
-        .arg("gtk-icon-theme-name")
-        .output()
-    {
-        Ok(output) => output,
-        Err(_) => return String::new(),
+    // 获取文件信息
+    let file = GioFile::for_path(exe_path);
+    let file_info = match file.query_info("*", FileQueryInfoFlags::NONE, None::<&Cancellable>) {
+        Ok(info) => info,
+        Err(_) => return Ok(String::new()),
     };
 
-    // 尝试从多个标准位置查找图标
-    let icon_paths = vec![
-        "/usr/share/icons",
-        "/usr/local/share/icons",
-        "~/.local/share/icons",
-    ];
+    // 获取内容类型和图标
+    let content_type = match file_info.content_type() {
+        Some(ct) => ct,
+        None => return Ok(String::new()),
+    };
+    
+    let icon = gio::functions::content_type_get_icon(&content_type);
 
-    // 查找并复制第一个找到的图标
-    for path in icon_paths {
-        let icon_path = format!(
-            "{}/{}/128x128/apps/",
-            path,
-            String::from_utf8_lossy(&icon_theme.stdout).trim()
-        );
-        if let Ok(entries) = fs::read_dir(icon_path) {
-            for entry in entries {
-                if let Ok(entry) = entry {
-                    if entry.path().to_string_lossy().contains(exe_path) {
-                        // 打开源文件
-                        let img = match image::open(entry.path()) {
-                            Ok(img) => img,
-                            Err(_) => return String::new(),
-                        };
+    // 获取图标数据
+    let pixbuf = if let Some(themed_icon) = icon.dynamic_cast_ref::<gio::ThemedIcon>() {
+        let icon_theme = match gtk::IconTheme::default() {
+            Some(theme) => theme,
+            None => return Ok(String::new()),
+        };
 
-                        // 创建输出文件
-                        let output_file = match File::create(&output_path) {
-                            Ok(file) => file,
-                            Err(_) => return String::new(),
-                        };
-                        let writer = BufWriter::new(output_file);
-
-                        // 创建 PngEncoder
-                        let encoder = PngEncoder::new(writer);
-
-                        // 编码并写入
-                        if let Err(_) = encoder.write_image(
-                            img.as_bytes(),
-                            img.width(),
-                            img.height(),
-                            img.color().into(),
-                        ) {
-                            return String::new();
-                        }
-
-                        return output_path.display().to_string();
-                    }
-                }
+        // 尝试从图标名称列表中获取图标
+        let mut pb = None;
+        for name in themed_icon.names() {
+            if let Ok(Some(pixbuf)) = icon_theme.load_icon(&name, 128, IconLookupFlags::empty()) {
+                pb = Some(pixbuf);
+                break;
             }
         }
-    }
 
-    // 如果没有找到图标，使用默认图标
-    let default_icon = "/usr/share/icons/hicolor/128x128/apps/application-x-executable.png";
+        // 如果没有找到图标，尝试使用通用可执行文件图标
+        if pb.is_none() {
+            pb = icon_theme
+                .load_icon("application-x-executable", 128, IconLookupFlags::GENERIC_FALLBACK)
+                .ok()
+                .flatten();
+        }
 
-    // 打开默认图标
-    let img = match image::open(default_icon) {
-        Ok(img) => img,
-        Err(_) => return String::new(),
+        match pb {
+            Some(p) => p,
+            None => return Ok(String::new()),
+        }
+    } else {
+        return Ok(String::new());
     };
 
-    // 创建输出文件
+    // 转换为 RGBA 格式
+    let pixels = pixbuf.read_pixel_bytes().to_vec();
+    let width = pixbuf.width() as u32;
+    let height = pixbuf.height() as u32;
+
+    let img_buffer = match ImageBuffer::<Rgba<u8>, _>::from_raw(width, height, pixels) {
+        Some(buffer) => buffer,
+        None => return Ok(String::new()),
+    };
+
+    let img = DynamicImage::ImageRgba8(img_buffer);
+
+    // 保存为 PNG
     let output_file = match File::create(&output_path) {
         Ok(file) => file,
-        Err(_) => return String::new(),
+        Err(_) => return Ok(String::new()),
     };
     let writer = BufWriter::new(output_file);
-
-    // 创建 PngEncoder
     let encoder = PngEncoder::new(writer);
 
-    // 编码并写入
     if let Err(_) = encoder.write_image(
         img.as_bytes(),
         img.width(),
         img.height(),
         img.color().into(),
     ) {
-        return String::new();
+        return Ok(String::new());
     }
 
-    output_path.display().to_string()
+    Ok(output_path.display().to_string())
 }
