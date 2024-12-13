@@ -19,6 +19,6 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     }
     #[cfg(target_os = "linux")]
     {
-        Ok(linux::get_app_icon(exe_path))
+        linux::get_app_icon(exe_path)
     }
 }
