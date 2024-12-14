@@ -130,15 +130,11 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     };
 
     // 处理像素数据
-    let pixels = if pixel_format == GUID_WICPixelFormat32bppBGRA || pixel_format == GUID_WICPixelFormat32bppRGBA {
+    let pixels = if pixel_format == GUID_WICPixelFormat32bppBGRA
+        || pixel_format == GUID_WICPixelFormat32bppRGBA
+    {
         let mut pixels = vec![0u8; 128 * 128 * 4];
-        if let Err(_) = unsafe {
-            wic_bitmap.CopyPixels(
-                &source_rect,
-                128 * 4,
-                &mut pixels,
-            )
-        } {
+        if let Err(_) = unsafe { wic_bitmap.CopyPixels(&source_rect, 128 * 4, &mut pixels) } {
             return Ok(String::new());
         }
 

@@ -5,24 +5,17 @@ import { invoke } from "@tauri-apps/api/core";
  * @param path 要打开的网页或应用路径
  * @returns 返回一个 Promise，在操作完成时解析或拒绝
  */
-export const ipcOpen = (path: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    invoke("open_web_or_app", { path })
-      .then(() => {
-        resolve();
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+export const ipcOpen = async (path: string): Promise<void> => {
+  return await invoke("open_web_or_app", { path });
 };
+
 /**
  * 获取应用程序的图标
  * @param exePath 应用程序的可执行文件路径
  * @returns 返回图标的二进制数据
  */
 export const ipcGetAppIcon = async (exePath: string) => {
-  return invoke("get_app_icon", { exePath });
+  return await invoke("get_app_icon", { exePath });
 };
 
 /**
@@ -31,7 +24,7 @@ export const ipcGetAppIcon = async (exePath: string) => {
  * @returns 返回图标的二进制数据
  */
 export const ipcGetWebIcon = async (url: string) => {
-  return invoke("get_web_icon", { url });
+  return await invoke("get_web_icon", { url });
 };
 
 /**
@@ -40,8 +33,9 @@ export const ipcGetWebIcon = async (url: string) => {
  * @param appType 应用类型，0 为网页图标，1 为应用图标
  */
 export const ipcSetLocalIcon = async (imagePath: string, appType: number) => {
-  return invoke("set_local_icon", { imagePath, appType });
+  return await invoke("set_local_icon", { imagePath, appType });
 };
+
 /**
  * 删除图标
  * @param filename 文件名
@@ -49,14 +43,15 @@ export const ipcSetLocalIcon = async (imagePath: string, appType: number) => {
  * @returns
  */
 export const ipcDeleteIcon = async (filename: string, appType: number) => {
-  return invoke("delete_icon", { filename, appType });
+  return await invoke("delete_icon", { filename, appType });
 };
+
 /**
  * 设置本地文件为图标
  * @param imageBase64 图标路径
  */
 export const ipcSetLogo = async (imageBase64: string) => {
-  return invoke("set_logo", { imageBase64 });
+  return await invoke("set_logo", { imageBase64 });
 };
 
 /**
@@ -65,5 +60,5 @@ export const ipcSetLogo = async (imageBase64: string) => {
  * @returns
  */
 export const ipcFileExists = async (path: string) => {
-  return invoke("file_exists", { path });
+  return await invoke("file_exists", { path });
 };
