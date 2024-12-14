@@ -31,14 +31,15 @@
 <script setup>
 import { ref } from "vue";
 import Mochi from "./Mochi/Mochi.vue";
-import { ipcCloseWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl } from "@/api/ipc/window.api";
+import { WindowOperation } from "@/interface/enum";
 import { showContextMenu } from "./utils/contextMenu";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
 const showCloseButton = ref(false);
 
 const handleClose = () => {
-  ipcCloseWindow(NewWindowEnum.Label);
+  ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.Label });
 };
 </script>
 

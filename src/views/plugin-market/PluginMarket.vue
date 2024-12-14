@@ -275,8 +275,9 @@ import { useRouter } from "vue-router";
 import { showLoading, hideLoading } from "@/utils/loading";
 import { useToast } from 'primevue/usetoast';
 import { getPluginList, downloadPlugin, ratePlugin, updatePluginStatus } from '@/api/network/plugin.api';
-import { ipcCloseWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl } from "@/api/ipc/window.api";
 import { NewWindowEnum } from "@/interface/windowEnum";
+import { WindowOperation } from "@/interface/enum";
 
 const toast = useToast();
 const router = useRouter();
@@ -565,7 +566,7 @@ const gotoDevelop = () => {
 
 /** 关闭窗口 */
 const handleClose = () => {
-  ipcCloseWindow(NewWindowEnum.PluginMarket);
+  ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.PluginMarket });
 };
 
 const filteredPlugins = computed(() => {

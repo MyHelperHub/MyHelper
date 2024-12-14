@@ -1,6 +1,7 @@
 use crate::utils::error::{AppError, AppResult};
+use serde_json::Value;
 use std::path::Path;
-use tauri::{LogicalSize, Manager, WebviewUrl, WebviewWindowBuilder, image::Image};
+use tauri::{image::Image, LogicalSize, Manager, WebviewUrl, WebviewWindowBuilder};
 
 /// 参考分辨率的宽度（2560x1440为基准）
 const REFERENCE_WIDTH: f64 = 2560.0;
@@ -10,9 +11,9 @@ const REFERENCE_HEIGHT: f64 = 1440.0;
 const SMALL_SCREEN_SCALE_FACTOR: f64 = 1.3;
 
 /// 设置窗口大小，会根据屏幕分辨率自动调整缩放
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `app_handle` - Tauri应用句柄
 /// * `width` - 基于参考分辨率的目标宽度
 /// * `height` - 基于参考分辨率的目标高度
@@ -67,15 +68,15 @@ pub async fn set_window_size(
 }
 
 /// 创建新窗口
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `app_handle` - Tauri应用句柄
 /// * `window_id` - 窗口唯一标识符
 /// * `title` - 窗口标题
 /// * `url` - 窗口加载的URL
 /// * `size` - 窗口大小 (width, height)
-/// * `position` - 窗口位置 (x, y)，-1 表示居中
+/// * `position` - 窗口位置 (x, y)，-1 表示���中
 /// * `always_on_top` - 是否总是置顶
 /// * `resizable` - 是否可调整大小
 /// * `icon` - 窗口图标路径
@@ -104,12 +105,12 @@ pub async fn create_new_window(
                 .into_iter()
                 .next()
                 .ok_or_else(|| AppError::Error("未找到任何可用显示器".to_string()))?
-        },
-        Err(e) => return Err(AppError::Error(format!("获取显示器信息失败: {}", e)))
+        }
+        Err(e) => return Err(AppError::Error(format!("获取显示器信息失败: {}", e))),
     };
 
     let monitor_size = monitor.size();
-    
+
     // 简化缩放计算逻辑
     let scale_factor = (monitor_size.width as f64 / REFERENCE_WIDTH)
         .min(monitor_size.height as f64 / REFERENCE_HEIGHT);
@@ -135,11 +136,11 @@ pub async fn create_new_window(
         Some((pos_x, pos_y)) => {
             let center_x = (monitor_size.width as f64 - width) / 2.0;
             let center_y = (monitor_size.height as f64 - height) / 2.0;
-            
+
             match (pos_x, pos_y) {
-                (-1.0, -1.0) => (center_x, center_y),                    // 完全居中
-                (-1.0, y) => (center_x, y * adjusted_scale_factor),      // 水平居中
-                (x, -1.0) => (x * adjusted_scale_factor, center_y),      // 垂直居中
+                (-1.0, -1.0) => (center_x, center_y),               // 完全居中
+                (-1.0, y) => (center_x, y * adjusted_scale_factor), // 水平居中
+                (x, -1.0) => (x * adjusted_scale_factor, center_y), // 垂直居中
                 (x, y) => (x * adjusted_scale_factor, y * adjusted_scale_factor), // 指定位置
             }
         }
@@ -150,16 +151,17 @@ pub async fn create_new_window(
     };
 
     // 构建基础窗口配置
-    let mut builder = WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
-        .title(title)
-        .shadow(false)
-        .transparent(true)
-        .visible(loading.unwrap_or(false))
-        .decorations(false)
-        .always_on_top(always_on_top.unwrap_or(false))
-        .resizable(resizable.unwrap_or(true))
-        .inner_size(width, height)
-        .position(x, y);
+    let mut builder =
+        WebviewWindowBuilder::new(&app_handle, &window_id, WebviewUrl::App(url.into()))
+            .title(title)
+            .shadow(false)
+            .transparent(true)
+            .visible(loading.unwrap_or(false))
+            .decorations(false)
+            .always_on_top(always_on_top.unwrap_or(false))
+            .resizable(resizable.unwrap_or(true))
+            .inner_size(width, height)
+            .position(x, y);
 
     // 处理图标设置
     if let Some(icon_path) = icon {
@@ -197,7 +199,7 @@ pub async fn create_new_window(
     new_window
         .set_zoom(adjusted_scale_factor)
         .map_err(|e| e.to_string())?;
-    
+
     // 只有在 loading 为 false 时才需要手动显示窗口
     if !loading.unwrap_or(false) {
         new_window.show().map_err(|e| e.to_string())?;
@@ -206,88 +208,88 @@ pub async fn create_new_window(
     Ok(())
 }
 
-/// 关闭指定ID的窗口
-/// 
+/// 窗口操作类型
+#[derive(Debug)]
+pub enum WindowOperation {
+    Close = 0,
+    Minimize = 1,
+    Maximize = 2,
+    Restore = 3,
+    ToggleAlwaysOnTop = 4, // 切换窗口置顶状态
+}
+
+impl TryFrom<i32> for WindowOperation {
+    type Error = AppError;
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(WindowOperation::Close),
+            1 => Ok(WindowOperation::Minimize),
+            2 => Ok(WindowOperation::Maximize),
+            3 => Ok(WindowOperation::Restore),
+            4 => Ok(WindowOperation::ToggleAlwaysOnTop),
+            _ => Err(AppError::Error("无效的窗口操作类型".to_string())),
+        }
+    }
+}
+
+/// 统一的窗口控制函数
+///
 /// # Arguments
-/// 
+///
 /// * `window` - 触发该命令的窗口
 /// * `app_handle` - Tauri应用句柄
-/// * `window_id` - 要关闭的窗口ID
+/// * `operation` - 操作类型：
+///   - 0: 关闭窗口
+///   - 1: 最小化窗口
+///   - 2: 最大化窗口
+///   - 3: 还原窗口
+///   - 4: 切换窗口置顶状态
 #[tauri::command]
-pub async fn close_new_window(
+pub async fn window_control(
     window: tauri::Window,
     app_handle: tauri::AppHandle,
-    window_id: Option<String>,
+    operation: i32,
+    params: Option<Value>,
 ) -> AppResult<()> {
-    let target_window_id = match window_id {
-        Some(id) => id,
-        None => window.label().to_string()
-    };
+    // 从 params 中获取 window_id
+    let target_window_id = params
+        .as_ref()
+        .and_then(|v| v.get("window_id"))
+        .and_then(|v| v.as_str())
+        .unwrap_or_else(|| window.label());
 
-    // 检查权限：main窗口可以关闭任何窗口，其他窗口只能关闭自己
+    // 检查权限：main窗口可以控制任何窗口，其他窗口只能控制自己
     if window.label() != "main" && target_window_id != window.label() {
-        return Err(AppError::Error(
-            "不允许关闭其他插件的窗口".to_string()
-        ));
+        return Err(AppError::Error("不允许控制其他插件的窗口".to_string()));
     }
 
     let target_window = app_handle
-        .get_webview_window(&target_window_id)
-        .ok_or_else(|| AppError::Error(format!("{}", target_window_id)))?;
+        .get_webview_window(target_window_id)
+        .ok_or_else(|| AppError::Error(format!("未找到窗口: {}", target_window_id)))?;
 
-    target_window
-        .close()
-        .map_err(|e| AppError::Error(e.to_string()))?;
+    // 将整数转换为操作类型
+    let operation = WindowOperation::try_from(operation)?;
 
-    Ok(())
-}
-
-/// 设置窗口的置顶状态
-/// 
-/// # Arguments
-/// 
-/// * `app_handle` - Tauri应用句柄
-/// * `window_id` - 目标窗口ID
-/// * `is_always_on_top` - 是否置顶
-#[tauri::command]
-pub async fn set_window_always_on_top(
-    window: tauri::Window,
-    app_handle: tauri::AppHandle,
-    window_id: String,
-    is_always_on_top: bool,
-) -> AppResult<()> {
-    // 权限检查：main窗口可以修改任何窗口，其他窗口只能修改自己
-    if window.label() != "main" && window_id != window.label() {
-        return Err(AppError::Error(
-            "不允许修改其他插件的窗口状态".to_string()
-        ));
+    // 执行相应的窗口操作
+    match operation {
+        WindowOperation::Close => target_window.close(),
+        WindowOperation::Minimize => target_window.minimize(),
+        WindowOperation::Maximize => target_window.maximize(),
+        WindowOperation::Restore => target_window.unminimize(),
+        WindowOperation::ToggleAlwaysOnTop => {
+            let always_on_top = params
+                .as_ref()
+                .and_then(|v| v.get("always_on_top"))
+                .and_then(|v| v.as_bool())
+                .unwrap_or(true);
+            target_window.set_always_on_top(always_on_top)
+        }
     }
-
-    let target_window = app_handle
-        .get_webview_window(&window_id)
-        .ok_or_else(|| AppError::Error(format!("未找到窗口: {}", window_id)))?;
-
-    target_window
-        .set_always_on_top(is_always_on_top)
-        .map_err(|e| AppError::Error(e.to_string()))?;
+    .map_err(|e| AppError::Error(e.to_string()))?;
 
     Ok(())
 }
-
-/// 检查文件是否存在
-/// 
-/// # Arguments
-/// 
-/// * `path` - 要检查的文件路径
-/// 
-/// # Returns
-/// 
-/// * `bool` - 文件是否存在
-#[tauri::command]
-pub fn file_exists(path: String) -> bool {
-    Path::new(&path).exists()
-}
-
 
 #[tauri::command]
 pub fn open_devtools(app_handle: tauri::AppHandle) {
@@ -298,4 +300,18 @@ pub fn open_devtools(app_handle: tauri::AppHandle) {
             window.close_devtools();
         }
     }
+}
+
+/// 检查文件是否存在
+///
+/// # Arguments
+///
+/// * `path` - 要检查的文件路径
+///
+/// # Returns
+///
+/// * `bool` - 文件是否存在
+#[tauri::command]
+pub fn file_exists(path: String) -> bool {
+    Path::new(&path).exists()
 }

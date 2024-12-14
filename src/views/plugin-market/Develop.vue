@@ -8,7 +8,7 @@
           icon="pi pi-arrow-left"
           class="p-button-text p-button-sm back-button"
           @click="goBack" />
-        <span>插件管理</span>
+        <span>开发者插件管理</span>
       </div>
       <div class="menu-items">
         <div
@@ -136,8 +136,7 @@
           :first="(currentPage - 1) * rowsPerPage"
           template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
           :rowsPerPageOptions="[10, 20, 50]"
-          @page="onPageChange"
-        />
+          @page="onPageChange" />
       </div>
     </div>
 
@@ -536,7 +535,9 @@
           </div>
 
           <!-- 截图预览 -->
-          <div v-if="selectedPlugin.Screenshots?.length" class="screenshot-carousel-container">
+          <div
+            v-if="selectedPlugin.Screenshots?.length"
+            class="screenshot-carousel-container">
             <label class="text-sm text-gray-600">截图预览</label>
             <div class="mt-2 carousel-wrapper">
               <Carousel
@@ -586,11 +587,17 @@ import ConfirmPopup from "primevue/confirmpopup";
 import InputNumber from "primevue/inputnumber";
 import Checkbox from "primevue/checkbox";
 import InputChips from "primevue/inputchips";
-import { ipcCloseWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl } from "@/api/ipc/window.api";
+import { WindowOperation } from "@/interface/enum";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
-import { createPlugin, getPluginList, updatePlugin, uploadPluginFile } from "@/api/network/plugin.api";
+import {
+  createPlugin,
+  getPluginList,
+  updatePlugin,
+  uploadPluginFile,
+} from "@/api/network/plugin.api";
 import { PluginStatus } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/utils/loading";
 import GlobalData from "@/utils/globalData";
@@ -600,8 +607,8 @@ const toast = useToast();
 const confirm = useConfirm();
 
 enum MenuKey {
-  MyPlugins = 0,    // 我的插件
-  UploadHistory = 1 // 上传记录
+  MyPlugins = 0, // 我的插件
+  UploadHistory = 1, // 上传记录
 }
 
 const activeMenu = ref<MenuKey>(MenuKey.MyPlugins);
@@ -622,30 +629,77 @@ const menuTitles = {
 
 const menuItems = ref(MENU_ITEMS);
 
-// 添加用户信息相关的ref
-const userInfo = ref<{
-  UserId: number;
-  Email: string;
-  Username: string;
-  Avatar: string | null;
-} | null>(null);
-
 // 修改状态映射
 const statusMap: Record<number, string> = {
   0: "审核中",
-  1: "已发布", 
+  1: "已发布",
   2: "已驳回",
-  3: "已停用"
+  3: "已停用",
 };
 
+// 分页相关的状态
+const currentPage = ref(1);
+const rowsPerPage = ref(10);
+const totalRecords = ref(0);
 
-// 修改状态样式映射
+/** 加载插件数据 */
+const loadData = async () => {
+  try {
+    showLoading();
+    const userData = await GlobalData.get("userInfo");
+    console.log(userData);
+
+    if (!userData.Token) {
+      toast.add({
+        severity: "warn",
+        summary: "提示",
+        detail: "请先登录后再访问",
+        life: 3000,
+      });
+      hideLoading();
+      return;
+    }
+
+    switch (activeMenu.value) {
+      case MenuKey.MyPlugins:
+        const response = await getPluginList({
+          userId: userData.UserId,
+          pageIndex: currentPage.value,
+          pageSize: rowsPerPage.value,
+        });
+
+        if (response.Code === "0001" && response.Data) {
+          pluginsData.value = response.Data as unknown as Plugin[];
+          totalRecords.value = response.Page.TotalRecords;
+        }
+        break;
+      case MenuKey.UploadHistory:
+        // 处理上传历史记录...
+        break;
+    }
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "错误",
+      detail: "加载数据失败",
+      life: 3000,
+    });
+  } finally {
+    hideLoading();
+  }
+};
+
+/**
+ * 获���插件状态对应的样式
+ * @param status - 插件状态值
+ * @returns 对应的样式名称
+ */
 const getStatusSeverity = (status: number) => {
   const map: Record<number, string> = {
     0: "warning", // 审核中
     1: "success", // 已发布
-    2: "danger",  // 已驳回
-    3: "danger"   // 已停用
+    2: "danger", // 已驳回
+    3: "danger", // 已停用
   };
   return map[status] || "info";
 };
@@ -746,14 +800,14 @@ const isEditMode = computed(() => !!editingPlugin.value);
 // 将 showEditDialog 替换为 isEditMode
 // 例如: :header="isEditMode ? '编辑插件' : '上传插件'"
 
-// 简化关闭对话框逻辑
+/** 关闭当前对话框并重置表单 */
 const closeDialog = () => {
   showPluginDialog.value = false;
   editingPlugin.value = null;
   resetForm();
 };
 
-// 表单重置逻辑独立
+/** 重置表单数据和错误信息 */
 const resetForm = () => {
   pluginForm.value = {
     Name: "",
@@ -782,7 +836,10 @@ const resetForm = () => {
   };
 };
 
-// 简化编辑插件逻辑
+/**
+ * 编辑插件信息
+ * @param plugin - 待编辑的插件对象
+ */
 const editPlugin = (plugin: Plugin) => {
   editingPlugin.value = plugin;
   showPluginDialog.value = true;
@@ -801,7 +858,10 @@ const editPlugin = (plugin: Plugin) => {
 // 添加图标相关的引用
 const iconInput = ref<HTMLInputElement | null>(null);
 
-// 添加图标处理函数
+/**
+ * 处理图标选择
+ * @param event - 文件选择事件
+ */
 const handleIconSelect = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files?.[0]) {
@@ -814,27 +874,35 @@ const handleIconSelect = (event: Event) => {
   }
 };
 
+/** 触发图标选择对话框 */
 const triggerIconInput = () => {
   iconInput.value?.click();
 };
 
-// 单独定义每个字段的验证规则
+/**
+ * 验证表单字段
+ * @param field - 字段名称
+ * @param value - 字段值
+ * @returns 错误信息，验证通过返回空字符串
+ */
 const validateField = (field: string, value: any) => {
   switch (field) {
-    case 'Name':
-      return value ? '' : '请输入插件名称';
-    case 'Version':
-      if (!value) return '请输入版本号';
-      return /^\d+\.\d+\.\d+$/.test(value) ? '' : '版本号格式不正确，例如0.0.1';
-    case 'Description':
-      return value ? '' : '请输入插件描述';
-    case 'WindowId':
-      if (!value) return '请输入窗口ID';
-      return /^[a-zA-Z][a-zA-Z0-9-_]*$/.test(value) ? '' : '窗口ID必须以字母开头，只能包含字母、数字、下划线和横线';
-    case 'Title':
-      return value ? '' : '请输入窗口标题';
+    case "Name":
+      return value ? "" : "请输入插件名称";
+    case "Version":
+      if (!value) return "请输入版本号";
+      return /^\d+\.\d+\.\d+$/.test(value) ? "" : "版本号格式不正确，例如0.0.1";
+    case "Description":
+      return value ? "" : "请输入插件描述";
+    case "WindowId":
+      if (!value) return "请输入窗口ID";
+      return /^[a-zA-Z][a-zA-Z0-9-_]*$/.test(value)
+        ? ""
+        : "窗口ID必须以字母开头，只能包含字母、数字、下划线和横线";
+    case "Title":
+      return value ? "" : "请输入窗口标题";
     default:
-      return '';
+      return "";
   }
 };
 
@@ -843,38 +911,58 @@ watch(
   () => ({ ...pluginForm.value }),
   (newVal, oldVal) => {
     if (!oldVal) return;
-    
-    (Object.keys(errors.value) as Array<keyof typeof errors.value>).forEach(key => {
-      if (newVal[key as keyof typeof newVal] !== oldVal[key as keyof typeof oldVal]) {
-        errors.value[key] = validateField(key, newVal[key as keyof typeof newVal]); 
-      }
-    });
+
+    (Object.keys(errors.value) as Array<keyof typeof errors.value>).forEach(
+      (key) => {
+        if (
+          newVal[key as keyof typeof newVal] !==
+          oldVal[key as keyof typeof oldVal]
+        ) {
+          errors.value[key] = validateField(
+            key,
+            newVal[key as keyof typeof newVal],
+          );
+        }
+      },
+    );
   },
-  { deep: true }
+  { deep: true },
 );
 
-// 完整表单验证仍然保留
+/** 验证整个表单 */
 const validateForm = () => {
   let isValid = true;
-  Object.keys(errors.value).forEach(key => {
-    const error = validateField(key, pluginForm.value[key as keyof typeof pluginForm.value]);
+  Object.keys(errors.value).forEach((key) => {
+    const error = validateField(
+      key,
+      pluginForm.value[key as keyof typeof pluginForm.value],
+    );
     errors.value[key as keyof typeof errors.value] = error;
     if (error) isValid = false;
   });
   return isValid;
 };
 
-// 文件处理函数
+/**
+ * 处理文件选择
+ * @param event - 文件选择事件
+ */
 const handleFileSelect = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files?.length) {
     handleFile(input.files[0]);
   }
 };
+
 /** 关闭插件市场窗口 */
 const handleClose = () => {
-  ipcCloseWindow(NewWindowEnum.PluginMarket);
+  ipcWindowControl(WindowOperation.Close, NewWindowEnum.PluginMarket);
 };
+
+/**
+ * 处理文件拖放
+ * @param event - 拖放事件
+ */
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
   const files = event.dataTransfer?.files;
@@ -883,6 +971,10 @@ const handleDrop = (event: DragEvent) => {
   }
 };
 
+/**
+ * 处理文件验证和保存
+ * @param file - 文件对象
+ */
 const handleFile = (file: File) => {
   if (!file.name.endsWith(".zip")) {
     toast.add({
@@ -905,6 +997,7 @@ const handleFile = (file: File) => {
   pluginForm.value.File = file;
 };
 
+/** 移除已选择的文件 */
 const removeFile = () => {
   pluginForm.value.File = null;
   if (fileInput.value) {
@@ -912,6 +1005,11 @@ const removeFile = () => {
   }
 };
 
+/**
+ * 格式化文件大小
+ * @param bytes - 文件字节大小
+ * @returns 格式化后的文件大小字符串
+ */
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return "0 Bytes";
   const k = 1024;
@@ -922,12 +1020,12 @@ const formatFileSize = (bytes: number) => {
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
-// 实现点击触发文件选择的方法
+/** 触发文件选择对话框 */
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
 
-// 提交表单
+/** 提交插件表单 */
 const submitPlugin = async () => {
   if (!validateForm()) {
     return;
@@ -935,7 +1033,7 @@ const submitPlugin = async () => {
 
   if (!pluginForm.value.File) {
     toast.add({
-      severity: "error", 
+      severity: "error",
       summary: "错误",
       detail: "请选择插件文件",
       life: 3000,
@@ -945,10 +1043,10 @@ const submitPlugin = async () => {
 
   try {
     showLoading();
-    
+
     // 1. 先上传插件文件
     const fileResponse = await uploadPluginFile(pluginForm.value.File);
-    
+
     // 2. 创建插件信息
     const pluginData = {
       Name: pluginForm.value.Name,
@@ -968,7 +1066,7 @@ const submitPlugin = async () => {
     };
 
     const response = await createPlugin(pluginData);
-    
+
     if (response.Code === "0001") {
       toast.add({
         severity: "success",
@@ -981,7 +1079,6 @@ const submitPlugin = async () => {
     } else {
       throw new Error(response.Message);
     }
-    
   } catch (error) {
     toast.add({
       severity: "error",
@@ -994,7 +1091,7 @@ const submitPlugin = async () => {
   }
 };
 
-// 重命名方法以避免与 API 函数冲突
+/** 更新插件信息 */
 const handleUpdatePlugin = async () => {
   if (!validateForm()) {
     return;
@@ -1002,9 +1099,9 @@ const handleUpdatePlugin = async () => {
 
   try {
     showLoading();
-    
+
     let fileName = undefined;
-    
+
     // 如果有新文件，先上传
     if (pluginForm.value.File) {
       const fileResponse = await uploadPluginFile(pluginForm.value.File);
@@ -1030,7 +1127,7 @@ const handleUpdatePlugin = async () => {
 
     // 这里使用从 API 导入的 updatePlugin 函数
     const response = await updatePlugin(updateData);
-    
+
     if (response.Code === "0001") {
       toast.add({
         severity: "success",
@@ -1043,7 +1140,6 @@ const handleUpdatePlugin = async () => {
     } else {
       throw new Error(response.Message);
     }
-
   } catch (error) {
     toast.add({
       severity: "error",
@@ -1056,67 +1152,21 @@ const handleUpdatePlugin = async () => {
   }
 };
 
-// 分页相关的状态
-const currentPage = ref(1);
-const rowsPerPage = ref(10);
-const totalRecords = ref(0);
-
-// 修改 loadData 函数
-const loadData = async () => {
-  try {
-    showLoading();
-    const userData = await GlobalData.get("userInfo");
-    
-    if (!userData) {
-      toast.add({
-        severity: "warn",
-        summary: "提示",
-        detail: "请先登录后再访问",
-        life: 3000,
-      });
-      hideLoading();
-      return;
-    }
-    
-    userInfo.value = userData;
-    
-    switch (activeMenu.value) {
-      case MenuKey.MyPlugins:
-        const response = await getPluginList({ 
-          userId: userInfo.value?.UserId,
-          pageIndex: currentPage.value,
-          pageSize: rowsPerPage.value 
-        });
-        
-        if (response.Code === "0001" && response.Data) {
-          pluginsData.value = (response.Data as unknown as Plugin[]);
-          // 从返回的Page对象中获取总记录数
-          totalRecords.value = response.Page.TotalRecords;
-        }
-        break;
-      case MenuKey.UploadHistory:
-        // 处理上传历史记录...
-        break;
-    }
-  } catch (error) {
-    toast.add({
-      severity: "error",
-      summary: "错误",
-      detail: "加载数据失败",
-      life: 3000,
-    });
-  } finally {
-    hideLoading();
-  }
-};
-
-// 处理分页更改
+/**
+ * 处理分页变化
+ * @param event - 分页事件对象
+ */
 const onPageChange = (event: { page: number; rows: number }) => {
   currentPage.value = event.page + 1; // PrimeVue 的 page 是从 0 开始的
   rowsPerPage.value = event.rows;
   loadData();
 };
 
+/**
+ * 确认删除插件
+ * @param plugin - 待删除的插件
+ * @param event - 点击事件对象
+ */
 const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
   confirm.require({
     target: event.currentTarget,
@@ -1139,6 +1189,10 @@ const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
   });
 };
 
+/**
+ * 删除插件
+ * @param plugin - 待删除的插件
+ */
 const deletePlugin = async (plugin: any) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -1162,6 +1216,10 @@ const deletePlugin = async (plugin: any) => {
   }
 };
 
+/**
+ * 处理菜单点击
+ * @param menuKey - 菜单键值
+ */
 const handleMenuClick = (menuKey: MenuKey) => {
   activeMenu.value = menuKey;
   loadData(); // 切换菜单时加载数据
@@ -1174,11 +1232,12 @@ onMounted(() => {
 
 const router = useRouter();
 
+/** 返回上一页 */
 const goBack = () => {
   router.back();
 };
 
-// 获取当前应该显示的数据
+/** 获取当前数据列表 */
 const getCurrentData = () => {
   switch (activeMenu.value) {
     case MenuKey.MyPlugins:
@@ -1190,17 +1249,21 @@ const getCurrentData = () => {
   }
 };
 
-// 获取编辑按钮的提示信息
+/** 获取编辑按钮的提示文本 */
 const getEditTooltip = () => {
   return activeMenu.value === MenuKey.MyPlugins ? "编辑插件" : "";
 };
 
-// 获取删除按钮的提示信息
+/** 获取删除按钮的提示文本 */
 const getDeleteTooltip = () => {
   return activeMenu.value === MenuKey.MyPlugins ? "删除插件" : "";
 };
 
-// 添加数字格式化函数
+/**
+ * 格式化数字
+ * @param num - 待格式化的数字
+ * @returns 格式化后的字符串
+ */
 const formatNumber = (num: number) => {
   return new Intl.NumberFormat().format(num);
 };
@@ -1209,7 +1272,10 @@ const formatNumber = (num: number) => {
 const isDraggingScreenshot = ref(false);
 const screenshotInput = ref<HTMLInputElement | null>(null);
 
-// 修改截图处理相关的方法
+/**
+ * 处理截图选择
+ * @param event - 文件选择事件
+ */
 const handleScreenshotSelect = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (!input.files?.length) return;
@@ -1241,12 +1307,20 @@ const handleScreenshotSelect = (event: Event) => {
   });
 };
 
+/**
+ * 处理截图拖放
+ * @param event - 拖放事件
+ */
 const handleScreenshotDrop = (event: DragEvent) => {
   isDraggingScreenshot.value = false;
   const files = Array.from(event.dataTransfer?.files || []);
   processScreenshots(files);
 };
 
+/**
+ * 处理截图文件
+ * @param files - 截图文件数组
+ */
 const processScreenshots = (files: File[]) => {
   // 过滤出图片文件
   const imageFiles = files.filter((file) => file.type.startsWith("image/"));
@@ -1289,23 +1363,39 @@ const processScreenshots = (files: File[]) => {
   });
 };
 
+/** 触发截图选择对话框 */
 const triggerScreenshotInput = () => {
   screenshotInput.value?.click();
 };
 
+/**
+ * 移除指定截图
+ * @param index - 截图索引
+ */
 const removeScreenshot = (index: number) => {
   pluginForm.value.Screenshots.splice(index, 1);
 };
 
-// 添加位置更新处理函数
+/**
+ * 更新窗口X坐标
+ * @param val - X坐标值
+ */
 const updatePositionX = (val: number) => {
   pluginForm.value.Position[0] = val ?? -1;
 };
 
+/**
+ * 更新窗口Y坐标
+ * @param val - Y坐标值
+ */
 const updatePositionY = (val: number) => {
   pluginForm.value.Position[1] = val ?? -1;
 };
 
+/**
+ * 处理表格行点击
+ * @param event - 包含行数据的事件对象
+ */
 const onRowClick = (event: { data: Plugin | UploadRecord }) => {
   // 根据当前菜单判断数据类型
   if (activeMenu.value === MenuKey.UploadHistory) {
@@ -1339,7 +1429,6 @@ interface UploadRecord {
   Status: PluginStatus;
   Message: string;
 }
-
 </script>
 
 <style lang="less" scoped>

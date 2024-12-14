@@ -1,4 +1,5 @@
-import { ipcCloseWindow, ipcCreateNewWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl, ipcCreateNewWindow } from "@/api/ipc/window.api";
+import { WindowOperation } from "@/interface/enum";
 import { WindowConfig } from "@/interface/window";
 import { Ref } from "vue";
 
@@ -15,15 +16,14 @@ export const handleWindowToggle = async (
     if (isOpen.value) {
       // 如果窗口已打开，尝试关闭
       try {
-        await ipcCloseWindow(config.windowId);
+        await ipcWindowControl(WindowOperation.Close, { window_id: config.windowId });
         isOpen.value = false;
       } catch (err) {
         // 如果关闭失败，说明窗口可能已经不存在
-        // 这种情况下创建新窗口
-        if ((err as { Error: string }).Error === config.windowId) {
-          const res = await ipcCreateNewWindow(config);
-          isOpen.value = res !== 0;
-        }
+        // 这种情况下重置状态并创建新窗口
+        isOpen.value = false;
+        const res = await ipcCreateNewWindow(config);
+        isOpen.value = res !== 0;
       }
     } else {
       // 如果窗口未打开，创建新窗口

@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { WindowConfig } from "@/interface/window";
+import { WindowOperation } from "@/interface/enum";
 
 /**
  * 创建新窗口
@@ -14,31 +15,19 @@ export const ipcCreateNewWindow = async (options: WindowConfig) => {
 };
 
 /**
- * 关闭指定窗口
- * @param windowId 窗口唯一标识符，可选参数
+ * 统一的窗口控制函数
+ * @param operation 操作类型
+ * @param params 窗口控制参数，包含 window_id 等
  */
-export const ipcCloseWindow = async (windowId?: string) => {
+export const ipcWindowControl = async (
+  operation: WindowOperation,
+  params?: any
+) => {
   try {
-    if (windowId) {
-      await invoke("close_new_window", { windowId });
-    } else {
-      await invoke("close_new_window");
-    }
+    await invoke("window_control", { operation, params });
   } catch (e) {
     throw e;
   }
-};
-
-/**
- * 设置窗口是否置顶
- * @param windowId 窗口唯一标识符
- * @param isAlwaysOnTop 窗口是否总是置顶
- */
-export const ipcSetWindowAlwaysOnTop = async (
-  windowId: string,
-  isAlwaysOnTop: boolean,
-) => {
-  invoke("set_window_always_on_top", { windowId, isAlwaysOnTop });
 };
 
 /**

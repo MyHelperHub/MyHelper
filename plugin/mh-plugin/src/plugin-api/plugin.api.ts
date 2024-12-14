@@ -1,8 +1,18 @@
-import { ipcCloseWindow } from "#/api/ipc/window.api";
+import { ipcWindowControl } from "#/api/ipc/window.api";
+import { WindowOperation } from "#/interface/enum";
 import { invoke } from "@tauri-apps/api/core";
 
-/** 关闭当前窗口 */
-export const closeWindow = ipcCloseWindow;
+/** 关闭指定窗口 */
+export const closeWindow = () => ipcWindowControl(WindowOperation.Close);
+
+/** 最小化指定窗口 */
+export const minimizeWindow = () => ipcWindowControl(WindowOperation.Minimize);
+
+/** 最大化指定窗口 */
+export const maximizeWindow = () => ipcWindowControl(WindowOperation.Maximize);
+
+/** 恢复指定窗口 */
+export const restoreWindow = () => ipcWindowControl(WindowOperation.Restore);
 
 /**
  * 获取当前插件持久化配置

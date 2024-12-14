@@ -16,7 +16,8 @@
 <script setup lang="ts">
 import Menu from "primevue/menu";
 import { ref } from "vue";
-import { ipcCloseWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl } from "@/api/ipc/window.api";
+import { WindowOperation } from "@/interface/enum";
 import { initSetting } from "./utils/settingRegistry";
 import GeneralSettings from "@/views/setting/GeneralSettings.vue";
 import AboutSettings from "@/views/setting/AboutSettings.vue";
@@ -43,7 +44,7 @@ const menuItems = ref([
 initSetting();
 
 const handleClose = () => {
-  ipcCloseWindow(NewWindowEnum.Setting);
+  ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.Setting });
 };
 
 const handleMenuClick = (event: any) => {

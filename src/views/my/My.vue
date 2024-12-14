@@ -52,7 +52,8 @@ import Fieldset from "primevue/fieldset";
 import FileUpload from "primevue/fileupload";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
-import { ipcCloseWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl } from "@/api/ipc/window.api";
+import { WindowOperation } from "@/interface/enum";
 import { ipcSetLogo } from "@/api/ipc/launch.api";
 import { VueCropper } from "vue-cropper";
 import "vue-cropper/dist/index.css";
@@ -110,7 +111,7 @@ const cancelCrop = () => {
 };
 
 const handleClose = () => {
-  ipcCloseWindow(NewWindowEnum.My);
+  ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.My });
 };
 </script>
 
