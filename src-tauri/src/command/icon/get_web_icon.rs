@@ -1,7 +1,7 @@
 use std::fs::{self, File};
 use std::io::BufWriter;
 use std::path::PathBuf;
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
@@ -29,7 +29,6 @@ const ICON_SELECTORS: &[(&str, &str)] = &[
     ("meta[name='msapplication-TileImage']", "content"),
 ];
 
-const CACHE_DURATION: Duration = Duration::from_secs(24 * 60 * 60); // 24 hours
 const ICON_SIZE: u32 = 32;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(3);
 
@@ -49,35 +48,6 @@ impl From<IconError> for AppError {
             IconError::IoError(msg) => AppError::Error(format!("IO error: {}", msg)),
             IconError::NotFound => AppError::Error("No icon found".to_string()),
         }
-    }
-}
-
-struct IconCache {
-    path: PathBuf,
-    last_modified: SystemTime,
-}
-
-impl IconCache {
-    fn new(domain: &str) -> Option<Self> {
-        let cache_path = get_myhelper_path().ok()?.join("Image").join("WebIcon").join(format!("{}.png", domain));
-        if cache_path.exists() {
-            if let Ok(metadata) = cache_path.metadata() {
-                if let Ok(modified) = metadata.modified() {
-                    return Some(IconCache {
-                        path: cache_path,
-                        last_modified: modified,
-                    });
-                }
-            }
-        }
-        None
-    }
-
-    fn is_valid(&self) -> bool {
-        self.last_modified
-            .elapsed()
-            .map(|duration| duration < CACHE_DURATION)
-            .unwrap_or(false)
     }
 }
 
@@ -160,13 +130,6 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
         .host_str()
         .ok_or_else(|| IconError::ParseError("Invalid URL: no host found".to_string()))?
         .replace(".", "_");
-
-    // 检查缓存
-    if let Some(cache) = IconCache::new(&domain) {
-        if cache.is_valid() {
-            return Ok(cache.path.display().to_string());
-        }
-    }
 
     // 获取用户目录
     let myhelper_path = get_myhelper_path()
