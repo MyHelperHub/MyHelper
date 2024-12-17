@@ -690,7 +690,7 @@ const loadData = async () => {
 };
 
 /**
- * 获���插件状态对应的样式
+ * 获取插件状态对应的样式
  * @param status - 插件状态值
  * @returns 对应的样式名称
  */

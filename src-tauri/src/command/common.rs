@@ -1,4 +1,5 @@
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::reqwest::create_web_client;
 use serde_json::Value;
 use std::path::Path;
 use tauri::{image::Image, LogicalSize, Manager, WebviewUrl, WebviewWindowBuilder};
@@ -76,7 +77,7 @@ pub async fn set_window_size(
 /// * `title` - 窗口标题
 /// * `url` - 窗口加载的URL
 /// * `size` - 窗口大小 (width, height)
-/// * `position` - 窗口位置 (x, y)，-1 表示���中
+/// * `position` - 窗口位置 (x, y)，-1 表示居中
 /// * `always_on_top` - 是否总是置顶
 /// * `resizable` - 是否可调整大小
 /// * `icon` - 窗口图标路径
@@ -179,13 +180,15 @@ pub async fn create_new_window(
             let icon_path_clone = icon_path.clone();
 
             tauri::async_runtime::spawn(async move {
-                if let Ok(response) = reqwest::get(&icon_path_clone).await {
-                    if let Ok(bytes) = response.bytes().await {
-                        if let Ok(icon) = Image::from_bytes(&bytes.to_vec()) {
-                            if let Some(window) =
-                                app_handle_clone.get_webview_window(&window_id_clone)
-                            {
-                                let _ = window.set_icon(icon);
+                if let Ok(client) = create_web_client() {
+                    if let Ok(response) = client.get(&icon_path_clone).send().await {
+                        if let Ok(bytes) = response.bytes().await {
+                            if let Ok(icon) = Image::from_bytes(&bytes.to_vec()) {
+                                if let Some(window) =
+                                    app_handle_clone.get_webview_window(&window_id_clone)
+                                {
+                                    let _ = window.set_icon(icon);
+                                }
                             }
                         }
                     }

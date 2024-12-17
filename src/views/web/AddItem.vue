@@ -59,9 +59,8 @@ import { ipcGetWebIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
 
 const emit = defineEmits(["addWebItem", "editWebItem"]);
 
-/** 网址正则表达式 */
-const urlRegex =
-  /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6})(?:\/[\w\.\-%]+)*\/?(\?[\w\.\-%]+(?:=[\w\.\-%]+)*)?(?:\&[\w\.\-%]+(?:=[\w\.\-%]+)*)*$/i;
+/** URL正则表达式 */
+const urlRegex = /^(https?:\/\/)?(((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(\[[0-9a-fA-F:]+\])|(([\w-]+\.)+[a-z]{2,})|localhost)(:\d{1,5})?(\/.*)?$/i;
 
 const formData = ref<WebItem>({
   /** -1时为编辑 */

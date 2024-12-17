@@ -3,3 +3,4 @@ pub mod path;
 pub mod response;
 pub mod error;
 pub mod logger;
+pub mod reqwest;

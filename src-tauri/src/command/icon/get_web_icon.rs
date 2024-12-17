@@ -1,17 +1,15 @@
 use std::fs::{self, File};
 use std::io::BufWriter;
 use std::path::PathBuf;
-use std::time::Duration;
 
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
-use reqwest::blocking::Client;
-use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use scraper::{Html, Selector};
 use url::Url;
 
 use crate::utils::path::get_myhelper_path;
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::reqwest::create_web_client;
 
 const ICON_SELECTORS: &[(&str, &str)] = &[
     ("link[rel='apple-touch-icon-precomposed'][sizes='180x180']", "href"),
@@ -30,7 +28,6 @@ const ICON_SELECTORS: &[(&str, &str)] = &[
 ];
 
 const ICON_SIZE: u32 = 32;
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(3);
 
 #[derive(Debug)]
 enum IconError {
@@ -51,38 +48,19 @@ impl From<IconError> for AppError {
     }
 }
 
-fn setup_client() -> Result<Client, IconError> {
-    let mut headers = HeaderMap::new();
-    let user_agent = match std::env::consts::OS {
-        "windows" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "macos" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "linux" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        _ => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    };
-    headers.insert(USER_AGENT, HeaderValue::from_static(user_agent));
-
-    Client::builder()
-        .timeout(REQUEST_TIMEOUT)
-        .redirect(reqwest::redirect::Policy::limited(10))
-        .default_headers(headers)
-        .build()
-        .map_err(|e| IconError::NetworkError(e.to_string()))
-}
-
-fn try_load_icon(client: &Client, url: &str) -> Result<Option<Vec<u8>>, IconError> {
-    match client.get(url).send() {
-        Ok(response) if response.status().is_success() => {
-            let data = response.bytes()
-                .map_err(|e| IconError::NetworkError(e.to_string()))?;
-            if !data.is_empty() {
-                Ok(Some(data.to_vec()))
+async fn try_load_icon(client: &reqwest::Client, url: &str) -> Result<Option<Vec<u8>>, IconError> {
+    match client.get(url).send().await {
+        Ok(response) => {
+            if response.status().is_success() {
+                match response.bytes().await {
+                    Ok(data) if !data.is_empty() => Ok(Some(data.to_vec())),
+                    _ => Ok(None),
+                }
             } else {
                 Ok(None)
             }
         }
-        Ok(_) => Ok(None),
-        Err(e) if e.is_timeout() => Err(IconError::NetworkError("Request timeout".to_string())),
-        Err(e) => Err(IconError::NetworkError(e.to_string())),
+        Err(_) => Ok(None),
     }
 }
 
@@ -105,6 +83,23 @@ fn save_icon(img: image::DynamicImage, output_path: &PathBuf) -> Result<String, 
     Ok(output_path.display().to_string())
 }
 
+fn extract_icon_urls(html: &str) -> Vec<String> {
+    let document = Html::parse_document(html);
+    let mut urls = Vec::new();
+
+    for (selector_str, attr) in ICON_SELECTORS {
+        if let Ok(selector) = Selector::parse(selector_str) {
+            if let Some(element) = document.select(&selector).next() {
+                if let Some(href) = element.value().attr(attr) {
+                    urls.push(href.to_string());
+                }
+            }
+        }
+    }
+
+    urls
+}
+
 /// 获取网站图标
 /// 
 /// # Arguments
@@ -115,12 +110,12 @@ fn save_icon(img: image::DynamicImage, output_path: &PathBuf) -> Result<String, 
 /// 
 /// * `AppResult<String>` - 成功返回保存的图标文件路径
 #[tauri::command]
-pub fn get_web_icon(url: &str) -> AppResult<String> {
+pub async fn get_web_icon(url: String) -> AppResult<String> {
     // 检查并补全 URL
     let url = if !url.starts_with("http://") && !url.starts_with("https://") {
         format!("https://{}", url)
     } else {
-        url.to_string()
+        url
     };
 
     // 解析网站 URL
@@ -141,45 +136,54 @@ pub fn get_web_icon(url: &str) -> AppResult<String> {
     }
 
     let output_path = myhelper_path.join(format!("{}.png", domain));
-    let client = setup_client()?;
+    let client = create_web_client().map_err(|e| IconError::NetworkError(e.to_string()))?;
 
     // 优先尝试从 /favicon.ico 获取图标
     if let Ok(favicon_url) = url.join("/favicon.ico") {
-        if let Ok(Some(data)) = try_load_icon(&client, favicon_url.as_str()) {
+        if let Ok(Some(data)) = try_load_icon(&client, favicon_url.as_str()).await {
             if let Ok(img) = image::load_from_memory(&data) {
                 return save_icon(img, &output_path).map_err(AppError::from);
             }
         }
     }
 
-    // 如果没有找到 favicon.ico，尝试从 HTML 中查找
-    let html = client.get(url.as_str())
-        .send()
-        .map_err(|e| IconError::NetworkError(e.to_string()))?
-        .text()
-        .map_err(|e| IconError::NetworkError(e.to_string()))?;
-
-    let document = Html::parse_document(&html);
-    
-    for (selector_str, attr) in ICON_SELECTORS {
-        if let Ok(selector) = Selector::parse(selector_str) {
-            if let Some(element) = document.select(&selector).next() {
-                if let Some(href) = element.value().attr(attr) {
-                    let icon_url = if href.starts_with("http") {
-                        href.to_string()
-                    } else {
-                        match url.join(href) {
-                            Ok(u) => u.to_string(),
-                            Err(_) => continue,
-                        }
-                    };
-
-                    if let Ok(Some(data)) = try_load_icon(&client, &icon_url) {
-                        if let Ok(img) = image::load_from_memory(&data) {
-                            return save_icon(img, &output_path).map_err(AppError::from);
-                        }
-                    }
+    // 尝试从 HTML 中查找图标
+    let html = match client.get(url.as_str()).send().await {
+        Ok(response) if response.status().is_success() => {
+            match response.text().await {
+                Ok(text) => text,
+                Err(e) => {
+                    println!("Failed to get HTML content: {}", e);
+                    return Err(IconError::NetworkError("Failed to get HTML content".to_string()).into());
                 }
+            }
+        }
+        Ok(_) => return Err(IconError::NetworkError("Failed to get webpage".to_string()).into()),
+        Err(e) if e.is_timeout() => {
+            return Err(IconError::NetworkError("Request timeout".to_string()).into());
+        }
+        Err(e) => {
+            return Err(IconError::NetworkError(e.to_string()).into());
+        }
+    };
+
+    // 在同步代码中提取所有可能图标URL
+    let icon_urls = extract_icon_urls(&html);
+    
+    // 异步尝试获取每个图标
+    for href in icon_urls {
+        let icon_url = if href.starts_with("http") {
+            href
+        } else {
+            match url.join(&href) {
+                Ok(u) => u.to_string(),
+                Err(_) => continue,
+            }
+        };
+
+        if let Ok(Some(data)) = try_load_icon(&client, &icon_url).await {
+            if let Ok(img) = image::load_from_memory(&data) {
+                return save_icon(img, &output_path).map_err(AppError::from);
             }
         }
     }
