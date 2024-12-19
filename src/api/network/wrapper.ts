@@ -8,10 +8,10 @@ let cachedToken: string | null = null;
 // 初始化token
 const initToken = async () => {
   try {
-    const userInfo = await GlobalData.get('userInfo');
+    const userInfo = await GlobalData.get("userInfo");
     cachedToken = userInfo?.Token || null;
   } catch (error) {
-    console.error('初始化token失败:', error);
+    console.error("初始化token失败:", error);
     cachedToken = null;
   }
 };
@@ -29,7 +29,7 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(
   async (config) => {
     if (cachedToken) {
-      config.headers['Token'] = cachedToken;
+      config.headers["Token"] = cachedToken;
     }
     return config;
   },
@@ -44,16 +44,27 @@ initToken();
 // 响应拦截器
 instance.interceptors.response.use(
   (response) => {
+    // 检查响应中的 Code
+    if (response.data.Code === "0003") {
+      showMessage("登录已过期，请重新登录", 3000, 2);
+      // 清除本地缓存的 token
+      updateToken(null);
+      // 可以在这里添加跳转到登录页面的逻辑
+      window.location.href = "/login";
+      return Promise.reject(new Error(response.data.Message));
+    }
     return response.data;
   },
   (error) => {
     // 检查是否为超时错误
-    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
       showMessage("网络请求超时，请检查网络连接", 3000, 2);
     } else if (error.response?.status === 401) {
       // token 失效或未登录
       showMessage("登录已过期，请重新登录", 3000, 2);
-      // 这里可以添加跳转到登录页面的逻辑
+      // 清除本地缓存的 token
+      updateToken(null);
+      // 跳转到登录页面
     } else {
       showMessage("网络请求失败", 3000, 2);
       console.error("API请求失败:", error);
@@ -64,15 +75,25 @@ instance.interceptors.response.use(
 
 // 封装请求方法
 export const request = {
-  get: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
+  get: <T>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<ServerResponse<T>> => {
     return instance.get(url, config);
   },
 
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
+  post: <T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig,
+  ): Promise<ServerResponse<T>> => {
     return instance.post(url, data, config);
   },
 
-  delete: <T>(url: string, config?: AxiosRequestConfig): Promise<ServerResponse<T>> => {
+  delete: <T>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<ServerResponse<T>> => {
     return instance.delete(url, config);
   },
 };

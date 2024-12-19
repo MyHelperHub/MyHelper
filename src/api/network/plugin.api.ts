@@ -113,4 +113,22 @@ export const deletePluginFile = (fileName: string) => {
     params: { fileName }
   });
 };
+
+/**
+ * 获取上传历史记录
+ * @param params 查询参数
+ * @param params.name 插件名称
+ * @param params.status 状态
+ * @param params.pageIndex 页码
+ * @param params.pageSize 每页数量
+ * @returns 上传历史记录数据
+ */
+export const getUploadHistory = (params?: {
+  name?: string;
+  status?: string;
+  pageIndex?: number;
+  pageSize?: number;
+}) => {
+  return request.get<Plugin[]>('/api/plugin/upload-history', { params });
+};
  

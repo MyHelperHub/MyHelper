@@ -69,11 +69,11 @@
             <div class="plugin-name">
               <span>{{ data.Name }}</span>
               <Tag
-                v-if="data.Status"
+                v-if="activeMenu === MenuKey.MyPlugins && data.Status"
                 :value="statusMap[data.Status]"
                 :severity="getStatusSeverity(data.Status)" />
               <Tag
-                v-if="data.HasUpdate"
+                v-if="activeMenu === MenuKey.MyPlugins && data.HasUpdate"
                 value="有更新"
                 severity="warning"
                 class="ml-2" />
@@ -88,13 +88,31 @@
           style="width: 100px" />
         <Column
           v-if="activeMenu === MenuKey.UploadHistory"
-          field="uploadTime"
-          header="上传时间"
-          style="width: 150px">
+          field="Status"
+          header="状态"
+          style="width: 120px">
           <template #body="{ data }">
-            {{ data.CreateTime }}
+            <Tag
+              :value="statusMap[data.Status]"
+              :severity="getStatusSeverity(data.Status)" />
           </template>
         </Column>
+        <Column
+          v-if="activeMenu === MenuKey.UploadHistory"
+          field="Message"
+          header="审核消息"
+          style="width: 200px">
+          <template #body="{ data }">
+            <span :class="{ 'text-red-500': data.Status === 2 }">
+              {{ data.Message || "-" }}
+            </span>
+          </template>
+        </Column>
+        <Column
+          v-if="activeMenu === MenuKey.UploadHistory"
+          field="CreateTime"
+          header="上传时间"
+          style="width: 180px" />
         <Column
           v-else
           field="updateTime"
@@ -104,10 +122,6 @@
             {{ data.UpdateTime }}
           </template>
         </Column>
-        <Column
-          v-if="activeMenu === MenuKey.UploadHistory"
-          field="message"
-          header="备注" />
         <Column
           v-if="activeMenu === MenuKey.MyPlugins"
           header="操作"
@@ -130,10 +144,9 @@
       <!-- 修改分页器位置和样式 -->
       <div class="pagination">
         <Paginator
-          v-if="activeMenu === MenuKey.MyPlugins"
+          :first="(currentPage - 1) * rowsPerPage"
           :rows="rowsPerPage"
           :totalRecords="totalRecords"
-          :first="(currentPage - 1) * rowsPerPage"
           template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
           :rowsPerPageOptions="[10, 20, 50]"
           @page="onPageChange" />
@@ -451,7 +464,9 @@
     <!-- 详情对话框 -->
     <Dialog
       v-model:visible="showDetailDialog"
-      header="插件详情"
+      :header="
+        activeMenu === MenuKey.UploadHistory ? '上传记录详情' : '插件详情'
+      "
       :modal="true"
       class="w-[700px]"
       dismissableMask>
@@ -462,104 +477,116 @@
             class="flex items-center justify-between pb-4 border-bottom-1 surface-border">
             <div class="flex items-center gap-3">
               <Image
+                v-if="activeMenu !== MenuKey.UploadHistory"
                 :src="selectedPlugin.Icon || 'https://placeholder.co/48'"
                 width="48"
                 height="48" />
               <div>
                 <h3 class="text-xl font-semibold">{{ selectedPlugin.Name }}</h3>
-                <p class="text-sm text-gray-600">{{ selectedPlugin.Author }}</p>
+                <p class="text-sm text-gray-600">
+                  版本：{{ selectedPlugin.Version }}
+                </p>
               </div>
             </div>
             <Tag
-              v-if="selectedPlugin.Status"
+              v-if="selectedPlugin.Status !== undefined"
               :value="statusMap[selectedPlugin.Status]"
               :severity="getStatusSeverity(selectedPlugin.Status)" />
           </div>
 
-          <!-- 插件统计信息 -->
-          <div class="grid grid-cols-2 gap-4">
+          <!-- 上传记录特有信息 -->
+          <template v-if="activeMenu === MenuKey.UploadHistory">
             <div>
-              <label class="text-sm text-gray-600">版本</label>
-              <p class="mt-1">{{ selectedPlugin.Version }}</p>
-            </div>
-            <div v-if="selectedPlugin.Downloads !== undefined">
-              <label class="text-sm text-gray-600">下载次数</label>
-              <p class="mt-1">{{ formatNumber(selectedPlugin.Downloads) }}</p>
-            </div>
-            <div>
-              <label class="text-sm text-gray-600">创建时间</label>
+              <label class="text-sm text-gray-600">上传时间</label>
               <p class="mt-1">{{ selectedPlugin.CreateTime }}</p>
             </div>
-            <div>
-              <label class="text-sm text-gray-600">更新时间</label>
-              <p class="mt-1">{{ selectedPlugin.UpdateTime }}</p>
+            <div v-if="selectedPlugin.Message">
+              <label class="text-sm text-gray-600">审核消息</label>
+              <p
+                class="mt-1"
+                :class="{ 'text-red-500': selectedPlugin.Status === 2 }">
+                {{ selectedPlugin.Message }}
+              </p>
             </div>
-            <div>
-              <label class="text-sm text-gray-600">评分</label>
-              <div class="mt-1 flex items-center gap-2">
-                <Rating
-                  :modelValue="selectedPlugin.Rating || 0"
-                  :cancel="false"
-                  readonly />
-                <span class="text-sm text-gray-600">{{
-                  selectedPlugin.Rating || "暂无评分"
-                }}</span>
+          </template>
+
+          <!-- 插件详情特有信息 -->
+          <template v-else>
+            <!-- 插件统计信息 -->
+            <div class="grid grid-cols-2 gap-4">
+              <div v-if="selectedPlugin.Downloads !== undefined">
+                <label class="text-sm text-gray-600">下载次数</label>
+                <p class="mt-1">{{ formatNumber(selectedPlugin.Downloads) }}</p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-600">创建时间</label>
+                <p class="mt-1">{{ selectedPlugin.CreateTime }}</p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-600">更新时间</label>
+                <p class="mt-1">{{ selectedPlugin.UpdateTime }}</p>
+              </div>
+              <div>
+                <label class="text-sm text-gray-600">评分</label>
+                <div class="mt-1 flex items-center gap-2">
+                  <Rating
+                    :modelValue="selectedPlugin.Rating || 0"
+                    :cancel="false"
+                    readonly />
+                  <span class="text-sm text-gray-600">{{
+                    selectedPlugin.Rating || "暂无评分"
+                  }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- 插件标签 -->
-          <div v-if="selectedPlugin.Tags?.length">
-            <label class="text-sm text-gray-600">标签</label>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <Tag
-                v-for="tag in selectedPlugin.Tags"
-                :key="tag"
-                :value="tag"
-                severity="info" />
+            <!-- 插件标签 -->
+            <div v-if="selectedPlugin.Tags?.length">
+              <label class="text-sm text-gray-600">标签</label>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <Tag
+                  v-for="tag in selectedPlugin.Tags"
+                  :key="tag"
+                  :value="tag"
+                  severity="info" />
+              </div>
             </div>
-          </div>
 
-          <!-- 插件描述 -->
-          <div v-if="selectedPlugin.Description">
-            <label class="text-sm text-gray-600">描述</label>
-            <p class="mt-1 text-gray-700 whitespace-pre-line">
-              {{ selectedPlugin.Description }}
-            </p>
-          </div>
-
-          <!-- 备注信息 -->
-          <div v-if="selectedPlugin.Message">
-            <label class="text-sm text-gray-600">备注</label>
-            <p class="mt-1 text-gray-700">{{ selectedPlugin.Message }}</p>
-          </div>
-
-          <!-- 截图预览 -->
-          <div
-            v-if="selectedPlugin.Screenshots?.length"
-            class="screenshot-carousel-container">
-            <label class="text-sm text-gray-600">截图预览</label>
-            <div class="mt-2 carousel-wrapper">
-              <Carousel
-                :value="selectedPlugin.Screenshots"
-                :numVisible="1"
-                :numScroll="1"
-                :circular="selectedPlugin.Screenshots.length > 1"
-                :showIndicators="selectedPlugin.Screenshots.length > 1"
-                :showNavigators="selectedPlugin.Screenshots.length > 1"
-                class="custom-carousel">
-                <template #item="slotProps">
-                  <div class="carousel-item">
-                    <Image
-                      :src="slotProps.data"
-                      alt="screenshot"
-                      preview
-                      imageClass="carousel-image" />
-                  </div>
-                </template>
-              </Carousel>
+            <!-- 插件描述 -->
+            <div v-if="selectedPlugin.Description">
+              <label class="text-sm text-gray-600">描述</label>
+              <p class="mt-1 text-gray-700 whitespace-pre-line">
+                {{ selectedPlugin.Description }}
+              </p>
             </div>
-          </div>
+
+            <!-- 截图预览 -->
+            <div
+              v-if="selectedPlugin.Screenshots?.length"
+              class="screenshot-carousel-container">
+              <label class="text-sm text-gray-600">截图预览</label>
+              <div class="mt-2 carousel-wrapper">
+                <Carousel
+                  :value="selectedPlugin.Screenshots"
+                  :numVisible="1"
+                  :numScroll="1"
+                  :circular="selectedPlugin.Screenshots.length > 1"
+                  :showIndicators="selectedPlugin.Screenshots.length > 1"
+                  :showNavigators="selectedPlugin.Screenshots.length > 1"
+                  class="custom-carousel">
+                  <template #item="slotProps">
+                    <div class="carousel-item">
+                      <Image
+                        :src="slotProps.data"
+                        alt="screenshot"
+                        preview
+                        imageClass="carousel-image" />
+                    </div>
+                  </template>
+                </Carousel>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </Dialog>
@@ -597,6 +624,7 @@ import {
   getPluginList,
   updatePlugin,
   uploadPluginFile,
+  getUploadHistory,
 } from "@/api/network/plugin.api";
 import { PluginStatus } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/utils/loading";
@@ -632,7 +660,7 @@ const menuItems = ref(MENU_ITEMS);
 // 修改状态映射
 const statusMap: Record<number, string> = {
   0: "审核中",
-  1: "已发布",
+  1: "已通过",
   2: "已驳回",
   3: "已停用",
 };
@@ -674,7 +702,15 @@ const loadData = async () => {
         }
         break;
       case MenuKey.UploadHistory:
-        // 处理上传历史记录...
+        const historyResponse = await getUploadHistory({
+          pageIndex: currentPage.value,
+          pageSize: rowsPerPage.value,
+        });
+
+        if (historyResponse.Code === "0001" && historyResponse.Data) {
+          uploadHistory.value = historyResponse.Data as unknown as Plugin[];
+          totalRecords.value = historyResponse.Page.TotalRecords;
+        }
         break;
     }
   } catch (error) {
@@ -697,7 +733,7 @@ const loadData = async () => {
 const getStatusSeverity = (status: number) => {
   const map: Record<number, string> = {
     0: "warning", // 审核中
-    1: "success", // 已发布
+    1: "success", // 已通过
     2: "danger", // 已驳回
     3: "danger", // 已停用
   };
@@ -734,32 +770,7 @@ interface Plugin {
 // 修改 ref 定义
 const pluginsData = ref<Plugin[]>([]);
 
-const uploadHistory = ref([
-  {
-    id: 1,
-    name: "代码格式化工具",
-    version: "1.0.0",
-    uploadTime: "2024-03-20 14:30:00",
-    status: "成功",
-    message: "上传成功",
-  },
-  {
-    id: 2,
-    name: "代码格式化工具",
-    version: "0.9.0",
-    uploadTime: "2024-03-19 10:20:00",
-    status: "失败",
-    message: "验证未通过",
-  },
-  {
-    id: 3,
-    name: "截图工具Pro",
-    version: "1.1.0",
-    uploadTime: "2024-03-15 16:45:00",
-    status: "处理中",
-    message: "正在处理",
-  },
-]);
+const uploadHistory = ref<Plugin[]>([]);
 
 // 表单状态
 const pluginForm = ref({
@@ -1396,39 +1407,16 @@ const updatePositionY = (val: number) => {
  * 处理表格行点击
  * @param event - 包含行数据的事件对象
  */
-const onRowClick = (event: { data: Plugin | UploadRecord }) => {
-  // 根据当前菜单判断数据类型
+const onRowClick = (event: { data: Plugin }) => {
+  selectedPlugin.value = event.data;
   if (activeMenu.value === MenuKey.UploadHistory) {
     // 上传记录的详情展示
-    const record = event.data as UploadRecord;
-    selectedPlugin.value = {
-      Id: record.Id,
-      Name: record.Name,
-      Version: record.Version,
-      Status: record.Status as PluginStatus,
-      UpdateTime: record.UploadTime,
-      CreateTime: record.CreateTime,
-      Message: record.Message,
-      Author: "我",
-      Description: "",
-    };
+    showDetailDialog.value = true;
   } else {
     // 我的插件的详情展示
-    selectedPlugin.value = event.data as Plugin;
+    showDetailDialog.value = true;
   }
-  showDetailDialog.value = true;
 };
-
-// 添加上传记录的接口定义
-interface UploadRecord {
-  Id: number;
-  Name: string;
-  Version: string;
-  UploadTime: string;
-  CreateTime: string;
-  Status: PluginStatus;
-  Message: string;
-}
 </script>
 
 <style lang="less" scoped>
