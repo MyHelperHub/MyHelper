@@ -18,26 +18,36 @@ interface PluginConfig extends Omit<WindowConfig, "windowId" | "url"> {
 
 /** 插件状态枚举 */
 export enum PluginStatus {
-  REVIEWING = 0,  // 审核中
-  PUBLISHED = 1,  // 已发布
-  REJECTED = 2,   // 已驳回
-  DISABLED = 3    // 已停用
+  REVIEWING = 0, // 审核中
+  PUBLISHED = 1, // 已发布
+  REJECTED = 2, // 已驳回
+  DISABLED = 3, // 已停用
 }
 
 /** 插件分类枚举 */
 export enum PluginCategory {
-  DEVELOPMENT = 0,    // 开发工具
-  EFFICIENCY = 1,     // 效率工具
-  NETWORK = 2,        // 网络工具
-  SYSTEM = 3,         // 系统工具
-  ENTERTAINMENT = 4,  // 娱乐工具
-  OTHER = 5           // 其他
+  DEVELOPMENT = 0, // 开发工具
+  EFFICIENCY = 1, // 效率工具
+  NETWORK = 2, // 网络工具
+  SYSTEM = 3, // 系统工具
+  ENTERTAINMENT = 4, // 娱乐工具
+  OTHER = 5, // 其他
+}
+
+/** 插件排序类型枚举 */
+export enum PluginSortType {
+  DOWNLOADS_ASC = 0, // 按下载量升序
+  DOWNLOADS_DESC = 1, // 按下载量降序
+  RATING_ASC = 2, // 按评分升序
+  RATING_DESC = 3, // 按评分降序
+  UPDATE_TIME_ASC = 4, // 按更新时间升序
+  UPDATE_TIME_DESC = 5, // 按更新时间降序
 }
 
 /** 插件信息接口 */
 export interface Plugin {
   Id?: number;
-  Name: string; 
+  Name: string;
   Description: string;
   Version: string;
   Author?: string;

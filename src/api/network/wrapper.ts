@@ -49,8 +49,6 @@ instance.interceptors.response.use(
       showMessage("登录已过期，请重新登录", 3000, 2);
       // 清除本地缓存的 token
       updateToken(null);
-      // 可以在这里添加跳转到登录页面的逻辑
-      window.location.href = "/login";
       return Promise.reject(new Error(response.data.Message));
     }
     return response.data;

@@ -1,5 +1,11 @@
-import { Plugin, PluginUpdateDTO } from '@/interface/plugin';
-import { request } from './wrapper';
+import {
+  Plugin,
+  PluginUpdateDTO,
+  PluginCategory,
+  PluginStatus,
+  PluginSortType,
+} from "@/interface/plugin";
+import { request } from "./wrapper";
 
 /**
  * 获取插件列表
@@ -10,25 +16,27 @@ import { request } from './wrapper';
  * @param params.userId 用户ID
  * @param params.pageIndex 页码
  * @param params.pageSize 每页数量
+ * @param params.sort 排序方式
  * @returns 插件列表数据
  */
 export const getPluginList = (params?: {
-  category?: string;
-  status?: string;
+  category?: PluginCategory;
+  status?: PluginStatus;
   author?: string;
   userId?: number;
-  pageIndex:number;
-  pageSize:number
+  pageIndex?: number;
+  pageSize?: number;
+  sort?: PluginSortType;
 }) => {
-  return request.get<Plugin[]>('/api/plugin/list', { params });
+  return request.get<Plugin[]>("/api/plugin/list", { params });
 };
 
 /**
  * 获取插件详情
  */
 export const getPluginDetail = (windowId: string) => {
-  return request.get<Plugin>('/api/plugin/detail', {
-    params: { windowId }
+  return request.get<Plugin>("/api/plugin/detail", {
+    params: { windowId },
   });
 };
 
@@ -36,22 +44,22 @@ export const getPluginDetail = (windowId: string) => {
  * 创建插件
  */
 export const createPlugin = (plugin: Plugin) => {
-  return request.post<Plugin>('/api/plugin/create', plugin);
+  return request.post<Plugin>("/api/plugin/create", plugin);
 };
 
 /**
  * 更新插件
  */
 export const updatePlugin = (plugin: PluginUpdateDTO) => {
-  return request.post('/api/plugin/update', plugin);
+  return request.post("/api/plugin/update", plugin);
 };
 
 /**
  * 删除插件
  */
 export const deletePlugin = (windowId: string) => {
-  return request.post('/api/plugin/delete', null, {
-    params: { windowId }
+  return request.post("/api/plugin/delete", null, {
+    params: { windowId },
   });
 };
 
@@ -59,8 +67,8 @@ export const deletePlugin = (windowId: string) => {
  * 下载插件
  */
 export const downloadPlugin = (windowId: string) => {
-  return request.post('/api/plugin/download', null, {
-    params: { windowId }
+  return request.post("/api/plugin/download", null, {
+    params: { windowId },
   });
 };
 
@@ -68,8 +76,8 @@ export const downloadPlugin = (windowId: string) => {
  * 评分插件
  */
 export const ratePlugin = (windowId: string, rating: number) => {
-  return request.post('/api/plugin/rate', null, {
-    params: { windowId, rating }
+  return request.post("/api/plugin/rate", null, {
+    params: { windowId, rating },
   });
 };
 
@@ -79,10 +87,10 @@ export const ratePlugin = (windowId: string, rating: number) => {
 export const updatePluginStatus = (
   windowId: string,
   status: string,
-  message?: string
+  message?: string,
 ) => {
-  return request.post('/api/plugin/status', null, {
-    params: { windowId, status, message }
+  return request.post("/api/plugin/status", null, {
+    params: { windowId, status, message },
   });
 };
 
@@ -91,17 +99,17 @@ export const updatePluginStatus = (
  */
 export const uploadPluginFile = (file: File) => {
   const formData = new FormData();
-  formData.append('file', file);
-  return request.post<string>('/api/plugin/file/upload', formData);
+  formData.append("file", file);
+  return request.post<string>("/api/plugin/file/upload", formData);
 };
 
 /**
  * 下载插件文件
  */
 export const downloadPluginFile = (fileName: string) => {
-  return request.get('/api/plugin/file/download', {
+  return request.get("/api/plugin/file/download", {
     params: { fileName },
-    responseType: 'blob'
+    responseType: "blob",
   });
 };
 
@@ -109,8 +117,8 @@ export const downloadPluginFile = (fileName: string) => {
  * 删除插件文件
  */
 export const deletePluginFile = (fileName: string) => {
-  return request.delete('/api/plugin/file', {
-    params: { fileName }
+  return request.delete("/api/plugin/file", {
+    params: { fileName },
   });
 };
 
@@ -129,6 +137,23 @@ export const getUploadHistory = (params?: {
   pageIndex?: number;
   pageSize?: number;
 }) => {
-  return request.get<Plugin[]>('/api/plugin/upload-history', { params });
+  return request.get<Plugin[]>("/api/plugin/upload-history", { params });
 };
- 
+
+/**
+ * 获取开发者插件列表
+ * @param params 查询参数
+ * @param params.name 插件名称
+ * @param params.status 状态
+ * @param params.pageIndex 页码
+ * @param params.pageSize 每页数量
+ * @returns 开发者插件列表数据
+ */
+export const getDeveloperPlugins = (params?: {
+  name?: string;
+  status?: string;
+  pageIndex?: number;
+  pageSize?: number;
+}) => {
+  return request.get<Plugin[]>("/api/plugin/developer/list", { params });
+};

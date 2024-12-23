@@ -7,10 +7,17 @@
         <div class="search-wrapper">
           <div class="search-input">
             <InputText v-model="state.searchQuery" placeholder="搜索插件..." />
-            <Button class="search-button" icon="pi pi-search" @click="handleSearch" />
+            <Button
+              class="search-button"
+              icon="pi pi-search"
+              @click="handleSearch" />
           </div>
           <div class="button-group">
-            <Button icon="pi pi-list" label="已安装插件" class="installed-button" @click="showInstalled = true;" />
+            <Button
+              icon="pi pi-list"
+              label="已安装插件"
+              class="installed-button"
+              @click="showInstalled = true" />
           </div>
         </div>
       </div>
@@ -27,8 +34,13 @@
             </template>
             <template #content>
               <div class="menu-wrapper">
-                <Listbox v-model="state.selectedCategory" :options="categoryMenuItems" optionLabel="label"
-                  optionValue="value" class="category-menu-list" @change="selectCategory" />
+                <Listbox
+                  v-model="state.selectedCategory"
+                  :options="categoryMenuItems"
+                  optionLabel="label"
+                  optionValue="value"
+                  class="category-menu-list"
+                  @change="selectCategory" />
               </div>
             </template>
           </Card>
@@ -39,38 +51,64 @@
           <!-- 排序和筛选工具栏 -->
           <Toolbar class="toolbar">
             <template #start>
-              <Select v-model="state.currentSort" :options="sortOptions" optionLabel="label" optionValue="value"
-                class="sort-select" placeholder="排序方式" :panelStyle="{ width: '200px' }" />
+              <Select
+                v-model="state.currentSort"
+                :options="sortOptions"
+                optionLabel="label"
+                optionValue="value"
+                class="sort-select"
+                placeholder="排序方式"
+                :panelStyle="{ width: '200px' }"
+                @change="handleSortChange" />
             </template>
             <template #end>
-              <Select v-model="state.timeFilter" :options="timeFilterOptions" optionLabel="label" optionValue="value"
-                placeholder="选择时间范围" class="time-filter-select" :panelStyle="{ width: '200px' }" />
+              <Select
+                v-model="state.timeFilter"
+                :options="timeFilterOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="选择时间范围"
+                class="time-filter-select"
+                :panelStyle="{ width: '200px' }" />
             </template>
           </Toolbar>
 
           <!-- 插件网格 -->
           <div class="plugin-grid">
-            <Card v-for="plugin in filteredPlugins" :key="plugin.Id" class="plugin-card"
+            <Card
+              v-for="plugin in filteredPlugins"
+              :key="plugin.Id"
+              class="plugin-card"
               @click="showPluginDetail(plugin)">
               <template #header>
                 <div class="card-header">
-                  <Image class="plugin-icon" :src="plugin.Icon" width="64" height="64" />
+                  <Image
+                    class="plugin-icon"
+                    :src="plugin.Icon"
+                    width="64"
+                    height="64" />
                   <div class="plugin-info">
-                    <h3 v-tooltip.bottom="{
-                      value: plugin.Name,
-                      showDelay: 500,
-                      pt: {
-                        text: {
-                          style: {
-                            fontSize: '15px',
+                    <h3
+                      v-tooltip.bottom="{
+                        value: plugin.Name,
+                        showDelay: 500,
+                        pt: {
+                          text: {
+                            style: {
+                              fontSize: '15px',
+                            },
                           },
                         },
-                      },
-                    }">{{ plugin.Name }}</h3>
+                      }">
+                      {{ plugin.Name }}
+                    </h3>
                     <p>{{ plugin.Author }}</p>
                   </div>
                   <div class="plugin-stats">
-                    <Rating v-model="plugin.Rating" :cancel="false" readonly
+                    <Rating
+                      v-model="plugin.Rating"
+                      :cancel="false"
+                      readonly
                       v-tooltip.bottom="{
                         value: `${plugin.Rating}分`,
                         showDelay: 500,
@@ -94,7 +132,11 @@
                 </div>
                 <div class="card-footer">
                   <div class="plugin-tags">
-                    <Tag v-for="tag in plugin.Tags" :key="tag" :value="tag" severity="info" />
+                    <Tag
+                      v-for="tag in plugin.Tags"
+                      :key="tag"
+                      :value="tag"
+                      severity="info" />
                   </div>
                   <Button icon="pi pi-download" label="下载" size="small" />
                 </div>
@@ -104,7 +146,10 @@
 
           <!-- 分页 -->
           <div class="pagination">
-            <Paginator v-model:first="state.first" :rows="20" :total-records="state.total"
+            <Paginator
+              v-model:first="state.first"
+              :rows="20"
+              :total-records="state.total"
               :rows-per-page-options="[20, 40, 60]" />
           </div>
         </div>
@@ -112,31 +157,55 @@
     </div>
 
     <!-- 详情对话框 -->
-    <Dialog v-model:visible="showDetail" :modal="true" :style="{ width: '50vw' }" :header="selectedPlugin?.Name"
-      class="plugin-detail-dialog" dismissableMask>
+    <Dialog
+      v-model:visible="showDetail"
+      :modal="true"
+      :style="{ width: '50vw' }"
+      :header="selectedPlugin?.Name"
+      class="plugin-detail-dialog"
+      dismissableMask>
       <div class="plugin-detail" v-if="selectedPlugin">
         <!-- 插件头部信息 -->
         <div class="plugin-header">
-          <Image :src="selectedPlugin.Icon" :alt="selectedPlugin.Name" width="64" height="64" />
+          <Image
+            :src="selectedPlugin.Icon"
+            :alt="selectedPlugin.Name"
+            width="64"
+            height="64" />
           <div class="plugin-info">
             <p class="author">作者：{{ selectedPlugin.Author }}</p>
             <div class="stats">
               <div class="rating-wrapper">
-                <Rating v-if="isPluginInstalled(selectedPlugin)" v-model="userRating" :cancel="false"
+                <Rating
+                  v-if="isPluginInstalled(selectedPlugin)"
+                  v-model="userRating"
+                  :cancel="false"
                   @change="handleRating" />
-                <Rating v-else :modelValue="selectedPlugin.Rating" :cancel="false" readonly />
-                <small v-if="isPluginInstalled(selectedPlugin)" class="rating-hint">
+                <Rating
+                  v-else
+                  :modelValue="selectedPlugin.Rating"
+                  :cancel="false"
+                  readonly />
+                <small
+                  v-if="isPluginInstalled(selectedPlugin)"
+                  class="rating-hint">
                   {{ userRating ? "您的评分" : "点击星星进行评分" }}
                 </small>
               </div>
-              <span class="downloads">{{ formatNumber(selectedPlugin.Downloads) }}次下载</span>
+              <span class="downloads"
+                >{{ formatNumber(selectedPlugin.Downloads) }}次下载</span
+              >
             </div>
           </div>
         </div>
 
         <!-- 插件标签 -->
         <div class="plugin-tags">
-          <Tag v-for="tag in selectedPlugin.Tags" :key="tag" :value="tag" severity="info" />
+          <Tag
+            v-for="tag in selectedPlugin.Tags"
+            :key="tag"
+            :value="tag"
+            severity="info" />
         </div>
 
         <!-- 插件详细描述 -->
@@ -148,11 +217,21 @@
         <!-- 插件截图 -->
         <div class="screenshots" v-if="selectedPlugin.Screenshots?.length">
           <h3>插件截图</h3>
-          <Carousel :value="selectedPlugin.Screenshots" :numVisible="1" :numScroll="1" :circular="true"
-            :showIndicators="true" :showNavigators="true" class="screenshot-carousel">
+          <Carousel
+            :value="selectedPlugin.Screenshots"
+            :numVisible="1"
+            :numScroll="1"
+            :circular="true"
+            :showIndicators="true"
+            :showNavigators="true"
+            class="screenshot-carousel">
             <template #item="slotProps">
               <div class="screenshot-container">
-                <Image :src="slotProps.data" alt="screenshot" preview imageClass="screenshot-image" />
+                <Image
+                  :src="slotProps.data"
+                  alt="screenshot"
+                  preview
+                  imageClass="screenshot-image" />
               </div>
             </template>
           </Carousel>
@@ -162,7 +241,11 @@
         <div class="version-info">
           <h3>版本信息</h3>
           <p>当前版本：{{ selectedPlugin.Version }}</p>
-          <p>更新时间：{{ new Date(selectedPlugin.UpdateTime).toLocaleDateString('zh-CN') }}</p>
+          <p>
+            更新时间：{{
+              new Date(selectedPlugin.UpdateTime).toLocaleDateString("zh-CN")
+            }}
+          </p>
         </div>
       </div>
 
@@ -170,25 +253,52 @@
         <div class="dialog-footer">
           <Button label="取消" class="p-button-text" @click="closeDetail" />
           <template v-if="isPluginInstalled(selectedPlugin)">
-            <Button v-if="selectedPlugin?.HasUpdate" label="更新" icon="pi pi-sync" severity="info"
+            <Button
+              v-if="selectedPlugin?.HasUpdate"
+              label="更新"
+              icon="pi pi-sync"
+              severity="info"
               @click="updatePlugin(selectedPlugin)" />
-            <Button v-else label="已安装" icon="pi pi-check" severity="success" disabled />
+            <Button
+              v-else
+              label="已安装"
+              icon="pi pi-check"
+              severity="success"
+              disabled />
           </template>
-          <Button v-else label="下载" severity="primary" @click="handleDownload" />
+          <Button
+            v-else
+            label="下载"
+            severity="primary"
+            @click="handleDownload" />
         </div>
       </template>
     </Dialog>
 
     <!-- 已安装插件对话框 -->
-    <Dialog v-model:visible="showInstalled" :modal="true" header="已安装插件" :style="{ width: '80vw' }"
+    <Dialog
+      v-model:visible="showInstalled"
+      :modal="true"
+      header="已安装插件"
+      :style="{ width: '80vw' }"
       class="installed-plugins-dialog">
       <div class="installed-plugins-list">
-        <DataTable :value="installedPlugins" :paginator="true" :rows="5" tableStyle="min-width: 50rem"
+        <DataTable
+          :value="installedPlugins"
+          :paginator="true"
+          :rows="5"
+          tableStyle="min-width: 50rem"
           class="installed-table">
           <Column field="Name" header="插件名称" :sortable="true">
             <template #body="slotProps">
-              <div class="plugin-name-cell clickable" @click="showPluginDetail(slotProps.data)">
-                <Image :src="slotProps.data.Icon" :alt="slotProps.data.Name" width="32" height="32" />
+              <div
+                class="plugin-name-cell clickable"
+                @click="showPluginDetail(slotProps.data)">
+                <Image
+                  :src="slotProps.data.Icon"
+                  :alt="slotProps.data.Name"
+                  width="32"
+                  height="32" />
                 <div class="plugin-basic-info">
                   <span class="name">{{ slotProps.data.Name }}</span>
                   <span class="description">{{
@@ -204,7 +314,11 @@
                 <span class="current-version">{{
                   slotProps.data.Version
                 }}</span>
-                <Tag v-if="slotProps.data.HasUpdate" severity="warning" value="有更新" class="update-tag" />
+                <Tag
+                  v-if="slotProps.data.HasUpdate"
+                  severity="warning"
+                  value="有更新"
+                  class="update-tag" />
               </div>
             </template>
           </Column>
@@ -225,7 +339,8 @@
           <Column field="Status" header="状态" :sortable="true">
             <template #body="slotProps">
               <div class="status-cell">
-                <Tag :severity="getStatusSeverity(slotProps.data.Status)"
+                <Tag
+                  :severity="getStatusSeverity(slotProps.data.Status)"
                   :value="getStatusLabel(slotProps.data.Status)" />
               </div>
             </template>
@@ -233,14 +348,37 @@
           <Column header="操作" :style="{ width: '8rem' }">
             <template #body="slotProps">
               <div class="action-cell">
-                <Button v-if="slotProps.data.HasUpdate" icon="pi pi-sync" severity="info" text v-tooltip.top="'更新插件'"
-                  @click="updatePlugin(slotProps.data)" class="action-button" />
-                <Button v-if="slotProps.data.Status === 'ENABLED'" icon="pi pi-power-off" severity="warning" text
-                  v-tooltip.top="'禁用插件'" @click="togglePlugin(slotProps.data, false)" class="action-button" />
-                <Button v-else icon="pi pi-power-off" severity="success" text v-tooltip.top="'启用插件'"
-                  @click="togglePlugin(slotProps.data, true)" class="action-button" />
-                <Button icon="pi pi-trash" severity="danger" text v-tooltip.top="'卸载插件'"
-                  @click="uninstallPlugin(slotProps.data)" class="action-button" />
+                <Button
+                  v-if="slotProps.data.HasUpdate"
+                  icon="pi pi-sync"
+                  severity="info"
+                  text
+                  v-tooltip.top="'更新插件'"
+                  @click="updatePlugin(slotProps.data)"
+                  class="action-button" />
+                <Button
+                  v-if="slotProps.data.Status === 'ENABLED'"
+                  icon="pi pi-power-off"
+                  severity="warning"
+                  text
+                  v-tooltip.top="'禁用插件'"
+                  @click="togglePlugin(slotProps.data, false)"
+                  class="action-button" />
+                <Button
+                  v-else
+                  icon="pi pi-power-off"
+                  severity="success"
+                  text
+                  v-tooltip.top="'启用插件'"
+                  @click="togglePlugin(slotProps.data, true)"
+                  class="action-button" />
+                <Button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text
+                  v-tooltip.top="'卸载插件'"
+                  @click="uninstallPlugin(slotProps.data)"
+                  class="action-button" />
               </div>
             </template>
           </Column>
@@ -250,7 +388,12 @@
 
     <!-- 添加开发者按钮 -->
     <div class="developer-button">
-      <Button icon="pi pi-code" label="我是开发者" text @click="gotoDevelop" class="developer-link" />
+      <Button
+        icon="pi pi-code"
+        label="我是开发者"
+        text
+        @click="gotoDevelop"
+        class="developer-link" />
     </div>
   </div>
 </template>
@@ -273,11 +416,21 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useRouter } from "vue-router";
 import { showLoading, hideLoading } from "@/utils/loading";
-import { useToast } from 'primevue/usetoast';
-import { getPluginList, downloadPlugin, ratePlugin, updatePluginStatus } from '@/api/network/plugin.api';
+import { useToast } from "primevue/usetoast";
+import {
+  getPluginList,
+  downloadPlugin,
+  ratePlugin,
+  updatePluginStatus,
+} from "@/api/network/plugin.api";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import { WindowOperation } from "@/interface/enum";
+import {
+  PluginCategory,
+  PluginStatus,
+  PluginSortType,
+} from "@/interface/plugin.d";
 
 const toast = useToast();
 const router = useRouter();
@@ -295,7 +448,7 @@ interface Plugin {
   Icon: string | null;
   Rating: number;
   Author: string;
-  Status: string;
+  Status: PluginStatus;
   Title: string;
   AlwaysOnTop: boolean;
   Resizable: boolean;
@@ -303,7 +456,7 @@ interface Plugin {
   HasUpdate: boolean;
   Email: string;
   Downloads: number;
-  Category: string;
+  Category: PluginCategory;
   CreateTime: string;
   UpdateTime: string;
   Screenshots: string[];
@@ -313,28 +466,31 @@ interface Plugin {
 const state = reactive({
   searchQuery: "",
   selectedCategory: "ALL",
-  currentSort: "",
+  currentSort: PluginSortType.DOWNLOADS_DESC,
   timeFilter: "",
   first: 0,
-  total: 0
+  total: 0,
 });
 
 // 分类选项
 const categoryMenuItems = [
   { label: "全部", value: "ALL" },
-  { label: "开发工具", value: "DEVELOPMENT" },
-  { label: "效率工具", value: "EFFICIENCY" },
-  { label: "网络工具", value: "NETWORK" },
-  { label: "系统工具", value: "SYSTEM" },
-  { label: "娱乐工具", value: "ENTERTAINMENT" },
-  { label: "其他", value: "OTHER" }
+  { label: "开发工具", value: PluginCategory.DEVELOPMENT },
+  { label: "效率工具", value: PluginCategory.EFFICIENCY },
+  { label: "网络工具", value: PluginCategory.NETWORK },
+  { label: "系统工具", value: PluginCategory.SYSTEM },
+  { label: "娱乐工具", value: PluginCategory.ENTERTAINMENT },
+  { label: "其他", value: PluginCategory.OTHER },
 ];
 
 // 排序选项
 const sortOptions = [
-  { label: "下载量", value: "Downloads" },
-  { label: "评分", value: "Rating" },
-  { label: "更新时间", value: "UpdateTime" }
+  { label: "下载量（从高到低）", value: PluginSortType.DOWNLOADS_DESC },
+  { label: "下载量（从低到高）", value: PluginSortType.DOWNLOADS_ASC },
+  { label: "评分（从高到低）", value: PluginSortType.RATING_DESC },
+  { label: "评分（从低到高）", value: PluginSortType.RATING_ASC },
+  { label: "更新时间（最新）", value: PluginSortType.UPDATE_TIME_DESC },
+  { label: "更新时间（最早）", value: PluginSortType.UPDATE_TIME_ASC },
 ];
 
 /** 时间筛选选项 */
@@ -356,18 +512,25 @@ const showInstalled = ref(false);
 const initializeData = async () => {
   try {
     showLoading();
-    const params: any = {};
-    if (state.selectedCategory !== 'ALL') {
-      params.Category = state.selectedCategory;
+    const params: any = {
+      sort: state.currentSort,
+      pageIndex: Math.floor(state.first / 20) + 1,
+      pageSize: 20,
+    };
+    if (state.selectedCategory !== "ALL") {
+      params.category = state.selectedCategory;
     }
     const response = await getPluginList(params);
     plugins.value = response.Data as unknown as Plugin[];
+    if (response.Page) {
+      state.total = response.Page.TotalRecords;
+    }
   } catch (error) {
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '加载插件列表失败',
-      life: 3000
+      severity: "error",
+      summary: "错误",
+      detail: "加载插件列表失败",
+      life: 3000,
     });
   } finally {
     hideLoading();
@@ -376,7 +539,7 @@ const initializeData = async () => {
 
 /** 格式化数字 */
 const formatNumber = (num: number | undefined) => {
-  if (!num) return '0';
+  if (!num) return "0";
   return new Intl.NumberFormat("zh-CN").format(num);
 };
 
@@ -390,12 +553,12 @@ const handleSearch = () => {
 const showPluginDetail = async (plugin: Plugin) => {
   if (isPluginInstalled(plugin)) {
     const installedPlugin = installedPlugins.value.find(
-      (p) => p.WindowId === plugin.WindowId
+      (p) => p.WindowId === plugin.WindowId,
     );
     selectedPlugin.value = {
       ...plugin,
       HasUpdate: installedPlugin?.HasUpdate || false,
-      Status: installedPlugin?.Status || "ENABLED",
+      Status: installedPlugin?.Status || PluginStatus.PUBLISHED,
     };
     userRating.value = plugin.Rating;
   } else {
@@ -419,19 +582,19 @@ const handleDownload = async () => {
     showLoading();
     await downloadPlugin(selectedPlugin.value.WindowId);
     toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '插件下载成功',
-      life: 3000
+      severity: "success",
+      summary: "成功",
+      detail: "插件下载成功",
+      life: 3000,
     });
     closeDetail();
     await initializeData(); // 重新加载数据
   } catch (error) {
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '插件下载失败',
-      life: 3000
+      severity: "error",
+      summary: "错误",
+      detail: "插件下载失败",
+      life: 3000,
     });
   } finally {
     hideLoading();
@@ -450,17 +613,17 @@ const handleRating = async (event: { value: number }) => {
       selectedPlugin.value.Rating = event.value;
     }
     toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '评分成功',
-      life: 3000
+      severity: "success",
+      summary: "成功",
+      detail: "评分成功",
+      life: 3000,
     });
   } catch (error) {
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '评分失败',
-      life: 3000
+      severity: "error",
+      summary: "错误",
+      detail: "评分失败",
+      life: 3000,
     });
     userRating.value = 0;
   } finally {
@@ -474,20 +637,23 @@ const updatePlugin = async (plugin: Plugin) => {
 
   try {
     showLoading();
-    await updatePluginStatus(plugin.WindowId, 'ENABLED');
+    await updatePluginStatus(
+      plugin.WindowId,
+      PluginStatus.PUBLISHED.toString(),
+    );
     toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '插件更新成功',
-      life: 3000
+      severity: "success",
+      summary: "成功",
+      detail: "插件更新成功",
+      life: 3000,
     });
     await initializeData(); // 重新加载数据
   } catch (error) {
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '插件更新失败',
-      life: 3000
+      severity: "error",
+      summary: "错误",
+      detail: "插件更新失败",
+      life: 3000,
     });
   } finally {
     hideLoading();
@@ -502,21 +668,23 @@ const togglePlugin = async (plugin: Plugin, enable: boolean) => {
     showLoading();
     await updatePluginStatus(
       plugin.WindowId,
-      enable ? 'ENABLED' : 'DISABLED'
+      enable
+        ? PluginStatus.PUBLISHED.toString()
+        : PluginStatus.DISABLED.toString(),
     );
     toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: `插件${enable ? '启用' : '禁用'}成功`,
-      life: 3000
+      severity: "success",
+      summary: "成功",
+      detail: `插件${enable ? "启用" : "禁用"}成功`,
+      life: 3000,
     });
     initializeData();
   } catch (error) {
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: `插件${enable ? '启用' : '禁用'}失败`,
-      life: 3000
+      severity: "error",
+      summary: "错误",
+      detail: `插件${enable ? "启用" : "禁用"}失败`,
+      life: 3000,
     });
   } finally {
     hideLoading();
@@ -524,36 +692,32 @@ const togglePlugin = async (plugin: Plugin, enable: boolean) => {
 };
 
 /** 获取状态样式 */
-const getStatusSeverity = (status: string) => {
+const getStatusSeverity = (status: PluginStatus) => {
   switch (status) {
-    case "ENABLED":
+    case PluginStatus.PUBLISHED:
       return "success";
-    case "DISABLED":
+    case PluginStatus.DISABLED:
       return "danger";
-    case "REVIEWING":
+    case PluginStatus.REVIEWING:
       return "warning";
-    case "REJECTED":
+    case PluginStatus.REJECTED:
       return "danger";
-    case "PUBLISHED":
-      return "info";
     default:
       return "info";
   }
 };
 
 /** 获取状态文本 */
-const getStatusLabel = (status: string) => {
+const getStatusLabel = (status: PluginStatus) => {
   switch (status) {
-    case "ENABLED":
-      return "已启用";
-    case "DISABLED":
-      return "已禁用";
-    case "REVIEWING":
-      return "审核中";
-    case "REJECTED":
-      return "已驳回";
-    case "PUBLISHED":
+    case PluginStatus.PUBLISHED:
       return "已发布";
+    case PluginStatus.DISABLED:
+      return "已禁用";
+    case PluginStatus.REVIEWING:
+      return "审核中";
+    case PluginStatus.REJECTED:
+      return "已驳回";
     default:
       return status;
   }
@@ -566,7 +730,9 @@ const gotoDevelop = () => {
 
 /** 关闭窗口 */
 const handleClose = () => {
-  ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.PluginMarket });
+  ipcWindowControl(WindowOperation.Close, {
+    window_id: NewWindowEnum.PluginMarket,
+  });
 };
 
 const filteredPlugins = computed(() => {
@@ -574,7 +740,9 @@ const filteredPlugins = computed(() => {
     if (state.searchQuery) {
       return (
         plugin.Name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-        plugin.Description?.toLowerCase().includes(state.searchQuery.toLowerCase())
+        plugin.Description?.toLowerCase().includes(
+          state.searchQuery.toLowerCase(),
+        )
       );
     }
     return true;
@@ -587,7 +755,7 @@ const isPluginInstalled = (plugin: Plugin | null) => {
 };
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('zh-CN');
+  return new Date(date).toLocaleDateString("zh-CN");
 };
 
 /** 卸载插件 */
@@ -617,6 +785,12 @@ const uninstallPlugin = async (plugin: Plugin) => {
 
 const selectCategory = (event: { value: string }) => {
   state.selectedCategory = event.value;
+  initializeData();
+};
+
+/** 处理排序变化 */
+const handleSortChange = (event: { value: PluginSortType }) => {
+  state.currentSort = event.value;
   initializeData();
 };
 
@@ -795,7 +969,7 @@ onMounted(() => {
           margin: 0;
           display: -webkit-box;
           -webkit-box-orient: vertical;
-          -webkit-line-clamp: 3; 
+          -webkit-line-clamp: 3;
           line-clamp: 3;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -976,7 +1150,7 @@ onMounted(() => {
       }
 
       .screenshot-container {
-        height: 300px; // 与carousel内容区域相同的高度
+        height: 300px; // 与carousel内容区相同的高度
         display: flex;
         align-items: center;
         justify-content: center;

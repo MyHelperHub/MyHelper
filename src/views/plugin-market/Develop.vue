@@ -117,7 +117,7 @@
           v-else
           field="updateTime"
           header="更新时间"
-          style="width: 150px">
+          style="width: 200px">
           <template #body="{ data }">
             {{ data.UpdateTime }}
           </template>
@@ -621,10 +621,10 @@ import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
 import {
   createPlugin,
-  getPluginList,
   updatePlugin,
   uploadPluginFile,
   getUploadHistory,
+  getDeveloperPlugins,
 } from "@/api/network/plugin.api";
 import { PluginStatus } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/utils/loading";
@@ -690,8 +690,7 @@ const loadData = async () => {
 
     switch (activeMenu.value) {
       case MenuKey.MyPlugins:
-        const response = await getPluginList({
-          userId: userData.UserId,
+        const response = await getDeveloperPlugins({
           pageIndex: currentPage.value,
           pageSize: rowsPerPage.value,
         });
