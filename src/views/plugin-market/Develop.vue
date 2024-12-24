@@ -165,9 +165,8 @@
         <div class="mb-6">
           <h3 class="text-lg font-medium mb-4">基本信息</h3>
           <div class="space-y-4">
-            <!-- 上传区域 - 仅在上传时显示 -->
+            <!-- 上传区域 - 编辑模式也显示 -->
             <div
-              v-if="!isEditMode"
               class="border-2 border-dashed border-gray-200 rounded-lg p-8 mb-6 bg-gray-50 transition-all duration-300"
               :class="{ 'border-primary': isDragging }"
               @drop.prevent="handleDrop"
@@ -185,8 +184,14 @@
                   class="text-center cursor-pointer p-8"
                   @click="triggerFileInput">
                   <i class="pi pi-cloud-upload text-4xl text-primary mb-4"></i>
-                  <p class="text-lg mb-2">点击或拖拽上传插件包</p>
-                  <small class="text-gray-500">支持 10MB 以内的 zip 文件</small>
+                  <p class="text-lg mb-2">
+                    {{
+                      isEditMode
+                        ? "点击或拖拽更新插件代码(可选)"
+                        : "点击或拖拽上传��件包"
+                    }}
+                  </p>
+                  <small class="text-gray-500">支持 15MB 以内的 zip 文件</small>
                 </div>
               </template>
 
@@ -331,7 +336,7 @@
               </div>
             </div>
 
-            <!-- 窗大小 -->
+            <!-- 窗口大小 -->
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block mb-2"
@@ -625,6 +630,8 @@ import {
   uploadPluginFile,
   getUploadHistory,
   getDeveloperPlugins,
+  deletePlugin,
+  uploadImage,
 } from "@/api/network/plugin.api";
 import { PluginStatus } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/utils/loading";
@@ -675,7 +682,6 @@ const loadData = async () => {
   try {
     showLoading();
     const userData = await GlobalData.get("userInfo");
-    console.log(userData);
 
     if (!userData.Token) {
       toast.add({
@@ -872,15 +878,28 @@ const iconInput = ref<HTMLInputElement | null>(null);
  * 处理图标选择
  * @param event - 文件选择事件
  */
-const handleIconSelect = (event: Event) => {
+const handleIconSelect = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files?.[0]) {
     const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      pluginForm.value.Icon = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    try {
+      showLoading();
+      const response = await uploadImage(file, "avatar");
+      if (response.Code === "0001" && response.Data) {
+        pluginForm.value.Icon = response.Data;
+      } else {
+        throw new Error(response.Message || "上传失败");
+      }
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "上传失败",
+        detail: error instanceof Error ? error.message : "图标上传失败",
+        life: 3000,
+      });
+    } finally {
+      hideLoading();
+    }
   }
 };
 
@@ -959,11 +978,11 @@ const validateForm = () => {
  */
 const handleFileSelect = (event: Event) => {
   const input = event.target as HTMLInputElement;
-  if (input.files?.length) {
-    handleFile(input.files[0]);
-  }
-};
+  if (!input.files?.length) return;
 
+  const file = input.files[0];
+  validatePluginFile(file);
+};
 /** 关闭插件市场窗口 */
 const handleClose = () => {
   ipcWindowControl(WindowOperation.Close, NewWindowEnum.PluginMarket);
@@ -976,35 +995,55 @@ const handleClose = () => {
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
   const files = event.dataTransfer?.files;
-  if (files?.length) {
-    handleFile(files[0]);
-  }
+  if (!files?.length) return;
+
+  validatePluginFile(files[0]);
 };
 
 /**
- * 处理文件验证和保存
- * @param file - 文件对象
+ * 验证插件文件
+ * @param file - 待验证的文件
+ * @returns 验证是否通过
  */
-const handleFile = (file: File) => {
-  if (!file.name.endsWith(".zip")) {
+const validatePluginFile = (file: File) => {
+  // 检查文件扩展名
+  const validExtensions = [".zip", ".rar", ".7z"];
+  const extension = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+  if (!validExtensions.includes(extension)) {
     toast.add({
       severity: "error",
       summary: "格式错误",
-      detail: "上传 .zip 格式的文件",
+      detail: "仅支持 zip/rar/7z 格式的文件",
       life: 3000,
     });
-    return;
+    return false;
   }
-  if (file.size > 10 * 1024 * 1024) {
+
+  // 检查文件大小（15MB）
+  if (file.size > 15 * 1024 * 1024) {
     toast.add({
       severity: "error",
       summary: "文件过大",
-      detail: "文件大小不能超过10MB",
+      detail: "文件大小不能超过15MB",
       life: 3000,
     });
-    return;
+    return false;
   }
+
+  // 检查文件名长度
+  if (file.name.length > 50) {
+    toast.add({
+      severity: "error",
+      summary: "文件名过长",
+      detail: "文件名不能超过50个字符",
+      life: 3000,
+    });
+    return false;
+  }
+
+  // 验证通过，保存文件
   pluginForm.value.File = file;
+  return true;
 };
 
 /** 移除已选择的文件 */
@@ -1041,7 +1080,7 @@ const submitPlugin = async () => {
     return;
   }
 
-  if (!pluginForm.value.File) {
+  if (!pluginForm.value.File && !isEditMode.value) {
     toast.add({
       severity: "error",
       summary: "错误",
@@ -1055,7 +1094,7 @@ const submitPlugin = async () => {
     showLoading();
 
     // 1. 先上传插件文件
-    const fileResponse = await uploadPluginFile(pluginForm.value.File);
+    const fileResponse = await uploadPluginFile(pluginForm.value.File as File);
 
     // 2. 创建插件信息
     const pluginData = {
@@ -1072,7 +1111,7 @@ const submitPlugin = async () => {
       Position: pluginForm.value.Position,
       AlwaysOnTop: pluginForm.value.AlwaysOnTop,
       Resizable: pluginForm.value.Resizable,
-      FileName: fileResponse.Data, // 使用上传返回的文件名
+      FileUrl: fileResponse.Data, // 使用上传返回的文件名
     };
 
     const response = await createPlugin(pluginData);
@@ -1107,59 +1146,68 @@ const handleUpdatePlugin = async () => {
     return;
   }
 
-  try {
-    showLoading();
+  // 显示确认对话框
+  confirm.require({
+    message: "确定要保存修改吗？这将会覆盖原有插件",
+    header: "确认保存",
+    icon: "pi pi-exclamation-triangle",
+    acceptLabel: "确定",
+    rejectLabel: "取消",
+    accept: async () => {
+      try {
+        showLoading();
 
-    let fileName = undefined;
+        let fileUrl = undefined;
 
-    // 如果有新文件，先上传
-    if (pluginForm.value.File) {
-      const fileResponse = await uploadPluginFile(pluginForm.value.File);
-      fileName = fileResponse.Data;
-    }
+        // 如果有新文件，先上传
+        if (pluginForm.value.File) {
+          const fileResponse = await uploadPluginFile(pluginForm.value.File);
+          fileUrl = fileResponse.Data;
+        }
 
-    const updateData = {
-      Id: editingPlugin.value?.Id,
-      Name: pluginForm.value.Name,
-      Description: pluginForm.value.Description,
-      Version: pluginForm.value.Version,
-      Tags: pluginForm.value.Tags,
-      Icon: pluginForm.value.Icon,
-      Screenshots: pluginForm.value.Screenshots,
-      WindowId: pluginForm.value.WindowId,
-      Title: pluginForm.value.Title,
-      Size: pluginForm.value.Size,
-      Position: pluginForm.value.Position,
-      AlwaysOnTop: pluginForm.value.AlwaysOnTop,
-      Resizable: pluginForm.value.Resizable,
-      FileName: fileName, // 如果有新文件则更新，否则保持原值
-    };
+        const updateData = {
+          Id: editingPlugin.value?.Id,
+          Name: pluginForm.value.Name,
+          Description: pluginForm.value.Description,
+          Version: pluginForm.value.Version,
+          Tags: pluginForm.value.Tags,
+          Icon: pluginForm.value.Icon,
+          Screenshots: pluginForm.value.Screenshots,
+          WindowId: pluginForm.value.WindowId,
+          Title: pluginForm.value.Title,
+          Size: pluginForm.value.Size,
+          Position: pluginForm.value.Position,
+          AlwaysOnTop: pluginForm.value.AlwaysOnTop,
+          Resizable: pluginForm.value.Resizable,
+          FileUrl: fileUrl, // 如果有新文件则更新，否则保持原值
+        };
 
-    // 这里使用从 API 导入的 updatePlugin 函数
-    const response = await updatePlugin(updateData);
+        const response = await updatePlugin(updateData);
 
-    if (response.Code === "0001") {
-      toast.add({
-        severity: "success",
-        summary: "成功",
-        detail: "插件更新成功",
-        life: 3000,
-      });
-      closeDialog();
-      loadData(); // 重新加载列表
-    } else {
-      throw new Error(response.Message);
-    }
-  } catch (error) {
-    toast.add({
-      severity: "error",
-      summary: "错误",
-      detail: error instanceof Error ? error.message : "插件更新失败",
-      life: 3000,
-    });
-  } finally {
-    hideLoading();
-  }
+        if (response.Code === "0001") {
+          toast.add({
+            severity: "success",
+            summary: "成功",
+            detail: "插件更新成功",
+            life: 3000,
+          });
+          closeDialog();
+          loadData(); // 重新加载列表
+        } else {
+          throw new Error(response.Message);
+        }
+      } catch (error) {
+        toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: error instanceof Error ? error.message : "插件更新失败",
+          life: 3000,
+        });
+      } finally {
+        hideLoading();
+      }
+    },
+  });
 };
 
 /**
@@ -1180,7 +1228,7 @@ const onPageChange = (event: { page: number; rows: number }) => {
 const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
   confirm.require({
     target: event.currentTarget,
-    message: `确定要删除插件 "${plugin.name}" 吗？`,
+    message: `确定要删除插件 "${plugin.Name}" 吗？`,
     icon: "pi pi-exclamation-triangle",
     rejectProps: {
       label: "取消",
@@ -1191,7 +1239,7 @@ const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
       label: "确定",
     },
     accept: () => {
-      deletePlugin(plugin);
+      handleDeletePlugin(plugin);
     },
     reject: () => {
       return;
@@ -1203,26 +1251,42 @@ const confirmDelete = (plugin: any, event: { currentTarget: any }) => {
  * 删除插件
  * @param plugin - 待删除的插件
  */
-const deletePlugin = async (plugin: any) => {
+const handleDeletePlugin = async (plugin: any) => {
+  if (!plugin?.WindowId) {
+    toast.add({
+      severity: "error",
+
+      summary: "错误",
+
+      detail: "插件ID无效",
+
+      life: 3000,
+    });
+
+    return;
+  }
+
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const index = pluginsData.value.findIndex((p) => p.Id === plugin.Id);
-    if (index > -1) {
-      pluginsData.value.splice(index, 1);
-    }
+    showLoading();
+
+    await deletePlugin(plugin.WindowId);
+
     toast.add({
       severity: "success",
       summary: "成功",
       detail: "插件已删除",
       life: 3000,
     });
+    await loadData(); // 重新加载列表
   } catch (error) {
     toast.add({
       severity: "error",
       summary: "错误",
-      detail: "删除插件失败",
+      detail: error instanceof Error ? error.message : "删除插件失败",
       life: 3000,
     });
+  } finally {
+    hideLoading();
   }
 };
 
@@ -1286,35 +1350,34 @@ const screenshotInput = ref<HTMLInputElement | null>(null);
  * 处理截图选择
  * @param event - 文件选择事件
  */
-const handleScreenshotSelect = (event: Event) => {
+const handleScreenshotSelect = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (!input.files?.length) return;
 
   const files = Array.from(input.files)
     .filter((file) => file.type.startsWith("image/"))
-    .filter((file) => {
-      const isValidSize = file.size <= 5 * 1024 * 1024;
-      if (!isValidSize) {
+    .slice(0, 5 - pluginForm.value.Screenshots.length);
+
+  try {
+    showLoading();
+    for (const file of files) {
+      try {
+        const response = await uploadImage(file, "screenshot");
+        if (response.Code === "0001" && response.Data) {
+          pluginForm.value.Screenshots.push(response.Data);
+        }
+      } catch (error) {
         toast.add({
           severity: "error",
-          summary: "文件过大",
-          detail: `文件 ${file.name} 超过5MB`,
+          summary: "上传失败",
+          detail: `文件 ${file.name} 上传失败：${error instanceof Error ? error.message : "未知错误"}`,
           life: 3000,
         });
       }
-      return isValidSize;
-    })
-    .slice(0, 5 - pluginForm.value.Screenshots.length);
-
-  files.forEach((file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        pluginForm.value.Screenshots.push(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-  });
+    }
+  } finally {
+    hideLoading();
+  }
 };
 
 /**
@@ -1331,46 +1394,34 @@ const handleScreenshotDrop = (event: DragEvent) => {
  * 处理截图文件
  * @param files - 截图文件数组
  */
-const processScreenshots = (files: File[]) => {
-  // 过滤出图片文件
-  const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+const processScreenshots = async (files: File[]) => {
+  // 过滤超出图片文件
+  const imageFiles = files
+    .filter((file) => file.type.startsWith("image/"))
+    .slice(0, 5 - pluginForm.value.Screenshots.length);
 
-  // 检查文件大小
-  const validFiles = imageFiles.filter((file) => {
-    if (file.size > 5 * 1024 * 1024) {
-      toast.add({
-        severity: "error",
-        summary: "文件过大",
-        detail: `文件 ${file.name} 超过5MB`,
-        life: 3000,
-      });
-      return false;
-    }
-    return true;
-  });
+  if (imageFiles.length === 0) return;
 
-  // 检查总数限
-  const remainingSlots = 5 - pluginForm.value.Screenshots.length;
-  if (validFiles.length > remainingSlots) {
-    toast.add({
-      severity: "warn",
-      summary: "超出限制",
-      detail: `最多上传5张截图`,
-      life: 3000,
-    });
-    validFiles.splice(remainingSlots);
-  }
-
-  // 处理有效文件
-  validFiles.forEach((file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        pluginForm.value.Screenshots.push(e.target.result as string);
+  try {
+    showLoading();
+    for (const file of imageFiles) {
+      try {
+        const response = await uploadImage(file, "screenshot");
+        if (response.Code === "0001" && response.Data) {
+          pluginForm.value.Screenshots.push(response.Data);
+        }
+      } catch (error) {
+        toast.add({
+          severity: "error",
+          summary: "上传失败",
+          detail: `文件 ${file.name} 上传失败：${error instanceof Error ? error.message : "未知错误"}`,
+          life: 3000,
+        });
       }
-    };
-    reader.readAsDataURL(file);
-  });
+    }
+  } finally {
+    hideLoading();
+  }
 };
 
 /** 触发截图选择对话框 */

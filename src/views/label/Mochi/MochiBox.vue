@@ -71,7 +71,6 @@ const blushAttribute = ref(blush);
 
 // Function to randomize the shiba's attributes
 const randomize = () => {
-  console.log(333333333);
   if (canRandom.value) {
     shibaAttribute.value = [
       "ume",

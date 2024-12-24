@@ -95,12 +95,72 @@ export const updatePluginStatus = (
 };
 
 /**
+ * 上传图片
+ * @param file 图片文件(仅支持 jpg/jpeg/png/gif/webp,最大5MB)
+ * @param type 图片类型(avatar:头像, screenshot:截图, other:其他)
+ * @returns 返回上传后的图片URL
+ */
+export const uploadImage = (file: File, type: 'avatar' | 'screenshot' | 'other' = 'other') => {
+  // 验证文件类型
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp'
+  ];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('仅支持 jpg/jpeg/png/gif/webp 格式的图片');
+  }
+
+  // 验证文件大小（5MB = 5 * 1024 * 1024 bytes）
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('图片大小不能超过5MB');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return request.post<string>('/api/plugin/file/UploadImage', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    params: {
+      type
+    }
+  });
+};
+
+/**
  * 上传插件文件
+ * @param file 插件文件(仅支持 zip/rar/7z,最大15MB)
+ * @returns 返回上传后的文件名
  */
 export const uploadPluginFile = (file: File) => {
+  // 验证文件类型
+  const allowedTypes = [
+    'application/x-zip-compressed',
+    'application/zip',
+    'application/x-rar-compressed',
+    'application/x-7z-compressed'
+  ];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('仅支持 zip/rar/7z 格式的文件');
+  }
+
+  // 验证文件大小（15MB = 15 * 1024 * 1024 bytes）
+  if (file.size > 15 * 1024 * 1024) {
+    throw new Error('文件大小不能超过15MB');
+  }
+
   const formData = new FormData();
-  formData.append("file", file);
-  return request.post<string>("/api/plugin/file/upload", formData);
+  formData.append('file', file);
+
+  return request.post<string>('/api/plugin/file/UploadFile', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
 };
 
 /**
