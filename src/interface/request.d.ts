@@ -1,3 +1,5 @@
+import { ResponseCodeEnum } from "./enum";
+
 export interface ServerResponse<T = any> {
   Code: ResponseCodeEnum
   Data: T

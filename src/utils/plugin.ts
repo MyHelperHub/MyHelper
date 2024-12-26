@@ -79,22 +79,22 @@ export const deletePluginConfig = async (keys: Array<string>): Promise<void> => 
 /**
  * 安装插件
  * @param {string} url - 插件下载地址，必须是以 https://helper.ialtone.xyz/ 开头的URL
- * @param {string} expectedHash - 插件文件的预期SHA-256哈希值
+ * @param {string} windowId - 插件的窗口ID
  * @returns {Promise<void>} - 安装成功返回void
  * @throws 如果安装失败或参数无效，将抛出错误
  * 
  * @example
  * await installPlugin(
  *   'https://helper.ialtone.xyz/plugins/my-plugin.zip',
- *   'abc123def456...',  // 64位SHA-256哈希值
+ *   'my-plugin-window',
  * );
  */
 export const installPlugin = async (
   url: string,
-  expectedHash: string,
+  windowId: string,
 ): Promise<void> => {
   try {
-    await ipcInstallPlugin(url, expectedHash);
+    await ipcInstallPlugin(url, windowId);
   } catch (error) {
     console.error("安装插件失败:", error);
     throw error;

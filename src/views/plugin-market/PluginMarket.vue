@@ -417,6 +417,7 @@ import Column from "primevue/column";
 import { useRouter } from "vue-router";
 import { showLoading, hideLoading } from "@/utils/loading";
 import { useToast } from "primevue/usetoast";
+import { installPlugin } from "@/utils/plugin";
 import {
   getPluginList,
   downloadPlugin,
@@ -466,7 +467,7 @@ interface Plugin {
 const state = reactive({
   searchQuery: "",
   selectedCategory: "ALL",
-  currentSort: PluginSortType.DOWNLOADS_DESC,
+  currentSort: PluginSortType.SMART,
   timeFilter: "",
   first: 0,
   total: 0,
@@ -485,6 +486,7 @@ const categoryMenuItems = [
 
 // 排序选项
 const sortOptions = [
+  { label: "智能排序", value: PluginSortType.SMART },
   { label: "下载量（从高到低）", value: PluginSortType.DOWNLOADS_DESC },
   { label: "下载量（从低到高）", value: PluginSortType.DOWNLOADS_ASC },
   { label: "评分（从高到低）", value: PluginSortType.RATING_DESC },
@@ -580,7 +582,16 @@ const handleDownload = async () => {
 
   try {
     showLoading();
-    await downloadPlugin(selectedPlugin.value.WindowId);
+    const response = await downloadPlugin(selectedPlugin.value.WindowId);
+    
+    // 检查响应格式和状态码
+    if (response.Code !== "0001" || !response.Data) {
+      throw new Error("下载链接获取失败");
+    }
+
+    // 调用安装函数，传入下载链接和窗口ID
+    await installPlugin(response.Data.toString(), selectedPlugin.value.WindowId);
+    
     toast.add({
       severity: "success",
       summary: "成功",
@@ -593,7 +604,7 @@ const handleDownload = async () => {
     toast.add({
       severity: "error",
       summary: "错误",
-      detail: "插件下载失败",
+      detail: error instanceof Error ? error.message : "插件下载失败",
       life: 3000,
     });
   } finally {

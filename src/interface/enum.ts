@@ -4,8 +4,16 @@ export enum SettingMenuItemEnum {
 }
 
 export enum ResponseCodeEnum {
+  /** 成功   */
   SUCCESS = "0001",
+  /** 失败 */
   FAILED = "0002",
+  /** 未登录或token过期 */
+  Unauthorized = "0003",
+  /** 没有相关权限 */
+  FORBIDDEN = "0004",
+  /** 参数检验失败 */
+  VALIDATE_FAILED = "0005",
 }
 
 /**

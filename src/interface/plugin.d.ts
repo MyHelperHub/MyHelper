@@ -42,6 +42,7 @@ export enum PluginSortType {
   RATING_DESC = 3, // 按评分降序
   UPDATE_TIME_ASC = 4, // 按更新时间升序
   UPDATE_TIME_DESC = 5, // 按更新时间降序
+  SMART = 6, // 智能排序
 }
 
 /** 插件信息接口 */
