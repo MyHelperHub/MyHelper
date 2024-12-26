@@ -17,8 +17,15 @@ use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
 
 /** 初始化 */
 fn init() -> AppResult<()> {
+    // 同步插件配置
+    tauri::async_runtime::spawn_blocking(|| {
+        tauri::async_runtime::block_on(mh_plugin::sync::sync_plugins())
+    });
+
+    // 初始化应用观察者
     observe_app()
-        .map_err(|e| AppError::Error(format!("Failed to initialize app observer: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("初始化应用观察者失败: {}", e)))?;
+
     Ok(())
 }
 

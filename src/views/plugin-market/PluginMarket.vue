@@ -17,7 +17,7 @@
               icon="pi pi-list"
               label="已安装插件"
               class="installed-button"
-              @click="showInstalled = true" />
+              @click="handleShowInstalled" />
           </div>
         </div>
       </div>
@@ -417,7 +417,7 @@ import Column from "primevue/column";
 import { useRouter } from "vue-router";
 import { showLoading, hideLoading } from "@/utils/loading";
 import { useToast } from "primevue/usetoast";
-import { installPlugin } from "@/utils/plugin";
+import { installPlugin, getPluginConfig, setPluginConfig, deletePluginConfig } from "@/utils/plugin";
 import {
   getPluginList,
   downloadPlugin,
@@ -425,6 +425,7 @@ import {
   updatePluginStatus,
 } from "@/api/network/plugin.api";
 import { ipcWindowControl } from "@/api/ipc/window.api";
+import { ipcUninstallPlugin } from "@/api/ipc/plugin.api";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import { WindowOperation } from "@/interface/enum";
 import {
@@ -592,6 +593,19 @@ const handleDownload = async () => {
     // 调用安装函数，传入下载链接和窗口ID
     await installPlugin(response.Data.toString(), selectedPlugin.value.WindowId);
     
+    // 保存插件信息到配置
+    if (selectedPlugin.value) {
+      const installedPluginInfo = {
+        ...selectedPlugin.value,
+        Status: PluginStatus.PUBLISHED,
+        CreateTime: new Date().toISOString(),
+      };
+      await setPluginConfig(
+        ['pluginList', selectedPlugin.value.WindowId],
+        installedPluginInfo
+      );
+    }
+    
     toast.add({
       severity: "success",
       summary: "成功",
@@ -600,6 +614,7 @@ const handleDownload = async () => {
     });
     closeDetail();
     await initializeData(); // 重新加载数据
+    await getInstalledPlugins(); // 刷新已安装插件列表
   } catch (error) {
     toast.add({
       severity: "error",
@@ -689,7 +704,8 @@ const togglePlugin = async (plugin: Plugin, enable: boolean) => {
       detail: `插件${enable ? "启用" : "禁用"}成功`,
       life: 3000,
     });
-    initializeData();
+    await initializeData();
+    await getInstalledPlugins(); // 刷新已安装插件列表
   } catch (error) {
     toast.add({
       severity: "error",
@@ -773,25 +789,29 @@ const formatDate = (date: string) => {
 const uninstallPlugin = async (plugin: Plugin) => {
   if (!plugin?.WindowId) return;
 
-  // try {
-  //   showLoading();
-  //   toast.add({
-  //     severity: 'success',
-  //     summary: '成功',
-  //     detail: '插件卸载成功',
-  //     life: 3000
-  //   });
-  //   await initializeData();
-  // } catch (error) {
-  //   toast.add({
-  //     severity: 'error',
-  //     summary: '错误',
-  //     detail: '插件卸载失败',
-  //     life: 3000
-  //   });
-  // } finally {
-  //   hideLoading();
-  // }
+  try {
+    showLoading();
+    await ipcUninstallPlugin(plugin.WindowId);
+    // 删除插件配置信息
+    await deletePluginConfig(['pluginList', plugin.WindowId]);
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '插件卸载成功',
+      life: 3000
+    });
+    await initializeData();
+    await getInstalledPlugins();
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '插件卸载失败',
+      life: 3000
+    });
+  } finally {
+    hideLoading();
+  }
 };
 
 const selectCategory = (event: { value: string }) => {
@@ -803,6 +823,36 @@ const selectCategory = (event: { value: string }) => {
 const handleSortChange = (event: { value: PluginSortType }) => {
   state.currentSort = event.value;
   initializeData();
+};
+
+/** 获取已安装插件列表 */
+const getInstalledPlugins = async () => {
+  try {
+    showLoading();
+    const config = await getPluginConfig(['pluginList']);
+    if (config && typeof config === 'object') {
+      installedPlugins.value = Object.values(config);
+    } else {
+      installedPlugins.value = [];
+    }
+  } catch (error) {
+    console.error('获取已安装插件列表失败:', error);
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '获取已安装插件列表失败',
+      life: 3000,
+    });
+    installedPlugins.value = [];
+  } finally {
+    hideLoading();
+  }
+};
+
+/** 显示已安装插件列表 */
+const handleShowInstalled = async () => {
+  showInstalled.value = true;
+  await getInstalledPlugins();
 };
 
 onMounted(() => {
@@ -984,6 +1034,7 @@ onMounted(() => {
           line-clamp: 3;
           overflow: hidden;
           text-overflow: ellipsis;
+          width: 100px;
         }
 
         p {
@@ -995,6 +1046,11 @@ onMounted(() => {
 
       .plugin-stats {
         text-align: right;
+
+        .no-rating {
+          color: #6b7280;
+          font-size: 0.875rem;
+        }
 
         .downloads {
           color: #6b7280;
