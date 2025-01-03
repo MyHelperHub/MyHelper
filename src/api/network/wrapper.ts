@@ -89,6 +89,14 @@ export const request = {
     return instance.post(url, data, config);
   },
 
+  put: <T>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig,
+  ): Promise<ServerResponse<T>> => {
+    return instance.put(url, data, config);
+  },
+
   delete: <T>(
     url: string,
     config?: AxiosRequestConfig,
