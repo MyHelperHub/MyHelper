@@ -1182,7 +1182,10 @@ const handleUpdatePlugin = async () => {
           FileUrl: fileUrl, // 如果有新文件则更新，否则保持原值
         };
 
-        const response = await updatePlugin(updateData);
+        const response = await updatePlugin(
+          pluginForm.value.WindowId,
+          updateData,
+        );
 
         if (response.Code === "0001") {
           toast.add({

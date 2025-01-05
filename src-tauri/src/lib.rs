@@ -23,8 +23,7 @@ fn init() -> AppResult<()> {
     });
 
     // 初始化应用观察者
-    observe_app()
-        .map_err(|e| AppError::Error(format!("初始化应用观察者失败: {}", e)))?;
+    observe_app().map_err(|e| AppError::Error(format!("初始化应用观察者失败: {}", e)))?;
 
     Ok(())
 }
@@ -188,7 +187,7 @@ fn setup_tray<R: Runtime>(
     let tray = TrayIconBuilder::new()
         .tooltip("MyHelper")
         .menu(&menu)
-        .menu_on_left_click(false)
+        .show_menu_on_left_click(false)
         .icon(icon.clone())
         .on_menu_event(move |app, event| match event.id().as_ref() {
             "exit" => app.exit(0),
