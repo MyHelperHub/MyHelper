@@ -3,7 +3,7 @@
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <!-- 左侧边栏 -->
     <div class="sidebar">
-      <div class="menu-header">
+      <div class="menu-header" data-tauri-drag-region>
         <Button
           icon="pi pi-arrow-left"
           class="p-button-text p-button-sm back-button"
@@ -50,7 +50,7 @@
 
     <!-- 主内容区 -->
     <div class="main-content">
-      <div class="content-header">
+      <div class="content-header" data-tauri-drag-region>
         <h2>{{ menuTitles[activeMenu] }}</h2>
         <Button
           v-if="activeMenu === MenuKey.MyPlugins"

@@ -2,11 +2,18 @@
   <div class="plugin-market">
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <!-- 顶部搜索和过滤区域 -->
-    <div class="search-area">
+    <div class="search-area" data-tauri-drag-region>
       <div class="container">
-        <div class="search-wrapper">
+        <div class="search-wrapper" data-tauri-drag-region>
           <div class="search-input">
-            <InputText v-model="state.searchQuery" placeholder="搜索插件..." />
+            <InputText
+              v-model="state.keyword"
+              placeholder="搜索插件..."
+              @keydown.enter="handleSearch" />
+            <i
+              v-if="state.keyword"
+              class="pi pi-times-circle clear-button"
+              @click="clearSearch" />
             <Button
               class="search-button"
               icon="pi pi-search"
@@ -35,7 +42,7 @@
             <template #content>
               <div class="menu-wrapper">
                 <Listbox
-                  v-model="state.selectedCategory"
+                  v-model="state.category"
                   :options="categoryMenuItems"
                   optionLabel="label"
                   optionValue="value"
@@ -52,7 +59,7 @@
           <Toolbar class="toolbar">
             <template #start>
               <Select
-                v-model="state.currentSort"
+                v-model="state.sort"
                 :options="sortOptions"
                 optionLabel="label"
                 optionValue="value"
@@ -69,14 +76,15 @@
                 optionValue="value"
                 placeholder="选择时间范围"
                 class="time-filter-select"
-                :panelStyle="{ width: '200px' }" />
+                :panelStyle="{ width: '200px' }"
+                @change="handleTimeFilterChange" />
             </template>
           </Toolbar>
 
           <!-- 插件网格 -->
           <div class="plugin-grid">
             <Card
-              v-for="plugin in filteredPlugins"
+              v-for="plugin in plugins"
               :key="plugin.Id"
               class="plugin-card"
               @click="showPluginDetail(plugin)">
@@ -147,10 +155,11 @@
           <!-- 分页 -->
           <div class="pagination">
             <Paginator
-              v-model:first="state.first"
-              :rows="20"
+              :first="(state.pageIndex - 1) * state.pageSize"
+              :rows="state.pageSize"
               :total-records="state.total"
-              :rows-per-page-options="[20, 40, 60]" />
+              :rows-per-page-options="[20, 40, 60]"
+              @page="onPageChange" />
           </div>
         </div>
       </div>
@@ -399,7 +408,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Card from "primevue/card";
@@ -417,7 +426,12 @@ import Column from "primevue/column";
 import { useRouter } from "vue-router";
 import { showLoading, hideLoading } from "@/utils/loading";
 import { useToast } from "primevue/usetoast";
-import { installPlugin, getPluginConfig, setPluginConfig, deletePluginConfig } from "@/utils/plugin";
+import {
+  installPlugin,
+  getPluginConfig,
+  setPluginConfig,
+  deletePluginConfig,
+} from "@/utils/plugin";
 import {
   getPluginList,
   downloadPlugin,
@@ -466,11 +480,12 @@ interface Plugin {
 
 /** 状态管理 */
 const state = reactive({
-  searchQuery: "",
-  selectedCategory: "ALL",
-  currentSort: PluginSortType.SMART,
-  timeFilter: "",
-  first: 0,
+  keyword: "",
+  category: "ALL",
+  sort: PluginSortType.SMART,
+  timeFilter: "all",
+  pageIndex: 1,
+  pageSize: 20,
   total: 0,
 });
 
@@ -497,12 +512,12 @@ const sortOptions = [
 ];
 
 /** 时间筛选选项 */
-const timeFilterOptions = ref([
+const timeFilterOptions = [
   { label: "所有时间", value: "all" },
   { label: "最近一周", value: "week" },
   { label: "最近一月", value: "month" },
   { label: "最近一年", value: "year" },
-]);
+];
 
 const plugins = ref<Plugin[]>([]);
 const installedPlugins = ref<Plugin[]>([]);
@@ -516,12 +531,14 @@ const initializeData = async () => {
   try {
     showLoading();
     const params: any = {
-      sort: state.currentSort,
-      pageIndex: Math.floor(state.first / 20) + 1,
-      pageSize: 20,
+      sort: state.sort,
+      pageIndex: state.pageIndex,
+      pageSize: state.pageSize,
+      timeFilter: state.timeFilter,
+      keyword: state.keyword,
     };
-    if (state.selectedCategory !== "ALL") {
-      params.category = state.selectedCategory;
+    if (state.category !== "ALL") {
+      params.category = state.category;
     }
     const response = await getPluginList(params);
     plugins.value = response.Data as unknown as Plugin[];
@@ -548,7 +565,28 @@ const formatNumber = (num: number | undefined) => {
 
 /** 搜索插件 */
 const handleSearch = () => {
-  console.log("执行搜索:", state.searchQuery);
+  state.pageIndex = 1; // 重置分页到第一页
+  initializeData();
+};
+
+/** 处理分页变化 */
+const onPageChange = (event: { page: number; rows: number }) => {
+  state.pageIndex = event.page + 1;
+  state.pageSize = event.rows;
+  initializeData();
+};
+
+/** 选择分类 */
+const selectCategory = (event: { value: string }) => {
+  state.category = event.value;
+  state.pageIndex = 1; // 重置分页到第一页
+  initializeData();
+};
+
+/** 处理排序变化 */
+const handleSortChange = (event: { value: PluginSortType }) => {
+  state.sort = event.value;
+  state.pageIndex = 1; // 重置分页到第一页
   initializeData();
 };
 
@@ -584,28 +622,38 @@ const handleDownload = async () => {
   try {
     showLoading();
     const response = await downloadPlugin(selectedPlugin.value.WindowId);
-    
+
     // 检查响应格式和状态码
     if (response.Code !== "0001" || !response.Data) {
       throw new Error("下载链接获取失败");
     }
 
     // 调用安装函数，传入下载链接和窗口ID
-    await installPlugin(response.Data.toString(), selectedPlugin.value.WindowId);
-    
+    await installPlugin(
+      response.Data.toString(),
+      selectedPlugin.value.WindowId,
+    );
+
     // 保存插件信息到配置
     if (selectedPlugin.value) {
+      // const installedPluginInfo = {
+      //   ...selectedPlugin.value,
+      //   Status: PluginStatus.PUBLISHED,
+      //   CreateTime: new Date().toISOString(),
+      // };
       const installedPluginInfo = {
-        ...selectedPlugin.value,
-        Status: PluginStatus.PUBLISHED,
-        CreateTime: new Date().toISOString(),
+        info: {
+          installTime: new Date().toISOString(),
+          status: 1,
+        },
+        data: selectedPlugin.value,
       };
       await setPluginConfig(
-        ['pluginList', selectedPlugin.value.WindowId],
-        installedPluginInfo
+        ["pluginList", selectedPlugin.value.WindowId],
+        installedPluginInfo,
       );
     }
-    
+
     toast.add({
       severity: "success",
       summary: "成功",
@@ -762,20 +810,6 @@ const handleClose = () => {
   });
 };
 
-const filteredPlugins = computed(() => {
-  return plugins.value.filter((plugin) => {
-    if (state.searchQuery) {
-      return (
-        plugin.Name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-        plugin.Description?.toLowerCase().includes(
-          state.searchQuery.toLowerCase(),
-        )
-      );
-    }
-    return true;
-  });
-});
-
 const isPluginInstalled = (plugin: Plugin | null) => {
   if (!plugin) return false;
   return installedPlugins.value.some((p) => p.WindowId === plugin.WindowId);
@@ -793,54 +827,43 @@ const uninstallPlugin = async (plugin: Plugin) => {
     showLoading();
     await ipcUninstallPlugin(plugin.WindowId);
     // 删除插件配置信息
-    await deletePluginConfig(['pluginList', plugin.WindowId]);
+    await deletePluginConfig(["pluginList", plugin.WindowId]);
     toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '插件卸载成功',
-      life: 3000
+      severity: "success",
+      summary: "成功",
+      detail: "插件卸载成功",
+      life: 3000,
     });
     await initializeData();
     await getInstalledPlugins();
   } catch (error) {
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '插件卸载失败',
-      life: 3000
+      severity: "error",
+      summary: "错误",
+      detail: "插件卸载失败",
+      life: 3000,
     });
   } finally {
     hideLoading();
   }
 };
 
-const selectCategory = (event: { value: string }) => {
-  state.selectedCategory = event.value;
-  initializeData();
-};
-
-/** 处理排序变化 */
-const handleSortChange = (event: { value: PluginSortType }) => {
-  state.currentSort = event.value;
-  initializeData();
-};
-
 /** 获取已安装插件列表 */
 const getInstalledPlugins = async () => {
   try {
     showLoading();
-    const config = await getPluginConfig(['pluginList']);
-    if (config && typeof config === 'object') {
+    const config = await getPluginConfig(["pluginList"]);
+    if (config && typeof config === "object") {
       installedPlugins.value = Object.values(config);
     } else {
       installedPlugins.value = [];
     }
   } catch (error) {
-    console.error('获取已安装插件列表失败:', error);
+    console.error("获取已安装插件列表失败:", error);
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '获取已安装插件列表失败',
+      severity: "error",
+      summary: "错误",
+      detail: "获取已安装插件列表失败",
       life: 3000,
     });
     installedPlugins.value = [];
@@ -853,6 +876,19 @@ const getInstalledPlugins = async () => {
 const handleShowInstalled = async () => {
   showInstalled.value = true;
   await getInstalledPlugins();
+};
+
+/** 清空搜索 */
+const clearSearch = () => {
+  state.keyword = "";
+  handleSearch();
+};
+
+/** 处理时间筛选变化 */
+const handleTimeFilterChange = (event: { value: string }) => {
+  state.timeFilter = event.value;
+  state.pageIndex = 1; // 重置分页到第一页
+  initializeData();
 };
 
 onMounted(() => {
@@ -897,7 +933,22 @@ onMounted(() => {
 
       :deep(.p-inputtext) {
         width: 100%;
-        padding-right: 3rem;
+        padding-right: 5rem;
+      }
+
+      .clear-button {
+        position: absolute;
+        right: 2.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        padding: 0.5rem;
+        color: #6b7280;
+        z-index: 1;
+
+        &:hover {
+          color: #1a73e8;
+        }
       }
 
       .search-button {
