@@ -620,7 +620,7 @@ import InputNumber from "primevue/inputnumber";
 import Checkbox from "primevue/checkbox";
 import InputChips from "primevue/inputchips";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { WindowOperation } from "@/interface/enum";
+import { ResponseCodeEnum, WindowOperation } from "@/interface/enum";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
@@ -701,7 +701,7 @@ const loadData = async () => {
           pageSize: rowsPerPage.value,
         });
 
-        if (response.Code === "0001" && response.Data) {
+        if (response.Code === ResponseCodeEnum.SUCCESS && response.Data) {
           pluginsData.value = response.Data as unknown as Plugin[];
           totalRecords.value = response.Page.TotalRecords;
         }
@@ -712,7 +712,10 @@ const loadData = async () => {
           pageSize: rowsPerPage.value,
         });
 
-        if (historyResponse.Code === "0001" && historyResponse.Data) {
+        if (
+          historyResponse.Code === ResponseCodeEnum.SUCCESS &&
+          historyResponse.Data
+        ) {
           uploadHistory.value = historyResponse.Data as unknown as Plugin[];
           totalRecords.value = historyResponse.Page.TotalRecords;
         }
@@ -885,7 +888,7 @@ const handleIconSelect = async (event: Event) => {
     try {
       showLoading();
       const response = await uploadImage(file, "avatar");
-      if (response.Code === "0001" && response.Data) {
+      if (response.Code === ResponseCodeEnum.SUCCESS && response.Data) {
         pluginForm.value.Icon = response.Data;
       } else {
         throw new Error(response.Message || "上传失败");
@@ -1094,7 +1097,22 @@ const submitPlugin = async () => {
     showLoading();
 
     // 1. 先上传插件文件
-    const fileResponse = await uploadPluginFile(pluginForm.value.File as File);
+    let fileResponse;
+    try {
+      fileResponse = await uploadPluginFile(pluginForm.value.File as File);
+      if (fileResponse.Code !== ResponseCodeEnum.SUCCESS) {
+        throw new Error(fileResponse.Message || "上传插件文件失败");
+      }
+    } catch (error) {
+      toast.add({
+        severity: "error",
+        summary: "错误",
+        detail: error instanceof Error ? error.message : "上传插件文件失败",
+        life: 3000,
+      });
+      hideLoading();
+      return;
+    }
 
     // 2. 创建插件信息
     const pluginData = {
@@ -1116,7 +1134,7 @@ const submitPlugin = async () => {
 
     const response = await createPlugin(pluginData);
 
-    if (response.Code === "0001") {
+    if (response.Code === ResponseCodeEnum.SUCCESS) {
       toast.add({
         severity: "success",
         summary: "成功",
@@ -1187,7 +1205,7 @@ const handleUpdatePlugin = async () => {
           updateData,
         );
 
-        if (response.Code === "0001") {
+        if (response.Code === ResponseCodeEnum.SUCCESS) {
           toast.add({
             severity: "success",
             summary: "成功",
@@ -1258,14 +1276,10 @@ const handleDeletePlugin = async (plugin: any) => {
   if (!plugin?.WindowId) {
     toast.add({
       severity: "error",
-
       summary: "错误",
-
       detail: "插件ID无效",
-
       life: 3000,
     });
-
     return;
   }
 
@@ -1366,7 +1380,7 @@ const handleScreenshotSelect = async (event: Event) => {
     for (const file of files) {
       try {
         const response = await uploadImage(file, "screenshot");
-        if (response.Code === "0001" && response.Data) {
+        if (response.Code === ResponseCodeEnum.SUCCESS && response.Data) {
           pluginForm.value.Screenshots.push(response.Data);
         }
       } catch (error) {
@@ -1410,7 +1424,7 @@ const processScreenshots = async (files: File[]) => {
     for (const file of imageFiles) {
       try {
         const response = await uploadImage(file, "screenshot");
-        if (response.Code === "0001" && response.Data) {
+        if (response.Code === ResponseCodeEnum.SUCCESS && response.Data) {
           pluginForm.value.Screenshots.push(response.Data);
         }
       } catch (error) {

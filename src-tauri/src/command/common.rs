@@ -135,20 +135,38 @@ pub async fn create_new_window(
     // 处理窗口位置，-1 表示居中
     let (x, y) = match position {
         Some((pos_x, pos_y)) => {
-            let center_x = (monitor_size.width as f64 - width) / 2.0;
-            let center_y = (monitor_size.height as f64 - height) / 2.0;
+            let screen_width = monitor_size.width as f64;
+            let screen_height = monitor_size.height as f64;
+
+            // 先将屏幕尺寸转换为逻辑像素
+            let logical_screen_width = screen_width / monitor.scale_factor();
+            let logical_screen_height = screen_height / monitor.scale_factor();
+
+            // 使用逻辑像素计算中心位置
+            let center_x = (logical_screen_width - base_width) / 2.0;
+            let center_y = (logical_screen_height - base_height) / 2.0;
 
             match (pos_x, pos_y) {
-                (-1.0, -1.0) => (center_x, center_y),               // 完全居中
-                (-1.0, y) => (center_x, y * adjusted_scale_factor), // 水平居中
-                (x, -1.0) => (x * adjusted_scale_factor, center_y), // 垂直居中
-                (x, y) => (x * adjusted_scale_factor, y * adjusted_scale_factor), // 指定位置
+                (-1.0, -1.0) => (center_x, center_y), // 完全居中
+                (-1.0, y) => (center_x, y),           // 水平居中
+                (x, -1.0) => (x, center_y),           // 垂直居中
+                (x, y) => (x, y),                     // 指定位置
             }
         }
-        None => (
-            (monitor_size.width as f64 - width) / 2.0,
-            (monitor_size.height as f64 - height) / 2.0,
-        ),
+        None => {
+            let screen_width = monitor_size.width as f64;
+            let screen_height = monitor_size.height as f64;
+
+            // 先将屏幕尺寸转换为逻辑像素
+            let logical_screen_width = screen_width / monitor.scale_factor();
+            let logical_screen_height = screen_height / monitor.scale_factor();
+
+            // 使用逻辑像素计算中心位置
+            let center_x = (logical_screen_width - base_width) / 2.0;
+            let center_y = (logical_screen_height - base_height) / 2.0;
+
+            (center_x, center_y)
+        }
     };
 
     // 构建基础窗口配置

@@ -636,11 +636,10 @@ const handleDownload = async () => {
 
     // 保存插件信息到配置
     if (selectedPlugin.value) {
-      // const installedPluginInfo = {
-      //   ...selectedPlugin.value,
-      //   Status: PluginStatus.PUBLISHED,
-      //   CreateTime: new Date().toISOString(),
-      // };
+      // 获取当前的 pluginList
+      const currentConfig = (await getPluginConfig(["pluginList"])) || [];
+      const pluginList = Array.isArray(currentConfig) ? currentConfig : [];
+
       const installedPluginInfo = {
         info: {
           installTime: new Date().toISOString(),
@@ -648,10 +647,22 @@ const handleDownload = async () => {
         },
         data: selectedPlugin.value,
       };
-      await setPluginConfig(
-        ["pluginList", selectedPlugin.value.WindowId],
-        installedPluginInfo,
+
+      // 查找是否已存在相同 WindowId 的插件
+      const index = pluginList.findIndex(
+        (p: any) => p.data?.WindowId === selectedPlugin.value?.WindowId,
       );
+
+      if (index !== -1) {
+        // 如果存在，更新它
+        pluginList[index] = installedPluginInfo;
+      } else {
+        // 如果不存在，添加到数组
+        pluginList.push(installedPluginInfo);
+      }
+
+      // 保存更新后的数组
+      await setPluginConfig(["pluginList"], pluginList);
     }
 
     toast.add({
