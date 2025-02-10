@@ -16,21 +16,22 @@ pub use win::*;
 #[cfg(target_os = "linux")]
 pub use linux::*;
 
+use crate::utils::error::{AppError, AppResult};
 use clipboard_rs::{
     Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext,
     ContentFormat, WatcherShutdown,
 };
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Mutex;
 use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
-use crate::utils::error::{AppError, AppResult};
 
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
-static mut WATCHER_SHUTDOWN: Option<WatcherShutdown> = None; // 存储关闭信号
+static WATCHER_SHUTDOWN: Mutex<Option<WatcherShutdown>> = Mutex::new(None); // 存储关闭信号
 
 /// 剪贴板管理器
-/// 
+///
 /// 负责处理剪贴板事件和内容更新
 struct Manager {
     ctx: ClipboardContext,
@@ -83,7 +84,7 @@ impl ClipboardHandler for Manager {
 }
 
 /// 启动剪贴板监听
-/// 
+///
 /// 开始监听系统剪贴板的变化，当内容更新时触发事件
 #[tauri::command]
 pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
@@ -99,24 +100,21 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
         .map_err(|e| AppError::Error(format!("Failed to create clipboard watcher: {}", e)))?;
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
-    unsafe {
-        WATCHER_SHUTDOWN = Some(watcher_shutdown);
-    }
+    *WATCHER_SHUTDOWN.lock().unwrap() = Some(watcher_shutdown);
 
     watcher.start_watch();
     Ok(())
 }
 
 /// 停止剪贴板监听
-/// 
+///
 /// 停止监听系统剪贴板的变化
 #[tauri::command]
 pub async fn stop_clipboard_listener() -> AppResult<()> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        unsafe {
-            if let Some(shutdown) = WATCHER_SHUTDOWN.take() {
-                shutdown.stop();
-            }
+        let mut shutdown_lock = WATCHER_SHUTDOWN.lock().unwrap();
+        if let Some(shutdown) = shutdown_lock.take() {
+            shutdown.stop();
         }
         CLIPBOARD_LISTENER.store(false, Ordering::SeqCst);
     }
@@ -124,18 +122,17 @@ pub async fn stop_clipboard_listener() -> AppResult<()> {
 }
 
 /// 写入内容到剪贴板
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `text` - 要写入剪贴板的文本内容
 #[tauri::command]
 pub async fn write_clipboard(text: String) -> AppResult<()> {
     let ctx = ClipboardContext::new()
         .map_err(|e| AppError::Error(format!("Failed to create clipboard context: {}", e)))?;
-    
+
     ctx.set_text(text)
         .map_err(|e| AppError::Error(format!("Failed to set clipboard content: {}", e)))?;
-    
+
     Ok(())
 }
-
