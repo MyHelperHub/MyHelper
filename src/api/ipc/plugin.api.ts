@@ -1,16 +1,17 @@
 import { invoke } from "@tauri-apps/api/core";
 
 /**
- * 获取插件配置
- * @param keys 配置项的键值数组，获取指定的插件配置项
- * @returns 返回对应的插件配置值
- * 
+ * 获取插件配置数据
+ * @param {Array<string>} keys - 配置项的键列表
+ * @returns {Promise<unknown>} - 返回配置数据，如果配置不存在则返回null
+ * @throws 如果获取配置失败，将抛出错误
+ *
  * @example
- * // 获取插件的 'windowId' 配置
- * const windowId = await ipcGetPluginConfig(['windowId']);
+ * // 获取插件列表
+ * const pluginList = await ipcGetPluginConfig(['pluginList']);
  * 
- * // 获取插件的 'size.width' 配置
- * const width = await ipcGetPluginConfig(['size', 'width']);
+ * // 获取特定插件的配置
+ * const pluginConfig = await ipcGetPluginConfig(['pluginList', 'my-plugin']);
  */
 export const ipcGetPluginConfig = async (keys: Array<string>) => {
   return invoke("get_plugin_config", { keys });

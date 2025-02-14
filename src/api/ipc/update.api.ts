@@ -3,7 +3,7 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { showMessage } from "@/utils/message";
 import { UpdateProgress, UpdateResult } from "@/interface/update";
 
-export async function checkForUpdates(): Promise<UpdateResult> {
+export async function ipcCheckForUpdates(): Promise<UpdateResult> {
   try {
     const update = await check();
     if (update) {
@@ -23,7 +23,7 @@ export async function checkForUpdates(): Promise<UpdateResult> {
   }
 }
 
-export async function downloadAndInstallUpdate(
+export async function ipcDownloadAndInstallUpdate(
   onProgress?: (progress: UpdateProgress) => void,
 ): Promise<void> {
   try {

@@ -1,6 +1,31 @@
 import { WindowConfig } from "./window";
 
 /**
+ * 插件配置接口
+ * @param windowId 插件窗口ID
+ * @param data 窗口配置数据
+ * @param info 插件信息
+ */
+export interface PluginConfig {
+  windowId: string;
+  data: WindowConfig;
+  info: {
+    installTime: string;
+    status: PluginStatus;
+    author: string;
+    email: string;
+    version: string;
+    description: string;
+    downloads: number;
+    rating: number;
+    tags: string[];
+    category: PluginCategory;
+    createTime: string;
+    updateTime: string;
+  };
+}
+
+/**
  * 创建插件时的配置项
  * @extends WindowConfig
  * @param windowId 插件窗口ID，字符串类型，用于标识插件窗口

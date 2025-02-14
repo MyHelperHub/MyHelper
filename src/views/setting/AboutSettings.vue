@@ -128,8 +128,8 @@ import ScrollPanel from "primevue/scrollpanel";
 import { ref, computed } from "vue";
 import { getVersion } from "@tauri-apps/api/app";
 import {
-  checkForUpdates,
-  downloadAndInstallUpdate,
+  ipcCheckForUpdates,
+  ipcDownloadAndInstallUpdate,
 } from "@/api/ipc/update.api";
 import { showMessage } from "@/utils/message";
 import { copyToClipboard } from "@/utils/clipboard";
@@ -168,7 +168,7 @@ const handleCheckUpdate = async () => {
 
   updateState.value.checking = true;
   try {
-    const result = await checkForUpdates();
+    const result = await ipcCheckForUpdates();
 
     if (result.shouldUpdate) {
       updateState.value.newVersion = result.version || "";
@@ -196,7 +196,7 @@ const handleUpdate = async () => {
 
   updateState.value.downloading = true;
   try {
-    await downloadAndInstallUpdate((progress) => {
+    await ipcDownloadAndInstallUpdate((progress) => {
       updateState.value.progress = progress;
     });
   } catch (error) {

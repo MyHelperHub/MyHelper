@@ -1,7 +1,7 @@
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use std::fs::{self, File};
 use std::io::{self, Cursor};
 use url::Url;
@@ -11,7 +11,7 @@ const MAX_ZIP_SIZE: usize = 15 * 1024 * 1024; // 15MB
 const REQUIRED_FILES: [&str; 2] = ["index.html", "mhPlugin.json"];
 
 #[tauri::command]
-pub fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
+pub async fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
     println!("开始安装插件: window_id={}, url={}", window_id, url);
 
     // 解析URL
@@ -64,7 +64,7 @@ pub fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
     }
     fs::create_dir_all(&target_dir).map_err(|e| AppError::from(format!("创建目录失败: {}", e)))?;
 
-    // 创建HTTP客户端并下载文件
+    // 创建异步HTTP客户端
     let client = Client::builder()
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
         .no_proxy()  // 禁用系统代理
@@ -79,6 +79,7 @@ pub fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
         .header("Connection", "keep-alive")
         .header("Host", host_with_port)
         .send()
+        .await
         .map_err(|e| AppError::from(format!("下载文件失败: {}", e)))?;
 
     println!("响应状态: {:?}", response.status());
@@ -86,7 +87,7 @@ pub fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
 
     if !response.status().is_success() {
         let status = response.status();
-        let error_text = response.text().unwrap_or_default();
+        let error_text = response.text().await.unwrap_or_default();
         println!("错误响应内容: {}", error_text);
         return Err(AppError::from(format!(
             "下载失败，状态码: {} - 错误内容: {}",
@@ -102,6 +103,7 @@ pub fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
 
     let bytes = response
         .bytes()
+        .await
         .map_err(|e| AppError::from(format!("读取响应失败: {}", e)))?;
 
     println!("下载的内容大小: {} bytes", bytes.len());

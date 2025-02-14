@@ -91,21 +91,29 @@ pub async fn sync_plugins() -> AppResult<()> {
                     Ok(content) => {
                         match serde_json::from_str::<Value>(&content) {
                             Ok(config) => {
-                                // 检查配置中的 windowId 是否与文件夹名一致
-                                match config.get("windowId") {
-                                    Some(id) if id.is_string() && id.as_str() == Some(window_id) => {
-                                        plugin_list.push(config);
-                                        continue;
-                                    }
-                                    _ => {
-                                        Logger::write_log(LogEntry {
-                                            level: "warn".to_string(),
-                                            message: format!("插件配置的 windowId 无效或不匹配: {}", window_id),
-                                            timestamp: String::new(),
-                                            details: None,
-                                        }).map_err(|e| AppError::from(e))?;
+                                // 检查 data.windowId 是否与文件夹名一致
+                                if let Some(data) = config.get("data") {
+                                    if let Some(id) = data.get("windowId") {
+                                        if id.is_string() && id.as_str() == Some(window_id) {
+                                            // 查找现有配置
+                                            if let Some(existing_config) = current_list.iter()
+                                                .find(|p| p.get("data")
+                                                    .and_then(|d| d.get("windowId"))
+                                                    .and_then(|v| v.as_str()) == Some(window_id)) {
+                                                plugin_list.push(existing_config.clone());
+                                            } else {
+                                                plugin_list.push(config);
+                                            }
+                                            continue;
+                                        }
                                     }
                                 }
+                                Logger::write_log(LogEntry {
+                                    level: "warn".to_string(),
+                                    message: format!("插件配置的 windowId 无效或不匹配: {}", window_id),
+                                    timestamp: String::new(),
+                                    details: None,
+                                }).map_err(|e| AppError::from(e))?;
                             }
                             Err(e) => {
                                 Logger::write_log(LogEntry {
@@ -129,7 +137,9 @@ pub async fn sync_plugins() -> AppResult<()> {
                 
                 // 如果无法读取配置文件或windowId不匹配，尝试使用现有配置
                 if let Some(existing_config) = current_list.iter()
-                    .find(|p| p.get("windowId").and_then(|v| v.as_str()) == Some(window_id)) {
+                    .find(|p| p.get("data")
+                        .and_then(|d| d.get("windowId"))
+                        .and_then(|v| v.as_str()) == Some(window_id)) {
                     plugin_list.push(existing_config.clone());
                 }
             } else {

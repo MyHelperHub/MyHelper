@@ -447,6 +447,7 @@ import {
   PluginStatus,
   PluginSortType,
 } from "@/interface/plugin.d";
+import { appDataDir } from "@tauri-apps/api/path";
 
 const toast = useToast();
 const router = useRouter();
@@ -615,6 +616,54 @@ const closeDetail = () => {
   userRating.value = 0;
 };
 
+/** 获取已安装插件列表 */
+const getInstalledPlugins = async () => {
+  try {
+    showLoading();
+    const config = await getPluginConfig(['pluginList']);
+    if (config && Array.isArray(config)) {
+      installedPlugins.value = config.map(item => ({
+        Id: -1, // 本地插件没有 Id
+        Name: item.data.title,
+        Message: null,
+        Screenshots: [],
+        WindowId: item.windowId,
+        Title: item.data.title,
+        Size: item.data.size,
+        Position: item.data.position,
+        AlwaysOnTop: item.data.alwaysOnTop,
+        Resizable: item.data.resizable,
+        Icon: item.data.icon,
+        Status: item.info.status,
+        CreateTime: item.info.createTime,
+        Author: item.info.author,
+        Email: item.info.email,
+        Version: item.info.version,
+        Description: item.info.description,
+        Downloads: item.info.downloads,
+        Rating: item.info.rating,
+        Tags: item.info.tags,
+        Category: item.info.category,
+        UpdateTime: item.info.updateTime,
+        HasUpdate: false
+      }));
+    } else {
+      installedPlugins.value = [];
+    }
+  } catch (error) {
+    console.error('获取已安装插件列表失败:', error);
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '获取已安装插件列表失败',
+      life: 3000,
+    });
+    installedPlugins.value = [];
+  } finally {
+    hideLoading();
+  }
+};
+
 /** 下载插件 */
 const handleDownload = async () => {
   if (!selectedPlugin.value?.WindowId) return;
@@ -622,47 +671,55 @@ const handleDownload = async () => {
   try {
     showLoading();
     const response = await downloadPlugin(selectedPlugin.value.WindowId);
-
-    // 检查响应格式和状态码
+    
     if (response.Code !== "0001" || !response.Data) {
       throw new Error("下载链接获取失败");
     }
 
-    // 调用安装函数，传入下载链接和窗口ID
-    await installPlugin(
-      response.Data.toString(),
-      selectedPlugin.value.WindowId,
-    );
-
-    // 保存插件信息到配置
+    await installPlugin(response.Data.toString(), selectedPlugin.value.WindowId);
+    
     if (selectedPlugin.value) {
-      // 获取当前的 pluginList
-      const currentConfig = (await getPluginConfig(["pluginList"])) || [];
+      const currentConfig = await getPluginConfig(['pluginList']) || [];
       const pluginList = Array.isArray(currentConfig) ? currentConfig : [];
+      const appDataPath = await appDataDir();
 
-      const installedPluginInfo = {
+      // 构建正确的插件配置结构
+      const pluginConfig = {
+        windowId: selectedPlugin.value.WindowId,
+        data: {
+          windowId: selectedPlugin.value.WindowId,
+          title: selectedPlugin.value.Title,
+          size: selectedPlugin.value.Size as [number, number],
+          position: selectedPlugin.value.Position as [number, number],
+          alwaysOnTop: selectedPlugin.value.AlwaysOnTop,
+          resizable: selectedPlugin.value.Resizable,
+          icon: selectedPlugin.value.Icon || './icon.png',
+          url: `http://asset.localhost/${appDataPath}/Plugin/${selectedPlugin.value.WindowId}/index.html`
+        },
         info: {
           installTime: new Date().toISOString(),
-          status: 1,
-        },
-        data: selectedPlugin.value,
+          status: PluginStatus.PUBLISHED,
+          author: selectedPlugin.value.Author,
+          email: selectedPlugin.value.Email,
+          version: selectedPlugin.value.Version,
+          description: selectedPlugin.value.Description,
+          downloads: selectedPlugin.value.Downloads,
+          rating: selectedPlugin.value.Rating,
+          tags: selectedPlugin.value.Tags,
+          category: selectedPlugin.value.Category,
+          createTime: selectedPlugin.value.CreateTime,
+          updateTime: selectedPlugin.value.UpdateTime
+        }
       };
 
-      // 查找是否已存在相同 WindowId 的插件
-      const index = pluginList.findIndex(
-        (p: any) => p.data?.WindowId === selectedPlugin.value?.WindowId,
-      );
-
+      const index = pluginList.findIndex(p => p.windowId === selectedPlugin.value?.WindowId);
       if (index !== -1) {
-        // 如果存在，更新它
-        pluginList[index] = installedPluginInfo;
+        pluginList[index] = pluginConfig;
       } else {
-        // 如果不存在，添加到数组
-        pluginList.push(installedPluginInfo);
+        pluginList.push(pluginConfig);
       }
 
-      // 保存更新后的数组
-      await setPluginConfig(["pluginList"], pluginList);
+      await setPluginConfig(['pluginList'], pluginList);
     }
 
     toast.add({
@@ -672,8 +729,7 @@ const handleDownload = async () => {
       life: 3000,
     });
     closeDetail();
-    await initializeData(); // 重新加载数据
-    await getInstalledPlugins(); // 刷新已安装插件列表
+    await getInstalledPlugins();
   } catch (error) {
     toast.add({
       severity: "error",
@@ -854,30 +910,6 @@ const uninstallPlugin = async (plugin: Plugin) => {
       detail: "插件卸载失败",
       life: 3000,
     });
-  } finally {
-    hideLoading();
-  }
-};
-
-/** 获取已安装插件列表 */
-const getInstalledPlugins = async () => {
-  try {
-    showLoading();
-    const config = await getPluginConfig(["pluginList"]);
-    if (config && typeof config === "object") {
-      installedPlugins.value = Object.values(config);
-    } else {
-      installedPlugins.value = [];
-    }
-  } catch (error) {
-    console.error("获取已安装插件列表失败:", error);
-    toast.add({
-      severity: "error",
-      summary: "错误",
-      detail: "获取已安装插件列表失败",
-      life: 3000,
-    });
-    installedPlugins.value = [];
   } finally {
     hideLoading();
   }

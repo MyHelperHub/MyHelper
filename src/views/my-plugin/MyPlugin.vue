@@ -13,7 +13,7 @@
           :key="item.windowId"
           class="icon-wrapper"
           v-tooltip.bottom="{
-            value: item.title,
+            value: item.data.title,
             showDelay: 200,
             pt: {
               text: {
@@ -26,7 +26,7 @@
           @click="handleClick(item)">
           <div class="app-item">
             <i class="icon">
-              <img :src="item.icon" :alt="item.title" />
+              <img :src="item.data.icon" :alt="item.data.title" />
             </i>
           </div>
         </div>
@@ -39,7 +39,6 @@
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import Drawer from "primevue/drawer";
 import { ref } from "vue";
-import { appDataDir } from "@tauri-apps/api/path";
 import type { PluginConfig } from "@/interface/plugin";
 import { getPluginConfig } from "@/utils/plugin";
 
@@ -51,11 +50,8 @@ const init = async () => {
 };
 
 const handleClick = async (item: PluginConfig) => {
-  const appDataPath = await appDataDir();
-  const pluginUrl = `http://asset.localhost/${appDataPath}/Plugin/${item.windowId}/index.html`;
   ipcCreateNewWindow({
-    ...item,
-    url: pluginUrl,
+    ...item.data
   });
 };
 
