@@ -41,6 +41,8 @@ import Drawer from "primevue/drawer";
 import { ref } from "vue";
 import type { PluginConfig } from "@/interface/plugin";
 import { getPluginConfig } from "@/utils/plugin";
+import { invoke } from "@tauri-apps/api/core";
+import { showMessage } from "@/utils/message";
 
 const popoverRef = ref(false);
 const pluginList = ref<PluginConfig[]>([]);
@@ -50,9 +52,25 @@ const init = async () => {
 };
 
 const handleClick = async (item: PluginConfig) => {
-  ipcCreateNewWindow({
-    ...item.data
-  });
+  try {
+    // 检查插件的 index.html 文件是否存在
+    const exists = await invoke<boolean>("file_exists", { 
+      path: item.data.url
+    });
+
+    if (!exists) {
+      showMessage("插件文件不存在，请重新安装插件", 3000, 2);
+      return;
+    }
+    // 实际路径
+    const realPath = `http://asset.localhost/${item.data.url}`;
+    ipcCreateNewWindow({
+      ...item.data,
+      url: realPath
+    });
+  } catch (error) {
+    showMessage("打开插件失败", 3000, 2);
+  }
 };
 
 const openPopover = () => {

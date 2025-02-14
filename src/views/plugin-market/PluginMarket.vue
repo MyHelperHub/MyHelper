@@ -1,5 +1,6 @@
 <template>
   <div class="plugin-market">
+    <ConfirmPopup />
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <!-- 顶部搜索和过滤区域 -->
     <div class="search-area" data-tauri-drag-region>
@@ -146,7 +147,18 @@
                       :value="tag"
                       severity="info" />
                   </div>
-                  <Button icon="pi pi-download" label="下载" size="small" />
+                  <Button
+                    v-if="installedPluginIds.includes(plugin.WindowId)"
+                    icon="pi pi-check"
+                    label="已安装"
+                    severity="success"
+                    size="small"
+                    disabled />
+                  <Button
+                    v-else
+                    icon="pi pi-download"
+                    label="下载"
+                    size="small" />
                 </div>
               </template>
             </Card>
@@ -183,27 +195,23 @@
             height="64" />
           <div class="plugin-info">
             <p class="author">作者：{{ selectedPlugin.Author }}</p>
-            <div class="stats">
+            <div class="stats" v-if="!isPluginInstalled(selectedPlugin)">
               <div class="rating-wrapper">
                 <Rating
-                  v-if="isPluginInstalled(selectedPlugin)"
-                  v-model="userRating"
-                  :cancel="false"
-                  @change="handleRating" />
-                <Rating
-                  v-else
                   :modelValue="selectedPlugin.Rating"
                   :cancel="false"
                   readonly />
-                <small
-                  v-if="isPluginInstalled(selectedPlugin)"
-                  class="rating-hint">
-                  {{ userRating ? "您的评分" : "点击星星进行评分" }}
-                </small>
               </div>
-              <span class="downloads"
-                >{{ formatNumber(selectedPlugin.Downloads) }}次下载</span
-              >
+              <span class="downloads">{{ formatNumber(selectedPlugin.Downloads) }}次下载</span>
+            </div>
+            <div class="stats" v-else>
+              <div class="rating-wrapper">
+                <Rating
+                  v-model="userRating"
+                  :cancel="false"
+                  @change="handleRating" />
+                <span class="rating-hint">{{ userRating ? "您的评分" : "点击星星进行评分" }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -249,12 +257,38 @@
         <!-- 版本信息 -->
         <div class="version-info">
           <h3>版本信息</h3>
-          <p>当前版本：{{ selectedPlugin.Version }}</p>
-          <p>
-            更新时间：{{
-              new Date(selectedPlugin.UpdateTime).toLocaleDateString("zh-CN")
-            }}
-          </p>
+          <div class="info-grid">
+            <div class="info-item">
+              <i class="pi pi-tag"></i>
+              <div class="info-content">
+                <span class="label">当前版本</span>
+                <span class="value">{{ selectedPlugin.Version }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="pi pi-clock"></i>
+              <div class="info-content">
+                <span class="label">创建时间</span>
+                <span class="value">{{ formatDate(selectedPlugin.CreateTime, true) }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="pi pi-refresh"></i>
+              <div class="info-content">
+                <span class="label">更新时间</span>
+                <span class="value">{{ formatDate(selectedPlugin.UpdateTime, true) }}</span>
+              </div>
+            </div>
+            <template v-if="isPluginInstalled(selectedPlugin) && selectedPlugin.info?.installTime && formatDate(selectedPlugin.info?.installTime, true) !== '未知'">
+              <div class="info-item">
+                <i class="pi pi-download"></i>
+                <div class="info-content">
+                  <span class="label">安装时间</span>
+                  <span class="value">{{ formatDate(selectedPlugin.info?.installTime, true) }}</span>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
 
@@ -386,7 +420,7 @@
                   severity="danger"
                   text
                   v-tooltip.top="'卸载插件'"
-                  @click="uninstallPlugin(slotProps.data)"
+                  @click="(e) => uninstallPlugin(slotProps.data, e)"
                   class="action-button" />
               </div>
             </template>
@@ -426,11 +460,11 @@ import Column from "primevue/column";
 import { useRouter } from "vue-router";
 import { showLoading, hideLoading } from "@/utils/loading";
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 import {
   installPlugin,
   getPluginConfig,
   setPluginConfig,
-  deletePluginConfig,
 } from "@/utils/plugin";
 import {
   getPluginList,
@@ -448,11 +482,18 @@ import {
   PluginSortType,
 } from "@/interface/plugin.d";
 import { appDataDir } from "@tauri-apps/api/path";
+import { format } from "date-fns";
+import ConfirmPopup from 'primevue/confirmpopup';
 
 const toast = useToast();
 const router = useRouter();
+const confirm = useConfirm();
 
 /** 插件对象接口 */
+interface PluginInfo {
+  installTime?: string;
+}
+
 interface Plugin {
   Position: [number, number] | null;
   Name: string;
@@ -477,6 +518,7 @@ interface Plugin {
   CreateTime: string;
   UpdateTime: string;
   Screenshots: string[];
+  info?: PluginInfo;
 }
 
 /** 状态管理 */
@@ -522,6 +564,7 @@ const timeFilterOptions = [
 
 const plugins = ref<Plugin[]>([]);
 const installedPlugins = ref<Plugin[]>([]);
+const installedPluginIds = ref<string[]>([]);
 const showDetail = ref(false);
 const selectedPlugin = ref<Plugin | null>(null);
 const userRating = ref(0);
@@ -531,6 +574,12 @@ const showInstalled = ref(false);
 const initializeData = async () => {
   try {
     showLoading();
+    // 获取已安装插件列表
+    const config = await getPluginConfig(['pluginList']);
+    if (config && Array.isArray(config)) {
+      installedPluginIds.value = config.map(item => item.windowId);
+    }
+    
     const params: any = {
       sort: state.sort,
       pageIndex: state.pageIndex,
@@ -601,8 +650,9 @@ const showPluginDetail = async (plugin: Plugin) => {
       ...plugin,
       HasUpdate: installedPlugin?.HasUpdate || false,
       Status: installedPlugin?.Status || PluginStatus.PUBLISHED,
+      Rating: installedPlugin?.Rating || plugin.Rating,
     };
-    userRating.value = plugin.Rating;
+    userRating.value = installedPlugin?.Rating || plugin.Rating;
   } else {
     selectedPlugin.value = plugin;
     userRating.value = 0;
@@ -622,6 +672,7 @@ const getInstalledPlugins = async () => {
     showLoading();
     const config = await getPluginConfig(['pluginList']);
     if (config && Array.isArray(config)) {
+      installedPluginIds.value = config.map(item => item.windowId);
       installedPlugins.value = config.map(item => ({
         Id: -1, // 本地插件没有 Id
         Name: item.data.title,
@@ -645,9 +696,11 @@ const getInstalledPlugins = async () => {
         Tags: item.info.tags,
         Category: item.info.category,
         UpdateTime: item.info.updateTime,
-        HasUpdate: false
+        HasUpdate: false,
+        info: item.info
       }));
     } else {
+      installedPluginIds.value = [];
       installedPlugins.value = [];
     }
   } catch (error) {
@@ -658,6 +711,7 @@ const getInstalledPlugins = async () => {
       detail: '获取已安装插件列表失败',
       life: 3000,
     });
+    installedPluginIds.value = [];
     installedPlugins.value = [];
   } finally {
     hideLoading();
@@ -694,17 +748,15 @@ const handleDownload = async () => {
           alwaysOnTop: selectedPlugin.value.AlwaysOnTop,
           resizable: selectedPlugin.value.Resizable,
           icon: selectedPlugin.value.Icon || './icon.png',
-          url: `http://asset.localhost/${appDataPath}/Plugin/${selectedPlugin.value.WindowId}/index.html`
+          url: `${appDataPath}/Plugin/${selectedPlugin.value.WindowId}/index.html`
         },
         info: {
-          installTime: new Date().toISOString(),
+          installTime: format(new Date(), "yyyy-MM-dd HH:mm"),
           status: PluginStatus.PUBLISHED,
           author: selectedPlugin.value.Author,
           email: selectedPlugin.value.Email,
           version: selectedPlugin.value.Version,
           description: selectedPlugin.value.Description,
-          downloads: selectedPlugin.value.Downloads,
-          rating: selectedPlugin.value.Rating,
           tags: selectedPlugin.value.Tags,
           category: selectedPlugin.value.Category,
           createTime: selectedPlugin.value.CreateTime,
@@ -879,40 +931,61 @@ const handleClose = () => {
 
 const isPluginInstalled = (plugin: Plugin | null) => {
   if (!plugin) return false;
-  return installedPlugins.value.some((p) => p.WindowId === plugin.WindowId);
+  return installedPluginIds.value.includes(plugin.WindowId);
 };
 
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("zh-CN");
+const formatDate = (date: string | undefined, isDetail: boolean = false) => {
+  if (!date) return '未知';
+  return isDetail ? format(new Date(date), 'yyyy-MM-dd HH:mm') : format(new Date(date), 'yyyy-MM-dd');
 };
 
 /** 卸载插件 */
-const uninstallPlugin = async (plugin: Plugin) => {
-  if (!plugin?.WindowId) return;
-
-  try {
-    showLoading();
-    await ipcUninstallPlugin(plugin.WindowId);
-    // 删除插件配置信息
-    await deletePluginConfig(["pluginList", plugin.WindowId]);
-    toast.add({
-      severity: "success",
-      summary: "成功",
-      detail: "插件卸载成功",
-      life: 3000,
-    });
-    await initializeData();
-    await getInstalledPlugins();
-  } catch (error) {
+const uninstallPlugin = async (plugin: Plugin, event?: Event) => {
+  if (!plugin?.WindowId) {
     toast.add({
       severity: "error",
       summary: "错误",
       detail: "插件卸载失败",
       life: 3000,
     });
-  } finally {
-    hideLoading();
-  }
+    return;
+  };
+
+  confirm.require({
+    target: event?.currentTarget as HTMLElement,
+    message: `确定要卸载插件 "${plugin.Name}" 吗？`,
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: '确定',
+    rejectLabel: '取消',
+    accept: async () => {
+      try {
+        showLoading();
+        await ipcUninstallPlugin(plugin.WindowId);
+        // 直接设置新的配置，过滤掉要卸载的插件
+        await setPluginConfig(['pluginList'], installedPlugins.value.filter(
+          item => item.WindowId !== plugin.WindowId
+        ));
+        
+        toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: "插件卸载成功",
+          life: 3000,
+        });
+        await initializeData();
+        await getInstalledPlugins();
+      } catch (error) {
+        toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "插件卸载失败",
+          life: 3000,
+        });
+      } finally {
+        hideLoading();
+      }
+    }
+  });
 };
 
 /** 显示已安装插件列表 */
@@ -1335,14 +1408,49 @@ onMounted(() => {
 
     .version-info {
       margin-bottom: 20px;
+      background-color: var(--surface-50);
+      border-radius: 8px;
+      padding: 1.5rem;
 
       h3 {
-        margin-bottom: 10px;
+        margin-bottom: 1.5rem;
+        color: var(--text-color);
+        font-size: 1.1rem;
+        font-weight: 600;
       }
 
-      p {
-        color: #666;
-        margin: 5px 0;
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+
+        .info-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+
+          i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-top: 3px;
+          }
+
+          .info-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+
+            .label {
+              color: var(--text-color-secondary);
+              font-size: 0.875rem;
+            }
+
+            .value {
+              color: var(--text-color);
+              font-weight: 500;
+            }
+          }
+        }
       }
     }
   }

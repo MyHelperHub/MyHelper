@@ -20,6 +20,7 @@
     "@tauri-apps/plugin-shell": "^2.2.0",
     "@tauri-apps/plugin-updater": "^2.5.0",
     "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
     "dompurify": "^3.1.7",
     "less": "^4.2.1",
     "marked": "^15.0.3",
