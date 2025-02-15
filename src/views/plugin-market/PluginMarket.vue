@@ -85,21 +85,21 @@
           <!-- 插件网格 -->
           <div class="plugin-grid">
             <Card
-              v-for="plugin in plugins"
-              :key="plugin.Id"
+              v-for="pluginDetail in plugins"
+              :key="pluginDetail.Plugin.Id"
               class="plugin-card"
-              @click="showPluginDetail(plugin)">
+              @click="showPluginDetail(pluginDetail)">
               <template #header>
                 <div class="card-header">
                   <Image
                     class="plugin-icon"
-                    :src="plugin.Icon"
+                    :src="pluginDetail.Plugin.Icon"
                     width="64"
                     height="64" />
                   <div class="plugin-info">
                     <h3
                       v-tooltip.bottom="{
-                        value: plugin.Name,
+                        value: pluginDetail.Plugin.Name,
                         showDelay: 500,
                         pt: {
                           text: {
@@ -109,17 +109,17 @@
                           },
                         },
                       }">
-                      {{ plugin.Name }}
+                      {{ pluginDetail.Plugin.Name }}
                     </h3>
-                    <p>{{ plugin.Author }}</p>
+                    <p>{{ pluginDetail.Plugin.Author }}</p>
                   </div>
                   <div class="plugin-stats">
                     <Rating
-                      v-model="plugin.Rating"
+                      v-model="pluginDetail.Plugin.Rating"
                       :cancel="false"
                       readonly
                       v-tooltip.bottom="{
-                        value: `${plugin.Rating}分`,
+                        value: `${pluginDetail.Plugin.Rating}分`,
                         showDelay: 500,
                         pt: {
                           text: {
@@ -130,25 +130,27 @@
                         },
                       }" />
                     <div class="downloads">
-                      {{ formatNumber(plugin.Downloads) }}次下载
+                      {{ formatNumber(pluginDetail.Plugin.Downloads) }}次下载
                     </div>
                   </div>
                 </div>
               </template>
               <template #content>
                 <div class="plugin-description">
-                  {{ plugin.Description }}
+                  {{ pluginDetail.Plugin.Description }}
                 </div>
                 <div class="card-footer">
                   <div class="plugin-tags">
                     <Tag
-                      v-for="tag in plugin.Tags"
+                      v-for="tag in pluginDetail.Plugin.Tags"
                       :key="tag"
                       :value="tag"
                       severity="info" />
                   </div>
                   <Button
-                    v-if="installedPluginIds.includes(plugin.WindowId)"
+                    v-if="
+                      installedPluginIds.includes(pluginDetail.Plugin.WindowId)
+                    "
                     icon="pi pi-check"
                     label="已安装"
                     severity="success"
@@ -202,15 +204,44 @@
                   :cancel="false"
                   readonly />
               </div>
-              <span class="downloads">{{ formatNumber(selectedPlugin.Downloads) }}次下载</span>
+              <span class="downloads"
+                >{{ formatNumber(selectedPlugin.Downloads) }}次下载</span
+              >
             </div>
             <div class="stats" v-else>
               <div class="rating-wrapper">
                 <Rating
                   v-model="userRating"
                   :cancel="false"
-                  @change="handleRating" />
-                <span class="rating-hint">{{ userRating ? "您的评分" : "点击星星进行评分" }}</span>
+                  :readonly="selectedPluginThread.IsRated"
+                  @change="handleRating"
+                  v-tooltip.bottom="{
+                    value: `${userRating}分`,
+                    showDelay: 500,
+                    pt: {
+                      text: {
+                        style: {
+                          fontSize: '15px',
+                        },
+                      },
+                    },
+                  }" />
+                <span
+                  class="rating-hint"
+                  v-if="
+                    (!selectedPluginThread.IsRated &&
+                      userData?.Token &&
+                      installedPluginIds.includes(
+                        selectedPlugin?.WindowId || '',
+                      )) ||
+                    selectedPluginThread.IsRated
+                  ">
+                  {{
+                    selectedPluginThread.IsRated
+                      ? "您的评分"
+                      : "点击星星进行评分"
+                  }}
+                </span>
               </div>
             </div>
           </div>
@@ -269,22 +300,33 @@
               <i class="pi pi-clock"></i>
               <div class="info-content">
                 <span class="label">创建时间</span>
-                <span class="value">{{ formatDate(selectedPlugin.CreateTime, true) }}</span>
+                <span class="value">{{
+                  formatDate(selectedPlugin.CreateTime, true)
+                }}</span>
               </div>
             </div>
             <div class="info-item">
               <i class="pi pi-refresh"></i>
               <div class="info-content">
                 <span class="label">更新时间</span>
-                <span class="value">{{ formatDate(selectedPlugin.UpdateTime, true) }}</span>
+                <span class="value">{{
+                  formatDate(selectedPlugin.UpdateTime, true)
+                }}</span>
               </div>
             </div>
-            <template v-if="isPluginInstalled(selectedPlugin) && selectedPlugin.info?.installTime && formatDate(selectedPlugin.info?.installTime, true) !== '未知'">
+            <template
+              v-if="
+                isPluginInstalled(selectedPlugin) &&
+                selectedPlugin.installTime &&
+                formatDate(selectedPlugin.installTime, true) !== '未知'
+              ">
               <div class="info-item">
                 <i class="pi pi-download"></i>
                 <div class="info-content">
                   <span class="label">安装时间</span>
-                  <span class="value">{{ formatDate(selectedPlugin.info?.installTime, true) }}</span>
+                  <span class="value">{{
+                    formatDate(selectedPlugin.installTime, true)
+                  }}</span>
                 </div>
               </div>
             </template>
@@ -476,50 +518,32 @@ import { ipcWindowControl } from "@/api/ipc/window.api";
 import { ipcUninstallPlugin } from "@/api/ipc/plugin.api";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import { WindowOperation } from "@/interface/enum";
+import { ResponseCodeEnum } from "@/interface/enum";
 import {
+  Plugin,
   PluginCategory,
   PluginStatus,
   PluginSortType,
+  PluginDetail,
 } from "@/interface/plugin.d";
 import { appDataDir } from "@tauri-apps/api/path";
 import { format } from "date-fns";
-import ConfirmPopup from 'primevue/confirmpopup';
+import ConfirmPopup from "primevue/confirmpopup";
+import GlobalData from "@/utils/globalData";
 
 const toast = useToast();
 const router = useRouter();
 const confirm = useConfirm();
 
-/** 插件对象接口 */
-interface PluginInfo {
-  installTime?: string;
-}
-
-interface Plugin {
-  Position: [number, number] | null;
-  Name: string;
-  Message: string | null;
-  Id: number;
-  Size: [number, number];
-  Version: string;
-  Description: string;
-  Tags: string[];
-  Icon: string | null;
-  Rating: number;
-  Author: string;
-  Status: PluginStatus;
-  Title: string;
-  AlwaysOnTop: boolean;
-  Resizable: boolean;
-  WindowId: string;
-  HasUpdate: boolean;
-  Email: string;
-  Downloads: number;
-  Category: PluginCategory;
-  CreateTime: string;
-  UpdateTime: string;
-  Screenshots: string[];
-  info?: PluginInfo;
-}
+const plugins = ref<PluginDetail[]>([]);
+const installedPlugins = ref<Plugin[]>([]);
+const installedPluginIds = ref<string[]>([]);
+const showDetail = ref(false);
+const selectedPlugin = ref<Plugin | null>(null);
+const selectedPluginThread = ref<{ IsRated: boolean }>({ IsRated: false });
+const userRating = ref(0);
+const showInstalled = ref(false);
+const userData = ref<{ Token?: string } | null>(null);
 
 /** 状态管理 */
 const state = reactive({
@@ -562,24 +586,16 @@ const timeFilterOptions = [
   { label: "最近一年", value: "year" },
 ];
 
-const plugins = ref<Plugin[]>([]);
-const installedPlugins = ref<Plugin[]>([]);
-const installedPluginIds = ref<string[]>([]);
-const showDetail = ref(false);
-const selectedPlugin = ref<Plugin | null>(null);
-const userRating = ref(0);
-const showInstalled = ref(false);
-
 /** 初始化数据 */
 const initializeData = async () => {
   try {
     showLoading();
     // 获取已安装插件列表
-    const config = await getPluginConfig(['pluginList']);
+    const config = await getPluginConfig(["pluginList"]);
     if (config && Array.isArray(config)) {
-      installedPluginIds.value = config.map(item => item.windowId);
+      installedPluginIds.value = config.map((item) => item.windowId);
     }
-    
+
     const params: any = {
       sort: state.sort,
       pageIndex: state.pageIndex,
@@ -591,9 +607,11 @@ const initializeData = async () => {
       params.category = state.category;
     }
     const response = await getPluginList(params);
-    plugins.value = response.Data as unknown as Plugin[];
-    if (response.Page) {
-      state.total = response.Page.TotalRecords;
+    if (response.Code === ResponseCodeEnum.SUCCESS && response.Data) {
+      plugins.value = response.Data as unknown as PluginDetail[];
+      if (response.Page) {
+        state.total = response.Page.TotalRecords;
+      }
     }
   } catch (error) {
     toast.add({
@@ -641,21 +659,28 @@ const handleSortChange = (event: { value: PluginSortType }) => {
 };
 
 /** 显示插件详情 */
-const showPluginDetail = async (plugin: Plugin) => {
-  if (isPluginInstalled(plugin)) {
-    const installedPlugin = installedPlugins.value.find(
-      (p) => p.WindowId === plugin.WindowId,
+const showPluginDetail = async (pluginDetail: PluginDetail | Plugin) => {
+  // 处理已安装插件的情况
+  if ("Status" in pluginDetail && !("Plugin" in pluginDetail)) {
+    const plugin = pluginDetail as Plugin;
+    const matchedPlugin = plugins.value.find(
+      (p) => p.Plugin.WindowId === plugin.WindowId,
     );
-    selectedPlugin.value = {
-      ...plugin,
-      HasUpdate: installedPlugin?.HasUpdate || false,
-      Status: installedPlugin?.Status || PluginStatus.PUBLISHED,
-      Rating: installedPlugin?.Rating || plugin.Rating,
-    };
-    userRating.value = installedPlugin?.Rating || plugin.Rating;
+    if (matchedPlugin) {
+      selectedPlugin.value = matchedPlugin.Plugin;
+      selectedPluginThread.value = matchedPlugin.Thread;
+      userRating.value = matchedPlugin.Plugin.Rating;
+    } else {
+      selectedPlugin.value = plugin;
+      selectedPluginThread.value = { IsRated: false };
+      userRating.value = plugin.Rating;
+    }
   } else {
-    selectedPlugin.value = plugin;
-    userRating.value = 0;
+    // 处理插件列表的情况
+    const detail = pluginDetail as PluginDetail;
+    selectedPlugin.value = detail.Plugin;
+    selectedPluginThread.value = detail.Thread;
+    userRating.value = detail.Plugin.Rating;
   }
   showDetail.value = true;
 };
@@ -670,10 +695,10 @@ const closeDetail = () => {
 const getInstalledPlugins = async () => {
   try {
     showLoading();
-    const config = await getPluginConfig(['pluginList']);
+    const config = await getPluginConfig(["pluginList"]);
     if (config && Array.isArray(config)) {
-      installedPluginIds.value = config.map(item => item.windowId);
-      installedPlugins.value = config.map(item => ({
+      installedPluginIds.value = config.map((item) => item.windowId);
+      installedPlugins.value = config.map((item) => ({
         Id: -1, // 本地插件没有 Id
         Name: item.data.title,
         Message: null,
@@ -697,18 +722,19 @@ const getInstalledPlugins = async () => {
         Category: item.info.category,
         UpdateTime: item.info.updateTime,
         HasUpdate: false,
-        info: item.info
+        FileUrl: "", // 添加 FileUrl 字段
+        installTime: item.info.installTime, // 添加 installTime 字段
       }));
     } else {
       installedPluginIds.value = [];
       installedPlugins.value = [];
     }
   } catch (error) {
-    console.error('获取已安装插件列表失败:', error);
+    console.error("获取已安装插件列表失败:", error);
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '获取已安装插件列表失败',
+      severity: "error",
+      summary: "错误",
+      detail: "获取已安装插件列表失败",
       life: 3000,
     });
     installedPluginIds.value = [];
@@ -725,15 +751,18 @@ const handleDownload = async () => {
   try {
     showLoading();
     const response = await downloadPlugin(selectedPlugin.value.WindowId);
-    
-    if (response.Code !== "0001" || !response.Data) {
+
+    if (response.Code !== ResponseCodeEnum.SUCCESS || !response.Data) {
       throw new Error("下载链接获取失败");
     }
 
-    await installPlugin(response.Data.toString(), selectedPlugin.value.WindowId);
-    
+    await installPlugin(
+      response.Data.toString(),
+      selectedPlugin.value.WindowId,
+    );
+
     if (selectedPlugin.value) {
-      const currentConfig = await getPluginConfig(['pluginList']) || [];
+      const currentConfig = (await getPluginConfig(["pluginList"])) || [];
       const pluginList = Array.isArray(currentConfig) ? currentConfig : [];
       const appDataPath = await appDataDir();
 
@@ -747,8 +776,8 @@ const handleDownload = async () => {
           position: selectedPlugin.value.Position as [number, number],
           alwaysOnTop: selectedPlugin.value.AlwaysOnTop,
           resizable: selectedPlugin.value.Resizable,
-          icon: selectedPlugin.value.Icon || './icon.png',
-          url: `${appDataPath}/Plugin/${selectedPlugin.value.WindowId}/index.html`
+          icon: selectedPlugin.value.Icon || "./icon.png",
+          url: `${appDataPath}/Plugin/${selectedPlugin.value.WindowId}/index.html`,
         },
         info: {
           installTime: format(new Date(), "yyyy-MM-dd HH:mm"),
@@ -760,18 +789,20 @@ const handleDownload = async () => {
           tags: selectedPlugin.value.Tags,
           category: selectedPlugin.value.Category,
           createTime: selectedPlugin.value.CreateTime,
-          updateTime: selectedPlugin.value.UpdateTime
-        }
+          updateTime: selectedPlugin.value.UpdateTime,
+        },
       };
 
-      const index = pluginList.findIndex(p => p.windowId === selectedPlugin.value?.WindowId);
+      const index = pluginList.findIndex(
+        (p) => p.windowId === selectedPlugin.value?.WindowId,
+      );
       if (index !== -1) {
         pluginList[index] = pluginConfig;
       } else {
         pluginList.push(pluginConfig);
       }
 
-      await setPluginConfig(['pluginList'], pluginList);
+      await setPluginConfig(["pluginList"], pluginList);
     }
 
     toast.add({
@@ -799,11 +830,50 @@ const handleRating = async (event: { value: number }) => {
   if (!selectedPlugin.value?.WindowId) return;
 
   try {
+    const userData = await GlobalData.get("userInfo");
+    if (!userData?.Token) {
+      toast.add({
+        severity: "warn",
+        summary: "提示",
+        detail: "请先登录后再评分",
+        life: 3000,
+      });
+      event.value = userRating.value;
+      return;
+    }
+
+    // 检查是否已安装插件
+    if (!installedPluginIds.value.includes(selectedPlugin.value.WindowId)) {
+      toast.add({
+        severity: "warn",
+        summary: "提示",
+        detail: "请先安装插件后再评分",
+        life: 3000,
+      });
+      event.value = userRating.value;
+      return;
+    }
+
     showLoading();
-    await ratePlugin(selectedPlugin.value.WindowId, event.value);
+    const response = await ratePlugin(
+      selectedPlugin.value.WindowId,
+      event.value,
+    );
+    if (response.Code !== ResponseCodeEnum.SUCCESS) {
+      toast.add({
+        severity: "warn",
+        summary: "提示",
+        detail: response.Message,
+        life: 3000,
+      });
+      event.value = userRating.value;
+      return;
+    }
     // 更新本地插件的评分
     if (selectedPlugin.value) {
       selectedPlugin.value.Rating = event.value;
+      userRating.value = event.value;
+      selectedPluginThread.value.IsRated = true;
     }
     toast.add({
       severity: "success",
@@ -818,7 +888,7 @@ const handleRating = async (event: { value: number }) => {
       detail: "评分失败",
       life: 3000,
     });
-    userRating.value = 0;
+    event.value = userRating.value;
   } finally {
     hideLoading();
   }
@@ -935,8 +1005,10 @@ const isPluginInstalled = (plugin: Plugin | null) => {
 };
 
 const formatDate = (date: string | undefined, isDetail: boolean = false) => {
-  if (!date) return '未知';
-  return isDetail ? format(new Date(date), 'yyyy-MM-dd HH:mm') : format(new Date(date), 'yyyy-MM-dd');
+  if (!date) return "未知";
+  return isDetail
+    ? format(new Date(date), "yyyy-MM-dd HH:mm")
+    : format(new Date(date), "yyyy-MM-dd");
 };
 
 /** 卸载插件 */
@@ -949,23 +1021,26 @@ const uninstallPlugin = async (plugin: Plugin, event?: Event) => {
       life: 3000,
     });
     return;
-  };
+  }
 
   confirm.require({
     target: event?.currentTarget as HTMLElement,
     message: `确定要卸载插件 "${plugin.Name}" 吗？`,
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: '确定',
-    rejectLabel: '取消',
+    icon: "pi pi-exclamation-triangle",
+    acceptLabel: "确定",
+    rejectLabel: "取消",
     accept: async () => {
       try {
         showLoading();
         await ipcUninstallPlugin(plugin.WindowId);
         // 直接设置新的配置，过滤掉要卸载的插件
-        await setPluginConfig(['pluginList'], installedPlugins.value.filter(
-          item => item.WindowId !== plugin.WindowId
-        ));
-        
+        await setPluginConfig(
+          ["pluginList"],
+          installedPlugins.value.filter(
+            (item) => item.WindowId !== plugin.WindowId,
+          ),
+        );
+
         toast.add({
           severity: "success",
           summary: "成功",
@@ -984,7 +1059,7 @@ const uninstallPlugin = async (plugin: Plugin, event?: Event) => {
       } finally {
         hideLoading();
       }
-    }
+    },
   });
 };
 
@@ -1007,8 +1082,10 @@ const handleTimeFilterChange = (event: { value: string }) => {
   initializeData();
 };
 
-onMounted(() => {
-  initializeData();
+/** 初始化 */
+onMounted(async () => {
+  userData.value = await GlobalData.get("userInfo");
+  await initializeData();
 });
 </script>
 

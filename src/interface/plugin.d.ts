@@ -72,29 +72,31 @@ export enum PluginSortType {
 
 /** 插件信息接口 */
 export interface Plugin {
-  Id?: number;
+  Id: number;
   Name: string;
   Description: string;
   Version: string;
-  Author?: string;
-  Email?: string;
-  Icon?: string;
-  Tags?: string[];
-  Rating?: number;
-  Downloads?: number;
-  Status?: PluginStatus;
-  Category?: PluginCategory;
-  WindowId?: string;
-  Title?: string;
-  Size?: [number, number];
-  Position?: [number, number];
-  AlwaysOnTop?: boolean;
-  Resizable?: boolean;
-  Screenshots?: string[];
-  HasUpdate?: boolean;
-  CreateTime?: string;
-  UpdateTime?: string;
-  Message?: string;
+  Author: string;
+  Email: string;
+  Downloads: number;
+  Rating: number;
+  Status: PluginStatus;
+  Category: PluginCategory;
+  Tags: string[];
+  Screenshots: string[];
+  WindowId: string;
+  Title: string;
+  Size: [number, number];
+  Position: [number, number];
+  AlwaysOnTop: boolean;
+  Resizable: boolean;
+  Icon: string;
+  FileUrl: string;
+  HasUpdate: boolean;
+  Message: string | null;
+  CreateTime: string;
+  UpdateTime: string;
+  installTime?: string;
 }
 
 /** 插件更新DTO */
@@ -113,4 +115,24 @@ export interface PluginUpdateDTO {
   Resizable?: boolean;
   Status?: PluginStatus;
   Screenshots?: string[];
+}
+
+export interface PluginThread {
+  IsRated: boolean;
+}
+
+export interface PluginDetail {
+  Plugin: Plugin;
+  Thread: PluginThread;
+}
+
+export interface PluginResponse {
+  Message: string;
+  Data: PluginDetail[];
+  Page: {
+    PageIndex: number;
+    PageSize: number;
+    TotalRecords: number;
+  };
+  Code: string;
 }

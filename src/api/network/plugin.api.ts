@@ -4,6 +4,7 @@ import {
   PluginCategory,
   PluginStatus,
   PluginSortType,
+  PluginResponse,
 } from "@/interface/plugin";
 import { request } from "./wrapper";
 
@@ -30,7 +31,7 @@ export const getPluginList = (params?: {
   sort?: PluginSortType;
   timeFilter?: string;
 }) => {
-  return request.get<Plugin[]>("/api/plugin", { params });
+  return request.get<PluginResponse>("/api/plugin", { params });
 };
 
 /**
