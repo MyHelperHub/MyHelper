@@ -213,7 +213,7 @@
                 <Rating
                   v-model="userRating"
                   :cancel="false"
-                  :readonly="selectedPluginThread.IsRated"
+                  :readonly="selectedPluginIsRated"
                   @change="handleRating"
                   v-tooltip.bottom="{
                     value: `${userRating}分`,
@@ -229,18 +229,18 @@
                 <span
                   class="rating-hint"
                   v-if="
-                    (!selectedPluginThread.IsRated &&
+                    (!selectedPluginIsRated &&
                       userData?.Token &&
                       installedPluginIds.includes(
                         selectedPlugin?.WindowId || '',
-                      )) ||
-                    selectedPluginThread.IsRated
+                      ))
                   ">
-                  {{
-                    selectedPluginThread.IsRated
-                      ? "您的评分"
-                      : "点击星星进行评分"
-                  }}
+                  点击星星进行评分
+                </span>
+                <span
+                  class="rating-hint"
+                  v-else-if="selectedPluginIsRated">
+                  您已评分
                 </span>
               </div>
             </div>
@@ -314,13 +314,11 @@
                 }}</span>
               </div>
             </div>
-            <template
-              v-if="
+              <div class="info-item" v-if="
                 isPluginInstalled(selectedPlugin) &&
                 selectedPlugin.installTime &&
-                formatDate(selectedPlugin.installTime, true) !== '未知'
+                formatDate(selectedPlugin.installTime, true)
               ">
-              <div class="info-item">
                 <i class="pi pi-download"></i>
                 <div class="info-content">
                   <span class="label">安装时间</span>
@@ -329,7 +327,6 @@
                   }}</span>
                 </div>
               </div>
-            </template>
           </div>
         </div>
       </div>
@@ -540,7 +537,7 @@ const installedPlugins = ref<Plugin[]>([]);
 const installedPluginIds = ref<string[]>([]);
 const showDetail = ref(false);
 const selectedPlugin = ref<Plugin | null>(null);
-const selectedPluginThread = ref<{ IsRated: boolean }>({ IsRated: false });
+const selectedPluginIsRated = ref(false);
 const userRating = ref(0);
 const showInstalled = ref(false);
 const userData = ref<{ Token?: string } | null>(null);
@@ -667,19 +664,29 @@ const showPluginDetail = async (pluginDetail: PluginDetail | Plugin) => {
       (p) => p.Plugin.WindowId === plugin.WindowId,
     );
     if (matchedPlugin) {
-      selectedPlugin.value = matchedPlugin.Plugin;
-      selectedPluginThread.value = matchedPlugin.Thread;
+      selectedPlugin.value = {
+        ...matchedPlugin.Plugin,
+        installTime: plugin.installTime
+      };
+      selectedPluginIsRated.value = matchedPlugin.IsRated;
       userRating.value = matchedPlugin.Plugin.Rating;
     } else {
       selectedPlugin.value = plugin;
-      selectedPluginThread.value = { IsRated: false };
+      selectedPluginIsRated.value = false;
       userRating.value = plugin.Rating;
     }
   } else {
     // 处理插件列表的情况
     const detail = pluginDetail as PluginDetail;
-    selectedPlugin.value = detail.Plugin;
-    selectedPluginThread.value = detail.Thread;
+    // 查找已安装插件中是否存在该插件，如果存在则获取安装时间
+    const installedPlugin = installedPlugins.value.find(
+      (p) => p.WindowId === detail.Plugin.WindowId
+    );
+    selectedPlugin.value = {
+      ...detail.Plugin,
+      installTime: installedPlugin?.installTime
+    };
+    selectedPluginIsRated.value = detail.IsRated;
     userRating.value = detail.Plugin.Rating;
   }
   showDetail.value = true;
@@ -827,8 +834,6 @@ const handleDownload = async () => {
 
 /** 评分 */
 const handleRating = async (event: { value: number }) => {
-  if (!selectedPlugin.value?.WindowId) return;
-
   try {
     const userData = await GlobalData.get("userInfo");
     if (!userData?.Token) {
@@ -838,9 +843,11 @@ const handleRating = async (event: { value: number }) => {
         detail: "请先登录后再评分",
         life: 3000,
       });
-      event.value = userRating.value;
+      userRating.value = selectedPlugin.value?.Rating || 0;
       return;
     }
+
+    if (!selectedPlugin.value?.WindowId) return;
 
     // 检查是否已安装插件
     if (!installedPluginIds.value.includes(selectedPlugin.value.WindowId)) {
@@ -850,7 +857,7 @@ const handleRating = async (event: { value: number }) => {
         detail: "请先安装插件后再评分",
         life: 3000,
       });
-      event.value = userRating.value;
+      userRating.value = selectedPlugin.value.Rating;
       return;
     }
 
@@ -863,17 +870,17 @@ const handleRating = async (event: { value: number }) => {
       toast.add({
         severity: "warn",
         summary: "提示",
-        detail: response.Message,
+        detail: response.Message || "评分失败",
         life: 3000,
       });
-      event.value = userRating.value;
+      userRating.value = selectedPlugin.value.Rating;
       return;
     }
     // 更新本地插件的评分
     if (selectedPlugin.value) {
       selectedPlugin.value.Rating = event.value;
       userRating.value = event.value;
-      selectedPluginThread.value.IsRated = true;
+      selectedPluginIsRated.value = true;
     }
     toast.add({
       severity: "success",
@@ -888,7 +895,7 @@ const handleRating = async (event: { value: number }) => {
       detail: "评分失败",
       life: 3000,
     });
-    event.value = userRating.value;
+    userRating.value = selectedPlugin.value?.Rating || 0;
   } finally {
     hideLoading();
   }
@@ -1005,7 +1012,7 @@ const isPluginInstalled = (plugin: Plugin | null) => {
 };
 
 const formatDate = (date: string | undefined, isDetail: boolean = false) => {
-  if (!date) return "未知";
+  if (!date) return false;
   return isDetail
     ? format(new Date(date), "yyyy-MM-dd HH:mm")
     : format(new Date(date), "yyyy-MM-dd");
@@ -1546,33 +1553,6 @@ onMounted(async () => {
         font-size: 0.875rem;
       }
     }
-  }
-}
-
-// 优化览模式的样式
-:deep(.p-image-preview-container) {
-  .p-image-preview {
-    max-width: 90vw;
-    max-height: 90vh;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain;
-  }
-
-  .p-image-preview-indicator {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
-    padding: 0.5rem;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-  }
-
-  .p-image-preview-toolbar {
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 0.5rem;
-    border-radius: 4px;
   }
 }
 

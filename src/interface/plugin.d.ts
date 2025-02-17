@@ -123,16 +123,16 @@ export interface PluginThread {
 
 export interface PluginDetail {
   Plugin: Plugin;
-  Thread: PluginThread;
+  IsRated: boolean;
 }
 
 export interface PluginResponse {
   Message: string;
   Data: PluginDetail[];
+  Code: string;
   Page: {
     PageIndex: number;
     PageSize: number;
     TotalRecords: number;
   };
-  Code: string;
 }

@@ -38,7 +38,9 @@ export const getPluginList = (params?: {
  * 获取插件详情
  */
 export const getPluginDetail = (windowId: string) => {
-  return request.get<Plugin>(`/api/plugin/${windowId}`);
+  return request.get<Plugin>(`/api/plugin/detail`, {
+    params: { windowId }
+  });
 };
 
 /**
@@ -52,29 +54,40 @@ export const createPlugin = (plugin: Plugin) => {
  * 更新插件
  */
 export const updatePlugin = (windowId: string, plugin: PluginUpdateDTO) => {
-  return request.put(`/api/plugin/${windowId}`, plugin);
+  return request.put(`/api/plugin/update`, {
+    ...plugin,
+    WindowId: windowId
+  });
 };
 
 /**
  * 删除插件
  */
 export const deletePlugin = (windowId: string) => {
-  return request.delete(`/api/plugin/${windowId}`);
+  return request.delete(`/api/plugin/delete`, {
+    params: { windowId }
+  });
 };
 
 /**
  * 下载插件
  */
-export const downloadPlugin = (windowId: string) => {
-  return request.post(`/api/plugin/${windowId}/download`);
+export const downloadPlugin = (WindowId: string) => {
+  return request.post(`/api/plugin/download`,  {
+     WindowId 
+  });
 };
 
 /**
  * 评分插件
+ * @param windowId 插件ID
+ * @param rating 评分值(0-5)
+ * @returns 评分结果
  */
 export const ratePlugin = (windowId: string, rating: number) => {
-  return request.post(`/api/plugin/${windowId}/rate`, null, {
-    params: { rating },
+  return request.post<PluginResponse>(`/api/plugin/rate`, {
+    WindowId: windowId,
+    Rating: rating
   });
 };
 
@@ -86,8 +99,8 @@ export const updatePluginStatus = (
   status: string,
   message?: string,
 ) => {
-  return request.put(`/api/plugin/${windowId}/status`, null, {
-    params: { status, message },
+  return request.put(`/api/plugin/status`, {
+     windowId, status, message 
   });
 };
 
