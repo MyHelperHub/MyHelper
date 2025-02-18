@@ -5,10 +5,14 @@ import { WindowConfig } from "./window";
  * @param windowId 插件窗口ID
  * @param data 窗口配置数据
  * @param info 插件信息
+ * @param config 插件配置(存储本地配置)
  */
 export interface PluginConfig {
   windowId: string;
   data: WindowConfig;
+  config?: {
+    isEnabled: boolean;
+  };
   info: {
     installTime: string;
     status: PluginStatus;
@@ -92,11 +96,13 @@ export interface Plugin {
   Resizable: boolean;
   Icon: string;
   FileUrl: string;
-  HasUpdate: boolean;
   Message: string | null;
   CreateTime: string;
   UpdateTime: string;
   installTime?: string;
+  config?: {
+    isEnabled: boolean;
+  };
 }
 
 /** 插件更新DTO */

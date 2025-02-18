@@ -1,5 +1,5 @@
 <template>
-  <div class="quick-input">
+  <div class="quick-input" keep-menu>
     <i class="pi pi-times close" @click="close"></i>
     <div class="tabs">
       <div

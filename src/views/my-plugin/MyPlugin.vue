@@ -48,11 +48,21 @@ const popoverRef = ref(false);
 const pluginList = ref<PluginConfig[]>([]);
 
 const init = async () => {
-  pluginList.value = (await getPluginConfig(["pluginList"])) as PluginConfig[];
+  const allPlugins = await getPluginConfig(["pluginList"]) as PluginConfig[];
+  // 只显示已启用的插件
+  pluginList.value = allPlugins.filter(plugin => 
+    plugin.config?.isEnabled === true
+  );
 };
 
 const handleClick = async (item: PluginConfig) => {
   try {
+    // 检查插件状态
+    if (!item.config?.isEnabled) {
+      showMessage("插件已禁用，请先启用后再使用", 3000, 2);
+      return;
+    }
+
     // 检查插件的 index.html 文件是否存在
     const exists = await invoke<boolean>("file_exists", { 
       path: item.data.url

@@ -1,5 +1,12 @@
 <template>
-  <div class="open-app">
+  <div class="open-app" keep-menu>
+    <ContextMenu 
+      ref="contextMenuRef" 
+      :model="menuItems"
+      :pt="{
+        root: { style: 'width: 120px; min-width: 120px' },
+      }" 
+    />
     <div class="list">
       <div
         v-for="item in dataList"
@@ -16,7 +23,7 @@
             },
           },
         }"
-        @contextmenu.prevent="(e) => showContextMenu(e, item)"
+        @contextmenu.prevent="(e) => handleContextMenu(e, item)"
         @click="openApp(item.src)">
         <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
         <i v-else class="pi pi-image"></i>
@@ -35,13 +42,14 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { showContextMenu } from "@/views/app/utils/contextMenu.ts";
 import { ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { emit, on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import EditItem from "./EditItem.vue";
+import ContextMenu from 'primevue/contextmenu';
+import { contextMenuRef, menuItems, handleContextMenu } from './utils/contextMenu';
 
 const dataList = ref<AppItem[]>([]);
 const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);

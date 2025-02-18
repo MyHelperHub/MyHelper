@@ -1,31 +1,31 @@
 <template>
   <div class="menu-container" @click.capture="handleClickOutside">
     <div class="menu-list">
-      <div class="menu-item" @click="openCommon('commonWeb')">
+      <div class="menu-item" @click="openCommon($event, 'commonWeb')">
         <div class="menu-text">常用网站</div>
         <Transition name="fade">
-          <CommonWeb v-if="commonState.commonWeb" @click.stop />
+          <CommonWeb v-if="commonState.commonWeb" />
         </Transition>
       </div>
-      <div class="menu-item" @click="openCommon('commonApp')">
+      <div class="menu-item" @click="openCommon($event, 'commonApp')">
         <div class="menu-text">常用软件</div>
         <Transition name="fade">
-          <CommonApp v-if="commonState.commonApp" @click.stop />
+          <CommonApp v-if="commonState.commonApp" />
         </Transition>
       </div>
       <div class="menu-item" @click="openLabel">
         <div class="menu-text">桌面便签</div>
       </div>
-      <div class="menu-item" @click="openCommon('quickInput')">
+      <div class="menu-item" @click="openCommon($event, 'quickInput')">
         <div class="menu-text">快捷输入</div>
         <Transition name="fade">
-          <QuickInput v-if="commonState.quickInput" @click.stop />
+          <QuickInput v-if="commonState.quickInput" />
         </Transition>
       </div>
       <div class="menu-item" @click="openMyPlugin">
         <div class="menu-text">我的插件</div>
         <Transition name="fade">
-          <MyPlugin ref="myPluginRef" @click.stop />
+          <MyPlugin ref="myPluginRef" />
         </Transition>
       </div>
       <div class="menu-item" @click="openPluginMarket">
@@ -70,9 +70,14 @@ const closeAllMenu = () => {
 };
 
 /** 打开菜单项 */
-const openCommon = (key: keyof CommonState) => {
-  // 如果当前点击的项已经是打开的，则关闭它
+const openCommon = (event: MouseEvent, key: keyof CommonState) => {
+  const target = event.target as HTMLElement;
+  // 如果点击的元素或其父元素有 keep-menu 属性，不关闭菜单
+  if (target.closest('[keep-menu]')) {
+    return;
+  }
   if (commonState.value[key]) {
+    // 如果当前点击的项已经是打开的，则关闭它
     commonState.value[key] = false;
   } else {
     closeAllMenu();

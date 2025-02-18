@@ -1,5 +1,12 @@
 <template>
-  <div class="open-web">
+  <div class="open-web" keep-menu>
+    <ContextMenu 
+      ref="contextMenuRef" 
+      :model="menuItems"
+      :pt="{
+        root: { style: 'width: 120px; min-width: 120px' },
+      }" 
+    />
     <div class="list">
       <div
         v-for="item in dataList"
@@ -17,7 +24,7 @@
           },
         }"
         @click="navigateTo(item.url)"
-        @contextmenu.prevent="(e) => showContextMenu(e, item)">
+        @contextmenu.prevent="(e) => handleContextMenu(e, item)">
         <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
         <i v-else class="pi pi-image"></i>
         <div class="text">{{ item.title }}</div>
@@ -42,9 +49,10 @@ import { getConfig, setConfig } from "@/utils/config.ts";
 import { ref } from "vue";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
-import { showContextMenu } from "@/views/web/utils/contextMenu.ts";
 import { emit, on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
+import ContextMenu from 'primevue/contextmenu';
+import { contextMenuRef, menuItems, handleContextMenu } from './utils/contextMenu';
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);

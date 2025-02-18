@@ -1,29 +1,34 @@
 import { WebItem } from "@/interface/web";
 import { emit } from "@/utils/eventBus";
-import { Menu, MenuItem, PredefinedMenuItem } from "@tauri-apps/api/menu";
-import { LogicalPosition } from "@tauri-apps/api/window";
+import type { MenuItem } from 'primevue/menuitem';
+import { ref } from 'vue';
 
-export async function showContextMenu(event: MouseEvent, item: WebItem) {
-  const menuItems = await Promise.all([
-    MenuItem.new({
-      text: "编辑",
-      action: () => {
+export const contextMenuRef = ref();
+export const menuItems = ref<MenuItem[]>([]);
+
+function getContextMenuItems(item: WebItem): MenuItem[] {
+  return [
+    {
+      label: '编辑',
+      icon: 'pi pi-pencil',
+      command: () => {
         emit("edit-webItem", item);
-      },
-    }),
-    PredefinedMenuItem.new({ item: "Separator" }), // 分隔线
-    MenuItem.new({
-      text: "删除",
-      action: () => {
+      }
+    },
+    {
+      separator: true
+    },
+    {
+      label: '删除',
+      icon: 'pi pi-trash',
+      command: () => {
         emit("delete-webItem", item.id);
-      },
-    }),
-  ]);
+      }
+    }
+  ];
+}
 
-  const menu = await Menu.new({
-    items: menuItems,
-  });
-
-  const position = new LogicalPosition(event.clientX, event.clientY);
-  await menu.popup(position);
+export function handleContextMenu(event: MouseEvent, item: WebItem) {
+  menuItems.value = getContextMenuItems(item);
+  contextMenuRef.value.show(event);
 }

@@ -72,10 +72,8 @@ export const deletePlugin = (windowId: string) => {
 /**
  * 下载插件
  */
-export const downloadPlugin = (WindowId: string) => {
-  return request.post(`/api/plugin/download`,  {
-     WindowId 
-  });
+export const downloadPlugin = (params: { WindowId: string; IsUpdate?: boolean }) => {
+  return request.post(`/api/plugin/download`, params);
 };
 
 /**
