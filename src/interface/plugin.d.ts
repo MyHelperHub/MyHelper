@@ -142,3 +142,20 @@ export interface PluginResponse {
     TotalRecords: number;
   };
 }
+
+/** 插件创建DTO */
+export interface PluginCreateDTO {
+  Name: string;
+  Description: string;
+  Version: string;
+  Tags: string[];
+  Icon: string;
+  Screenshots: string[];
+  WindowId: string;
+  Title: string;
+  Size: [number, number];
+  Position: [number, number];
+  AlwaysOnTop: boolean;
+  Resizable: boolean;
+  FileUrl: string;
+}

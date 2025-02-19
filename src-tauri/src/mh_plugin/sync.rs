@@ -3,7 +3,7 @@ use crate::utils::error::{AppError, AppResult};
 use crate::utils::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
 use serde_json::{json, Value};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use tokio::fs as tokio_fs;
 
 /// 同步插件目录和配置
@@ -57,6 +57,15 @@ pub async fn sync_plugins() -> AppResult<()> {
     // 收集有效的插件配置
     let mut plugin_list = Vec::new();
     let mut found_any_plugin = false;
+    let mut processed_plugins = HashSet::new();
+
+    // 首先添加现有配置中的插件（保持顺序）
+    for existing_plugin in current_list {
+        if let Some(window_id) = existing_plugin.get("windowId").and_then(|v| v.as_str()) {
+            processed_plugins.insert(window_id.to_string());
+            plugin_list.push(existing_plugin.clone());
+        }
+    }
 
     while let Some(entry) = plugin_dirs.next_entry().await
         .map_err(|e| AppError::from(format!("读取插件目录条目失败: {}", e)))? {
@@ -76,6 +85,11 @@ pub async fn sync_plugins() -> AppResult<()> {
                 continue;
             }
         };
+
+        // 如果这个插件已经处理过了（在现有配置中），跳过它
+        if processed_plugins.contains(window_id) {
+            continue;
+        }
 
         if entry.file_type().await
             .map_err(|e| AppError::from(format!("获取文件类型失败: {}", e)))?.is_dir() {
@@ -98,13 +112,8 @@ pub async fn sync_plugins() -> AppResult<()> {
                                     .and_then(|v| v.as_str());
 
                                 if top_level_id == Some(window_id) && data_level_id == Some(window_id) {
-                                    // 查找现有配置
-                                    if let Some(existing_config) = current_list.iter()
-                                        .find(|p| p.get("windowId").and_then(|v| v.as_str()) == Some(window_id)) {
-                                        plugin_list.push(existing_config.clone());
-                                    } else {
-                                        plugin_list.push(config);
-                                    }
+                                    plugin_list.push(config);
+                                    processed_plugins.insert(window_id.to_string());
                                     continue;
                                 }
                                 
@@ -133,12 +142,6 @@ pub async fn sync_plugins() -> AppResult<()> {
                             details: Some(format!("错误: {}", e)),
                         }).map_err(|e| AppError::from(e))?;
                     }
-                }
-                
-                // 如果无法读取配置文件或windowId不匹配，尝试使用现有配置
-                if let Some(existing_config) = current_list.iter()
-                    .find(|p| p.get("windowId").and_then(|v| v.as_str()) == Some(window_id)) {
-                    plugin_list.push(existing_config.clone());
                 }
             } else {
                 Logger::write_log(LogEntry {

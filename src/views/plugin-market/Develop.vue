@@ -31,18 +31,7 @@
         text
         @click="
           () => {
-            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]).then(
-              (res) => {
-                if (res === 0) {
-                  toast.add({
-                    severity: 'error',
-                    summary: '错误',
-                    detail: '该窗口已存在',
-                    life: 3000,
-                  });
-                }
-              },
-            );
+            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin])
           }
         "
         class="debug-link" />
@@ -69,7 +58,7 @@
             <div class="plugin-name">
               <span>{{ data.Name }}</span>
               <Tag
-                v-if="activeMenu === MenuKey.MyPlugins && data.Status"
+                v-if="activeMenu === MenuKey.MyPlugins"
                 :value="statusMap[data.Status]"
                 :severity="getStatusSeverity(data.Status)" />
               <Tag
@@ -191,6 +180,7 @@
                         : "点击或拖拽上传插件包"
                     }}
                   </p>
+                  <small v-if="isEditMode" class="text-red-400">若不更新插件代码，请勿上传<br/></small>
                   <small class="text-gray-500">支持 15MB 以内的 zip 文件</small>
                 </div>
               </template>
@@ -865,6 +855,7 @@ const editPlugin = (plugin: Plugin) => {
   Object.assign(pluginForm.value, {
     ...plugin,
     File: null,
+    Status: plugin.Status,  // 保留原插件的状态
     Tags: plugin.Tags || [],
     Screenshots: plugin.Screenshots || [],
     Size: plugin.Size || [800, 600],
@@ -1119,7 +1110,6 @@ const submitPlugin = async () => {
       Name: pluginForm.value.Name,
       Description: pluginForm.value.Description,
       Version: pluginForm.value.Version,
-      Status: pluginForm.value.Status,
       Tags: pluginForm.value.Tags,
       Icon: pluginForm.value.Icon,
       Screenshots: pluginForm.value.Screenshots,
@@ -1129,7 +1119,7 @@ const submitPlugin = async () => {
       Position: pluginForm.value.Position,
       AlwaysOnTop: pluginForm.value.AlwaysOnTop,
       Resizable: pluginForm.value.Resizable,
-      FileUrl: fileResponse.Data, // 使用上传返回的文件名
+      FileUrl: fileResponse.Data
     };
 
     const response = await createPlugin(pluginData);

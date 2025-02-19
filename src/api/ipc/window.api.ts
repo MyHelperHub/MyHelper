@@ -9,8 +9,9 @@ import { WindowOperation } from "@/interface/enum";
 export const ipcCreateNewWindow = async (options: WindowConfig) => {
   try {
     await invoke("create_new_window", { ...options });
+    return true;
   } catch (e) {
-    return 0;
+    return false;
   }
 };
 

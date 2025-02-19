@@ -95,6 +95,15 @@ pub async fn create_new_window(
     icon: Option<String>,
     loading: Option<bool>,
 ) -> AppResult<()> {
+    // 检查窗口是否已存在
+    if let Some(existing_window) = app_handle.get_webview_window(&window_id) {
+        // 如果窗口已存在，则显示并聚焦该窗口
+        existing_window.unminimize().map_err(|e| AppError::Error(e.to_string()))?;
+        existing_window.show().map_err(|e| AppError::Error(e.to_string()))?;
+        existing_window.set_focus().map_err(|e| AppError::Error(e.to_string()))?;
+        return Ok(());
+    }
+
     // 获取显示器信息，增加容错处理
     let monitor = match app_handle.primary_monitor() {
         Ok(Some(m)) => m,

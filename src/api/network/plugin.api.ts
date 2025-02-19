@@ -5,6 +5,7 @@ import {
   PluginStatus,
   PluginSortType,
   PluginResponse,
+  PluginCreateDTO,
 } from "@/interface/plugin";
 import { request } from "./wrapper";
 
@@ -39,14 +40,14 @@ export const getPluginList = (params?: {
  */
 export const getPluginDetail = (windowId: string) => {
   return request.get<Plugin>(`/api/plugin/detail`, {
-    params: { windowId }
+    params: { windowId },
   });
 };
 
 /**
  * 创建插件
  */
-export const createPlugin = (plugin: Plugin) => {
+export const createPlugin = (plugin: PluginCreateDTO) => {
   return request.post<Plugin>("/api/plugin", plugin);
 };
 
@@ -56,7 +57,7 @@ export const createPlugin = (plugin: Plugin) => {
 export const updatePlugin = (windowId: string, plugin: PluginUpdateDTO) => {
   return request.put(`/api/plugin/update`, {
     ...plugin,
-    WindowId: windowId
+    WindowId: windowId,
   });
 };
 
@@ -64,15 +65,18 @@ export const updatePlugin = (windowId: string, plugin: PluginUpdateDTO) => {
  * 删除插件
  */
 export const deletePlugin = (windowId: string) => {
-  return request.delete(`/api/plugin/delete`, {
-    params: { windowId }
+  return request.post(`/api/plugin/delete`, {
+    WindowId: windowId,
   });
 };
 
 /**
  * 下载插件
  */
-export const downloadPlugin = (params: { WindowId: string; IsUpdate?: boolean }) => {
+export const downloadPlugin = (params: {
+  WindowId: string;
+  IsUpdate?: boolean;
+}) => {
   return request.post(`/api/plugin/download`, params);
 };
 
@@ -85,7 +89,7 @@ export const downloadPlugin = (params: { WindowId: string; IsUpdate?: boolean })
 export const ratePlugin = (windowId: string, rating: number) => {
   return request.post<PluginResponse>(`/api/plugin/rate`, {
     WindowId: windowId,
-    Rating: rating
+    Rating: rating,
   });
 };
 
@@ -98,7 +102,9 @@ export const updatePluginStatus = (
   message?: string,
 ) => {
   return request.put(`/api/plugin/status`, {
-     windowId, status, message 
+    windowId,
+    status,
+    message,
   });
 };
 

@@ -74,10 +74,14 @@ const handleClick = async (item: PluginConfig) => {
     }
     // 实际路径
     const realPath = `http://asset.localhost/${item.data.url}`;
-    ipcCreateNewWindow({
+    const success = await ipcCreateNewWindow({
       ...item.data,
       url: realPath
     });
+    
+    if (!success) {
+      showMessage("打开插件失败", 3000, 2);
+    }
   } catch (error) {
     showMessage("打开插件失败", 3000, 2);
   }
