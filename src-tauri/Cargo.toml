@@ -24,6 +24,7 @@ image = "0.25.5"
 url = "2.5.2"
 reqwest = { version = "0.12.9", features = ["native-tls-vendored"] }
 tauri = { version = "2.2.5", features = [ "macos-private-api", "protocol-asset", "tray-icon", "image-png", "devtools"] }
+tauri-plugin-sql = { version = "2.2.0", features = ["sqlite"] }
 tauri-plugin-dialog = "2.2.0"
 tauri-plugin-shell = "2.2.0"
 serde = { version = "1.0.215", features = ["derive"] }

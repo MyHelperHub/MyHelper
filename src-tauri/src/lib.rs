@@ -234,6 +234,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage(Arc::new(GlobalData::default()))
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_sql::Builder::default().build())
         .setup(|app| {
             let window = app
                 .get_webview_window("main")

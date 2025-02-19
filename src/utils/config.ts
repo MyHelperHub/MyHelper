@@ -1,8 +1,49 @@
 import {
-  ipcDeleteConfig,
-  ipcGetConfig,
-  ipcSetConfig,
-} from "@/api/ipc/config.api";
+  getConfigValue,
+  setConfigValue,
+  deleteConfigValue,
+  initDatabase
+} from './database';
+
+// 初始化数据库
+initDatabase();
+
+/**
+ * 获取用户配置
+ * @returns {Promise<any>} 返回整个用户配置对象
+ * 
+ * @example
+ * const userConfig = await getUserConfig();
+ * console.log(userConfig.theme); // 'dark'
+ */
+export const getUserConfig = async (): Promise<any> => {
+  try {
+    return await getConfigValue('userConfig') || {};
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * 设置用户配置
+ * @param {Partial<any>} config - 要设置的配置对象，可以是部分配置
+ * @returns {Promise<void>}
+ * 
+ * @example
+ * // 设置整个配置
+ * await setUserConfig({ theme: 'dark', token: 'xxx' });
+ * 
+ * // 更新部分配置
+ * await setUserConfig({ theme: 'light' }); // 只更新主题，其他配置保持不变
+ */
+export const setUserConfig = async (config: Partial<any>): Promise<void> => {
+  try {
+    const currentConfig = await getUserConfig();
+    await setConfigValue('userConfig', { ...currentConfig, ...config });
+  } catch (error) {
+    throw error;
+  }
+};
 
 /**
  * 获取配置数据
@@ -18,8 +59,8 @@ import {
  */
 export const getConfig = async (keys: Array<string>): Promise<any> => {
   try {
-    const result = await ipcGetConfig(keys);
-    return result;
+    const key = keys.join('.');
+    return await getConfigValue(key);
   } catch (error) {
     throw error;
   }
@@ -43,7 +84,8 @@ export const setConfig = async (
   value: any,
 ): Promise<void> => {
   try {
-    await ipcSetConfig(keys, value);
+    const key = keys.join('.');
+    await setConfigValue(key, value);
   } catch (error) {
     throw error;
   }
@@ -63,7 +105,8 @@ export const setConfig = async (
  */
 export const deleteConfig = async (keys: Array<string>): Promise<void> => {
   try {
-    await ipcDeleteConfig(keys);
+    const key = keys.join('.');
+    await deleteConfigValue(key);
   } catch (error) {
     throw error;
   }
