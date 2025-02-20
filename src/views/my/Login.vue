@@ -1,22 +1,40 @@
 <template>
   <div class="login-section">
-    <Button :label="userData?.Token ? '注销' : '登录/注册'" @click="handleLogin" />
+    <Button
+      :label="userData?.Token ? '注销' : '登录/注册'"
+      @click="handleLogin" />
   </div>
-  <Dialog v-model:visible="showModal" modal :header="isRegisterMode ? '注册' : '登录'" :style="{ width: '350px' }"
+  <Dialog
+    v-model:visible="showModal"
+    modal
+    :header="isRegisterMode ? '注册' : '登录'"
+    :style="{ width: '350px' }"
     position="center">
     <div class="login-content">
       <div v-if="isRegisterMode" class="form-item">
         <FloatLabel variant="on">
-          <InputText id="username" v-model="userData.Username" autocomplete="off"
-            :invalid="submitted && !userData.Username.trim()" @keyup.enter="handleSubmit" />
+          <InputText
+            id="username"
+            v-model="userData.Username"
+            autocomplete="off"
+            :invalid="submitted && !userData.Username.trim()"
+            @keyup.enter="handleSubmit" />
           <label for="username">用户名</label>
         </FloatLabel>
       </div>
 
       <div class="form-item">
         <FloatLabel variant="on">
-          <InputText id="email" v-model="userData.Email" autocomplete="off"
-            :invalid="submitted && (!userData.Email.trim() || (isRegisterMode && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.Email)))"
+          <InputText
+            id="email"
+            v-model="userData.Email"
+            autocomplete="off"
+            :invalid="
+              submitted &&
+              (!userData.Email.trim() ||
+                (isRegisterMode &&
+                  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.Email)))
+            "
             @keyup.enter="handleSubmit" />
           <label for="email">邮箱</label>
         </FloatLabel>
@@ -24,31 +42,52 @@
 
       <div class="form-item">
         <FloatLabel variant="on">
-          <Password id="password" v-model="userData.Password" autocomplete="off" :feedback="false" :toggleMask="true"
-            :invalid="submitted && !userData.Password?.trim()" @keyup.enter="handleSubmit" />
+          <Password
+            id="password"
+            v-model="userData.Password"
+            autocomplete="off"
+            :feedback="false"
+            :toggleMask="true"
+            :invalid="submitted && !userData.Password?.trim()"
+            @keyup.enter="handleSubmit" />
           <label for="password">密码</label>
         </FloatLabel>
       </div>
 
       <div v-if="isRegisterMode" class="form-item">
         <FloatLabel variant="on">
-          <Password id="confirmPassword" v-model="userData.ConfirmPassword" autocomplete="off" :feedback="false"
-            :toggleMask="true" :invalid="submitted && isRegisterMode &&
-              (!userData.ConfirmPassword?.trim() || userData.Password !== userData.ConfirmPassword)"
+          <Password
+            id="confirmPassword"
+            v-model="userData.ConfirmPassword"
+            autocomplete="off"
+            :feedback="false"
+            :toggleMask="true"
+            :invalid="
+              submitted &&
+              isRegisterMode &&
+              (!userData.ConfirmPassword?.trim() ||
+                userData.Password !== userData.ConfirmPassword)
+            "
             @keyup.enter="handleSubmit" />
           <label for="confirmPassword">确认密码</label>
         </FloatLabel>
       </div>
 
       <div class="form-footer">
-        <Button :label="isRegisterMode ? '注册' : '登录'" @click="handleSubmit" :loading="submitLoading"
+        <Button
+          :label="isRegisterMode ? '注册' : '登录'"
+          @click="handleSubmit"
+          :loading="submitLoading"
           :disabled="submitLoading" />
 
         <div class="form-links">
           <span class="link" @click="toggleMode">
             {{ isRegisterMode ? "已有账号？去登录" : "没有账号？去注册" }}
           </span>
-          <span v-if="!isRegisterMode" class="link" @click="handleForgotPassword">
+          <span
+            v-if="!isRegisterMode"
+            class="link"
+            @click="handleForgotPassword">
             忘记密码?
           </span>
         </div>
@@ -86,7 +125,7 @@ const submitLoading = ref(false);
 const isRegisterMode = ref(false);
 
 const init = async () => {
-  userData.value = await GlobalData.get("userInfo") as unknown as User;
+  userData.value = (await GlobalData.get("userInfo")) as unknown as User;
 };
 init();
 
@@ -94,10 +133,12 @@ const submitted = ref(false);
 
 const validateForm = () => {
   if (isRegisterMode.value) {
-    if (!userData.value.Username.trim() ||
+    if (
+      !userData.value.Username.trim() ||
       !userData.value.Email.trim() ||
       !userData.value.Password?.trim() ||
-      !userData.value.ConfirmPassword?.trim()) {
+      !userData.value.ConfirmPassword?.trim()
+    ) {
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -121,12 +162,12 @@ const handleLoginSubmit = async () => {
   try {
     const res = await login({
       Email: userData.value.Email,
-      Password: userData.value.Password as string
+      Password: userData.value.Password as string,
     });
 
     if (res.Code === ResponseCodeEnum.SUCCESS) {
       userData.value = { ...res.Data.UserInfo, Token: res.Data.Token };
-      await setUserConfig([], userData.value);
+      await setUserConfig(userData.value);
       await GlobalData.set("userInfo", userData.value);
       updateToken(res.Data.Token);
       showMessage(`${userData.value.Username}, 欢迎回来!`, 3000, 1);
@@ -147,10 +188,10 @@ const handleRegisterSubmit = async () => {
     const { Code, Message } = await register({
       Username: userData.value.Username,
       Email: userData.value.Email,
-      Password: userData.value.Password as string
+      Password: userData.value.Password as string,
     });
     if (Code === ResponseCodeEnum.SUCCESS) {
-      showMessage('注册成功!', 4500, 1);
+      showMessage("注册成功!", 4500, 1);
       // 切换到登录
       isRegisterMode.value = false;
       submitted.value = false;
@@ -213,7 +254,7 @@ const handleLogin = async () => {
   if (userData.value?.Token) {
     // 注销逻辑
     try {
-      await setUserConfig([], {});
+      await setUserConfig({});
       await GlobalData.set("userInfo", {} as User);
       updateToken(null);
       userData.value = {} as User;
@@ -265,7 +306,7 @@ const handleLogin = async () => {
       .link {
         color: var(--primary-color);
         cursor: pointer;
-        
+
         &:hover {
           text-decoration: underline;
         }

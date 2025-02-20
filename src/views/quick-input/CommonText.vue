@@ -52,10 +52,10 @@ const scrollContainer = ref<string | HTMLElement | undefined>();
 
 const init = async () => {
   try {
-    formData.value = await getConfig(["quickInputConfig", "commonText"]);
-    if (!formData.value) {
-      formData.value = [];
-    }
+    const config = await getConfig<QuickInputItem[]>(
+      "quickInputConfig.commonText",
+    );
+    formData.value = config || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -117,7 +117,7 @@ const addItem = () => {
 
 const save = async () => {
   editingId.value = null;
-  await setConfig(["quickInputConfig", "commonText"], formData.value);
+  await setConfig("quickInputConfig.commonText", formData.value);
 };
 
 /** 处理复制到剪贴板的功能 */

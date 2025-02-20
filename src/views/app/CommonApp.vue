@@ -1,12 +1,11 @@
 <template>
   <div class="open-app" keep-menu>
-    <ContextMenu 
-      ref="contextMenuRef" 
+    <ContextMenu
+      ref="contextMenuRef"
       :model="menuItems"
       :pt="{
         root: { style: 'width: 120px; min-width: 120px' },
-      }" 
-    />
+      }" />
     <div class="list">
       <div
         v-for="item in dataList"
@@ -48,18 +47,20 @@ import { showMessage } from "@/utils/message";
 import { emit, on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import EditItem from "./EditItem.vue";
-import ContextMenu from 'primevue/contextmenu';
-import { contextMenuRef, menuItems, handleContextMenu } from './utils/contextMenu';
+import ContextMenu from "primevue/contextmenu";
+import {
+  contextMenuRef,
+  menuItems,
+  handleContextMenu,
+} from "./utils/contextMenu";
 
 const dataList = ref<AppItem[]>([]);
 const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
 
 const init = async () => {
   try {
-    dataList.value = await getConfig(["appConfig", "dataList"]);
-    if (!dataList.value) {
-      dataList.value = [];
-    }
+    const config = await getConfig<AppItem[]>("appConfig.dataList");
+    dataList.value = config || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -117,7 +118,7 @@ const addAppItem = async () => {
 
     // 更新 dataList 并保存
     dataList.value.push(newItem);
-    await setConfig(["appConfig", "dataList"], dataList.value);
+    await setConfig("appConfig.dataList", dataList.value);
   } catch (error) {
     showMessage("添加应用失败!", 3000, 2);
   }
@@ -140,9 +141,9 @@ const deleteAppItem = async (id: number) => {
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {
-      await setConfig(["appConfig", "dataList"], dataList.value);
+      await setConfig("appConfig.dataList", dataList.value);
       ipcDeleteIcon(fileName, 1).catch((err) => {
-        console.log('图标删除失败:', err);
+        console.log("图标删除失败:", err);
       });
       showMessage("删除成功!", 3000, 1);
     } catch (error) {
@@ -160,7 +161,7 @@ const editAppItem = async (updatedItem: AppItem) => {
 
     // 更新本地配置
     try {
-      await setConfig(["appConfig", "dataList"], dataList.value);
+      await setConfig("appConfig.dataList", dataList.value);
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);

@@ -1,24 +1,27 @@
-import { getConfig, setConfig } from "./config";
+import { User } from "../interface/user";
+import { getConfig, updateConfig } from "./config";
+import { ipcFileExists } from "@/api/ipc/launch.api";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir } from "@tauri-apps/api/path";
+
+const USER_CONFIG_KEY = "userConfig";
 
 /**
  * 获取用户配置
- * @param {Array<string>} [keys] - 配置项的键列表,不传则获取整个 userConfig
- * @returns {Promise<any>} - 返回用户配置数据
- * 
- * @example
- * // 获取整个用户配置
- * const config = await getUserConfig();
- * 
- * // 获取用户名
- * const username = await getUserConfig(['username']);
- * 
- * // 获取用户主题设置
- * const theme = await getUserConfig(['settings', 'theme']);
+ * @returns {Promise<User>} 返回用户配置
  */
-export const getUserConfig = async (keys: Array<string>): Promise<any> => {
+export const getUserConfig = async (): Promise<User> => {
   try {
-    const fullKeys = ["userConfig", ...keys];
-    return await getConfig(fullKeys);
+    const config = await getConfig<User>(USER_CONFIG_KEY);
+    return (
+      config || {
+        Avatar: undefined,
+        Email: "",
+        Token: "",
+        UserId: 0,
+        Username: "",
+      }
+    );
   } catch (error) {
     console.error("获取用户配置失败:", error);
     throw error;
@@ -27,34 +30,17 @@ export const getUserConfig = async (keys: Array<string>): Promise<any> => {
 
 /**
  * 保存用户配置
- * @param {Array<string>} keys - 要设置的配置项的键路径
- * @param {any} value - 要设置的值
+ * @param {Partial<User>} config - 要设置的用户配置
  * @returns {Promise<void>}
- * 
- * @example
- * // 设置整个用户配置
- * await setUserConfig([], { username: 'zhang' });
- * 
- * // 设置用户主题
- * await setUserConfig(['settings', 'theme'], 'dark');
  */
-export const setUserConfig = async (
-  keys: Array<string>,
-  value: any,
-): Promise<void> => {
+export const setUserConfig = async (config: Partial<User>): Promise<void> => {
   try {
-    const fullKeys = ["userConfig", ...keys];
-    await setConfig(fullKeys, value);
+    await updateConfig<User>(USER_CONFIG_KEY, config);
   } catch (error) {
     console.error("设置用户配置失败:", error);
     throw error;
   }
 };
-
-
-import { ipcFileExists } from "@/api/ipc/launch.api";
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { appDataDir } from "@tauri-apps/api/path";
 
 export const checkLogoPath = async (): Promise<string> => {
   const appDataPath = await appDataDir();

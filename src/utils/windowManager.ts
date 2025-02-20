@@ -16,19 +16,21 @@ export const handleWindowToggle = async (
     if (isOpen.value) {
       // 如果窗口已打开，尝试关闭
       try {
-        await ipcWindowControl(WindowOperation.Close, { window_id: config.windowId });
+        await ipcWindowControl(WindowOperation.Close, {
+          window_id: config.windowId,
+        });
         isOpen.value = false;
       } catch (err) {
         // 如果关闭失败，说明窗口可能已经不存在
         // 这种情况下重置状态并创建新窗口
         isOpen.value = false;
         const res = await ipcCreateNewWindow(config);
-        isOpen.value = res !== 0;
+        isOpen.value = Boolean(res);
       }
     } else {
       // 如果窗口未打开，创建新窗口
       const res = await ipcCreateNewWindow(config);
-      isOpen.value = res !== 0;
+      isOpen.value = Boolean(res);
     }
   } catch (error) {
     // 确保状态与实际窗口状态同步

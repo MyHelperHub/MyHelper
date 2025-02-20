@@ -79,7 +79,7 @@ const confirm = useConfirm();
 // 初始化设置
 const init = async () => {
   try {
-    const config = await getConfig(["settingConfig"]);
+    const config = await getConfig("settingConfig");
     if (config) {
       settingData.value = config || settingData.value;
     }
@@ -95,7 +95,7 @@ const handleSwitch = async (key: string, value: boolean) => {
     key,
     value,
   });
-  setConfig(["settingConfig"], settingData.value);
+  setConfig("settingConfig", settingData.value);
 };
 
 const handleDataReset = (key: string[], event: { currentTarget: any }) => {

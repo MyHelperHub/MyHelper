@@ -32,12 +32,8 @@ if (Window.getCurrent().label === "main") {
     try {
       // 初始化设置
       initSetting();
-      let settingData: Record<string, boolean> = await getConfig([
-        "settingConfig",
-      ]);
-      if (!settingData) {
-        settingData = {};
-      }
+      const config = await getConfig<Record<string, boolean>>("settingConfig");
+      const settingData: Record<string, boolean> = config || {};
       // 监听设置变化,将所有设置都放在main窗口里执行
       listen(
         "update:setting",
@@ -51,19 +47,18 @@ if (Window.getCurrent().label === "main") {
       });
 
       // 初始化登录状态
-      getUserConfig([]).then(async (res) => {
-        if (!res) {
-          await GlobalData.set("userInfo", {
-            UserId: -1,
-            Username: "",
-            Email: "",
-            Avatar: "",
-            Token: "",
-          } as User);
-        } else {
-          await GlobalData.set("userInfo", res as User);
-        }
-      });
+      const userConfig = await getUserConfig();
+      if (!userConfig) {
+        await GlobalData.set("userInfo", {
+          UserId: -1,
+          Username: "",
+          Email: "",
+          Avatar: "",
+          Token: "",
+        } as User);
+      } else {
+        await GlobalData.set("userInfo", userConfig as User);
+      }
     } catch (error) {
       console.error("初始化失败:", error);
     }
