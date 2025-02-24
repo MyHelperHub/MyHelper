@@ -62,8 +62,8 @@ const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
 
 const init = async () => {
   try {
-    const config = await getConfig<WebItem[]>("webConfig.dataList");
-    dataList.value = config || [];
+    const config = await getConfig<{ dataList: WebItem[] }>("webConfig");
+    dataList.value = config?.dataList || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -99,7 +99,7 @@ const addWebItem = async (item: WebItem) => {
   dataList.value.push(item);
   // 将数据存储到本地配置中
   try {
-    await setConfig("webConfig.dataList", dataList.value);
+    await setConfig("webConfig", { dataList: dataList.value });
   } catch (error) {
     dataList.value.pop();
     showMessage("保存失败!", 3000, 2);
@@ -117,7 +117,7 @@ const editWebItem = async (updatedItem: WebItem) => {
 
     // 更新本地配置
     try {
-      await setConfig("webConfig.dataList", dataList.value);
+      await setConfig("webConfig", { dataList: dataList.value });
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);
@@ -142,7 +142,7 @@ const deleteWebItem = async (id: number) => {
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {
-      await setConfig("webConfig.dataList", dataList.value);
+      await setConfig("webConfig", { dataList: dataList.value });
       ipcDeleteIcon(fileName, 0).catch((err) => {
         console.log("图标删除失败:", err);
       });

@@ -1,6 +1,7 @@
 mod command;
 mod mh_plugin;
 mod utils;
+mod database;
 
 use crate::utils::config::utils_set_config;
 use crate::utils::error::{AppError, AppResult};
@@ -14,9 +15,13 @@ use tauri::image::Image;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
+use crate::database::{get_config_value, set_config_value, delete_config_value, init_database};
 
 /** 初始化 */
 fn init() -> AppResult<()> {
+    // 初始化数据库
+    init_database().map_err(|e| AppError::Error(format!("初始化数据库失败: {}", e)))?;
+
     // 同步插件配置
     tauri::async_runtime::spawn_blocking(|| {
         tauri::async_runtime::block_on(mh_plugin::sync::sync_plugins())
@@ -231,10 +236,9 @@ fn setup_tray<R: Runtime>(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    if let Err(e) = tauri::Builder::default()
         .manage(Arc::new(GlobalData::default()))
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_sql::Builder::default().build())
         .setup(|app| {
             let window = app
                 .get_webview_window("main")
@@ -281,10 +285,15 @@ pub fn run() {
             mh_set_self_config,
             mh_delete_self_config,
             open_devtools,
-            write_log
+            write_log,
+            get_config_value,
+            set_config_value,
+            delete_config_value,
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
-        .run(tauri::generate_context!())
-        .expect("MyHelper启动失败...");
+        .run(tauri::generate_context!()) {
+        eprintln!("MyHelper启动失败: {}", e);
+        std::process::exit(1);
+    }
 }

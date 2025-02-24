@@ -64,9 +64,8 @@ import Button from "primevue/button";
 import ConfirmPopup from "primevue/confirmpopup";
 import { useConfirm } from "primevue/useconfirm";
 import { ref } from "vue";
-import { getConfig, setConfig } from "@/utils/config";
+import { getConfig, setConfig, resetConfig } from "@/utils/config";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
-import { ipcDeleteConfig } from "@/api/ipc/config.api";
 import { showMessage } from "@/utils/message";
 
 const settingData = ref({
@@ -98,7 +97,7 @@ const handleSwitch = async (key: string, value: boolean) => {
   setConfig("settingConfig", settingData.value);
 };
 
-const handleDataReset = (key: string[], event: { currentTarget: any }) => {
+const handleDataReset = async (keys: string[], event: { currentTarget: any }) => {
   confirm.require({
     target: event.currentTarget,
     message: "确认要重置数据吗？",
@@ -111,14 +110,14 @@ const handleDataReset = (key: string[], event: { currentTarget: any }) => {
     acceptProps: {
       label: "确定",
     },
-    accept: () => {
-      ipcDeleteConfig(key)
-        .then(() => {
-          showMessage("重置成功！", 2500, 1);
-        })
-        .catch(() => {
-          showMessage("重置失败，请重试！", 2500, 2);
-        });
+    accept: async () => {
+      try {
+        await resetConfig(keys);
+        showMessage("重置成功！", 2500, 1);
+      } catch (error) {
+        console.error("重置数据失败:", error);
+        showMessage("重置失败，请重试！", 2500, 2);
+      }
       showDataResetModal.value = false;
     },
     reject: () => {

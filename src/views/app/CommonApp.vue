@@ -59,8 +59,8 @@ const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
 
 const init = async () => {
   try {
-    const config = await getConfig<AppItem[]>("appConfig.dataList");
-    dataList.value = config || [];
+    const config = await getConfig<{ dataList: AppItem[] }>("appConfig");
+    dataList.value = config?.dataList || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -118,7 +118,7 @@ const addAppItem = async () => {
 
     // 更新 dataList 并保存
     dataList.value.push(newItem);
-    await setConfig("appConfig.dataList", dataList.value);
+    await setConfig("appConfig", { dataList: dataList.value });
   } catch (error) {
     showMessage("添加应用失败!", 3000, 2);
   }
@@ -141,7 +141,7 @@ const deleteAppItem = async (id: number) => {
     dataList.value.splice(index, 1);
     // 将数据存储到本地配置中
     try {
-      await setConfig("appConfig.dataList", dataList.value);
+      await setConfig("appConfig", { dataList: dataList.value });
       ipcDeleteIcon(fileName, 1).catch((err) => {
         console.log("图标删除失败:", err);
       });
@@ -161,7 +161,7 @@ const editAppItem = async (updatedItem: AppItem) => {
 
     // 更新本地配置
     try {
-      await setConfig("appConfig.dataList", dataList.value);
+      await setConfig("appConfig", { dataList: dataList.value });
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);

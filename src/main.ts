@@ -24,9 +24,8 @@ import { getUserConfig } from "./utils/user";
 import GlobalData from "./utils/globalData";
 import { User } from "./interface/user";
 import { ErrorHandler } from "./utils/errorHandler";
-import { initDatabase } from "./utils/database";
+
 if (Window.getCurrent().label === "main") {
-  initDatabase();
   ipcSetWindowSize(65, 65);
   async function initializeApp() {
     try {

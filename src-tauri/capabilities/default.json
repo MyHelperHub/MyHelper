@@ -21,9 +21,6 @@
     "core:webview:default",
     "core:event:default",
     "core:event:allow-listen",
-    "shell:allow-open",
-    "sql:allow-load",
-    "sql:default",
-    "sql:allow-execute"
+    "shell:allow-open"
   ]
 }
