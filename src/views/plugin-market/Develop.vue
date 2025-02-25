@@ -31,7 +31,7 @@
         text
         @click="
           () => {
-            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin])
+            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]);
           }
         "
         class="debug-link" />
@@ -180,7 +180,9 @@
                         : "点击或拖拽上传插件包"
                     }}
                   </p>
-                  <small v-if="isEditMode" class="text-red-400">若不更新插件代码，请勿上传<br/></small>
+                  <small v-if="isEditMode" class="text-red-400"
+                    >若不更新插件代码，请勿上传<br
+                  /></small>
                   <small class="text-gray-500">支持 15MB 以内的 zip 文件</small>
                 </div>
               </template>
@@ -306,7 +308,8 @@
                   v-model="pluginForm.WindowId"
                   class="w-full"
                   :class="{ 'p-invalid': errors.WindowId }"
-                  placeholder="请输入窗口ID" />
+                  placeholder="请输入窗口ID"
+                  :disabled="isEditMode" />
                 <small class="text-red-500" v-if="errors.WindowId">{{
                   errors.WindowId
                 }}</small>
@@ -855,7 +858,7 @@ const editPlugin = (plugin: Plugin) => {
   Object.assign(pluginForm.value, {
     ...plugin,
     File: null,
-    Status: plugin.Status,  // 保留原插件的状态
+    Status: plugin.Status, // 保留原插件的状态
     Tags: plugin.Tags || [],
     Screenshots: plugin.Screenshots || [],
     Size: plugin.Size || [800, 600],
@@ -1119,7 +1122,7 @@ const submitPlugin = async () => {
       Position: pluginForm.value.Position,
       AlwaysOnTop: pluginForm.value.AlwaysOnTop,
       Resizable: pluginForm.value.Resizable,
-      FileUrl: fileResponse.Data
+      FileUrl: fileResponse.Data,
     };
 
     const response = await createPlugin(pluginData);
