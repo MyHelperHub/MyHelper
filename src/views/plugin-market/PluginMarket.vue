@@ -441,8 +441,8 @@
             <template #body="slotProps">
               <div class="status-cell">
                 <Tag
-                  :severity="slotProps.data.config?.isEnabled ? 'success' : 'danger'"
-                  :value="slotProps.data.config?.isEnabled ? '已启用' : '已禁用'" />
+                  :severity="(slotProps.data.config?.isEnabled ) ? 'success' : 'danger'"
+                  :value="(slotProps.data.config?.isEnabled ) ? '已启用' : '已禁用'" />
               </div>
             </template>
           </Column>
@@ -458,11 +458,11 @@
                   @click="handleDownload(slotProps.data, true)"
                   class="action-button" />
                 <Button
-                  :icon="slotProps.data.config?.isEnabled ? 'pi pi-check-circle' : 'pi pi-times-circle'"
-                  :severity="slotProps.data.config?.isEnabled ? 'success' : 'danger'"
+                  :icon="(slotProps.data.config?.isEnabled) ? 'pi pi-check-circle' : 'pi pi-times-circle'"
+                  :severity="(slotProps.data.config?.isEnabled) ? 'success' : 'danger'"
                   text
-                  v-tooltip.top="slotProps.data.config?.isEnabled ? '点击禁用插件' : '点击启用插件'"
-                  @click="togglePlugin(slotProps.data, !slotProps.data.config?.isEnabled)"
+                  v-tooltip.top="(slotProps.data.config?.isEnabled) ? '点击禁用插件' : '点击启用插件'"
+                  @click="togglePlugin(slotProps.data, !(slotProps.data.config?.isEnabled))"
                   class="action-button" />
                 <Button
                   icon="pi pi-trash"
@@ -662,18 +662,42 @@ const handleSortChange = (event: { value: PluginSortType }) => {
 };
 
 /** 检查插件是否有更新 */
-const checkPluginUpdate = (localVersion: string, remoteVersion: string) => {
-  const localParts = localVersion.split('.').map(Number);
-  const remoteParts = remoteVersion.split('.').map(Number);
-  
-  for (let i = 0; i < 3; i++) {
-    if (remoteParts[i] > localParts[i]) {
-      return true;
-    } else if (remoteParts[i] < localParts[i]) {
-      return false;
-    }
+const checkPluginUpdate = (localVersion?: string, remoteVersion?: string) => {
+  // 如果任一版本号为空，则返回 false
+  if (!localVersion || !remoteVersion) {
+    return false;
   }
-  return false;
+
+  try {
+    const localParts = localVersion.split('.');
+    const remoteParts = remoteVersion.split('.');
+    
+    // 比较主版本号
+    const localMajor = parseInt(localParts[0]);
+    const remoteMajor = parseInt(remoteParts[0]);
+    if (remoteMajor > localMajor) return true;
+    if (remoteMajor < localMajor) return false;
+    
+    // 比较次版本号
+    if (localParts.length > 1 && remoteParts.length > 1) {
+      const localMinor = parseInt(localParts[1]);
+      const remoteMinor = parseInt(remoteParts[1]);
+      if (remoteMinor > localMinor) return true;
+      if (remoteMinor < localMinor) return false;
+    }
+    
+    // 比较修订号
+    if (localParts.length > 2 && remoteParts.length > 2) {
+      const localPatch = parseInt(localParts[2]);
+      const remotePatch = parseInt(remoteParts[2]);
+      return remotePatch > localPatch;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('版本号比较出错:', error);
+    return false;
+  }
 };
 
 // 添加计算属性来判断当前选中的插件是否有更新
@@ -696,7 +720,21 @@ const hasUpdate = computed(() => {
 /** 显示插件详情 */
 const showPluginDetail = async (pluginDetail: PluginDetail | Plugin) => {
   // 处理已安装插件的情况
-  if ("Status" in pluginDetail && !("Plugin" in pluginDetail)) {
+  if ('Plugin' in pluginDetail) {
+    // 处理插件市场的情况
+    const detail = pluginDetail as PluginDetail;
+    // 查找已安装插件中是否存在该插件，如果存在则获取安装时间
+    const installedPlugin = installedPlugins.value.find(
+      (p) => p.WindowId === detail.Plugin.WindowId
+    );
+    selectedPlugin.value = {
+      ...detail.Plugin,
+      installTime: installedPlugin?.installTime
+    };
+    selectedPluginIsRated.value = detail.IsRated;
+    userRating.value = detail.Plugin.Rating || 0;
+  } else {
+    // 处理已安装插件的情况
     const plugin = pluginDetail as Plugin;
     const matchedPlugin = plugins.value.find(
       (p) => p.Plugin.WindowId === plugin.WindowId,
@@ -713,19 +751,6 @@ const showPluginDetail = async (pluginDetail: PluginDetail | Plugin) => {
       selectedPluginIsRated.value = false;
       userRating.value = plugin.Rating || 0;
     }
-  } else {
-    // 处理插件列表的情况
-    const detail = pluginDetail as PluginDetail;
-    // 查找已安装插件中是否存在该插件，如果存在则获取安装时间
-    const installedPlugin = installedPlugins.value.find(
-      (p) => p.WindowId === detail.Plugin.WindowId
-    );
-    selectedPlugin.value = {
-      ...detail.Plugin,
-      installTime: installedPlugin?.installTime
-    };
-    selectedPluginIsRated.value = detail.IsRated;
-    userRating.value = detail.Plugin.Rating || 0;
   }
   showDetail.value = true;
 };
@@ -768,9 +793,7 @@ const getInstalledPlugins = async () => {
         UpdateTime: item.info.updateTime,
         FileUrl: "", // 添加 FileUrl 字段
         installTime: item.info.installTime, // 添加 installTime 字段
-        config: {
-          isEnabled: item.config?.isEnabled ?? true // 添加 config 字段，默认为 true
-        }
+        config: item.config || {} // 如果 config 为空，保持空对象
       }));
     } else {
       installedPluginIds.value = [];

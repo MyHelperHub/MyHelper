@@ -6,6 +6,7 @@ pub mod open_web_or_app;
 pub mod plugin;
 pub mod quick_input;
 pub mod state;
+pub mod database;
 
 pub use common::*;
 pub use config::*;
@@ -15,3 +16,4 @@ pub use open_web_or_app::*;
 pub use plugin::*;
 pub use quick_input::*;
 pub use state::*;
+pub use database::*;

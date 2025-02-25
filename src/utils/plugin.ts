@@ -2,8 +2,23 @@ import {
   ipcInstallPlugin,
   ipcUninstallPlugin,
 } from "@/api/ipc/plugin.api";
-import { getConfigValue, setConfigValue, deleteConfigValue } from "./database";
+import { ipcGetPluginConfigValue, ipcSetPluginConfigValue, ipcDeletePluginConfigValue } from "@/api/ipc/database.api";
 import { PluginConfig } from "@/interface/plugin";
+
+interface PluginConfigData {
+  windowId: string;
+  info: Record<string, any>;
+  config: Record<string, any>;
+  data: Record<string, any>;
+  [key: string]: any;
+}
+
+type PluginConfigOrEmpty = PluginConfigData | {
+  info: Record<string, any>;
+  config: Record<string, any>;
+  data: Record<string, any>;
+  [key: string]: any;
+};
 
 const PLUGIN_LIST_KEY = 'pluginList';
 
@@ -19,18 +34,19 @@ const PLUGIN_LIST_KEY = 'pluginList';
  */
 export const getPluginConfig = async (keys: Array<string>): Promise<unknown> => {
   try {
-    if (keys[0] === PLUGIN_LIST_KEY) {
-      return await getConfigValue(PLUGIN_LIST_KEY);
+    if (keys[0] === 'pluginList') {
+      const result = await ipcGetPluginConfigValue() as PluginConfigData[];
+      return result;
     }
 
     // 如果指定了具体的插件ID
     if (keys.length > 1) {
-      const plugins = await getConfigValue<PluginConfig[]>(PLUGIN_LIST_KEY) || [];
-      const plugin = plugins.find(p => p.windowId === keys[1]);
-      if (!plugin) {
+      const result = await ipcGetPluginConfigValue(keys[1]) as PluginConfigData[];
+      if (!result || result.length === 0) {
         return null;
       }
       
+      const plugin = result[0];
       // 根据keys路径获取具体的配置值
       let value: any = plugin;
       for (let i = 2; i < keys.length; i++) {
@@ -50,48 +66,65 @@ export const getPluginConfig = async (keys: Array<string>): Promise<unknown> => 
 };
 
 /**
- * 保存插件配置数据
- * @param {Array<string>} keys - 要设置的配置项的键路径
- * @param {unknown} value - 要设置的值
- * @returns {Promise<void>} - 设置成功返回void
+ * 设置插件配置数据
+ * @param {Array<string>} keys - 配置项的键列表
+ * @param {any} value - 要设置的值
+ * @returns {Promise<void>}
  * @throws 如果设置配置失败，将抛出错误
- *
- * @example
- * // 设置插件的 'position' 为 [100, 200]
- * await setPluginConfig(['position'], [100, 200]);
- *
- * // 设置插件的 'alwaysOnTop' 为 true
- * await setPluginConfig(['alwaysOnTop'], true);
  */
-export const setPluginConfig = async (
-  keys: Array<string>,
-  value: unknown,
-): Promise<void> => {
+export const setPluginConfig = async (keys: Array<string>, value: any): Promise<void> => {
   try {
-    if (keys[0] === PLUGIN_LIST_KEY) {
-      // 如果是设置整个插件列表
-      await setConfigValue(PLUGIN_LIST_KEY, value);
-    } else if (keys.length > 1) {
-      // 如果是设置特定插件的配置
-      const plugins = await getConfigValue<PluginConfig[]>(PLUGIN_LIST_KEY) || [];
-      const pluginIndex = plugins.findIndex(p => p.windowId === keys[1]);
+    if (keys[0] === 'pluginList') {
+      // 删除所有现有配置
+      await ipcDeletePluginConfigValue();
       
-      if (pluginIndex === -1) {
-        throw new Error(`Plugin ${keys[1]} not found`);
-      }
-      
-      // 根据keys路径设置值
-      let target: any = plugins[pluginIndex];
-      for (let i = 2; i < keys.length - 1; i++) {
-        if (!(keys[i] in target)) {
-          target[keys[i]] = {};
+      // 添加新的配置
+      if (Array.isArray(value)) {
+        for (const plugin of value) {
+          await ipcSetPluginConfigValue(
+            plugin.windowId,
+            plugin.info,
+            plugin.config || {},
+            plugin.data
+          );
         }
-        target = target[keys[i]];
       }
-      target[keys[keys.length - 1]] = value;
-      
-      // 更新插件列表
-      await setConfigValue(PLUGIN_LIST_KEY, plugins);
+      return;
+    }
+
+    // 如果指定了具体的插件ID
+    if (keys.length > 1) {
+      const windowId = keys[1];
+      const result = await ipcGetPluginConfigValue(windowId) as PluginConfigData[];
+      const plugin = result && result.length > 0 ? result[0] : {
+        info: {},
+        config: {},
+        data: {},
+      } as PluginConfigOrEmpty;
+
+      // 根据keys路径设置具体的配置值
+      let current = plugin;
+      for (let i = 2; i < keys.length - 1; i++) {
+        const key = keys[i];
+        if (!(key in current)) {
+          current[key] = {};
+        }
+        current = current[key];
+      }
+
+      if (keys.length > 2) {
+        const lastKey = keys[keys.length - 1];
+        current[lastKey] = value;
+      } else {
+        Object.assign(current, value);
+      }
+
+      await ipcSetPluginConfigValue(
+        windowId,
+        plugin.info,
+        plugin.config,
+        plugin.data
+      );
     }
   } catch (error) {
     console.error("设置插件配置失败:", error);
@@ -101,27 +134,19 @@ export const setPluginConfig = async (
 
 /**
  * 删除插件配置数据
- * @param {Array<string>} keys - 要删除的配置项的键路径
- * @returns {Promise<void>} - 删除成功返回void
+ * @param {Array<string>} keys - 要删除的配置键列表
+ * @returns {Promise<void>}
  * @throws 如果删除配置失败，将抛出错误
- * 
- * @example
- * // 删除插件的 'position' 配置
- * await deletePluginConfig(['position']);
- * 
- * // 删除插件的所有配置
- * await deletePluginConfig([]);
  */
 export const deletePluginConfig = async (keys: Array<string>): Promise<void> => {
   try {
-    if (keys.length === 0 || (keys[0] === PLUGIN_LIST_KEY && keys.length === 1)) {
-      // 删除所有插件配置
-      await deleteConfigValue(PLUGIN_LIST_KEY);
-    } else if (keys.length > 1) {
-      // 删除特定插件的配置
-      const plugins = await getConfigValue<PluginConfig[]>(PLUGIN_LIST_KEY) || [];
-      const updatedPlugins = plugins.filter(p => p.windowId !== keys[1]);
-      await setConfigValue(PLUGIN_LIST_KEY, updatedPlugins);
+    if (keys.length === 0 || keys[0] === 'pluginList') {
+      await ipcDeletePluginConfigValue();
+      return;
+    }
+
+    if (keys.length > 1) {
+      await ipcDeletePluginConfigValue(keys[1]);
     }
   } catch (error) {
     console.error("删除插件配置失败:", error);

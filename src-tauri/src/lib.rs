@@ -1,10 +1,10 @@
 mod command;
 mod mh_plugin;
 mod utils;
-mod database;
 
 use crate::utils::config::utils_set_config;
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::database::init_database;
 use command::*;
 use mh_plugin::*;
 use serde_json::json;
@@ -15,7 +15,6 @@ use tauri::image::Image;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
-use crate::database::{get_config_value, set_config_value, delete_config_value, init_database};
 
 /** 初始化 */
 fn init() -> AppResult<()> {
@@ -289,6 +288,9 @@ pub fn run() {
             get_config_value,
             set_config_value,
             delete_config_value,
+            set_plugin_config_value,
+            get_plugin_config_value,
+            delete_plugin_config_value,
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
