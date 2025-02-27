@@ -8,7 +8,7 @@ use tauri::Window;
 #[tauri::command]
 pub async fn mh_get_self_config(window: Window, keys: Vec<String>) -> Result<Value, String> {
     let window_id = window.label();
-    let config_path = get_config_path(window_id)?;
+    let config_path = get_self_config_path(window_id)?;
     let config = read_config(&config_path)?;
     
     // 如果 keys 为空,返回整个配置
@@ -28,7 +28,7 @@ pub async fn mh_get_self_config(window: Window, keys: Vec<String>) -> Result<Val
 #[tauri::command]
 pub async fn mh_set_self_config(window: Window, keys: Vec<String>, value: Value) -> Result<(), String> {
     let window_id = window.label();
-    let config_path = get_config_path(window_id)?;
+    let config_path = get_self_config_path(window_id)?;
     let mut config = read_config(&config_path)?;
     
     // 根据 keys 设置配置项
@@ -51,7 +51,7 @@ pub async fn mh_set_self_config(window: Window, keys: Vec<String>, value: Value)
 #[tauri::command]
 pub async fn mh_delete_self_config(window: Window, keys: Vec<String>) -> Result<(), String> {
     let window_id = window.label();
-    let config_path = get_config_path(window_id)?;
+    let config_path = get_self_config_path(window_id)?;
     
     if keys.is_empty() {
         // 删除整个配置文件
@@ -79,7 +79,7 @@ pub async fn mh_delete_self_config(window: Window, keys: Vec<String>) -> Result<
 }
 
 // 获取配置文件路径
-fn get_config_path(window_id: &str) -> Result<PathBuf, String> {
+fn get_self_config_path(window_id: &str) -> Result<PathBuf, String> {
     if window_id.is_empty() || !window_id.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
         return Err("Invalid window ID, must contain only alphanumeric characters, hyphens, or underscores.".to_string());
     }

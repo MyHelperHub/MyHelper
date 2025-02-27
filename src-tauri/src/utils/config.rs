@@ -11,6 +11,7 @@ pub fn get_config_path(config_type: &str) -> Result<PathBuf, String> {
     let myhelper_path = get_myhelper_path()?;
     let file_name = match config_type {
         "config" => "config.json",
+        // plugin这个暂时用不到，暂存下以后可能会拓展
         "plugin" => "plugin.json",
         _ => return Err("Invalid config type".to_string()),
     };

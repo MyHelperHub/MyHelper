@@ -63,29 +63,64 @@ pub fn query_plugin_ids() -> AppResult<HashSet<String>> {
     Ok(window_ids)
 }
 
-/// 根据 window_id 删除插件配置
-pub fn remove_plugin_config(window_id: &str) -> AppResult<()> {
-    let conn = get_connection().lock().unwrap();
-    conn.execute(
-        "DELETE FROM plugin_config WHERE window_id = ?1",
-        params![window_id]
-    ).map_err(|e| AppError::Error(format!("删除插件配置失败: {}", e)))?;
-    Ok(())
-}
-
-/// 插入新的插件配置
+/// 批量插入插件配置
 /// 
 /// # Arguments
 /// 
-/// * `window_id` - 插件ID
-/// * `info` - 插件信息
-/// * `config` - 插件配置
-/// * `data` - 插件数据
-pub fn insert_plugin_config(window_id: String, info: String, config: String, data: String) -> AppResult<()> {
-    let conn = get_connection().lock().unwrap();
-    conn.execute(
-        "INSERT INTO plugin_config (window_id, info, config, data) VALUES (?1, ?2, ?3, ?4)",
-        params![window_id, info, config, data]
-    ).map_err(|e| AppError::Error(format!("插入插件配置失败: {}", e)))?;
+/// * `configs` - 插件配置数组，每项包含 (window_id, info, config, data)
+/// 
+/// # Returns
+/// 
+/// * `AppResult<()>` - 操作结果
+pub fn batch_insert_plugin_configs(configs: &[(String, String, String, String)]) -> AppResult<()> {
+    if configs.is_empty() {
+        return Ok(());
+    }
+    
+    let mut conn = get_connection().lock().unwrap();
+    let tx = conn.transaction()
+        .map_err(|e| AppError::Error(format!("创建事务失败: {}", e)))?;
+    
+    {
+        let mut stmt = tx.prepare_cached(
+            "INSERT INTO plugin_config (window_id, info, config, data) VALUES (?1, ?2, ?3, ?4)"
+        ).map_err(|e| AppError::Error(format!("准备语句失败: {}", e)))?;
+        
+        for (window_id, info, config, data) in configs {
+            stmt.execute(params![window_id, info, config, data])
+                .map_err(|e| AppError::Error(format!("插入插件配置失败: {}", e)))?;
+        }
+    }
+    
+    tx.commit().map_err(|e| AppError::Error(format!("提交事务失败: {}", e)))?;
+    Ok(())
+}
+
+/// 批量删除插件配置
+/// 
+/// # Arguments
+/// 
+/// * `window_ids` - 要删除的插件ID数组
+/// 
+/// # Returns
+/// 
+/// * `AppResult<()>` - 操作结果
+pub fn batch_remove_plugin_configs(window_ids: &[String]) -> AppResult<()> {
+    if window_ids.is_empty() {
+        return Ok(());
+    }
+    
+    let mut conn = get_connection().lock().unwrap();
+    let tx = conn.transaction()
+        .map_err(|e| AppError::Error(format!("创建事务失败: {}", e)))?;
+    
+    for window_id in window_ids {
+        tx.execute(
+            "DELETE FROM plugin_config WHERE window_id = ?1",
+            params![window_id]
+        ).map_err(|e| AppError::Error(format!("删除插件配置失败: {}", e)))?;
+    }
+    
+    tx.commit().map_err(|e| AppError::Error(format!("提交事务失败: {}", e)))?;
     Ok(())
 } 

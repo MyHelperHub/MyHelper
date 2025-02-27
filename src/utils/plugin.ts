@@ -3,7 +3,6 @@ import {
   ipcUninstallPlugin,
 } from "@/api/ipc/plugin.api";
 import { ipcGetPluginConfigValue, ipcSetPluginConfigValue, ipcDeletePluginConfigValue } from "@/api/ipc/database.api";
-import { PluginConfig } from "@/interface/plugin";
 
 interface PluginConfigData {
   windowId: string;
@@ -19,8 +18,6 @@ type PluginConfigOrEmpty = PluginConfigData | {
   data: Record<string, any>;
   [key: string]: any;
 };
-
-const PLUGIN_LIST_KEY = 'pluginList';
 
 /**
  * 获取插件配置数据
