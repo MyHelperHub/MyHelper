@@ -22,7 +22,7 @@ use clipboard_rs::{
     ContentFormat, WatcherShutdown,
 };
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex;
+use parking_lot::Mutex;
 use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
@@ -100,7 +100,7 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
         .map_err(|e| AppError::Error(format!("Failed to create clipboard watcher: {}", e)))?;
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
-    *WATCHER_SHUTDOWN.lock().unwrap() = Some(watcher_shutdown);
+    *WATCHER_SHUTDOWN.lock() = Some(watcher_shutdown);
 
     watcher.start_watch();
     Ok(())
@@ -112,7 +112,7 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
 #[tauri::command]
 pub async fn stop_clipboard_listener() -> AppResult<()> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        let mut shutdown_lock = WATCHER_SHUTDOWN.lock().unwrap();
+        let mut shutdown_lock = WATCHER_SHUTDOWN.lock();
         if let Some(shutdown) = shutdown_lock.take() {
             shutdown.stop();
         }

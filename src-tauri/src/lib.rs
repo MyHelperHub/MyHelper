@@ -5,11 +5,13 @@ mod utils;
 use crate::utils::config::utils_set_config;
 use crate::utils::database::init_database;
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::hotkey::init_hotkeys;
 use command::*;
 use mh_plugin::*;
 use serde_json::json;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::Arc;
+use parking_lot::{Mutex, RwLock};
 use std::time::{Duration, Instant};
 use tauri::image::Image;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
@@ -96,9 +98,7 @@ fn setup_window(
     window: &Arc<RwLock<tauri::WebviewWindow>>,
     position: LogicalPosition<f64>,
 ) -> AppResult<()> {
-    let window_write = window
-        .write()
-        .map_err(|_| AppError::Error("无法获取窗口写锁".into()))?;
+    let window_write = window.write();
     window_write
         .set_position(position)
         .map_err(|e| AppError::Error(e.to_string()))?;
@@ -110,9 +110,7 @@ fn setup_window(
 
 // 辅助函数：设置窗口事件
 fn setup_window_events(window: &Arc<RwLock<tauri::WebviewWindow>>) -> AppResult<()> {
-    let window_read = window
-        .read()
-        .map_err(|_| AppError::Error("无法获取窗口读锁".into()))?;
+    let window_read = window.read();
     let window_clone = Arc::clone(window);
 
     // 创建移动窗口时所需的时间记录
@@ -124,22 +122,20 @@ fn setup_window_events(window: &Arc<RwLock<tauri::WebviewWindow>>) -> AppResult<
             let window_inner = Arc::clone(&window_clone);
 
             // 更新最后移动时间
-            *last_move_time_clone.lock().unwrap() = Instant::now();
+            *last_move_time_clone.lock() = Instant::now();
 
             // 创建新线程处理位置保存
             std::thread::spawn(move || {
                 std::thread::sleep(Duration::from_millis(100));
-                if last_move_time_clone.lock().unwrap().elapsed() >= Duration::from_millis(100) {
-                    if let Ok(window) = window_inner.read() {
-                        if let Ok(position) = window.outer_position() {
-                            let mut data = HashMap::new();
-                            data.insert(
-                                "position".to_string(),
-                                json!({"x": position.x, "y": position.y}),
-                            );
-                            if let Err(e) = utils_set_config("config", data) {
-                                eprintln!("保存位置时出错: {}", e);
-                            }
+                if last_move_time_clone.lock().elapsed() >= Duration::from_millis(100) {
+                    if let Ok(position) = window_inner.read().outer_position() {
+                        let mut data = HashMap::new();
+                        data.insert(
+                            "position".to_string(),
+                            json!({"x": position.x, "y": position.y}),
+                        );
+                        if let Err(e) = utils_set_config("config", data) {
+                            eprintln!("保存位置时出错: {}", e);
                         }
                     }
                 }
@@ -196,11 +192,10 @@ fn setup_tray<R: Runtime>(
         .on_menu_event(move |app, event| match event.id().as_ref() {
             "exit" => app.exit(0),
             "show" => {
-                if let Ok(window) = window_for_menu.read() {
-                    let _ = window.unminimize();
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                }
+                let window = window_for_menu.read();
+                let _ = window.unminimize();
+                let _ = window.show();
+                let _ = window.set_focus();
             }
             _ => (),
         })
@@ -250,6 +245,9 @@ pub fn run() {
             setup_window_events(&window)?;
             setup_tray(app, &window)?;
             init()?;
+            
+            // 初始化全局快捷键
+            init_hotkeys(&app.app_handle())?;
 
             Ok(())
         })

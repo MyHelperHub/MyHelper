@@ -5,7 +5,7 @@ use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{msg_send, sel, sel_impl};
 use std::ffi::CStr;
-use std::sync::Mutex;
+use parking_lot::Mutex;
 use std::thread;
 
 static PREVIOUS_WINDOW: Mutex<Option<i32>> = Mutex::new(None);
@@ -36,7 +36,7 @@ extern "C" fn application_did_activate(_self: &Object, _cmd: Sel, notification: 
 
         let process_id: i32 = msg_send![app, processIdentifier];
 
-        let mut previous_window = PREVIOUS_WINDOW.lock().unwrap();
+        let mut previous_window = PREVIOUS_WINDOW.lock();
         let _ = previous_window.insert(process_id);
     }
 }
@@ -75,9 +75,5 @@ pub fn observe_app() -> AppResult<()> {
 
 /// 获取前一个窗口的进程ID
 pub fn get_previous_window() -> Option<i32> {
-    PREVIOUS_WINDOW
-        .lock()
-        .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
-        .ok()?
-        .clone()
+    PREVIOUS_WINDOW.lock().clone()
 }

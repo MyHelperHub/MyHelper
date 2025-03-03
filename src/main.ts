@@ -24,6 +24,7 @@ import { getUserConfig } from "./utils/user";
 import GlobalData from "./utils/globalData";
 import { User } from "./interface/user";
 import { ErrorHandler } from "./utils/errorHandler";
+import { initHotkeyListener } from "./utils/hotkey";
 
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
@@ -58,6 +59,9 @@ if (Window.getCurrent().label === "main") {
       } else {
         await GlobalData.set("userInfo", userConfig as User);
       }
+      
+      // 初始化快捷键监听器
+      await initHotkeyListener();
     } catch (error) {
       console.error("初始化失败:", error);
     }

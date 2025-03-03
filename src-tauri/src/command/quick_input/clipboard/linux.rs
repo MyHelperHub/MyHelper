@@ -1,5 +1,5 @@
 use crate::utils::error::{AppError, AppResult};
-use std::sync::Mutex;
+use parking_lot::Mutex;
 use x11::xlib::{
     self, Atom, Display, XDefaultRootWindow, XFree, XGetInputFocus, XGetWindowProperty,
     XInternAtom, XNextEvent, XOpenDisplay, XSelectInput,
@@ -78,7 +78,7 @@ pub fn observe_app() -> AppResult<()> {
                 continue;
             }
 
-            let mut previous_window = PREVIOUS_WINDOW.lock().unwrap();
+            let mut previous_window = PREVIOUS_WINDOW.lock();
             let _ = previous_window.insert(window);
         }
     });
@@ -87,9 +87,5 @@ pub fn observe_app() -> AppResult<()> {
 
 /// 获取前一个窗口的ID
 pub fn get_previous_window() -> Option<u64> {
-    PREVIOUS_WINDOW
-        .lock()
-        .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
-        .ok()?
-        .clone()
+    PREVIOUS_WINDOW.lock().clone()
 }

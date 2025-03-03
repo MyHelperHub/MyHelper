@@ -2,7 +2,7 @@ use crate::utils::error::{AppError, AppResult};
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 use std::ptr;
-use std::sync::Mutex;
+use parking_lot::Mutex;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::windef::{HWINEVENTHOOK, HWND};
 use winapi::um::winuser::{
@@ -45,7 +45,7 @@ unsafe extern "system" fn event_hook_callback(
             return;
         }
 
-        let mut previous_window = PREVIOUS_WINDOW.lock().unwrap();
+        let mut previous_window = PREVIOUS_WINDOW.lock();
         let _ = previous_window.insert(hwnd as isize);
     }
 }
@@ -70,9 +70,5 @@ pub fn observe_app() -> AppResult<()> {
 }
 
 pub fn get_previous_window() -> Option<isize> {
-    PREVIOUS_WINDOW
-        .lock()
-        .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
-        .ok()?
-        .clone()
+    PREVIOUS_WINDOW.lock().clone()
 }

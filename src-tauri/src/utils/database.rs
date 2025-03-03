@@ -3,10 +3,10 @@ use crate::utils::path::get_myhelper_path;
 use rusqlite::{params, Connection, Result};
 use std::collections::HashSet;
 use std::path::PathBuf;
-use std::sync::Mutex;
-use std::sync::OnceLock;
+use parking_lot::Mutex;
+use once_cell::sync::OnceCell;
 
-static DB_INSTANCE: OnceLock<Mutex<Connection>> = OnceLock::new();
+static DB_INSTANCE: OnceCell<Mutex<Connection>> = OnceCell::new();
 
 pub fn init_database() -> Result<()> {
     let app_dir =
@@ -52,7 +52,7 @@ pub fn get_connection() -> &'static Mutex<Connection> {
 
 /// 从数据库中查询所有插件的 window_id
 pub fn query_plugin_ids() -> AppResult<HashSet<String>> {
-    let conn = get_connection().lock().unwrap();
+    let conn = get_connection().lock();
     let mut stmt = conn
         .prepare_cached("SELECT window_id FROM plugin_config")
         .map_err(|e| AppError::Error(format!("准备查询语句失败: {}", e)))?;
@@ -80,7 +80,7 @@ pub fn batch_insert_plugin_configs(configs: &[(String, String, String, String)])
         return Ok(());
     }
 
-    let mut conn = get_connection().lock().unwrap();
+    let mut conn = get_connection().lock();
     let tx = conn
         .transaction()
         .map_err(|e| AppError::Error(format!("创建事务失败: {}", e)))?;
@@ -117,7 +117,7 @@ pub fn batch_remove_plugin_configs(window_ids: &[String]) -> AppResult<()> {
         return Ok(());
     }
 
-    let mut conn = get_connection().lock().unwrap();
+    let mut conn = get_connection().lock();
     let tx = conn
         .transaction()
         .map_err(|e| AppError::Error(format!("创建事务失败: {}", e)))?;

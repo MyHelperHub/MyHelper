@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 #[tauri::command]
 pub fn set_config_value(key: &str, value: Value) -> AppResult<()> {
     let conn = get_connection();
-    let conn = conn.lock().unwrap();
+    let conn = conn.lock();
 
     let json_value = serde_json::to_string(&value)
         .map_err(|e| AppError::Error(format!("序列化配置值失败: {}", e)))?;
@@ -24,7 +24,7 @@ pub fn set_config_value(key: &str, value: Value) -> AppResult<()> {
 #[tauri::command]
 pub fn get_config_value(key: &str) -> AppResult<Option<Value>> {
     let conn = get_connection();
-    let conn = conn.lock().unwrap();
+    let conn = conn.lock();
 
     let mut stmt = conn
         .prepare("SELECT value FROM config WHERE key = ?1")
@@ -53,7 +53,7 @@ pub fn get_config_value(key: &str) -> AppResult<Option<Value>> {
 #[tauri::command]
 pub fn delete_config_value(key: &str) -> AppResult<()> {
     let conn = get_connection();
-    let conn = conn.lock().unwrap();
+    let conn = conn.lock();
 
     if key.is_empty() {
         conn.execute("DELETE FROM config", [])
@@ -75,7 +75,7 @@ pub fn set_plugin_config_value(
     data: Value,
 ) -> AppResult<()> {
     let conn = get_connection();
-    let conn = conn.lock().unwrap();
+    let conn = conn.lock();
 
     let info_str = serde_json::to_string(&info)
         .map_err(|e| AppError::Error(format!("序列化info失败: {}", e)))?;
@@ -97,7 +97,7 @@ pub fn set_plugin_config_value(
 #[tauri::command]
 pub fn get_plugin_config_value(window_id: Option<&str>) -> AppResult<Vec<Value>> {
     let conn = get_connection();
-    let conn = conn.lock().unwrap();
+    let conn = conn.lock();
 
     let mut stmt = if let Some(_id) = window_id {
         conn.prepare("SELECT window_id, info, config, data FROM plugin_config WHERE window_id = ?1")
@@ -155,7 +155,7 @@ pub fn get_plugin_config_value(window_id: Option<&str>) -> AppResult<Vec<Value>>
 #[tauri::command]
 pub fn delete_plugin_config_value(window_id: Option<&str>) -> AppResult<()> {
     let conn = get_connection();
-    let conn = conn.lock().unwrap();
+    let conn = conn.lock();
 
     if let Some(id) = window_id {
         conn.execute("DELETE FROM plugin_config WHERE window_id = ?1", [id])
