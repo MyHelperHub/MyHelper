@@ -5,13 +5,12 @@ mod utils;
 use crate::utils::config::utils_set_config;
 use crate::utils::database::init_database;
 use crate::utils::error::{AppError, AppResult};
-use crate::utils::hotkey::init_hotkeys;
 use command::*;
 use mh_plugin::*;
+use parking_lot::{Mutex, RwLock};
 use serde_json::json;
 use std::collections::HashMap;
 use std::sync::Arc;
-use parking_lot::{Mutex, RwLock};
 use std::time::{Duration, Instant};
 use tauri::image::Image;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
@@ -245,9 +244,6 @@ pub fn run() {
             setup_window_events(&window)?;
             setup_tray(app, &window)?;
             init()?;
-            
-            // 初始化全局快捷键
-            init_hotkeys(&app.app_handle())?;
 
             Ok(())
         })
@@ -288,7 +284,7 @@ pub fn run() {
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(utils::hotkey::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .run(tauri::generate_context!())
     {
