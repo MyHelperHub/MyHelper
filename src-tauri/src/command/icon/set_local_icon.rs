@@ -8,8 +8,8 @@ use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
 
-use crate::utils::path::get_myhelper_path;
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::path::get_myhelper_path;
 
 /**
  * 设置本地图标
@@ -108,8 +108,7 @@ fn load_image_from_base64(base64_str: &str) -> Result<DynamicImage, AppError> {
     let decoded_data = STANDARD
         .decode(base64_str)
         .map_err(|e| AppError::Error(e.to_string()))?;
-    let img =
-        image::load_from_memory(&decoded_data).map_err(|e| AppError::Error(e.to_string()))?;
+    let img = image::load_from_memory(&decoded_data).map_err(|e| AppError::Error(e.to_string()))?;
     Ok(img)
 }
 

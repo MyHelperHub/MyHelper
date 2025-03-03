@@ -1,39 +1,39 @@
-use crate::utils::error::{AppError, AppResult};
 use crate::utils::config::{utils_get_config, utils_set_config};
+use crate::utils::error::{AppError, AppResult};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 
 /// 获取配置数据
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `keys` - 配置键的路径，以数组形式表示嵌套层级
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `AppResult<Option<Value>>` - 成功返回配置值，失败返回错误信息
 
-#[permission_macro::permission("main","setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
-    utils_get_config("config",keys).map_err(|e| AppError::Error(e))
+    utils_get_config("config", keys).map_err(|e| AppError::Error(e))
 }
 
 /// 保存配置数据
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `keys` - 配置键的路径，以数组形式表示嵌套层级
 /// * `value` - 要设置的配置值
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
 
-#[permission_macro::permission("main","setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
-    let mut config_data = utils_get_config("config",vec![])
+    let mut config_data = utils_get_config("config", vec![])
         .map_err(|e| AppError::Error(e))?
         .unwrap_or_default();
 
@@ -52,9 +52,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
                     map.insert(key, value);
                 }
                 _ => {
-                    return Err(AppError::Error(
-                        "无法更新非对象类型的配置数据".to_string(),
-                    ));
+                    return Err(AppError::Error("无法更新非对象类型的配置数据".to_string()));
                 }
             }
         } else {
@@ -70,10 +68,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
             if let Value::Object(_) = nested_data {
                 update_nested_value(nested_data, &keys[1..], value)?;
             } else {
-                return Err(AppError::Error(format!(
-                    "配置中键 {} 的类型不是对象",
-                    key
-                )));
+                return Err(AppError::Error(format!("配置中键 {} 的类型不是对象", key)));
             }
         }
 
@@ -90,23 +85,23 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
         .into_iter()
         .collect();
 
-    utils_set_config("config",config_hashmap).map_err(|e| AppError::Error(e))
+    utils_set_config("config", config_hashmap).map_err(|e| AppError::Error(e))
 }
 
 /// 删除配置数据
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `keys` - 要删除的配置键路径，空数组表示删除所有配置
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
 
-#[permission_macro::permission("main","setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
-    let mut data = utils_get_config("config",vec![])
+    let mut data = utils_get_config("config", vec![])
         .map_err(|e| AppError::Error(e))?
         .unwrap_or_default();
 
@@ -169,5 +164,5 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
         .into_iter()
         .collect();
 
-    utils_set_config("config",config_hashmap).map_err(|e| AppError::Error(e))
+    utils_set_config("config", config_hashmap).map_err(|e| AppError::Error(e))
 }

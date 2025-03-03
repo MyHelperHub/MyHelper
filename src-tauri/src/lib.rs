@@ -3,8 +3,8 @@ mod mh_plugin;
 mod utils;
 
 use crate::utils::config::utils_set_config;
-use crate::utils::error::{AppError, AppResult};
 use crate::utils::database::init_database;
+use crate::utils::error::{AppError, AppResult};
 use command::*;
 use mh_plugin::*;
 use serde_json::json;
@@ -237,7 +237,6 @@ fn setup_tray<R: Runtime>(
 pub fn run() {
     if let Err(e) = tauri::Builder::default()
         .manage(Arc::new(GlobalData::default()))
-        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let window = app
                 .get_webview_window("main")
@@ -291,7 +290,10 @@ pub fn run() {
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
-        .run(tauri::generate_context!()) {
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .run(tauri::generate_context!())
+    {
         eprintln!("MyHelper启动失败: {}", e);
         std::process::exit(1);
     }

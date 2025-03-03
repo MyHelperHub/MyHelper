@@ -7,19 +7,31 @@ use image::ImageEncoder;
 use scraper::{Html, Selector};
 use url::Url;
 
-use crate::utils::path::get_myhelper_path;
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::path::get_myhelper_path;
 use crate::utils::reqwest::create_web_client;
 
 const ICON_SELECTORS: &[(&str, &str)] = &[
-    ("link[rel='apple-touch-icon-precomposed'][sizes='180x180']", "href"),
-    ("link[rel='apple-touch-icon-precomposed'][sizes='192x192']", "href"),
+    (
+        "link[rel='apple-touch-icon-precomposed'][sizes='180x180']",
+        "href",
+    ),
+    (
+        "link[rel='apple-touch-icon-precomposed'][sizes='192x192']",
+        "href",
+    ),
     ("link[rel='apple-touch-icon-precomposed']", "href"),
     ("link[rel='apple-touch-icon'][sizes='180x180']", "href"),
     ("link[rel='apple-touch-icon'][sizes='192x192']", "href"),
     ("link[rel='apple-touch-icon']", "href"),
-    ("link[rel='icon'][type='image/png'][sizes='192x192']", "href"),
-    ("link[rel='icon'][type='image/png'][sizes='128x128']", "href"),
+    (
+        "link[rel='icon'][type='image/png'][sizes='192x192']",
+        "href",
+    ),
+    (
+        "link[rel='icon'][type='image/png'][sizes='128x128']",
+        "href",
+    ),
     ("link[rel='icon'][type='image/png']", "href"),
     ("link[rel='icon'][type='image/x-icon']", "href"),
     ("link[rel='shortcut icon']", "href"),
@@ -66,8 +78,7 @@ async fn try_load_icon(client: &reqwest::Client, url: &str) -> Result<Option<Vec
 
 fn save_icon(img: image::DynamicImage, output_path: &PathBuf) -> Result<String, IconError> {
     let resized_img = img.resize_exact(ICON_SIZE, ICON_SIZE, image::imageops::FilterType::Lanczos3);
-    let output_file = File::create(output_path)
-        .map_err(|e| IconError::IoError(e.to_string()))?;
+    let output_file = File::create(output_path).map_err(|e| IconError::IoError(e.to_string()))?;
     let writer = BufWriter::new(output_file);
 
     let encoder = PngEncoder::new(writer);
@@ -101,13 +112,13 @@ fn extract_icon_urls(html: &str) -> Vec<String> {
 }
 
 /// 获取网站图标
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `url` - 网站URL
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `AppResult<String>` - 成功返回保存的图标文件路径
 #[tauri::command]
 pub async fn get_web_icon(url: String) -> AppResult<String> {
@@ -119,8 +130,7 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
     };
 
     // 解析网站 URL
-    let url = Url::parse(&url)
-        .map_err(|e| IconError::ParseError(format!("Invalid URL: {}", e)))?;
+    let url = Url::parse(&url).map_err(|e| IconError::ParseError(format!("Invalid URL: {}", e)))?;
     let domain = url
         .host_str()
         .ok_or_else(|| IconError::ParseError("Invalid URL: no host found".to_string()))?
@@ -131,8 +141,7 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
         .map(|path| path.join("Image").join("WebIcon"))
         .map_err(IconError::IoError)?;
     if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path)
-            .map_err(|e| IconError::IoError(e.to_string()))?;
+        fs::create_dir_all(&myhelper_path).map_err(|e| IconError::IoError(e.to_string()))?;
     }
 
     let output_path = myhelper_path.join(format!("{}.png", domain));
@@ -149,15 +158,15 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
 
     // 尝试从 HTML 中查找图标
     let html = match client.get(url.as_str()).send().await {
-        Ok(response) if response.status().is_success() => {
-            match response.text().await {
-                Ok(text) => text,
-                Err(e) => {
-                    println!("Failed to get HTML content: {}", e);
-                    return Err(IconError::NetworkError("Failed to get HTML content".to_string()).into());
-                }
+        Ok(response) if response.status().is_success() => match response.text().await {
+            Ok(text) => text,
+            Err(e) => {
+                println!("Failed to get HTML content: {}", e);
+                return Err(
+                    IconError::NetworkError("Failed to get HTML content".to_string()).into(),
+                );
             }
-        }
+        },
         Ok(_) => return Err(IconError::NetworkError("Failed to get webpage".to_string()).into()),
         Err(e) if e.is_timeout() => {
             return Err(IconError::NetworkError("Request timeout".to_string()).into());
@@ -169,7 +178,7 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
 
     // 在同步代码中提取所有可能图标URL
     let icon_urls = extract_icon_urls(&html);
-    
+
     // 异步尝试获取每个图标
     for href in icon_urls {
         let icon_url = if href.starts_with("http") {

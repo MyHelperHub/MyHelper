@@ -41,8 +41,8 @@ import Drawer from "primevue/drawer";
 import { ref } from "vue";
 import type { PluginConfig } from "@/interface/plugin";
 import { getPluginConfig } from "@/utils/plugin";
-import { invoke } from "@tauri-apps/api/core";
 import { showMessage } from "@/utils/message";
+import { ipcFileExists } from "@/api/ipc/launch.api";
 
 const popoverRef = ref(false);
 const pluginList = ref<PluginConfig[]>([]);
@@ -64,9 +64,7 @@ const handleClick = async (item: PluginConfig) => {
     }
 
     // 检查插件的 index.html 文件是否存在
-    const exists = await invoke<boolean>("file_exists", { 
-      path: item.data.url
-    });
+   const exists = await ipcFileExists(item.data.url);
 
     if (!exists) {
       showMessage("插件文件不存在，请重新安装插件", 3000, 2);

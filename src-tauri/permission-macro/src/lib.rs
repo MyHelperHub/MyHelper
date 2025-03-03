@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, LitStr, parse::Parse, parse::ParseStream, Token, FnArg, Pat};
 use syn::punctuated::Punctuated;
+use syn::{parse::Parse, parse::ParseStream, parse_macro_input, FnArg, LitStr, Pat, Token};
 
 // 定义一个解析多个字符串的结构
 struct PermissionInput {
@@ -17,7 +17,7 @@ impl Parse for PermissionInput {
 }
 
 /// 窗口权限检查宏
-/// 
+///
 /// # 示例
 /// ```rust
 /// #[permission("main", "label")]  // 允许 main 和 label 窗口调用
@@ -30,13 +30,10 @@ impl Parse for PermissionInput {
 pub fn permission(attr: TokenStream, item: TokenStream) -> TokenStream {
     // 解析属性中的窗口标识列表
     let input = parse_macro_input!(attr as PermissionInput);
-    let window_labels: Vec<String> = input.windows
-        .iter()
-        .map(|lit| lit.value())
-        .collect();
-    
+    let window_labels: Vec<String> = input.windows.iter().map(|lit| lit.value()).collect();
+
     let input_fn = parse_macro_input!(item as syn::ItemFn);
-    
+
     // 检查函数参数中是否已经有 window 参数
     let has_window_param = input_fn.sig.inputs.iter().any(|arg| {
         if let FnArg::Typed(pat_type) = arg {
@@ -67,7 +64,7 @@ pub fn permission(attr: TokenStream, item: TokenStream) -> TokenStream {
                         format!("该窗口没有权限执行此操作")
                     ));
                 }
-                
+
                 // 执行原始函数体
                 #fn_body
             }
@@ -84,7 +81,7 @@ pub fn permission(attr: TokenStream, item: TokenStream) -> TokenStream {
                         format!("该窗口没有权限执行此操作")
                     ));
                 }
-                
+
                 // 执行原始函数体
                 #fn_body
             }

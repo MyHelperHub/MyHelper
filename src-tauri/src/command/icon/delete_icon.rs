@@ -1,6 +1,6 @@
+use crate::utils::error::{AppError, AppResult};
 use crate::utils::path::get_myhelper_path;
 use std::fs;
-use crate::utils::error::{AppError, AppResult};
 
 /**
  * 删除本地图标

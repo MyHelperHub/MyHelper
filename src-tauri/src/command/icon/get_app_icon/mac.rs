@@ -1,28 +1,26 @@
-use std::path::Path;
 use std::fs::{self, File};
 use std::io::BufWriter;
+use std::path::Path;
 
-use objc2::ClassType;
-use objc2_app_kit::{
-    NSBitmapImageRep, NSCompositingOperation, NSGraphicsContext, NSWorkspace,
-};
-use objc2_foundation::{CGPoint, CGRect, CGSize, NSString};
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
-use rand::{thread_rng, Rng};
+use objc2::ClassType;
+use objc2_app_kit::{NSBitmapImageRep, NSCompositingOperation, NSGraphicsContext, NSWorkspace};
+use objc2_foundation::{CGPoint, CGRect, CGSize, NSString};
 use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 
-use crate::utils::path::get_myhelper_path;
 use crate::utils::error::AppResult;
+use crate::utils::path::get_myhelper_path;
 
 /// 获取应用程序图标
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `exe_path` - 应用程序可执行文件路径
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `AppResult<String>` - 成功返回保存的图标文件路径
 pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 检查路径是否存在
@@ -36,8 +34,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         .map_err(|e| e.to_string())?;
 
     if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path)
-            .map_err(|e| e.to_string())?;
+        fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
     }
 
     // 生成随机文件名
@@ -53,7 +50,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         Ok(p) => p,
         Err(_) => return Ok(String::new()),
     };
-    
+
     let file_path = match path.to_str() {
         Some(p) => NSString::from_str(p),
         None => return Ok(String::new()),
@@ -92,9 +89,8 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     };
 
     // 创建图形上下文
-    let context = match unsafe {
-        NSGraphicsContext::graphicsContextWithBitmapImageRep(&bitmap_rep)
-    } {
+    let context = match unsafe { NSGraphicsContext::graphicsContextWithBitmapImageRep(&bitmap_rep) }
+    {
         Some(ctx) => ctx,
         None => return Ok(String::new()),
     };
@@ -130,12 +126,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         let writer = BufWriter::new(output_file);
         let encoder = PngEncoder::new(writer);
 
-        if let Err(_) = encoder.write_image(
-            pixels,
-            128,
-            128,
-            image::ColorType::Rgba8.into(),
-        ) {
+        if let Err(_) = encoder.write_image(pixels, 128, 128, image::ColorType::Rgba8.into()) {
             return Ok(String::new());
         }
     }

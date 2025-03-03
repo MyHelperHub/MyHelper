@@ -1,7 +1,7 @@
+use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+use reqwest::{Client, Proxy};
 use std::env;
 use std::time::Duration;
-use reqwest::{Client, Proxy};
-use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 
 use crate::utils::error::AppError;
 
@@ -9,7 +9,7 @@ const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// 创建一个配置好的 HTTP/HTTPS 客户端
-/// 
+///
 /// 此客户端包含以下配置：
 /// - 支持 HTTP 和 HTTPS 协议
 /// - 用户代理（User-Agent）设置
@@ -23,16 +23,16 @@ const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 ///   - 空闲超时：15秒
 ///   - 每个主机最大空闲连接数：1
 /// - 自动重定向限制：最多10次
-/// 
+///
 /// # Returns
-/// 
+///
 /// * `Result<Client, AppError>` - 成功返回配置好的客户端，失败返回错误
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use crate::utils::http::create_web_client;
-/// 
+///
 /// async fn fetch_data() -> Result<(), AppError> {
 ///     let client = create_web_client()?;
 ///     let response = client.get("https://example.com").send().await?;
@@ -74,4 +74,4 @@ pub fn create_web_client() -> Result<Client, AppError> {
     client_builder
         .build()
         .map_err(|e| AppError::Error(format!("Failed to create HTTP client: {}", e)))
-} 
+}

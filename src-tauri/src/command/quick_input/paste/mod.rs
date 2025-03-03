@@ -17,9 +17,9 @@ pub use win::*;
 pub use linux::*;
 
 /// 等待指定的毫秒数
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `millis` - 等待时间（毫秒）
 #[cfg(not(target_os = "macos"))]
 pub fn wait(millis: u64) {

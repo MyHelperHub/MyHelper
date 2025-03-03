@@ -1,3 +1,4 @@
+use crate::utils::error::{AppError, AppResult};
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 use std::ptr;
@@ -8,7 +9,6 @@ use winapi::um::winuser::{
     GetWindowTextLengthW, GetWindowTextW, SetWinEventHook, EVENT_SYSTEM_FOREGROUND,
     WINEVENT_OUTOFCONTEXT,
 };
-use crate::utils::error::{AppError, AppResult};
 
 static PREVIOUS_WINDOW: Mutex<Option<isize>> = Mutex::new(None);
 
@@ -70,7 +70,8 @@ pub fn observe_app() -> AppResult<()> {
 }
 
 pub fn get_previous_window() -> Option<isize> {
-    PREVIOUS_WINDOW.lock()
+    PREVIOUS_WINDOW
+        .lock()
         .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
         .ok()?
         .clone()

@@ -1,4 +1,6 @@
-use crate::utils::database::{batch_insert_plugin_configs, batch_remove_plugin_configs, query_plugin_ids};
+use crate::utils::database::{
+    batch_insert_plugin_configs, batch_remove_plugin_configs, query_plugin_ids,
+};
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
@@ -7,11 +9,11 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
+use std::sync::Arc;
 use tokio::fs as tokio_fs;
 use tokio::sync::Semaphore;
-use tokio::try_join;
 use tokio::task::JoinSet;
-use std::sync::Arc;
+use tokio::try_join;
 
 // 批处理大小
 const BATCH_SIZE: usize = 100;
@@ -43,16 +45,16 @@ pub async fn sync_plugins() -> AppResult<()> {
     // 一次性读取所有插件记录到内存
     let existing_plugins: HashSet<String> = query_plugin_ids()?;
     let mut processed_plugins = HashSet::new();
-    
+
     // 收集需要插入的插件
     let mut to_insert = Vec::with_capacity(BATCH_SIZE);
-    
+
     // 读取所有目录条目
     let mut entries = Vec::new();
     let mut dir = tokio_fs::read_dir(&plugin_root)
         .await
         .map_err(|e| AppError::from(format!("读取插件目录失败: {}", e)))?;
-        
+
     while let Some(entry) = dir
         .next_entry()
         .await
@@ -60,18 +62,18 @@ pub async fn sync_plugins() -> AppResult<()> {
     {
         entries.push(entry);
     }
-    
+
     // 创建信号量控制并发
     let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT));
-    
+
     // 创建任务集合
     let mut tasks = JoinSet::new();
-    
+
     // 创建任务
     for entry in entries {
         let semaphore = semaphore.clone();
         let existing = existing_plugins.clone();
-        
+
         // 检查目录名是否有效
         let window_id = match entry.file_name().to_str() {
             Some(name)
@@ -92,19 +94,19 @@ pub async fn sync_plugins() -> AppResult<()> {
                 continue;
             }
         };
-        
+
         let plugin_dir = entry.path();
-        
+
         // 添加到任务集合
         tasks.spawn(async move {
             // 获取许可
             let _permit = semaphore.acquire().await.unwrap();
-            
+
             // 处理插件
             process_plugin(&plugin_dir, &window_id, &existing).await
         });
     }
-    
+
     // 处理任务结果
     while let Some(result) = tasks.join_next().await {
         if let Ok(Ok(Some((window_id, info, config, data)))) = result {
@@ -119,11 +121,11 @@ pub async fn sync_plugins() -> AppResult<()> {
                 })
                 .await
                 .map_err(|e| AppError::Error(format!("序列化任务失败: {}", e)))?;
-                
+
                 // 检查序列化结果
                 if !info_str.is_empty() && !config_str.is_empty() {
                     to_insert.push((window_id.clone(), info_str, config_str, data_str));
-                    
+
                     // 批量处理插入操作
                     if to_insert.len() >= BATCH_SIZE {
                         batch_insert_plugin_configs(&to_insert)?;
@@ -134,18 +136,18 @@ pub async fn sync_plugins() -> AppResult<()> {
             processed_plugins.insert(window_id);
         }
     }
-    
+
     // 处理剩余的插入操作
     if !to_insert.is_empty() {
         batch_insert_plugin_configs(&to_insert)?;
     }
-    
+
     // 批量删除不存在的插件记录
     let to_delete: Vec<String> = existing_plugins
         .difference(&processed_plugins)
         .cloned()
         .collect();
-        
+
     if !to_delete.is_empty() {
         for window_id in &to_delete {
             Logger::write_log(LogEntry {
@@ -155,25 +157,28 @@ pub async fn sync_plugins() -> AppResult<()> {
                 details: None,
             })?;
         }
-        
+
         batch_remove_plugin_configs(&to_delete)?;
     }
-    
+
     Logger::write_log(LogEntry {
         level: "info".to_string(),
-        message: format!("插件配置同步完成，共发现 {} 个有效插件", processed_plugins.len()),
+        message: format!(
+            "插件配置同步完成，共发现 {} 个有效插件",
+            processed_plugins.len()
+        ),
         timestamp: String::new(),
         details: None,
     })?;
-    
+
     Ok(())
 }
 
 /// 处理单个插件目录
 async fn process_plugin(
-    plugin_dir: &PathBuf, 
+    plugin_dir: &PathBuf,
     window_id: &str,
-    existing_plugins: &HashSet<String>
+    existing_plugins: &HashSet<String>,
 ) -> AppResult<Option<(String, Value, Value, Value)>> {
     // 检查是否为目录和必要文件
     let (dir_meta, index_exists) = try_join!(
@@ -203,14 +208,16 @@ async fn process_plugin(
                 Ok(file) => file,
                 Err(_) => return String::new(),
             };
-            
+
             let mut buffer = Vec::with_capacity(4096); // 预分配4KB
             match file.read_to_end(&mut buffer) {
                 Ok(_) => String::from_utf8_lossy(&buffer).into_owned(),
                 Err(_) => String::new(),
             }
         }
-    }).await.map_err(|e| AppError::Error(format!("读取配置文件失败: {}", e)))?;
+    })
+    .await
+    .map_err(|e| AppError::Error(format!("读取配置文件失败: {}", e)))?;
 
     // 解析主配置文件
     let mut data: Value = if !config_content.is_empty() {
@@ -262,14 +269,16 @@ async fn process_plugin(
                     Ok(file) => file,
                     Err(_) => return String::new(),
                 };
-                
+
                 let mut buffer = Vec::with_capacity(4096);
                 match file.read_to_end(&mut buffer) {
                     Ok(_) => String::from_utf8_lossy(&buffer).into_owned(),
                     Err(_) => String::new(),
                 }
             }
-        }).await.map_err(|e| AppError::Error(format!("读取初始化文件失败: {}", e)))?;
+        })
+        .await
+        .map_err(|e| AppError::Error(format!("读取初始化文件失败: {}", e)))?;
 
         if !init_content.is_empty() {
             match serde_json::from_str::<Value>(&init_content) {
@@ -283,7 +292,7 @@ async fn process_plugin(
                         .cloned()
                         .unwrap_or_else(|| json!({})),
                 ),
-                Err(_) => (json!({}), json!({}))
+                Err(_) => (json!({}), json!({})),
             }
         } else {
             (json!({}), json!({}))
@@ -294,4 +303,3 @@ async fn process_plugin(
 
     Ok(Some((window_id.to_string(), info, config_value, data)))
 }
-

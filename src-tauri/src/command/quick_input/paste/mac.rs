@@ -24,7 +24,8 @@ fn focus_previous_window() -> AppResult<()> {
 pub async fn paste() -> AppResult<()> {
     focus_previous_window()?;
 
-    let script = r#"osascript -e 'tell application "System Events" to keystroke "v" using command down'"#;
+    let script =
+        r#"osascript -e 'tell application "System Events" to keystroke "v" using command down'"#;
 
     std::process::Command::new("sh")
         .arg("-c")

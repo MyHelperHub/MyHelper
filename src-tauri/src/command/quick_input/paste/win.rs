@@ -1,6 +1,6 @@
+use super::wait;
 use crate::get_previous_window;
 use crate::utils::error::{AppError, AppResult};
-use super::wait;
 use enigo::{
     Direction::{Click, Press, Release},
     Enigo, Key, Keyboard, Settings,
@@ -32,11 +32,14 @@ pub async fn paste() -> AppResult<()> {
 
     wait(100);
 
-    enigo.key(Key::Shift, Press)
+    enigo
+        .key(Key::Shift, Press)
         .map_err(|e| AppError::Error(format!("Failed to press Shift key: {}", e)))?;
-    enigo.key(Key::Other(0x2D), Click)
+    enigo
+        .key(Key::Other(0x2D), Click)
         .map_err(|e| AppError::Error(format!("Failed to press Insert key: {}", e)))?;
-    enigo.key(Key::Shift, Release)
+    enigo
+        .key(Key::Shift, Release)
         .map_err(|e| AppError::Error(format!("Failed to release Shift key: {}", e)))?;
 
     Ok(())

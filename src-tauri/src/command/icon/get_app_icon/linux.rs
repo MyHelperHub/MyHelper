@@ -1,17 +1,17 @@
-use std::path::Path;
 use std::fs::{self, File};
 use std::io::BufWriter;
+use std::path::Path;
 
-use gio::{prelude::*, File as GioFile, FileQueryInfoFlags, Cancellable};
+use gio::{prelude::*, Cancellable, File as GioFile, FileQueryInfoFlags};
 use gtk::{prelude::IconThemeExt, IconLookupFlags};
-use image::{DynamicImage, ImageBuffer, Rgba};
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
-use rand::{thread_rng, Rng};
+use image::{DynamicImage, ImageBuffer, Rgba};
 use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 
-use crate::utils::path::get_myhelper_path;
 use crate::utils::error::AppResult;
+use crate::utils::path::get_myhelper_path;
 
 /// 获取应用程序图标
 ///
@@ -34,8 +34,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         .map_err(|e| e.to_string())?;
 
     if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path)
-            .map_err(|e| e.to_string())?;
+        fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
     }
 
     // 生成随机文件名
@@ -63,7 +62,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         Some(ct) => ct,
         None => return Ok(String::new()),
     };
-    
+
     let icon = gio::functions::content_type_get_icon(&content_type);
 
     // 获取图标数据
@@ -85,7 +84,11 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         // 如果没有找到图标，尝试使用通用可执行文件图标
         if pb.is_none() {
             pb = icon_theme
-                .load_icon("application-x-executable", 128, IconLookupFlags::GENERIC_FALLBACK)
+                .load_icon(
+                    "application-x-executable",
+                    128,
+                    IconLookupFlags::GENERIC_FALLBACK,
+                )
                 .ok()
                 .flatten();
         }

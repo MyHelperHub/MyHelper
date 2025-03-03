@@ -75,7 +75,8 @@ pub fn observe_app() -> AppResult<()> {
 
 /// 获取前一个窗口的进程ID
 pub fn get_previous_window() -> Option<i32> {
-    PREVIOUS_WINDOW.lock()
+    PREVIOUS_WINDOW
+        .lock()
         .map_err(|_| AppError::Error("Failed to acquire lock".to_string()))
         .ok()?
         .clone()

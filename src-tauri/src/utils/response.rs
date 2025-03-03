@@ -11,12 +11,12 @@ pub struct ApiResponse<T> {
 }
 
 // 错误码定义
-pub const SUCCESS: i32 = 0;         // 成功
-pub const ERR_SYSTEM: i32 = 1001;   // 系统错误
+pub const SUCCESS: i32 = 0; // 成功
+pub const ERR_SYSTEM: i32 = 1001; // 系统错误
 #[allow(dead_code)]
-pub const ERR_CONFIG: i32 = 1002;   // 配置错误
+pub const ERR_CONFIG: i32 = 1002; // 配置错误
 #[allow(dead_code)]
-pub const ERR_PARAMS: i32 = 1003;   // 参数错误
+pub const ERR_PARAMS: i32 = 1003; // 参数错误
 
 impl<T> ApiResponse<T> {
     /// 创建成功响应
@@ -56,4 +56,4 @@ impl<T, E: std::fmt::Display> From<Result<T, E>> for ApiResponse<T> {
             Err(e) => ApiResponse::error(ERR_SYSTEM, e.to_string()),
         }
     }
-} 
+}

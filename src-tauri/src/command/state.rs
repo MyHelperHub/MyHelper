@@ -1,16 +1,16 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use tauri::State;
 use crate::utils::error::AppResult;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tauri::State;
+use tokio::sync::Mutex;
 
 #[derive(Default)]
 pub struct GlobalData {
     data: Mutex<HashMap<String, Value>>,
 }
 
-#[permission_macro::permission("main","setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub async fn set_global_data(
     state: State<'_, Arc<GlobalData>>,
@@ -22,7 +22,7 @@ pub async fn set_global_data(
     Ok(())
 }
 
-#[permission_macro::permission("main","setting","my","pluginMarket")]
+#[permission_macro::permission("main", "setting", "my", "pluginMarket")]
 #[tauri::command]
 pub async fn get_global_data(
     state: State<'_, Arc<GlobalData>>,
@@ -35,12 +35,9 @@ pub async fn get_global_data(
     }
 }
 
-#[permission_macro::permission("main","setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub async fn delete_global_data(
-    state: State<'_, Arc<GlobalData>>,
-    key: String,
-) -> AppResult<()> {
+pub async fn delete_global_data(state: State<'_, Arc<GlobalData>>, key: String) -> AppResult<()> {
     let mut data = state.data.lock().await;
     data.remove(&key);
     Ok(())
