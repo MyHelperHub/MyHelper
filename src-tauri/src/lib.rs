@@ -281,6 +281,7 @@ pub fn run() {
             set_plugin_config_value,
             get_plugin_config_value,
             delete_plugin_config_value,
+            set_hotkey_enabled,
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())

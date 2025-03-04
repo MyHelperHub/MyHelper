@@ -18,6 +18,22 @@
       </ToggleSwitch>
     </div>
     <div class="item">
+      <h4>全局快捷键</h4>
+      <ToggleSwitch
+        v-model="settingData.hotkeyEnabled"
+        @change="
+          handleSwitch('hotkeyEnabled', settingData.hotkeyEnabled)
+        ">
+        <template #handle="{ checked }">
+          <i
+            :class="[
+              '!text-xs pi',
+              { 'pi-check': checked, 'pi-times': !checked },
+            ]"></i>
+        </template>
+      </ToggleSwitch>
+    </div>
+    <div class="item">
       <h4>数据重置</h4>
       <div class="item-right" @click="showDataResetModal = true">
         <i class="pi pi-angle-right"></i>
@@ -70,6 +86,7 @@ import { showMessage } from "@/utils/message";
 
 const settingData = ref({
   clipboardListening: false,
+  hotkeyEnabled: false,
 });
 
 const showDataResetModal = ref(false);
@@ -80,7 +97,7 @@ const init = async () => {
   try {
     const config = await getConfig("settingConfig");
     if (config) {
-      settingData.value = config || settingData.value;
+      settingData.value = { ...settingData.value, ...config };
     }
   } catch (error) {
     console.error("获取设置项配置时出错，使用默认值:", error);

@@ -13,7 +13,10 @@
     "primevue",
     "reqwest",
     "speeddial",
+    "tauri",
     "toggleswitch",
+    "Unlisten",
+    "Unlistener",
     "unocss",
     "VITE"
   ],

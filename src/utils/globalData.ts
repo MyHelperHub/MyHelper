@@ -4,6 +4,7 @@ import {
   ipcSetGlobalData,
   ipcDeleteGlobalData,
 } from "@/api/ipc/state.api";
+import { Logger } from "./logger";
 
 class GlobalData {
   // 使用两个Map分别存储响应式和非响应式数据
@@ -47,7 +48,7 @@ class GlobalData {
       await ipcSetGlobalData(key, value);
       return value;
     } catch (error) {
-      console.error("设置全局数据失败:", error);
+      Logger.error("设置全局数据失败:", error);
       throw error;
     }
   }
@@ -81,7 +82,7 @@ class GlobalData {
 
       return value;
     } catch (error) {
-      console.error("获取全局数据失败:", error);
+      Logger.error("获取全局数据失败:", error);
       throw error;
     }
   }
@@ -98,7 +99,7 @@ class GlobalData {
       // 从持久化存储中删除
       await ipcDeleteGlobalData(key);
     } catch (error) {
-      console.error("删除全局数据失败:", error);
+      Logger.error("删除全局数据失败:", error);
       throw error;
     }
   }
