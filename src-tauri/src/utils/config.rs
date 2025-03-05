@@ -1,4 +1,5 @@
 use serde_json::{Map, Value};
+use simd_json;
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{Read, Write};
@@ -30,16 +31,23 @@ pub fn get_config_path(config_type: &str) -> Result<PathBuf, String> {
 fn read_config(config_path: &Path) -> Result<HashMap<String, Value>, String> {
     if config_path.exists() {
         let mut file = File::open(config_path).map_err(|e| e.to_string())?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer)
             .map_err(|e| e.to_string())?;
 
         // 如果文件为空，返回空的 HashMap
-        if contents.trim().is_empty() {
+        if buffer.is_empty() {
             return Ok(HashMap::new());
         }
 
-        serde_json::from_str(&contents).map_err(|e| e.to_string())
+        // 使用simd-json加速解析
+        match simd_json::serde::from_slice::<HashMap<String, Value>>(&mut buffer) {
+            Ok(data) => Ok(data),
+            Err(_) => {
+                // 回退到标准serde_json
+                serde_json::from_slice(&buffer).map_err(|e| e.to_string())
+            }
+        }
     } else {
         Ok(HashMap::new())
     }

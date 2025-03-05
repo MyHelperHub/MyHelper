@@ -1,19 +1,19 @@
 use std::fs::{self, File};
 use std::io::BufWriter;
 use std::path::Path;
+use std::ptr;
 
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
 use image::{DynamicImage, ImageBuffer, Rgba};
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use scopeguard::defer;
 use windows::{
     core::HSTRING,
     Win32::{
         Foundation::SIZE,
         Graphics::{
-            Gdi::DeleteObject,
+            Gdi::{DeleteObject, HGDIOBJ, HPALETTE},
             Imaging::{
                 CLSID_WICImagingFactory, GUID_WICPixelFormat32bppBGRA,
                 GUID_WICPixelFormat32bppRGBA, IWICImagingFactory, WICBitmapUseAlpha, WICRect,
@@ -21,7 +21,8 @@ use windows::{
         },
         System::Com::{CoCreateInstance, CoInitialize, CoUninitialize, CLSCTX_ALL},
         UI::Shell::{
-            IShellItemImageFactory, SHCreateItemFromParsingName, SIIGBF_ICONONLY, SIIGBF_SCALEUP,
+            IShellItemImageFactory, SHCreateItemFromParsingName,
+            SIIGBF_ICONONLY, SIIGBF_SCALEUP,
         },
     },
 };
@@ -65,10 +66,8 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     }
 
     // 生成随机文件名
-    let random_chars: String = thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(6)
-        .map(char::from)
+    let random_chars: String = (0..6)
+        .map(|_| rng().sample(rand::distr::Alphanumeric) as char)
         .collect();
     let output_path = myhelper_path.join(format!("app_image_{}.png", random_chars));
 
@@ -81,7 +80,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     // 获取图标
     let path = HSTRING::from(exe_path);
-    let image_factory: IShellItemImageFactory =
+    let shell_item: IShellItemImageFactory =
         match unsafe { SHCreateItemFromParsingName(&path, None) } {
             Ok(factory) => factory,
             Err(_) => return Ok(String::new()),
@@ -90,7 +89,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let bitmap_size = SIZE { cx: 128, cy: 128 };
 
     let bitmap =
-        match unsafe { image_factory.GetImage(bitmap_size, SIIGBF_ICONONLY | SIIGBF_SCALEUP) } {
+        match unsafe { shell_item.GetImage(bitmap_size, SIIGBF_ICONONLY | SIIGBF_SCALEUP) } {
             Ok(bmp) => bmp,
             Err(_) => return Ok(String::new()),
         };
@@ -98,7 +97,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 确保位图资源被正确释放
     defer! {
         unsafe {
-            let _ = DeleteObject(bitmap);
+            let _ = DeleteObject(HGDIOBJ(bitmap.0));
         }
     }
 
@@ -111,7 +110,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     // 创建位图
     let wic_bitmap =
-        match unsafe { imaging_factory.CreateBitmapFromHBITMAP(bitmap, None, WICBitmapUseAlpha) } {
+        match unsafe { imaging_factory.CreateBitmapFromHBITMAP(bitmap, HPALETTE(ptr::null_mut()), WICBitmapUseAlpha) } {
             Ok(bmp) => bmp,
             Err(_) => return Ok(String::new()),
         };

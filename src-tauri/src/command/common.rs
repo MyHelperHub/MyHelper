@@ -1,3 +1,4 @@
+use crate::utils::app_handle::AppHandleManager;
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::reqwest::create_web_client;
 use serde_json::Value;
@@ -15,15 +16,16 @@ const SMALL_SCREEN_SCALE_FACTOR: f64 = 1.3;
 ///
 /// # Arguments
 ///
-/// * `app_handle` - Tauri应用句柄
 /// * `width` - 基于参考分辨率的目标宽度
 /// * `height` - 基于参考分辨率的目标高度
 #[tauri::command]
 pub async fn set_window_size(
-    app_handle: tauri::AppHandle,
     width: f64,
     height: f64,
 ) -> AppResult<()> {
+    let app_handle = AppHandleManager::clone()
+        .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
+
     let window = app_handle
         .get_webview_window("main")
         .ok_or_else(|| AppError::Error("未找到 main 窗口".to_string()))?;
@@ -72,7 +74,6 @@ pub async fn set_window_size(
 ///
 /// # Arguments
 ///
-/// * `app_handle` - Tauri应用句柄
 /// * `window_id` - 窗口唯一标识符
 /// * `title` - 窗口标题
 /// * `url` - 窗口加载的URL
@@ -84,7 +85,6 @@ pub async fn set_window_size(
 /// * `loading` - 是否显示加载状态
 #[tauri::command]
 pub async fn create_new_window(
-    app_handle: tauri::AppHandle,
     window_id: String,
     title: String,
     url: String,
@@ -95,6 +95,9 @@ pub async fn create_new_window(
     icon: Option<String>,
     loading: Option<bool>,
 ) -> AppResult<()> {
+    let app_handle = AppHandleManager::clone()
+        .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
+
     // 检查窗口是否已存在
     if let Some(existing_window) = app_handle.get_webview_window(&window_id) {
         // 如果窗口已存在，则显示并聚焦该窗口
@@ -274,7 +277,6 @@ impl TryFrom<i32> for WindowOperation {
 /// # Arguments
 ///
 /// * `window` - 触发该命令的窗口
-/// * `app_handle` - Tauri应用句柄
 /// * `operation` - 操作类型：
 ///   - 0: 关闭窗口
 ///   - 1: 最小化窗口
@@ -284,10 +286,12 @@ impl TryFrom<i32> for WindowOperation {
 #[tauri::command]
 pub async fn window_control(
     window: tauri::Window,
-    app_handle: tauri::AppHandle,
     operation: i32,
     params: Option<Value>,
 ) -> AppResult<()> {
+    let app_handle = AppHandleManager::clone()
+        .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
+
     // 从 params 中获取 window_id
     let target_window_id = params
         .as_ref()
@@ -328,12 +332,14 @@ pub async fn window_control(
 }
 
 #[tauri::command]
-pub fn open_devtools(app_handle: tauri::AppHandle) {
-    if let Some(window) = app_handle.get_webview_window("main") {
-        if !window.is_devtools_open() {
-            window.open_devtools();
-        } else {
-            window.close_devtools();
+pub fn open_devtools() {
+    if let Some(app_handle) = AppHandleManager::clone() {
+        if let Some(window) = app_handle.get_webview_window("main") {
+            if !window.is_devtools_open() {
+                window.open_devtools();
+            } else {
+                window.close_devtools();
+            }
         }
     }
 }

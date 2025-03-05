@@ -7,8 +7,13 @@ use objc::{msg_send, sel, sel_impl};
 use std::ffi::CStr;
 use parking_lot::Mutex;
 use std::thread;
+use once_cell::sync::OnceCell;
 
-static PREVIOUS_WINDOW: Mutex<Option<i32>> = Mutex::new(None);
+static PREVIOUS_WINDOW: OnceCell<Mutex<Option<i32>>> = OnceCell::new();
+
+fn get_previous_window_mutex() -> &'static Mutex<Option<i32>> {
+    PREVIOUS_WINDOW.get_or_init(|| Mutex::new(None))
+}
 
 /// 应用程序激活回调
 extern "C" fn application_did_activate(_self: &Object, _cmd: Sel, notification: id) {
@@ -36,7 +41,7 @@ extern "C" fn application_did_activate(_self: &Object, _cmd: Sel, notification: 
 
         let process_id: i32 = msg_send![app, processIdentifier];
 
-        let mut previous_window = PREVIOUS_WINDOW.lock();
+        let mut previous_window = get_previous_window_mutex().lock();
         let _ = previous_window.insert(process_id);
     }
 }
@@ -75,5 +80,5 @@ pub fn observe_app() -> AppResult<()> {
 
 /// 获取前一个窗口的进程ID
 pub fn get_previous_window() -> Option<i32> {
-    PREVIOUS_WINDOW.lock().clone()
+    get_previous_window_mutex().lock().clone()
 }

@@ -4,8 +4,14 @@ use x11::xlib::{
     self, Atom, Display, XDefaultRootWindow, XFree, XGetInputFocus, XGetWindowProperty,
     XInternAtom, XNextEvent, XOpenDisplay, XSelectInput,
 };
+use once_cell::sync::OnceCell;
 
-static PREVIOUS_WINDOW: Mutex<Option<u64>> = Mutex::new(None);
+// 使用OnceCell初始化静态Mutex，提高性能和内存安全性
+static PREVIOUS_WINDOW: OnceCell<Mutex<Option<u64>>> = OnceCell::new();
+
+fn get_previous_window_mutex() -> &'static Mutex<Option<u64>> {
+    PREVIOUS_WINDOW.get_or_init(|| Mutex::new(None))
+}
 
 /// 获取窗口标题
 fn get_net_wm_name(display: *mut Display, window: u64) -> AppResult<String> {
@@ -78,7 +84,7 @@ pub fn observe_app() -> AppResult<()> {
                 continue;
             }
 
-            let mut previous_window = PREVIOUS_WINDOW.lock();
+            let mut previous_window = get_previous_window_mutex().lock();
             let _ = previous_window.insert(window);
         }
     });
@@ -87,5 +93,5 @@ pub fn observe_app() -> AppResult<()> {
 
 /// 获取前一个窗口的ID
 pub fn get_previous_window() -> Option<u64> {
-    PREVIOUS_WINDOW.lock().clone()
+    get_previous_window_mutex().lock().clone()
 }

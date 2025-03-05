@@ -7,8 +7,7 @@ use gtk::{prelude::IconThemeExt, IconLookupFlags};
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
 use image::{DynamicImage, ImageBuffer, Rgba};
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 
 use crate::utils::error::AppResult;
 use crate::utils::path::get_myhelper_path;
@@ -38,10 +37,8 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     }
 
     // 生成随机文件名
-    let random_chars: String = thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(6)
-        .map(char::from)
+    let random_chars: String = (0..6)
+        .map(|_| rng().sample(rand::distr::Alphanumeric) as char)
         .collect();
     let output_path = myhelper_path.join(format!("app_image_{}.png", random_chars));
 

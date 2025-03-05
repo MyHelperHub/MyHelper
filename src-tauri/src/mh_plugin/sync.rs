@@ -5,20 +5,20 @@ use crate::utils::error::{AppError, AppResult};
 use crate::utils::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
 use serde_json::{json, Value};
+use simd_json;
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::Read;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::fs as tokio_fs;
+use tokio::io::AsyncReadExt;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 use tokio::try_join;
 
 // 批处理大小
 const BATCH_SIZE: usize = 100;
-// 并发限制
-const MAX_CONCURRENT: usize = 16;
+// 并发限制 - 增加到32以优化I/O密集型任务
+const MAX_CONCURRENT: usize = 32;
 
 /// 高性能同步插件目录和配置
 ///
@@ -199,38 +199,41 @@ async fn process_plugin(
         return Ok(None);
     }
 
-    // 读取主配置文件
+    // 读取主配置文件 - 使用异步I/O优化
     let config_path = plugin_dir.join("mhPlugin.json");
-    let config_content = tokio::task::spawn_blocking({
-        let config_path = config_path.clone();
-        move || {
-            let mut file = match File::open(&config_path) {
-                Ok(file) => file,
-                Err(_) => return String::new(),
-            };
+    let mut config_buffer = async {
+        // 直接使用异步文件I/O代替spawn_blocking包装的同步I/O
+        let mut file = match tokio_fs::File::open(&config_path).await {
+            Ok(file) => file,
+            Err(_) => return Vec::new(),
+        };
 
-            let mut buffer = Vec::with_capacity(4096); // 预分配4KB
-            match file.read_to_end(&mut buffer) {
-                Ok(_) => String::from_utf8_lossy(&buffer).into_owned(),
-                Err(_) => String::new(),
-            }
+        let mut buffer = Vec::with_capacity(4096); // 预分配4KB
+        match file.read_to_end(&mut buffer).await {
+            Ok(_) => buffer,
+            Err(_) => Vec::new(),
         }
-    })
-    .await
-    .map_err(|e| AppError::Error(format!("读取配置文件失败: {}", e)))?;
+    }
+    .await;
 
-    // 解析主配置文件
-    let mut data: Value = if !config_content.is_empty() {
-        match serde_json::from_str(&config_content) {
+    // 使用simd-json解析主配置文件
+    let mut data: Value = if !config_buffer.is_empty() {
+        match simd_json::serde::from_slice::<serde_json::Value>(&mut config_buffer) {
             Ok(config) => config,
-            Err(e) => {
-                Logger::write_log(LogEntry {
-                    level: "warn".to_string(),
-                    message: format!("解析配置失败: {}", window_id),
-                    timestamp: String::new(),
-                    details: Some(e.to_string()),
-                })?;
-                return Ok(None);
+            Err(_) => {
+                // 如果SIMD解析失败，回退到标准serde_json
+                match serde_json::from_slice::<Value>(&config_buffer) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        Logger::write_log(LogEntry {
+                            level: "warn".to_string(),
+                            message: format!("解析配置失败: {}", window_id),
+                            timestamp: String::new(),
+                            details: Some(e.to_string()),
+                        })?;
+                        return Ok(None);
+                    }
+                }
             }
         }
     } else {
@@ -262,26 +265,24 @@ async fn process_plugin(
     // 只有在记录不存在时才读取 init.json
     let (info, config_value) = if !existing_plugins.contains(window_id) {
         let init_path = plugin_dir.join("init.json");
-        let init_content = tokio::task::spawn_blocking({
-            let init_path = init_path.clone();
-            move || {
-                let mut file = match File::open(&init_path) {
-                    Ok(file) => file,
-                    Err(_) => return String::new(),
-                };
+        let mut init_buffer = async {
+            // 直接使用异步文件I/O
+            let mut file = match tokio_fs::File::open(&init_path).await {
+                Ok(file) => file,
+                Err(_) => return Vec::new(),
+            };
 
-                let mut buffer = Vec::with_capacity(4096);
-                match file.read_to_end(&mut buffer) {
-                    Ok(_) => String::from_utf8_lossy(&buffer).into_owned(),
-                    Err(_) => String::new(),
-                }
+            let mut buffer = Vec::with_capacity(4096);
+            match file.read_to_end(&mut buffer).await {
+                Ok(_) => buffer,
+                Err(_) => Vec::new(),
             }
-        })
-        .await
-        .map_err(|e| AppError::Error(format!("读取初始化文件失败: {}", e)))?;
+        }
+        .await;
 
-        if !init_content.is_empty() {
-            match serde_json::from_str::<Value>(&init_content) {
+        if !init_buffer.is_empty() {
+            // 使用simd-json解析init.json
+            match simd_json::serde::from_slice::<serde_json::Value>(&mut init_buffer) {
                 Ok(init_config) => (
                     init_config
                         .get("info")
@@ -292,7 +293,22 @@ async fn process_plugin(
                         .cloned()
                         .unwrap_or_else(|| json!({})),
                 ),
-                Err(_) => (json!({}), json!({})),
+                Err(_) => {
+                    // 如果SIMD解析失败，回退到标准serde_json
+                    match serde_json::from_slice::<Value>(&init_buffer) {
+                        Ok(init_config) => (
+                            init_config
+                                .get("info")
+                                .cloned()
+                                .unwrap_or_else(|| json!({})),
+                            init_config
+                                .get("config")
+                                .cloned()
+                                .unwrap_or_else(|| json!({})),
+                        ),
+                        Err(_) => (json!({}), json!({})),
+                    }
+                }
             }
         } else {
             (json!({}), json!({}))

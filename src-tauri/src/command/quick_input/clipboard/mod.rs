@@ -26,9 +26,15 @@ use parking_lot::Mutex;
 use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
+use once_cell::sync::OnceCell;
 
+// 使用OnceCell初始化静态资源，提高性能和线程安全性
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
-static WATCHER_SHUTDOWN: Mutex<Option<WatcherShutdown>> = Mutex::new(None); // 存储关闭信号
+static WATCHER_SHUTDOWN: OnceCell<Mutex<Option<WatcherShutdown>>> = OnceCell::new(); // 存储关闭信号
+
+fn get_watcher_shutdown() -> &'static Mutex<Option<WatcherShutdown>> {
+    WATCHER_SHUTDOWN.get_or_init(|| Mutex::new(None))
+}
 
 /// 剪贴板管理器
 ///
@@ -87,20 +93,23 @@ impl ClipboardHandler for Manager {
 ///
 /// 开始监听系统剪贴板的变化，当内容更新时触发事件
 #[tauri::command]
-pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
+pub async fn start_clipboard_listener() -> AppResult<()> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
         return Ok(());
     }
+
+    let app_handle = crate::utils::app_handle::AppHandleManager::clone()
+        .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
 
     CLIPBOARD_LISTENER.store(true, Ordering::SeqCst);
 
     let (tx, _rx) = mpsc::channel::<String>(10);
     let manager = Manager::new(tx.clone(), app_handle.clone());
     let mut watcher = ClipboardWatcherContext::new()
-        .map_err(|e| AppError::Error(format!("Failed to create clipboard watcher: {}", e)))?;
+        .map_err(|e| AppError::Error(format!("创建剪贴板监听程序失败： {}", e)))?;
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
-    *WATCHER_SHUTDOWN.lock() = Some(watcher_shutdown);
+    *get_watcher_shutdown().lock() = Some(watcher_shutdown);
 
     watcher.start_watch();
     Ok(())
@@ -112,7 +121,7 @@ pub async fn start_clipboard_listener(app_handle: AppHandle) -> AppResult<()> {
 #[tauri::command]
 pub async fn stop_clipboard_listener() -> AppResult<()> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        let mut shutdown_lock = WATCHER_SHUTDOWN.lock();
+        let mut shutdown_lock = get_watcher_shutdown().lock();
         if let Some(shutdown) = shutdown_lock.take() {
             shutdown.stop();
         }

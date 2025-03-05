@@ -3,6 +3,7 @@ use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 use std::ptr;
 use parking_lot::Mutex;
+use once_cell::sync::OnceCell;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::windef::{HWINEVENTHOOK, HWND};
 use winapi::um::winuser::{
@@ -10,7 +11,12 @@ use winapi::um::winuser::{
     WINEVENT_OUTOFCONTEXT,
 };
 
-static PREVIOUS_WINDOW: Mutex<Option<isize>> = Mutex::new(None);
+// 使用OnceCell初始化静态Mutex，提高性能和内存安全性
+static PREVIOUS_WINDOW: OnceCell<Mutex<Option<isize>>> = OnceCell::new();
+
+fn get_previous_window_mutex() -> &'static Mutex<Option<isize>> {
+    PREVIOUS_WINDOW.get_or_init(|| Mutex::new(None))
+}
 
 unsafe fn get_window_title(hwnd: HWND) -> String {
     let length = GetWindowTextLengthW(hwnd);
@@ -45,7 +51,7 @@ unsafe extern "system" fn event_hook_callback(
             return;
         }
 
-        let mut previous_window = PREVIOUS_WINDOW.lock();
+        let mut previous_window = get_previous_window_mutex().lock();
         let _ = previous_window.insert(hwnd as isize);
     }
 }
@@ -70,5 +76,5 @@ pub fn observe_app() -> AppResult<()> {
 }
 
 pub fn get_previous_window() -> Option<isize> {
-    PREVIOUS_WINDOW.lock().clone()
+    get_previous_window_mutex().lock().clone()
 }

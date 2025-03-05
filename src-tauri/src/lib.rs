@@ -237,6 +237,9 @@ pub fn run() {
                 .ok_or_else(|| AppError::Error("主窗口未找到".into()))?;
             let window = Arc::new(RwLock::new(window));
 
+            // 设置全局 AppHandle
+            utils::app_handle::AppHandleManager::set(app.handle().clone());
+
             let (screen_width, screen_height, scale_factor) = get_screen_info(app)?;
             let position = get_window_position(screen_width, screen_height, scale_factor)?;
 
