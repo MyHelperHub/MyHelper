@@ -32,6 +32,9 @@ use once_cell::sync::OnceCell;
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
 static WATCHER_SHUTDOWN: OnceCell<Mutex<Option<WatcherShutdown>>> = OnceCell::new(); // 存储关闭信号
 
+// 添加一个全局标志位来标记是否是内部操作触发的剪贴板变化
+static INTERNAL_CLIPBOARD_OPERATION: AtomicBool = AtomicBool::new(false);
+
 fn get_watcher_shutdown() -> &'static Mutex<Option<WatcherShutdown>> {
     WATCHER_SHUTDOWN.get_or_init(|| Mutex::new(None))
 }
@@ -77,6 +80,13 @@ impl Manager {
 
 impl ClipboardHandler for Manager {
     fn on_clipboard_change(&mut self) {
+        // 检查是否是内部操作触发的剪贴板变化
+        if INTERNAL_CLIPBOARD_OPERATION.load(Ordering::SeqCst) {
+            // 如果是内部操作，不处理这次剪贴板变化
+            INTERNAL_CLIPBOARD_OPERATION.store(false, Ordering::SeqCst);
+            return;
+        }
+
         if self.ctx.has(ContentFormat::Text) {
             self.handle_text();
             println!("{}", self.ctx.get_text().unwrap());
@@ -137,6 +147,9 @@ pub async fn stop_clipboard_listener() -> AppResult<()> {
 /// * `text` - 要写入剪贴板的文本内容
 #[tauri::command]
 pub async fn write_clipboard(text: String) -> AppResult<()> {
+    // 设置标志位，标记这是内部操作
+    INTERNAL_CLIPBOARD_OPERATION.store(true, Ordering::SeqCst);
+    
     let ctx = ClipboardContext::new()
         .map_err(|e| AppError::Error(format!("Failed to create clipboard context: {}", e)))?;
 

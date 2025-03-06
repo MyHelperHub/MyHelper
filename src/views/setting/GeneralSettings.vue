@@ -3,36 +3,35 @@
     <h3>常用设置</h3>
     <div class="item">
       <h4>剪贴板监听</h4>
-      <ToggleSwitch
-        v-model="settingData.clipboardListening"
-        @change="
-          handleSwitch('clipboardListening', settingData.clipboardListening)
+      <ToggleSwitch v-model="settingData.clipboardListening" @change="
+        handleChange('clipboardListening', settingData.clipboardListening)
         ">
         <template #handle="{ checked }">
-          <i
-            :class="[
-              '!text-xs pi',
-              { 'pi-check': checked, 'pi-times': !checked },
-            ]"></i>
+          <i :class="[
+            '!text-xs pi',
+            { 'pi-check': checked, 'pi-times': !checked },
+          ]"></i>
         </template>
       </ToggleSwitch>
     </div>
     <div class="item">
       <h4>全局快捷键</h4>
-      <ToggleSwitch
-        v-model="settingData.hotkeyEnabled"
-        @change="
-          handleSwitch('hotkeyEnabled', settingData.hotkeyEnabled)
+      <ToggleSwitch v-model="settingData.hotkey.enabled" @change="
+        handleChange('hotkey.enabled', settingData.hotkey.enabled)
         ">
         <template #handle="{ checked }">
-          <i
-            :class="[
-              '!text-xs pi',
-              { 'pi-check': checked, 'pi-times': !checked },
-            ]"></i>
+          <i :class="[
+            '!text-xs pi',
+            { 'pi-check': checked, 'pi-times': !checked },
+          ]"></i>
         </template>
       </ToggleSwitch>
     </div>
+
+    <!-- 使用快捷键设置组件 -->
+    <HotkeySettings v-model="settingData.hotkey"
+      @change="(key, value) => handleChange(`hotkey.${key}`, value, false)" />
+
     <div class="item">
       <h4>数据重置</h4>
       <div class="item-right" @click="showDataResetModal = true">
@@ -41,32 +40,15 @@
     </div>
 
     <!-- 数据重置对话框 -->
-    <Dialog
-      v-model:visible="showDataResetModal"
-      :dismissableMask="true"
-      header="数据重置"
-      modal
-      appendTo="self"
+    <Dialog v-model:visible="showDataResetModal" :dismissableMask="true" header="数据重置" modal appendTo="self"
       :closable="false">
       <ConfirmPopup></ConfirmPopup>
       <div class="modal-content">
-        <Button
-          class="modal-button"
-          label="常用网站重置"
-          severity="info"
-          variant="outlined"
+        <Button class="modal-button" label="常用网站重置" severity="info" variant="outlined"
           @click="handleDataReset(['webConfig'], $event)"></Button>
-        <Button
-          class="modal-button"
-          label="常用软件重置"
-          severity="info"
-          variant="outlined"
+        <Button class="modal-button" label="常用软件重置" severity="info" variant="outlined"
           @click="handleDataReset(['appConfig'], $event)"></Button>
-        <Button
-          class="modal-button"
-          label="全部重置"
-          severity="info"
-          variant="outlined"
+        <Button class="modal-button" label="全部重置" severity="info" variant="outlined"
           @click="handleDataReset([], $event)"></Button>
       </div>
     </Dialog>
@@ -83,10 +65,21 @@ import { ref } from "vue";
 import { getConfig, setConfig, resetConfig } from "@/utils/config";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
 import { showMessage } from "@/utils/message";
+import HotkeySettings from "./components/HotkeySettings.vue";
 
 const settingData = ref({
   clipboardListening: false,
-  hotkeyEnabled: false,
+  hotkey: {
+    enabled: false,
+    togglePanel: {
+      enabled: true,
+      key: "ctrl+\\"
+    },
+    toggleProxy: {
+      enabled: true,
+      key: "ctrl+delete"
+    }
+  }
 });
 
 const showDataResetModal = ref(false);
@@ -106,12 +99,22 @@ const init = async () => {
 
 init();
 
-const handleSwitch = async (key: string, value: boolean) => {
-  tauriEmit("update:setting", {
-    key,
-    value,
-  });
-  setConfig("settingConfig", settingData.value);
+/**
+ * 统一的设置变更处理函数
+ * @param key 设置项的键
+ * @param value 设置项的值
+ * @param isNeedEmit 是否需要发送事件 默认为true
+ */
+const handleChange = async (key: string, value: any, isNeedEmit = true) => {
+  if (isNeedEmit) {
+    // 通知主进程更新设置
+    tauriEmit("update:setting", {
+      key,
+      value,
+    });
+  }
+  // 更新数据库配置
+  await setConfig("settingConfig", settingData.value);
 };
 
 const handleDataReset = async (keys: string[], event: { currentTarget: any }) => {
@@ -151,6 +154,7 @@ const handleDataReset = async (keys: string[], event: { currentTarget: any }) =>
     font-size: 1.2rem;
     color: #333;
   }
+
   .item {
     width: 100%;
     padding: 0 10px;
@@ -159,6 +163,7 @@ const handleDataReset = async (keys: string[], event: { currentTarget: any }) =>
     justify-content: space-between;
     align-items: center;
     --p-toggleswitch-checked-background: rgb(74, 159, 238);
+
     &:hover {
       background-color: rgba(0, 0, 0, 0.04);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -177,6 +182,7 @@ const handleDataReset = async (keys: string[], event: { currentTarget: any }) =>
       .p-toggleswitch-slider {
         background: rgb(74, 159, 238);
       }
+
       &:hover .p-toggleswitch-slider {
         background: rgb(0, 132, 255);
       }

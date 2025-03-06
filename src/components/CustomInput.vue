@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
+import { useDebounce } from "@/utils/common";
 import { ref, watch } from "vue";
-import { useDebounce } from "@/utils/debounce";
 
 const props = defineProps({
   /** 输入框的标签 */

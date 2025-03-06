@@ -1,4 +1,4 @@
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppResult;
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSAutoreleasePool, NSString};
 use objc::declare::ClassDecl;

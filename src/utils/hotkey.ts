@@ -1,14 +1,21 @@
+import { HotkeyConfig } from "./../interface/database.d";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Logger } from "./logger";
 import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api";
 
 const actionHandlers = new Map<string, () => void>([
-  ["console_log", () => {
-    console.log("触发全局快捷键: Ctrl+\\");
-  }],
-  ["delete", () => {
-    console.log("触发全局快捷键: Ctrl+Delete");
-  }],
+  [
+    "console_log",
+    () => {
+      console.log("触发全局快捷键: Ctrl+\\");
+    },
+  ],
+  [
+    "delete",
+    () => {
+      console.log("触发全局快捷键: Ctrl+Delete");
+    },
+  ],
 ]);
 
 // 监听器的引用
@@ -17,7 +24,7 @@ let hotkeyUnlistener: UnlistenFn | null = null;
 /**
  * 初始化快捷键监听器
  */
-export const initHotkeyListener = async (): Promise<void> => {
+const initHotkeyListener = async (): Promise<void> => {
   try {
     // 如果已经有监听器，先取消它
     if (hotkeyUnlistener) {
@@ -70,14 +77,15 @@ export const registerActionHandler = (
  * @param enabled 是否启用热键
  * @returns 设置是否成功
  */
-export const setHotkeyEnabled = async (enabled: boolean): Promise<boolean> => {
+export const setHotkeyEnabled = async (
+  hotkeyConfig: HotkeyConfig,
+): Promise<boolean> => {
   try {
     // 设置后端热键状态
-    await ipcSetHotkeyEnabled(enabled);
-    
-    // 根据状态清理或初始化监听器
-    if (enabled) {
-      // 不在这里调用初始化，让外部调用
+    await ipcSetHotkeyEnabled(hotkeyConfig);
+
+    if (hotkeyConfig.enabled) {
+      await initHotkeyListener();
     } else {
       // 如果禁用热键，清理现有的监听器
       await cleanupHotkeyListener();

@@ -4,9 +4,9 @@ use std::path::Path;
 
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
-use objc2::ClassType;
+use objc2::AllocAnyThread;
 use objc2_app_kit::{NSBitmapImageRep, NSCompositingOperation, NSGraphicsContext, NSWorkspace};
-use objc2_foundation::{CGPoint, CGRect, CGSize, NSString};
+use objc2_foundation::{NSPoint, NSRect, NSSize, NSString};
 use rand::{rng, Rng};
 
 use crate::utils::error::AppResult;
@@ -58,7 +58,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let icon = unsafe { shared_workspace.iconForFile(&file_path) };
 
     // 设置图标大小
-    let desired_size = CGSize {
+    let desired_size = NSSize {
         width: 128.0,
         height: 128.0,
     };
@@ -99,8 +99,11 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
         // 绘制图标
         icon.drawAtPoint_fromRect_operation_fraction(
-            CGPoint::ZERO,
-            CGRect::new(CGPoint::ZERO, desired_size),
+            NSPoint { x: 0.0, y: 0.0 },
+            NSRect { 
+                origin: NSPoint { x: 0.0, y: 0.0 }, 
+                size: desired_size 
+            },
             NSCompositingOperation::Copy,
             1.0,
         );

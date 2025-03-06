@@ -2,16 +2,15 @@ import {
   startClipboardListening,
   stopClipboardListening,
 } from "@/utils/clipboard";
-import {
-  initHotkeyListener,
-  setHotkeyEnabled
-} from "@/utils/hotkey";
+import { setHotkeyEnabled } from "@/utils/hotkey";
 import { registerTask } from "./startupManager";
-
+import { AppConfig } from "@/interface/database";
 /**
  * 初始化设置
  */
-export const initSetting = async () => {
+export const initSetting = async (
+  settingConfig: AppConfig["settingConfig"],
+) => {
   registerTask({
     key: "clipboardListening",
     enabledFn: () => {
@@ -23,13 +22,12 @@ export const initSetting = async () => {
   });
 
   registerTask({
-    key: "hotkeyEnabled",
+    key: "hotkey.enabled",
     enabledFn: async () => {
-      await setHotkeyEnabled(true);
-      await initHotkeyListener();
+      await setHotkeyEnabled(settingConfig.hotkey);
     },
     disabledFn: async () => {
-      await setHotkeyEnabled(false);
+      await setHotkeyEnabled(settingConfig.hotkey);
       // 清理操作已在setHotkeyEnabled内部处理
     },
   });

@@ -159,7 +159,7 @@ function handleSearch() {
       outline: none;
       border: 1px solid #ccc;
       padding-left: 20px;
-      padding-right: 40px;
+      padding-right: 30px;
       white-space: nowrap;
       overflow: hidden;
       font-size: 16px;

@@ -20,10 +20,10 @@ import { QuickInputItem } from "@/interface/quickInput";
 import { clipboardData } from "@/utils/clipboard";
 
 /** 处理复制到剪贴板的功能 */
-const pasteTo = (item: QuickInputItem) => {
-  ipcWriteClipboard(item.text).then(() => {
-    ipcPaste();
-  });
+const pasteTo = async (item: QuickInputItem) => {
+  // 写入剪贴板并执行粘贴
+  await ipcWriteClipboard(item.text);
+  await ipcPaste();
 };
 </script>
 

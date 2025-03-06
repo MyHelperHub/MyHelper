@@ -30,9 +30,8 @@ if (Window.getCurrent().label === "main") {
   async function initializeApp() {
     try {
       // 初始化设置
-      initSetting();
-      const config = await getConfig<Record<string, boolean>>("settingConfig");
-      const settingData: Record<string, boolean> = config || {};
+      const settingConfig = (await getConfig("settingConfig")) || {};
+      initSetting(settingConfig);
       // 监听设置变化,将所有设置都放在main窗口里执行
       listen(
         "update:setting",
@@ -41,8 +40,20 @@ if (Window.getCurrent().label === "main") {
           handleSettingChange(key, value);
         },
       );
+
       await runStartupTasks((key) => {
-        return settingData[key] === true;
+        // 通过键路径获取值（支持嵌套路径如'hotkey.enabled'）
+        const getValue = (obj: any, path: string): any => {
+          return path
+            .split(".")
+            .reduce(
+              (prev, curr) =>
+                prev && prev[curr] !== undefined ? prev[curr] : undefined,
+              obj,
+            );
+        };
+
+        return getValue(settingConfig, key) === true;
       });
 
       // 初始化登录状态
@@ -77,11 +88,6 @@ const app = createApp(App);
 app.config.errorHandler = async (err, _, info) => {
   await ErrorHandler.handleError(err, info);
 };
-
-// 捕获未处理的 Promise 错误
-window.addEventListener("unhandledrejection", async (event) => {
-  await ErrorHandler.handleError(event.reason, "Unhandled Promise Rejection");
-});
 
 app.use(router);
 app.use(PrimeVue, {

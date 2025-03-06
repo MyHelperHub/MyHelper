@@ -11,7 +11,7 @@ const startupTasks: StartupTask[] = [];
 /**
  * 注册开机启动任务
  * @param task 任务配置对象，包含以下属性:
- *   - key: 设置项的唯一标识符
+ *   - key: 设置项的唯一标识符,也就是数据库中对应的控制开关的字段值
  *   - enabledFn: 启用时执行的函数
  *   - disabledFn: 禁用时执行的函数（可选）
  *   - startEnabledFn: 启动时是否执行启用函数，默认为 true
