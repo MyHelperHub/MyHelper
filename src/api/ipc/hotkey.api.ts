@@ -4,6 +4,6 @@ import { invoke } from "@tauri-apps/api/core";
 /**
  * 设置热键启用状态
  */
-export async function ipcSetHotkeyEnabled(hotkeyConfig: HotkeyConfig) {
-  return await invoke<boolean>("set_hotkey_enabled", { hotkeyConfig });
+export async function ipcSetHotkeyEnabled(config: HotkeyConfig) {
+  return await invoke<boolean>("set_hotkey_enabled", { config });
 }

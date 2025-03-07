@@ -29,8 +29,7 @@
     </div>
 
     <!-- 使用快捷键设置组件 -->
-    <HotkeySettings v-model="settingData.hotkey"
-      @change="(key, value) => handleChange(`hotkey.${key}`, value, false)" />
+    <HotkeySettings v-model="settingData.hotkey" @change="handleHotkeyChange" />
 
     <div class="item">
       <h4>数据重置</h4>
@@ -66,20 +65,11 @@ import { getConfig, setConfig, resetConfig } from "@/utils/config";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
 import { showMessage } from "@/utils/message";
 import HotkeySettings from "./components/HotkeySettings.vue";
+import { setHotkeyEnabled, getDefaultHotkeyConfig } from "@/utils/hotkey";
 
 const settingData = ref({
   clipboardListening: false,
-  hotkey: {
-    enabled: false,
-    togglePanel: {
-      enabled: true,
-      key: "ctrl+\\"
-    },
-    toggleProxy: {
-      enabled: true,
-      key: "ctrl+delete"
-    }
-  }
+  hotkey: getDefaultHotkeyConfig(),
 });
 
 const showDataResetModal = ref(false);
@@ -103,19 +93,21 @@ init();
  * 统一的设置变更处理函数
  * @param key 设置项的键
  * @param value 设置项的值
- * @param isNeedEmit 是否需要发送事件 默认为true
  */
-const handleChange = async (key: string, value: any, isNeedEmit = true) => {
-  if (isNeedEmit) {
-    // 通知主进程更新设置
-    tauriEmit("update:setting", {
-      key,
-      value,
-    });
-  }
+const handleChange = async (key: string, value: any) => {
+  // 通知主进程更新设置
+  tauriEmit("update:setting", {
+    key,
+    value,
+  });
   // 更新数据库配置
   await setConfig("settingConfig", settingData.value);
 };
+/** 快捷键设置变更处理函数(小按钮) */
+const handleHotkeyChange = async () => {
+  await setHotkeyEnabled(settingData.value.hotkey);
+  await setConfig("settingConfig", settingData.value);
+}
 
 const handleDataReset = async (keys: string[], event: { currentTarget: any }) => {
   confirm.require({

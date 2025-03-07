@@ -36,13 +36,10 @@ import { showMessage } from "@/utils/message";
 import { ref } from "vue";
 import { delay } from "@/utils/common";
 import { HotkeyConfig } from "@/interface/database";
+import { getHotkeyItemsMap } from "@/utils/hotkey";
 
-// 快捷键项目配置
-const hotkeyItems = {
-  togglePanel: { title: '打开/关闭面板' },
-  toggleProxy: { title: '打开/关闭系统代理' }
-};
-
+// 快捷键项目配置，从统一配置获取
+const hotkeyItems = getHotkeyItemsMap();
 
 const props = defineProps<{
   modelValue: HotkeyConfig;
@@ -118,9 +115,11 @@ const captureHotkey = async (event: KeyboardEvent) => {
 
   let modifiers = [];
   const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
-  if (event.metaKey) modifiers.push(isMac ? 'cmd' : 'win');
-  if (event.ctrlKey) modifiers.push('ctrl');
-  if (event.altKey) modifiers.push(isMac ? 'opt' : 'alt');
+
+  // 使用标准完整名称，以匹配Tauri内部表示
+  if (event.metaKey) modifiers.push(isMac ? 'command' : 'meta');
+  if (event.ctrlKey) modifiers.push('control');
+  if (event.altKey) modifiers.push(isMac ? 'option' : 'alt');
   if (event.shiftKey) modifiers.push('shift');
 
   // 处理单独修饰键
