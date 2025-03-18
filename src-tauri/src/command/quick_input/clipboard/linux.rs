@@ -1,10 +1,10 @@
 use crate::utils::error::{AppError, AppResult};
+use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
 use x11::xlib::{
     self, Atom, Display, XDefaultRootWindow, XFree, XGetInputFocus, XGetWindowProperty,
     XInternAtom, XNextEvent, XOpenDisplay, XSelectInput,
 };
-use once_cell::sync::OnceCell;
 
 // 使用OnceCell初始化静态Mutex，提高性能和内存安全性
 static PREVIOUS_WINDOW: OnceCell<Mutex<Option<u64>>> = OnceCell::new();

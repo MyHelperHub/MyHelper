@@ -1,10 +1,10 @@
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::path::get_myhelper_path;
+use once_cell::sync::OnceCell;
+use parking_lot::Mutex;
 use rusqlite::{params, Connection, Result};
 use std::collections::HashSet;
 use std::path::PathBuf;
-use parking_lot::Mutex;
-use once_cell::sync::OnceCell;
 
 static DB_INSTANCE: OnceCell<Mutex<Connection>> = OnceCell::new();
 

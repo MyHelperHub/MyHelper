@@ -32,8 +32,7 @@ fn read_config(config_path: &Path) -> Result<HashMap<String, Value>, String> {
     if config_path.exists() {
         let mut file = File::open(config_path).map_err(|e| e.to_string())?;
         let mut buffer = Vec::new();
-        file.read_to_end(&mut buffer)
-            .map_err(|e| e.to_string())?;
+        file.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
 
         // 如果文件为空，返回空的 HashMap
         if buffer.is_empty() {

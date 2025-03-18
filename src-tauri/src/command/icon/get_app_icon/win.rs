@@ -21,8 +21,7 @@ use windows::{
         },
         System::Com::{CoCreateInstance, CoInitialize, CoUninitialize, CLSCTX_ALL},
         UI::Shell::{
-            IShellItemImageFactory, SHCreateItemFromParsingName,
-            SIIGBF_ICONONLY, SIIGBF_SCALEUP,
+            IShellItemImageFactory, SHCreateItemFromParsingName, SIIGBF_ICONONLY, SIIGBF_SCALEUP,
         },
     },
 };
@@ -88,11 +87,11 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     let bitmap_size = SIZE { cx: 128, cy: 128 };
 
-    let bitmap =
-        match unsafe { shell_item.GetImage(bitmap_size, SIIGBF_ICONONLY | SIIGBF_SCALEUP) } {
-            Ok(bmp) => bmp,
-            Err(_) => return Ok(String::new()),
-        };
+    let bitmap = match unsafe { shell_item.GetImage(bitmap_size, SIIGBF_ICONONLY | SIIGBF_SCALEUP) }
+    {
+        Ok(bmp) => bmp,
+        Err(_) => return Ok(String::new()),
+    };
 
     // 确保位图资源被正确释放
     defer! {
@@ -109,11 +108,16 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         };
 
     // 创建位图
-    let wic_bitmap =
-        match unsafe { imaging_factory.CreateBitmapFromHBITMAP(bitmap, HPALETTE(ptr::null_mut()), WICBitmapUseAlpha) } {
-            Ok(bmp) => bmp,
-            Err(_) => return Ok(String::new()),
-        };
+    let wic_bitmap = match unsafe {
+        imaging_factory.CreateBitmapFromHBITMAP(
+            bitmap,
+            HPALETTE(ptr::null_mut()),
+            WICBitmapUseAlpha,
+        )
+    } {
+        Ok(bmp) => bmp,
+        Err(_) => return Ok(String::new()),
+    };
 
     let source_rect = WICRect {
         X: 0,

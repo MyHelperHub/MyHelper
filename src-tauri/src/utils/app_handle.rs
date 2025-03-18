@@ -14,7 +14,7 @@ impl AppHandleManager {
     pub fn get() -> Option<&'static AppHandle> {
         APP_HANDLE.get()
     }
-    
+
     // 获取全局 AppHandle 的克隆，仅在必要时使用
     pub fn clone() -> Option<AppHandle> {
         APP_HANDLE.get().map(|app_handle| app_handle.clone())
@@ -22,4 +22,4 @@ impl AppHandleManager {
 }
 
 // 全局静态变量存储 AppHandle
-static APP_HANDLE: OnceCell<AppHandle> = OnceCell::new(); 
+static APP_HANDLE: OnceCell<AppHandle> = OnceCell::new();

@@ -15,6 +15,7 @@
   "dependencies": {
     "@primevue/themes": "^4.2.4",
     "@tauri-apps/api": "^2.3.0",
+    "@tauri-apps/plugin-autostart": "^2.2.0",
     "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-global-shortcut": "^2.2.0",
     "@tauri-apps/plugin-process": "^2.2.0",

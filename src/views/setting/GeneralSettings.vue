@@ -27,6 +27,19 @@
         </template>
       </ToggleSwitch>
     </div>
+    <div class="item">
+      <h4>开机启动</h4>
+      <ToggleSwitch v-model="settingData.autoStart" @change="
+        handleChange('autoStart', settingData.autoStart)
+        ">
+        <template #handle="{ checked }">
+          <i :class="[
+            '!text-xs pi',
+            { 'pi-check': checked, 'pi-times': !checked },
+          ]"></i>
+        </template>
+      </ToggleSwitch>
+    </div>
 
     <!-- 使用快捷键设置组件 -->
     <HotkeySettings v-model="settingData.hotkey" @change="handleHotkeyChange" />
@@ -70,6 +83,7 @@ import { setHotkeyEnabled, getDefaultHotkeyConfig } from "@/utils/hotkey";
 const settingData = ref({
   clipboardListening: false,
   hotkey: getDefaultHotkeyConfig(),
+  autoStart: false,
 });
 
 const showDataResetModal = ref(false);

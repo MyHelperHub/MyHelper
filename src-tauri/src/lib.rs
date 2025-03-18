@@ -16,6 +16,7 @@ use tauri::image::Image;
 use tauri::menu::{MenuBuilder, MenuItemBuilder};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{LogicalPosition, Manager, Runtime, WindowEvent};
+use tauri_plugin_autostart::MacosLauncher;
 
 /** 初始化 */
 fn init() -> AppResult<()> {
@@ -290,6 +291,10 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(utils::hotkey::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            Some(vec!["--flag1", "--flag2"]), /* arbitrary number of args to pass to your app */
+        ))
         .run(tauri::generate_context!())
     {
         eprintln!("MyHelper启动失败: {}", e);

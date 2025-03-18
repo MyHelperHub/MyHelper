@@ -42,7 +42,7 @@ pub fn get_config_value(key: &str) -> AppResult<Option<Value>> {
         let json_str: String = row
             .get(0)
             .map_err(|e| AppError::Error(format!("获取配置值失败: {}", e)))?;
-        
+
         // 使用simd-json加速解析
         let mut json_bytes = json_str.into_bytes();
         let value = match simd_json::serde::from_slice::<Value>(&mut json_bytes) {
@@ -53,7 +53,7 @@ pub fn get_config_value(key: &str) -> AppResult<Option<Value>> {
                     .map_err(|e| AppError::Error(format!("解析配置值失败: {}", e)))?
             }
         };
-        
+
         Ok(Some(value))
     } else {
         Ok(None)
@@ -148,28 +148,22 @@ pub fn get_plugin_config_value(window_id: Option<&str>) -> AppResult<Vec<Value>>
         let mut info_bytes = info.into_bytes();
         let info_value: Value = match simd_json::serde::from_slice(&mut info_bytes) {
             Ok(v) => v,
-            Err(_) => {
-                serde_json::from_slice(&info_bytes)
-                    .map_err(|e| AppError::Error(format!("解析info失败: {}", e)))?
-            }
+            Err(_) => serde_json::from_slice(&info_bytes)
+                .map_err(|e| AppError::Error(format!("解析info失败: {}", e)))?,
         };
-        
+
         let mut config_bytes = config.into_bytes();
         let config_value: Value = match simd_json::serde::from_slice(&mut config_bytes) {
             Ok(v) => v,
-            Err(_) => {
-                serde_json::from_slice(&config_bytes)
-                    .map_err(|e| AppError::Error(format!("解析config失败: {}", e)))?
-            }
+            Err(_) => serde_json::from_slice(&config_bytes)
+                .map_err(|e| AppError::Error(format!("解析config失败: {}", e)))?,
         };
-        
+
         let mut data_bytes = data.into_bytes();
         let data_value: Value = match simd_json::serde::from_slice(&mut data_bytes) {
             Ok(v) => v,
-            Err(_) => {
-                serde_json::from_slice(&data_bytes)
-                    .map_err(|e| AppError::Error(format!("解析data失败: {}", e)))?
-            }
+            Err(_) => serde_json::from_slice(&data_bytes)
+                .map_err(|e| AppError::Error(format!("解析data失败: {}", e)))?,
         };
 
         result.push(json!({

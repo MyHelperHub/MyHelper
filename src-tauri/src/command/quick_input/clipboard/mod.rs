@@ -21,12 +21,12 @@ use clipboard_rs::{
     Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext,
     ContentFormat, WatcherShutdown,
 };
-use std::sync::atomic::{AtomicBool, Ordering};
+use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
-use once_cell::sync::OnceCell;
 
 // 使用OnceCell初始化静态资源，提高性能和线程安全性
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
@@ -149,7 +149,7 @@ pub async fn stop_clipboard_listener() -> AppResult<()> {
 pub async fn write_clipboard(text: String) -> AppResult<()> {
     // 设置标志位，标记这是内部操作
     INTERNAL_CLIPBOARD_OPERATION.store(true, Ordering::SeqCst);
-    
+
     let ctx = ClipboardContext::new()
         .map_err(|e| AppError::Error(format!("Failed to create clipboard context: {}", e)))?;
 

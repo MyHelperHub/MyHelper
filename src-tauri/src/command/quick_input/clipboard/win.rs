@@ -1,9 +1,9 @@
 use crate::utils::error::{AppError, AppResult};
+use once_cell::sync::OnceCell;
+use parking_lot::Mutex;
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;
 use std::ptr;
-use parking_lot::Mutex;
-use once_cell::sync::OnceCell;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::windef::{HWINEVENTHOOK, HWND};
 use winapi::um::winuser::{

@@ -19,10 +19,7 @@ const SMALL_SCREEN_SCALE_FACTOR: f64 = 1.3;
 /// * `width` - 基于参考分辨率的目标宽度
 /// * `height` - 基于参考分辨率的目标高度
 #[tauri::command]
-pub async fn set_window_size(
-    width: f64,
-    height: f64,
-) -> AppResult<()> {
+pub async fn set_window_size(width: f64, height: f64) -> AppResult<()> {
     let app_handle = AppHandleManager::clone()
         .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
 

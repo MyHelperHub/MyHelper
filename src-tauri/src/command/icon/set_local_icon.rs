@@ -3,9 +3,9 @@ use image::codecs::png::PngEncoder;
 use image::DynamicImage;
 use image::ImageEncoder;
 use rand::{rng, Rng};
+use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
-use std::fs;
 
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::path::get_myhelper_path;

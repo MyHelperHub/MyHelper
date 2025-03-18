@@ -4,10 +4,10 @@ use cocoa::foundation::{NSAutoreleasePool, NSString};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{msg_send, sel, sel_impl};
-use std::ffi::CStr;
-use parking_lot::Mutex;
-use std::thread;
 use once_cell::sync::OnceCell;
+use parking_lot::Mutex;
+use std::ffi::CStr;
+use std::thread;
 
 static PREVIOUS_WINDOW: OnceCell<Mutex<Option<i32>>> = OnceCell::new();
 

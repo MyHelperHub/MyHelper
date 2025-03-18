@@ -12,7 +12,8 @@ use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
 
 // 使用Lazy和RwLock缓存配置路径，避免重复计算
-static CONFIG_PATHS: Lazy<RwLock<HashMap<String, PathBuf>>> = Lazy::new(|| RwLock::new(HashMap::new()));
+static CONFIG_PATHS: Lazy<RwLock<HashMap<String, PathBuf>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
 
 /// 获取插件自身配置
 #[tauri::command]
@@ -119,13 +120,13 @@ fn get_self_config_path(window_id: &str) -> Result<PathBuf, String> {
 
     fs::create_dir_all(&target_dir).map_err(|e| e.to_string())?;
     let config_path = target_dir.join("selfConfig.json");
-    
+
     // 更新缓存
     {
         let mut cache = CONFIG_PATHS.write();
         cache.insert(window_id.to_string(), config_path.clone());
     }
-    
+
     Ok(config_path)
 }
 
@@ -134,17 +135,17 @@ async fn read_config_async(path: &PathBuf) -> Result<Value, String> {
     if !path.exists() {
         return Ok(json!({}));
     }
-    
+
     // 使用tokio异步读取文件
     let mut file = tokio_fs::File::open(path)
         .await
         .map_err(|e| e.to_string())?;
-    
+
     let mut buffer = Vec::with_capacity(4096);
     file.read_to_end(&mut buffer)
         .await
         .map_err(|e| e.to_string())?;
-    
+
     // 使用simd-json加速解析
     match simd_json::serde::from_slice::<Value>(&mut buffer) {
         Ok(data) => Ok(data),
@@ -159,19 +160,17 @@ async fn read_config_async(path: &PathBuf) -> Result<Value, String> {
 async fn write_config_async(path: &PathBuf, config: &Value) -> Result<(), String> {
     // 使用serde_json序列化，因为simd-json主要优化解析而非序列化
     let content = serde_json::to_string_pretty(config).map_err(|e| e.to_string())?;
-    
+
     // 使用tokio异步写入文件
     let mut file = tokio_fs::File::create(path)
         .await
         .map_err(|e| e.to_string())?;
-    
+
     file.write_all(content.as_bytes())
         .await
         .map_err(|e| e.to_string())?;
-    
-    file.flush()
-        .await
-        .map_err(|e| e.to_string())?;
-    
+
+    file.flush().await.map_err(|e| e.to_string())?;
+
     Ok(())
 }

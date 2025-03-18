@@ -38,8 +38,8 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     // 生成随机文件名
     let random_chars: String = (0..6)
-    .map(|_| rng().sample(rand::distr::Alphanumeric) as char)
-    .collect();
+        .map(|_| rng().sample(rand::distr::Alphanumeric) as char)
+        .collect();
     let output_path = myhelper_path.join(format!("app_image_{}.png", random_chars));
 
     // 获取规范化路径
@@ -100,9 +100,9 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         // 绘制图标
         icon.drawAtPoint_fromRect_operation_fraction(
             NSPoint { x: 0.0, y: 0.0 },
-            NSRect { 
-                origin: NSPoint { x: 0.0, y: 0.0 }, 
-                size: desired_size 
+            NSRect {
+                origin: NSPoint { x: 0.0, y: 0.0 },
+                size: desired_size,
             },
             NSCompositingOperation::Copy,
             1.0,
