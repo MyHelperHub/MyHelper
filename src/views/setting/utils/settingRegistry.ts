@@ -6,7 +6,7 @@ import { setHotkeyEnabled } from "@/utils/hotkey";
 import { registerTask } from "./startupManager";
 import { AppConfig } from "@/interface/database";
 import { getConfig } from "@/utils/config";
-import { setAutoStartEnabled } from "@/utils/autosSart";
+import { setAutoStartEnabled, syncAutoStartState } from "@/utils/autosStart";
 
 // 模块级缓存变量，存储初始化时的配置
 let cachedSettingConfig: AppConfig["settingConfig"] | null = null;
@@ -27,6 +27,11 @@ const getLatestConfig = async (): Promise<AppConfig["settingConfig"]> => {
   const latestConfig = (await getConfig("settingConfig")) || {};
   return latestConfig;
 };
+/** 初始化时执行的设置相关的函数 */
+const initFunction = async (config: AppConfig["settingConfig"]) => {
+  // 初始化时同步开机启动状态
+  await syncAutoStartState(config.autoStart);
+};
 
 /**
  * 初始化设置
@@ -36,6 +41,8 @@ export const initSetting = async (
 ) => {
   // 缓存初始配置供后续使用
   cachedSettingConfig = settingConfig || null;
+
+  await initFunction(await getLatestConfig());
 
   registerTask({
     key: "clipboardListening",
@@ -70,8 +77,7 @@ export const initSetting = async (
     disabledFn: async () => {
       await setAutoStartEnabled(false);
     },
-    startEnabledFn: true,
-    startDisabledFn: true,
+    startEnabledFn: false,
   });
 
   cachedSettingConfig = null;

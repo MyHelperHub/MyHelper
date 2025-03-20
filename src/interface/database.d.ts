@@ -22,6 +22,7 @@ export interface AppConfig {
     dataList: WebItem[];
   };
   settingConfig: {
+    autoStart: boolean;
     // 剪贴板监听
     clipboardListening: boolean;
     // 全局快捷键
