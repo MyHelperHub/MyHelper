@@ -22,7 +22,7 @@ export const ipcCreateNewWindow = async (options: WindowConfig) => {
  */
 export const ipcWindowControl = async (
   operation: WindowOperation,
-  params?: any
+  params?: any,
 ) => {
   try {
     await invoke("window_control", { operation, params });

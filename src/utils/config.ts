@@ -1,9 +1,4 @@
-import {
-  getConfigValue,
-  setConfigValue,
-  deleteConfigValue,
-} from "./database";
-
+import { getConfigValue, setConfigValue, deleteConfigValue } from "./database";
 
 /**
  * 获取配置值
@@ -94,15 +89,15 @@ export async function resetConfig(keys: string[]): Promise<void> {
       webConfig: { dataList: [] },
       appConfig: { dataList: [] },
       quickInputConfig: { commonText: [] },
-      settingConfig: { clipboardListening: false }
+      settingConfig: { clipboardListening: false },
     };
 
     if (keys.length === 0) {
       // 重置所有配置为默认值
-      const userConfig = await getConfigValue('userConfig');
-      await deleteConfigValue('');
+      const userConfig = await getConfigValue("userConfig");
+      await deleteConfigValue("");
       if (userConfig) {
-        await setConfigValue('userConfig', userConfig);
+        await setConfigValue("userConfig", userConfig);
       }
       for (const [key, value] of Object.entries(defaultValues)) {
         await setConfigValue(key, value);
@@ -117,7 +112,7 @@ export async function resetConfig(keys: string[]): Promise<void> {
       }
     }
   } catch (error) {
-    console.error('重置配置失败:', error);
+    console.error("重置配置失败:", error);
     throw error;
   }
 }

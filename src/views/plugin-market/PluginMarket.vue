@@ -147,12 +147,19 @@
                       :value="tag"
                       severity="info" />
                   </div>
-                  <template v-if="installedPluginIds.includes(pluginDetail.Plugin.WindowId)">
+                  <template
+                    v-if="
+                      installedPluginIds.includes(pluginDetail.Plugin.WindowId)
+                    ">
                     <Button
-                      v-if="checkPluginUpdate(
-                        installedPlugins.find(p => p.WindowId === pluginDetail.Plugin.WindowId)?.Version || '',
-                        pluginDetail.Plugin.Version
-                      )"
+                      v-if="
+                        checkPluginUpdate(
+                          installedPlugins.find(
+                            (p) => p.WindowId === pluginDetail.Plugin.WindowId,
+                          )?.Version || '',
+                          pluginDetail.Plugin.Version,
+                        )
+                      "
                       icon="pi pi-sync"
                       label="有更新"
                       severity="info"
@@ -238,17 +245,13 @@
                 <span
                   class="rating-hint"
                   v-if="
-                    (!selectedPluginIsRated &&
-                      userData?.Token &&
-                      installedPluginIds.includes(
-                        selectedPlugin?.WindowId || '',
-                      ))
+                    !selectedPluginIsRated &&
+                    userData?.Token &&
+                    installedPluginIds.includes(selectedPlugin?.WindowId || '')
                   ">
                   点击星星进行评分
                 </span>
-                <span
-                  class="rating-hint"
-                  v-else-if="selectedPluginIsRated">
+                <span class="rating-hint" v-else-if="selectedPluginIsRated">
                   您已评分
                 </span>
               </div>
@@ -304,9 +307,15 @@
                 <span class="label">当前版本</span>
                 <span class="value">
                   <template v-if="isPluginInstalled(selectedPlugin)">
-                    {{ installedPlugins.find(p => p.WindowId === selectedPlugin?.WindowId)?.Version }}
+                    {{
+                      installedPlugins.find(
+                        (p) => p.WindowId === selectedPlugin?.WindowId,
+                      )?.Version
+                    }}
                     <template v-if="hasUpdate">
-                      <span class="latest-version">(最新版本: {{ selectedPlugin?.Version }})</span>
+                      <span class="latest-version"
+                        >(最新版本: {{ selectedPlugin?.Version }})</span
+                      >
                     </template>
                   </template>
                   <template v-else>
@@ -333,19 +342,21 @@
                 }}</span>
               </div>
             </div>
-              <div class="info-item" v-if="
+            <div
+              class="info-item"
+              v-if="
                 isPluginInstalled(selectedPlugin) &&
                 selectedPlugin.installTime &&
                 formatDate(selectedPlugin.installTime, true)
               ">
-                <i class="pi pi-download"></i>
-                <div class="info-content">
-                  <span class="label">安装时间</span>
-                  <span class="value">{{
-                    formatDate(selectedPlugin.installTime, true)
-                  }}</span>
-                </div>
+              <i class="pi pi-download"></i>
+              <div class="info-content">
+                <span class="label">安装时间</span>
+                <span class="value">{{
+                  formatDate(selectedPlugin.installTime, true)
+                }}</span>
               </div>
+            </div>
           </div>
         </div>
       </div>
@@ -416,7 +427,14 @@
                   slotProps.data.Version
                 }}</span>
                 <Tag
-                  v-if="checkPluginUpdate(slotProps.data.Version, plugins.find(p => p.Plugin.WindowId === slotProps.data.WindowId)?.Plugin.Version || '')"
+                  v-if="
+                    checkPluginUpdate(
+                      slotProps.data.Version,
+                      plugins.find(
+                        (p) => p.Plugin.WindowId === slotProps.data.WindowId,
+                      )?.Plugin.Version || '',
+                    )
+                  "
                   severity="warning"
                   value="有更新"
                   class="update-tag" />
@@ -441,8 +459,12 @@
             <template #body="slotProps">
               <div class="status-cell">
                 <Tag
-                  :severity="(slotProps.data.config?.isEnabled ) ? 'success' : 'danger'"
-                  :value="(slotProps.data.config?.isEnabled ) ? '已启用' : '已禁用'" />
+                  :severity="
+                    slotProps.data.config?.isEnabled ? 'success' : 'danger'
+                  "
+                  :value="
+                    slotProps.data.config?.isEnabled ? '已启用' : '已禁用'
+                  " />
               </div>
             </template>
           </Column>
@@ -458,11 +480,26 @@
                   @click="handleDownload(slotProps.data, true)"
                   class="action-button" />
                 <Button
-                  :icon="(slotProps.data.config?.isEnabled) ? 'pi pi-check-circle' : 'pi pi-times-circle'"
-                  :severity="(slotProps.data.config?.isEnabled) ? 'success' : 'danger'"
+                  :icon="
+                    slotProps.data.config?.isEnabled
+                      ? 'pi pi-check-circle'
+                      : 'pi pi-times-circle'
+                  "
+                  :severity="
+                    slotProps.data.config?.isEnabled ? 'success' : 'danger'
+                  "
                   text
-                  v-tooltip.top="(slotProps.data.config?.isEnabled) ? '点击禁用插件' : '点击启用插件'"
-                  @click="togglePlugin(slotProps.data, !(slotProps.data.config?.isEnabled))"
+                  v-tooltip.top="
+                    slotProps.data.config?.isEnabled
+                      ? '点击禁用插件'
+                      : '点击启用插件'
+                  "
+                  @click="
+                    togglePlugin(
+                      slotProps.data,
+                      !slotProps.data.config?.isEnabled,
+                    )
+                  "
                   class="action-button" />
                 <Button
                   icon="pi pi-trash"
@@ -669,15 +706,15 @@ const checkPluginUpdate = (localVersion?: string, remoteVersion?: string) => {
   }
 
   try {
-    const localParts = localVersion.split('.');
-    const remoteParts = remoteVersion.split('.');
-    
+    const localParts = localVersion.split(".");
+    const remoteParts = remoteVersion.split(".");
+
     // 比较主版本号
     const localMajor = parseInt(localParts[0]);
     const remoteMajor = parseInt(remoteParts[0]);
     if (remoteMajor > localMajor) return true;
     if (remoteMajor < localMajor) return false;
-    
+
     // 比较次版本号
     if (localParts.length > 1 && remoteParts.length > 1) {
       const localMinor = parseInt(localParts[1]);
@@ -685,17 +722,17 @@ const checkPluginUpdate = (localVersion?: string, remoteVersion?: string) => {
       if (remoteMinor > localMinor) return true;
       if (remoteMinor < localMinor) return false;
     }
-    
+
     // 比较修订号
     if (localParts.length > 2 && remoteParts.length > 2) {
       const localPatch = parseInt(localParts[2]);
       const remotePatch = parseInt(remoteParts[2]);
       return remotePatch > localPatch;
     }
-    
+
     return false;
   } catch (error) {
-    console.error('版本号比较出错:', error);
+    console.error("版本号比较出错:", error);
     return false;
   }
 };
@@ -705,31 +742,34 @@ const hasUpdate = computed(() => {
   if (!selectedPlugin.value || !isPluginInstalled(selectedPlugin.value)) {
     return false;
   }
-  
+
   const installedPlugin = installedPlugins.value.find(
-    p => p.WindowId === selectedPlugin.value?.WindowId
+    (p) => p.WindowId === selectedPlugin.value?.WindowId,
   );
-  
+
   if (!installedPlugin) {
     return false;
   }
-  
-  return checkPluginUpdate(installedPlugin.Version, selectedPlugin.value.Version);
+
+  return checkPluginUpdate(
+    installedPlugin.Version,
+    selectedPlugin.value.Version,
+  );
 });
 
 /** 显示插件详情 */
 const showPluginDetail = async (pluginDetail: PluginDetail | Plugin) => {
   // 处理已安装插件的情况
-  if ('Plugin' in pluginDetail) {
+  if ("Plugin" in pluginDetail) {
     // 处理插件市场的情况
     const detail = pluginDetail as PluginDetail;
     // 查找已安装插件中是否存在该插件，如果存在则获取安装时间
     const installedPlugin = installedPlugins.value.find(
-      (p) => p.WindowId === detail.Plugin.WindowId
+      (p) => p.WindowId === detail.Plugin.WindowId,
     );
     selectedPlugin.value = {
       ...detail.Plugin,
-      installTime: installedPlugin?.installTime
+      installTime: installedPlugin?.installTime,
     };
     selectedPluginIsRated.value = detail.IsRated;
     userRating.value = detail.Plugin.Rating || 0;
@@ -742,7 +782,7 @@ const showPluginDetail = async (pluginDetail: PluginDetail | Plugin) => {
     if (matchedPlugin) {
       selectedPlugin.value = {
         ...matchedPlugin.Plugin,
-        installTime: plugin.installTime
+        installTime: plugin.installTime,
       };
       selectedPluginIsRated.value = matchedPlugin.IsRated;
       userRating.value = matchedPlugin.Plugin.Rating || 0;
@@ -793,7 +833,7 @@ const getInstalledPlugins = async () => {
         UpdateTime: item.info.updateTime,
         FileUrl: "", // 添加 FileUrl 字段
         installTime: item.info.installTime, // 添加 installTime 字段
-        config: item.config || {} // 如果 config 为空，保持空对象
+        config: item.config || {}, // 如果 config 为空，保持空对象
       }));
     } else {
       installedPluginIds.value = [];
@@ -815,24 +855,24 @@ const getInstalledPlugins = async () => {
 };
 
 /** 下载或更新插件 */
-const handleDownload = async (plugin: Plugin | null, isUpdate: boolean = false) => {
+const handleDownload = async (
+  plugin: Plugin | null,
+  isUpdate: boolean = false,
+) => {
   if (!plugin?.WindowId) return;
 
   try {
     showLoading();
     const response = await downloadPlugin({
       WindowId: plugin.WindowId,
-      IsUpdate: isUpdate
+      IsUpdate: isUpdate,
     });
 
     if (response.Code !== ResponseCodeEnum.SUCCESS || !response.Data) {
       throw new Error("下载链接获取失败");
     }
 
-    await installPlugin(
-      response.Data.toString(),
-      plugin.WindowId,
-    );
+    await installPlugin(response.Data.toString(), plugin.WindowId);
 
     if (plugin) {
       const currentConfig = (await getPluginConfig(["pluginList"])) || [];
@@ -869,9 +909,7 @@ const handleDownload = async (plugin: Plugin | null, isUpdate: boolean = false) 
         },
       };
 
-      const index = pluginList.findIndex(
-        (p) => p.windowId === plugin.WindowId,
-      );
+      const index = pluginList.findIndex((p) => p.windowId === plugin.WindowId);
       if (index !== -1) {
         pluginList[index] = pluginConfig;
       } else {
@@ -893,7 +931,10 @@ const handleDownload = async (plugin: Plugin | null, isUpdate: boolean = false) 
     toast.add({
       severity: "error",
       summary: "错误",
-      detail: error instanceof Error ? error.message : `插件${isUpdate ? "更新" : "下载"}失败`,
+      detail:
+        error instanceof Error
+          ? error.message
+          : `插件${isUpdate ? "更新" : "下载"}失败`,
       life: 3000,
     });
   } finally {
@@ -983,14 +1024,14 @@ const togglePlugin = async (plugin: Plugin, enable: boolean) => {
     }
 
     // 更新插件状态
-    const updatedConfig = currentConfig.map(item => {
+    const updatedConfig = currentConfig.map((item) => {
       if (item.windowId === plugin.WindowId) {
         return {
           ...item,
           config: {
             ...item.config,
-            isEnabled: enable
-          }
+            isEnabled: enable,
+          },
         };
       }
       return item;

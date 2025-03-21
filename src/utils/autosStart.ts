@@ -1,5 +1,5 @@
 import { enable, isEnabled, disable } from "@tauri-apps/plugin-autostart";
-import { updateConfig, getConfig } from "./config";
+import { updateConfig } from "./config";
 
 /**
  * 同步检查系统开机启动状态并更新数据库

@@ -57,7 +57,7 @@ const close = () => {
   border-radius: 12px;
   z-index: 2;
   cursor: default;
-  box-shadow: 
+  box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.05),
     0 10px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -97,7 +97,7 @@ const close = () => {
   padding: 4px;
   border-radius: 50%;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.06);
     color: #333;
@@ -127,15 +127,15 @@ const close = () => {
   flex: 1;
   text-align: center;
   white-space: nowrap;
-  
+
   &:hover {
     color: #4a85c9;
   }
-  
+
   &.active {
     color: #4a85c9;
     font-weight: 500;
-    
+
     &:after {
       content: "";
       position: absolute;

@@ -12,7 +12,7 @@ export const ipcInstallPlugin = async (url: string, windowId: string) => {
 /**
  * 卸载插件
  * @param windowId 要卸载的插件的窗口ID
- * 
+ *
  * @example
  * await ipcUninstallPlugin('my-plugin-window');
  */

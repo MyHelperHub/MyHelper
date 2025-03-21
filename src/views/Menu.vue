@@ -73,7 +73,7 @@ const closeAllMenu = () => {
 const openCommon = (event: MouseEvent, key: keyof CommonState) => {
   const target = event.target as HTMLElement;
   // 如果点击的元素或其父元素有 keep-menu 属性，不关闭菜单
-  if (target.closest('[keep-menu]')) {
+  if (target.closest("[keep-menu]")) {
     return;
   }
   if (commonState.value[key]) {

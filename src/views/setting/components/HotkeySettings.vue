@@ -5,23 +5,52 @@
         <div class="hotkey-item">
           <div class="hotkey-info">
             <h4>{{ item.title }}</h4>
-            <div class="hotkey-input-container" :class="{
-              'disabled': !modelValue[key]?.enabled,
-              'recording': recording && activeKey === key
-            }">
-              <input class="hotkey-input" :value="recording && activeKey === key ? tempKey : modelValue[key]?.key"
-                readonly @focus="handleInputClick(key)" @blur="cancelRecording" @keydown="captureHotkey($event)"
-                placeholder="点击输入快捷键" :disabled="!modelValue[key]?.enabled"
-                :ref="el => { if (key === activeKey) activeInputRef = el as HTMLInputElement }" />
-              <i v-if="recording && activeKey === key" class="pi pi-times edit-icon" @click.stop="cancelRecording"></i>
-              <i v-else class="pi pi-trash delete-icon" @click.stop="clearHotkey(key)"
-                :class="{ 'disabled': !modelValue[key]?.enabled }"></i>
+            <div
+              class="hotkey-input-container"
+              :class="{
+                disabled: !modelValue[key]?.enabled,
+                recording: recording && activeKey === key,
+              }">
+              <input
+                class="hotkey-input"
+                :value="
+                  recording && activeKey === key
+                    ? tempKey
+                    : modelValue[key]?.key
+                "
+                readonly
+                @focus="handleInputClick(key)"
+                @blur="cancelRecording"
+                @keydown="captureHotkey($event)"
+                placeholder="点击输入快捷键"
+                :disabled="!modelValue[key]?.enabled"
+                :ref="
+                  (el) => {
+                    if (key === activeKey)
+                      activeInputRef = el as HTMLInputElement;
+                  }
+                " />
+              <i
+                v-if="recording && activeKey === key"
+                class="pi pi-times edit-icon"
+                @click.stop="cancelRecording"></i>
+              <i
+                v-else
+                class="pi pi-trash delete-icon"
+                @click.stop="clearHotkey(key)"
+                :class="{ disabled: !modelValue[key]?.enabled }"></i>
             </div>
           </div>
-          <ToggleSwitch v-model="modelValue[key].enabled" class="mini-switch"
+          <ToggleSwitch
+            v-model="modelValue[key].enabled"
+            class="mini-switch"
             @change="updateHotkey(`${key}.enabled`, modelValue[key].enabled)">
             <template #handle="{ checked }">
-              <i :class="['!text-xs pi', { 'pi-check': checked, 'pi-times': !checked }]"></i>
+              <i
+                :class="[
+                  '!text-xs pi',
+                  { 'pi-check': checked, 'pi-times': !checked },
+                ]"></i>
             </template>
           </ToggleSwitch>
         </div>
@@ -46,8 +75,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: HotkeyConfig): void;
-  (e: 'change', key: string, value: any): void;
+  (e: "update:modelValue", value: HotkeyConfig): void;
+  (e: "change", key: string, value: any): void;
 }>();
 
 // 当前正在录制状态
@@ -61,7 +90,7 @@ const tempKey = ref("");
 
 // 更新快捷键设置
 const updateHotkey = (path: string, value: any) => {
-  emit('change', path, value);
+  emit("change", path, value);
 };
 
 // 处理输入框点击
@@ -100,15 +129,20 @@ const clearHotkey = (key: string) => {
   const updatedModel = JSON.parse(JSON.stringify(props.modelValue));
   updatedModel[key].key = "";
 
-  emit('update:modelValue', updatedModel);
-  emit('change', `${key}.key`, "");
+  emit("update:modelValue", updatedModel);
+  emit("change", `${key}.key`, "");
 
   showMessage(`已清空快捷键`, 1500, 1);
 };
 
 // 捕获快捷键
 const captureHotkey = async (event: KeyboardEvent) => {
-  if (!recording.value || !activeKey.value || !props.modelValue[activeKey.value]?.enabled) return;
+  if (
+    !recording.value ||
+    !activeKey.value ||
+    !props.modelValue[activeKey.value]?.enabled
+  )
+    return;
 
   event.preventDefault();
   event.stopPropagation();
@@ -117,27 +151,31 @@ const captureHotkey = async (event: KeyboardEvent) => {
   const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
   // 使用标准完整名称，以匹配Tauri内部表示
-  if (event.metaKey) modifiers.push(isMac ? 'command' : 'meta');
-  if (event.ctrlKey) modifiers.push('control');
-  if (event.altKey) modifiers.push(isMac ? 'option' : 'alt');
-  if (event.shiftKey) modifiers.push('shift');
+  if (event.metaKey) modifiers.push(isMac ? "command" : "meta");
+  if (event.ctrlKey) modifiers.push("control");
+  if (event.altKey) modifiers.push(isMac ? "option" : "alt");
+  if (event.shiftKey) modifiers.push("shift");
 
   // 处理单独修饰键
-  if (!event.key || ['Control', 'Alt', 'Shift', 'Meta'].includes(event.key)) {
-    tempKey.value = modifiers.length > 0 ? `${modifiers.join('+')}+` : "";
+  if (!event.key || ["Control", "Alt", "Shift", "Meta"].includes(event.key)) {
+    tempKey.value = modifiers.length > 0 ? `${modifiers.join("+")}+` : "";
     return;
   }
 
-  const keyName = event.key === ' ' ? 'space' : event.key.toLowerCase();
+  const keyName = event.key === " " ? "space" : event.key.toLowerCase();
 
   // 确保至少有一个修饰键
   if (modifiers.length === 0) {
     tempKey.value = ""; // 清空临时显示
-    showMessage(`请使用组合键（${isMac ? 'Command/Option/Ctrl' : 'Ctrl/Alt/Shift'} + 其他键）`, 1500, 2);
+    showMessage(
+      `请使用组合键（${isMac ? "Command/Option/Ctrl" : "Ctrl/Alt/Shift"} + 其他键）`,
+      1500,
+      2,
+    );
     return;
   }
 
-  const hotkey = `${modifiers.join('+')}+${keyName}`;
+  const hotkey = `${modifiers.join("+")}+${keyName}`;
 
   // 更新临时显示
   tempKey.value = hotkey;
@@ -146,8 +184,8 @@ const captureHotkey = async (event: KeyboardEvent) => {
   const updatedModel = JSON.parse(JSON.stringify(props.modelValue));
   updatedModel[activeKey.value].key = hotkey;
 
-  emit('update:modelValue', updatedModel);
-  emit('change', `${activeKey.value}.key`, hotkey);
+  emit("update:modelValue", updatedModel);
+  emit("change", `${activeKey.value}.key`, hotkey);
 
   showMessage(`已设置快捷键: ${hotkey}`, 1500, 1);
 

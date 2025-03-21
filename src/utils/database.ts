@@ -1,4 +1,8 @@
-import { ipcSetConfigValue, ipcGetConfigValue, ipcDeleteConfigValue } from "@/api/ipc/database.api";
+import {
+  ipcSetConfigValue,
+  ipcGetConfigValue,
+  ipcDeleteConfigValue,
+} from "@/api/ipc/database.api";
 
 export async function setConfigValue(key: string, value: any) {
   await ipcSetConfigValue(key, value);

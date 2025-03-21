@@ -11,10 +11,10 @@ export async function showContextMenu(event: MouseEvent) {
     text: isAlwaysOnTop ? "取消置顶" : "置顶",
     action: async () => {
       isAlwaysOnTop = !isAlwaysOnTop; // 切换状态
-      await ipcWindowControl(
-        WindowOperation.ToggleAlwaysOnTop,
-        { window_id: NewWindowEnum.Label, always_on_top: isAlwaysOnTop }
-      );
+      await ipcWindowControl(WindowOperation.ToggleAlwaysOnTop, {
+        window_id: NewWindowEnum.Label,
+        always_on_top: isAlwaysOnTop,
+      });
     },
   });
 

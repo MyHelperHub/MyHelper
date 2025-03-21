@@ -48,10 +48,10 @@ const popoverRef = ref(false);
 const pluginList = ref<PluginConfig[]>([]);
 
 const init = async () => {
-  const allPlugins = await getPluginConfig(["pluginList"]) as PluginConfig[];
+  const allPlugins = (await getPluginConfig(["pluginList"])) as PluginConfig[];
   // 只显示已启用的插件
-  pluginList.value = allPlugins.filter(plugin => 
-    plugin.config?.isEnabled === true
+  pluginList.value = allPlugins.filter(
+    (plugin) => plugin.config?.isEnabled === true,
   );
 };
 
@@ -64,7 +64,7 @@ const handleClick = async (item: PluginConfig) => {
     }
 
     // 检查插件的 index.html 文件是否存在
-   const exists = await ipcFileExists(item.data.url);
+    const exists = await ipcFileExists(item.data.url);
 
     if (!exists) {
       showMessage("插件文件不存在，请重新安装插件", 3000, 2);
@@ -74,9 +74,9 @@ const handleClick = async (item: PluginConfig) => {
     const realPath = `http://asset.localhost/${item.data.url}`;
     const success = await ipcCreateNewWindow({
       ...item.data,
-      url: realPath
+      url: realPath,
     });
-    
+
     if (!success) {
       showMessage("打开插件失败", 3000, 2);
     }

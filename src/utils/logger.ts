@@ -52,4 +52,4 @@ export class Logger {
     };
     await this.writeLog(entry);
   }
-} 
+}

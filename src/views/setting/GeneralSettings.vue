@@ -3,46 +3,51 @@
     <h3>常用设置</h3>
     <div class="item">
       <h4>剪贴板监听</h4>
-      <ToggleSwitch v-model="settingData.clipboardListening" @change="
-        handleChange('clipboardListening', settingData.clipboardListening)
+      <ToggleSwitch
+        v-model="settingData.clipboardListening"
+        @change="
+          handleChange('clipboardListening', settingData.clipboardListening)
         ">
         <template #handle="{ checked }">
-          <i :class="[
-            '!text-xs pi',
-            { 'pi-check': checked, 'pi-times': !checked },
-          ]"></i>
+          <i
+            :class="[
+              '!text-xs pi',
+              { 'pi-check': checked, 'pi-times': !checked },
+            ]"></i>
         </template>
       </ToggleSwitch>
     </div>
     <div class="item">
       <h4>全局快捷键</h4>
-      <ToggleSwitch v-model="settingData.hotkey.enabled" @change="
-        handleChange('hotkey.enabled', settingData.hotkey.enabled)
-        ">
+      <ToggleSwitch
+        v-model="settingData.hotkey.enabled"
+        @change="handleChange('hotkey.enabled', settingData.hotkey.enabled)">
         <template #handle="{ checked }">
-          <i :class="[
-            '!text-xs pi',
-            { 'pi-check': checked, 'pi-times': !checked },
-          ]"></i>
+          <i
+            :class="[
+              '!text-xs pi',
+              { 'pi-check': checked, 'pi-times': !checked },
+            ]"></i>
         </template>
       </ToggleSwitch>
     </div>
-    <div class="item">
-      <h4>开机启动</h4>
-      <ToggleSwitch v-model="settingData.autoStart" @change="
-        handleChange('autoStart', settingData.autoStart)
-        ">
-        <template #handle="{ checked }">
-          <i :class="[
-            '!text-xs pi',
-            { 'pi-check': checked, 'pi-times': !checked },
-          ]"></i>
-        </template>
-      </ToggleSwitch>
-    </div>
-
     <!-- 使用快捷键设置组件 -->
     <HotkeySettings v-model="settingData.hotkey" @change="handleHotkeyChange" />
+
+    <div class="item">
+      <h4>开机启动</h4>
+      <ToggleSwitch
+        v-model="settingData.autoStart"
+        @change="handleChange('autoStart', settingData.autoStart)">
+        <template #handle="{ checked }">
+          <i
+            :class="[
+              '!text-xs pi',
+              { 'pi-check': checked, 'pi-times': !checked },
+            ]"></i>
+        </template>
+      </ToggleSwitch>
+    </div>
 
     <div class="item">
       <h4>数据重置</h4>
@@ -52,15 +57,32 @@
     </div>
 
     <!-- 数据重置对话框 -->
-    <Dialog v-model:visible="showDataResetModal" :dismissableMask="true" header="数据重置" modal appendTo="self"
+    <Dialog
+      v-model:visible="showDataResetModal"
+      :dismissableMask="true"
+      header="数据重置"
+      modal
+      appendTo="self"
       :closable="false">
       <ConfirmPopup></ConfirmPopup>
       <div class="modal-content">
-        <Button class="modal-button" label="常用网站重置" severity="info" variant="outlined"
+        <Button
+          class="modal-button"
+          label="常用网站重置"
+          severity="info"
+          variant="outlined"
           @click="handleDataReset(['webConfig'], $event)"></Button>
-        <Button class="modal-button" label="常用软件重置" severity="info" variant="outlined"
+        <Button
+          class="modal-button"
+          label="常用软件重置"
+          severity="info"
+          variant="outlined"
           @click="handleDataReset(['appConfig'], $event)"></Button>
-        <Button class="modal-button" label="全部重置" severity="info" variant="outlined"
+        <Button
+          class="modal-button"
+          label="全部重置"
+          severity="info"
+          variant="outlined"
           @click="handleDataReset([], $event)"></Button>
       </div>
     </Dialog>
@@ -121,9 +143,12 @@ const handleChange = async (key: string, value: any) => {
 const handleHotkeyChange = async () => {
   await setHotkeyEnabled(settingData.value.hotkey);
   await setConfig("settingConfig", settingData.value);
-}
+};
 
-const handleDataReset = async (keys: string[], event: { currentTarget: any }) => {
+const handleDataReset = async (
+  keys: string[],
+  event: { currentTarget: any },
+) => {
   confirm.require({
     target: event.currentTarget,
     message: "确认要重置数据吗？",

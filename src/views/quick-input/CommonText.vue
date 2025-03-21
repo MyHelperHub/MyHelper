@@ -52,7 +52,9 @@ const scrollContainer = ref<string | HTMLElement | undefined>();
 
 const init = async () => {
   try {
-    const config = await getConfig<{ commonText: QuickInputItem[] }>("quickInputConfig");
+    const config = await getConfig<{ commonText: QuickInputItem[] }>(
+      "quickInputConfig",
+    );
     formData.value = config?.commonText || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
@@ -200,7 +202,7 @@ const pasteTo = (item: QuickInputItem) => {
   }
 
   .add-button {
-    position: fixed;
+    position: absolute;
     background: white;
     width: 40px;
     height: 40px;
@@ -208,8 +210,8 @@ const pasteTo = (item: QuickInputItem) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    right: 35px;
-    bottom: 35px;
+    right: 15px;
+    bottom: 15px;
     z-index: 1;
     box-shadow: 0 2px 8px 0px rgba(0, 0, 0, 0.16);
     transition: 0.3s;
