@@ -78,16 +78,12 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> AppResult<String> {
 #[tauri::command]
 pub fn set_logo(image_base64: &str) -> Result<String, AppError> {
     let myhelper_path = get_myhelper_path().map_err(|e| AppError::Error(e))?;
-    let icon_path = myhelper_path.join("Image").join("Logo");
+    let icon_path = myhelper_path.join("Image");
 
     let img = load_image_from_base64(image_base64)?;
     let resized_img = img.resize_exact(200, 200, image::imageops::FilterType::Lanczos3);
 
-    let random_file_name: String = (0..8)
-        .map(|_| rng().sample(rand::distr::Alphanumeric) as char)
-        .collect();
-    let file_name = format!("{}{}.png", "logo_", random_file_name);
-    let output_path = icon_path.join(file_name);
+    let output_path = icon_path.join("logo.png");
 
     // 确保目录存在
     if let Some(parent) = output_path.parent() {
