@@ -1,6 +1,6 @@
 # 📣 MyHelper: 您的跨平台效率助手，让工作更智能！
 
-![MyHelper Logo](https://github.com/MyHelperHub/myhelper/raw/main/public/icon.png)
+<img src="https://hv.z.wiki/autoupload/20250331/nzqx/512X512/icon.png" width="120"/>
 
 ## 🚀 效率工具的全新选择
 
@@ -61,8 +61,10 @@ MyHelper的插件系统让你能够完全**定制你的工作体验**：
 
 - **Vue3 + TypeScript** 开发环境，热重载秒级生效
 - 默认集成**PrimeVue组件库**，也可使用任意Vue3组件库
-- 支持**窗口自定义**、系统API调用、配置存储
+- 支持**窗口自定义**、浏览器API调用、配置存储
 - 轻松打包上传，快速审核上线
+
+> **插件开发说明**：由于目前暂未探寻出合适的**社区插件审核方案**，故暂且禁止第三方上传插件，若您有好的插件想法或方案欢迎与作者沟通交流。
 
 ## 💫 项目背景与愿景
 
