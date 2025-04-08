@@ -6,10 +6,6 @@ on:
       - "v*" # 推送事件匹配 v*, 例如 v1.0，v20.15.10 等来触发工作流
   workflow_dispatch:
 
-# 添加全局权限配置
-permissions:
-  actions: write
-
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -36,7 +32,7 @@ jobs:
         id: create_release
         run: npx changelogithub --draft --name ${{ steps.vars.outputs.tag }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   build-app:
     needs: create-release
@@ -104,7 +100,7 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           CI: false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
