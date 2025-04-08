@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
 
 # 添加全局权限配置
-permissions:
-  contents: write # 提供写入仓库内容的权限，用于创建release
+permissions: write-all # 提供写入仓库内容的权限，用于创建release
 
 jobs:
   create-release:
