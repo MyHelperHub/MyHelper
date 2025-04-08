@@ -31,7 +31,7 @@ if (Window.getCurrent().label === "main") {
     try {
       // 初始化设置
       const settingConfig = (await getConfig("settingConfig")) || {};
-      initSetting(settingConfig);
+      await initSetting(settingConfig);
       // 监听设置变化,将所有设置都放在main窗口里执行
       listen(
         "update:setting",
@@ -44,13 +44,15 @@ if (Window.getCurrent().label === "main") {
       await runStartupTasks((key) => {
         // 通过键路径获取值（支持嵌套路径如'hotkey.enabled'）
         const getValue = (obj: any, path: string): any => {
-          return path
-            .split(".")
-            .reduce(
-              (prev, curr) =>
-                prev && prev[curr] !== undefined ? prev[curr] : undefined,
-              obj,
-            );
+          if (!obj || !path) return undefined;
+          const keys = path.split(".");
+
+          for (const key of keys) {
+            if (obj === undefined || obj === null) return undefined;
+            obj = obj[key];
+          }
+
+          return obj;
         };
 
         return getValue(settingConfig, key) === true;
