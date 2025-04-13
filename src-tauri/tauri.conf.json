@@ -82,7 +82,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://api.ialtone.xyz/myhelper/update.json"
+        "https://myhelper.ialtone.xyz/update.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEEzNzMwOUYyNzQ3QzU2MTgKUldRWVZueDA4Z2x6bzVkd0NQNDJpZFZLOHVYdXJGTEFZM3lCdktZNlBoMldWL3p1enRLVEp3M0YK"
     }

@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "tauri dev": "tauri dev",
     "tauri build": "tauri build",
+    "build:prod": "vue-tsc --noEmit && vite build --mode production",
+    "tauri build:prod": "tauri build --mode production",
     "format": "prettier --write src/"
   },
   "dependencies": {
