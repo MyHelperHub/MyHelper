@@ -84,9 +84,9 @@ MyHelper诞生于校园，是一个**大学生创新项目**，以热爱和创�
 
 ## 🔗 立即体验
 
-- 📥 [下载地址](https://github.com/MyHelperHub/myhelper/releases)
-- 📚 [项目文档](https://github.com/MyHelperHub/myhelper/wiki)
-- 🐛 [问题反馈](https://github.com/MyHelperHub/myhelper/issues)
+- 💻 [GitHub仓库](https://github.com/MyHelperHub/MyHelper)
+- 📥 [下载地址](https://github.com/MyHelperHub/MyHelper/releases)
+- 🐛 [问题反馈](https://github.com/MyHelperHub/MyHelper/issues)
 
 ## 🤝 加入我们
 
