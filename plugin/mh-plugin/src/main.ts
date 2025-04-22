@@ -3,7 +3,7 @@ import PrimeVue from "primevue/config";
 import App from "./App.vue";
 import "#/assets/css/main.css";
 import "primeicons/primeicons.css";
-import Lara from "@primevue/themes/lara";
+import Lara from "@primeuix/themes/lara";
 import ToastService from "primevue/toastservice";
 
 const app = createApp(App);

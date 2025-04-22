@@ -8,7 +8,7 @@ import router from "./router";
 import "primeicons/primeicons.css";
 import { Window } from "@tauri-apps/api/window";
 import PrimeVue from "primevue/config";
-import Lara from "@primevue/themes/lara";
+import Lara from '@primeuix/themes/aura';
 import { ipcSetWindowSize } from "./api/ipc/window.api";
 import {
   handleSettingChange,

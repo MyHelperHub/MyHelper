@@ -109,4 +109,4 @@ jobs:
           releaseBody: ""
           releaseDraft: true
           prerelease: false
-          args: --target ${{ matrix.target }}
+          args: --target ${{ matrix.target }} --mode production
