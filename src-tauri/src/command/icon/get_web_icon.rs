@@ -33,6 +33,7 @@ const ICON_SELECTORS: &[(&str, &str)] = &[
         "href",
     ),
     ("link[rel='icon'][type='image/png']", "href"),
+    ("link[rel='icon']", "href"),
     ("link[rel='icon'][type='image/x-icon']", "href"),
     ("link[rel='shortcut icon']", "href"),
     ("meta[property='og:image']", "content"),
