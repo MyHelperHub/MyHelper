@@ -37,7 +37,10 @@ export default defineConfig(async () => ({
   resolve: {
     //使用@路径
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)), // 使用 import.meta.url
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "mh-plugin": fileURLToPath(
+        new URL("./plugin/mh-plugin", import.meta.url),
+      ),
     },
   },
 }));

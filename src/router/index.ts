@@ -35,7 +35,7 @@ const baseRoutes = [
   },
 ];
 
-// mhPlugin.json中读取windowId创建插件路由
+// mhPlugin.json中读取windowId创建插件路由  后续此处可改用api地址获取pluginConfig
 const pluginRoute = import.meta.env.DEV
   ? {
       path: "/plugin",
