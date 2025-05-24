@@ -57,3 +57,12 @@ export function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
   showMessage("已复制到剪贴板", 2500, 1);
 }
+
+/** 从剪贴板历史中删除指定项目 */
+export function removeClipboardItem(id: number) {
+  const index = clipboardData.value.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    clipboardData.value.splice(index, 1);
+    showMessage("已删除", 2000, 1);
+  }
+}
