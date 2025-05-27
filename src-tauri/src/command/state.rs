@@ -10,7 +10,7 @@ pub struct GlobalData {
     data: RwLock<HashMap<String, Value>>,
 }
 
-#[permission_macro::permission("main", "setting", "my")]
+#[permission_macro::permission("main", "setting", "my", "pluginMarket")]
 #[tauri::command]
 pub async fn set_global_data(
     state: State<'_, Arc<GlobalData>>,
