@@ -109,7 +109,7 @@ import { setUserConfig } from "@/utils/user";
 import { User, UserForm } from "@/interface/user";
 import GlobalData from "@/utils/globalData";
 import { ResponseCodeEnum } from "@/interface/enum";
-import { updateToken } from "@/api/network/wrapper";
+import { tokenManager } from "@/utils/tokenManager";
 
 const userData = ref<UserForm>({
   UserId: -1,
@@ -169,7 +169,7 @@ const handleLoginSubmit = async () => {
       userData.value = { ...res.Data.UserInfo, Token: res.Data.Token };
       await setUserConfig(userData.value);
       await GlobalData.set("userInfo", userData.value);
-      updateToken(res.Data.Token);
+      await tokenManager.setToken(res.Data.Token, res.Data.UserInfo);
       showMessage(`${userData.value.Username}, 欢迎回来!`, 3000, 1);
       closeModal();
     } else {
@@ -256,7 +256,7 @@ const handleLogin = async () => {
     try {
       await setUserConfig({});
       await GlobalData.set("userInfo", {} as User);
-      updateToken(null);
+      await tokenManager.clearToken();
       userData.value = {} as User;
       showMessage("注销成功!", 3000, 1);
     } catch (error) {

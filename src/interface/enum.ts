@@ -14,6 +14,8 @@ export enum ResponseCodeEnum {
   FORBIDDEN = "0004",
   /** 参数检验失败 */
   VALIDATE_FAILED = "0005",
+  /** token已过期，请刷新token */
+  TOKEN_EXPIRED = "0006",
 }
 
 /**

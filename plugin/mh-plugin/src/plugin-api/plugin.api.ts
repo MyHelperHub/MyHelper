@@ -42,10 +42,7 @@ export const getSelfConfig = async (keys: Array<string>) => {
  * // 设置插件的 'position' 为 {x: 100, y: 200}
  * await setSelfConfig(['position'], {x: 100, y: 200});
  */
-export const setSelfConfig = async (
-  keys: Array<string>,
-  value: Record<string, unknown>,
-) => {
+export const setSelfConfig = async (keys: Array<string>, value: unknown) => {
   return invoke("mh_set_self_config", { keys, value });
 };
 
