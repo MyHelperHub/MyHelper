@@ -1,0 +1,119 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+你是 Tauri、Vue 3、TypeScript、Rust 和现代桌面应用开发的专家。
+
+项目概述：
+这是一个跨平台桌面应用，使用 Vue 3 + TypeScript + Vite 前端，Rust (Tauri) 后端，PrimeVue UI 组件，UnoCSS 样式，以及 pnpm 包管理。
+
+核心开发原则：
+- 编写简洁、技术性的回应，提供准确的 Rust 和 TypeScript 示例
+- 使用函数式和声明式编程模式；尽可能避免类
+- 支持迭代和模块化，遵循 DRY 原则避免代码重复
+- 优先组合而非继承
+- 使用描述性变量名，带有辅助动词（isLoading、hasError）
+- 逻辑性地组织文件：导出组件、子组件、辅助函数、静态内容、类型
+- 优先使用utils中已经写好的工具函数
+
+TypeScript/Vue 3 规则：
+- 始终使用 Vue 3 Composition API 和 script setup 语法
+- 所有新代码使用 TypeScript
+- 对象形状优先使用 interface 而不是 type
+- 适当使用 ref、reactive 和 computed
+- 实现适当的错误处理，提供用户友好的错误消息
+- 使用 Vue Router 进行导航
+- 遵循 Vue 3 风格指南和最佳实践
+
+文件结构：
+src/components/ - 可复用的 Vue 组件
+src/views/ - 页面组件
+src/router/ - Vue Router 配置
+src/api/ipc/ -与Tauri沟通的invoke的配置
+src/api/network/ -api服务
+src/utils/ - 工具函数
+src/types/ - TypeScript 类型定义
+src/interface/ - 接口定义
+src/assets/ - 静态资源
+src-tauri/src/command/ - Tauri 命令
+src-tauri/src/utils/ - Rust 工具函数
+src-tauri/src/mh_plugin/ - 插件模块
+src-tauri/capabilities/ - Tauri 权限配置
+
+Rust/Tauri 规则：
+- 使用 tauri::command 将函数暴露给前端
+- 使用 Result<T, E> 实现适当的错误处理
+- 使用 serde 进行序列化/反序列化
+- 遵循 Rust 命名约定（函数使用 snake_case，类型使用 PascalCase）
+- 使用 tokio 进行异步操作
+- 实现适当的资源管理和清理
+- 使用 parking_lot 进行同步原语
+
+UI/UX 指南：
+- 使用 PrimeVue 组件保持 UI 一致性
+- 实现响应式设计原则
+- 使用 UnoCSS 工具类进行样式设计
+- 遵循可访问性最佳实践
+- 确保跨平台兼容性（Windows、macOS、Linux）
+
+依赖项：
+前端：Vue 3、TypeScript、Vite、Vue Router、PrimeVue、UnoCSS、Axios
+后端：Tauri 2.x、Tokio、Serde、Reqwest、Rusqlite
+工具：pnpm、Prettier、TypeScript 编译器、Tauri CLI
+优先使用 [package.json](mdc:package.json) 和 [Cargo.toml](mdc:src-tauri/Cargo.toml) 中已有的第三方库
+
+命名约定：
+Vue 组件：PascalCase（UserProfile.vue）
+Composables：camelCase 带 use 前缀（useUserStore.ts）
+TypeScript 接口：PascalCase（UserInterface.ts）
+Rust 函数：snake_case（get_user_data）
+Rust 结构体：PascalCase（UserData）
+
+事件命名约定：
+Tauri emit：使用冒号命名进行跨窗口通信，如 emit('my:event')
+EventBus emit：使用破折号命名进行窗口内通信，如 emit('my-event')
+Vue emit：使用驼峰命名进行子组件到父组件通信，如 emit('myEvent')
+
+Tauri 命令模式：
+#[tauri::command]
+async fn command_name(param: String) -> Result<ReturnType, String> {
+    // 实现
+}
+
+Vue 组件模式：
+使用 script setup，按以下顺序组织代码：导入、props/emits、composables、响应式状态、计算属性、方法、生命周期钩子
+
+性能：
+- 适当时使用 shallowRef 和 shallowReactive,
+- 为路由和组件实现懒加载
+- 优化 Tauri 包大小
+- 使用适当的缓存策略
+- 最小化主线程阻塞操作
+
+安全性：
+- 验证 Tauri 命令中的所有输入
+- 适当使用 CSP
+- 清理用户输入
+- 遵循 Rust 和 TypeScript 的安全编码实践
+
+错误处理：
+- 在 Rust 中 [error.rs](mdc:src-tauri/src/utils/error.rs)
+- 在 Vue 中 [errorHandler.ts](mdc:src/utils/errorHandler.ts)
+- 为用户提供有意义的错误消息
+- 适当记录错误以便调试
+
+日志信息：
+- 在前端中用 [logger.ts](mdc:src/utils/logger.ts),它会调用rust接口写入本地日志, 在rust用 [logger.rs](mdc:src-tauri/src/utils/logger.rs),需要注意前端的这个并不可以替代console.log
+
+始终保持与现有代码库模式的一致性，优先考虑代码复用性和模块化。
+
+
+
+
+
+
+
+
+
+
