@@ -72,6 +72,15 @@
         <Column field="Version" header="版本" style="width: 100px" />
         <Column
           v-if="activeMenu === MenuKey.MyPlugins"
+          field="Category"
+          header="分类"
+          style="width: 120px">
+          <template #body="{ data }">
+            {{ getCategoryName(data.Category) }}
+          </template>
+        </Column>
+        <Column
+          v-if="activeMenu === MenuKey.MyPlugins"
           field="Downloads"
           header="下载次数"
           style="width: 100px" />
@@ -262,6 +271,18 @@
                     errors.Version
                   }}</small>
                 </div>
+                <div>
+                  <label class="block mb-2"
+                    >插件分类 <span class="text-red-500">*</span></label
+                  >
+                  <Dropdown
+                    v-model="pluginForm.Category"
+                    :options="categoryOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full"
+                    placeholder="选择插件分类" />
+                </div>
               </div>
             </div>
 
@@ -375,7 +396,7 @@
               </div>
               <div>
                 <label class="block mb-2">
-                  窗口置Y <span class="text-red-500">*</span>
+                  窗口位置Y <span class="text-red-500">*</span>
                   <i
                     class="pi pi-question-circle ml-1 text-gray-400 cursor-help"
                     v-tooltip.top="'默认值 -1 表示窗口垂直居中'" />
@@ -536,6 +557,12 @@
                   }}</span>
                 </div>
               </div>
+              <div v-if="selectedPlugin.Category !== undefined">
+                <label class="text-sm text-gray-600">分类</label>
+                <p class="mt-1">
+                  {{ getCategoryName(selectedPlugin.Category) }}
+                </p>
+              </div>
             </div>
 
             <!-- 插件标签 -->
@@ -612,6 +639,7 @@ import ConfirmPopup from "primevue/confirmpopup";
 import InputNumber from "primevue/inputnumber";
 import Checkbox from "primevue/checkbox";
 import InputChips from "primevue/inputchips";
+import Dropdown from "primevue/dropdown";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { ResponseCodeEnum, WindowOperation } from "@/interface/enum";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
@@ -626,7 +654,7 @@ import {
   deletePlugin,
   uploadImage,
 } from "@/api/network/plugin.api";
-import { PluginStatus } from "@/interface/plugin.d";
+import { PluginStatus, PluginCategory } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/utils/loading";
 import GlobalData from "@/utils/globalData";
 import Paginator from "primevue/paginator";
@@ -764,7 +792,7 @@ interface Plugin {
   Resizable?: boolean;
   Message?: string;
   HasUpdate?: boolean;
-  Category?: string;
+  Category?: PluginCategory;
   Email?: string;
 }
 
@@ -789,6 +817,7 @@ const pluginForm = ref({
   Position: [-1, -1] as [number, number],
   AlwaysOnTop: false,
   Resizable: true,
+  Category: PluginCategory.OTHER,
 });
 
 const selectedPlugin = ref<Plugin | null>(null);
@@ -836,6 +865,7 @@ const resetForm = () => {
     Position: [-1, -1],
     AlwaysOnTop: false,
     Resizable: true,
+    Category: PluginCategory.OTHER,
   };
   errors.value = {
     Name: "",
@@ -865,6 +895,7 @@ const editPlugin = (plugin: Plugin) => {
     Position: plugin.Position || [-1, -1],
     AlwaysOnTop: plugin.AlwaysOnTop ?? false,
     Resizable: plugin.Resizable ?? true,
+    Category: plugin.Category ?? PluginCategory.OTHER,
   });
 };
 
@@ -1123,6 +1154,7 @@ const submitPlugin = async () => {
       AlwaysOnTop: pluginForm.value.AlwaysOnTop,
       Resizable: pluginForm.value.Resizable,
       FileUrl: fileResponse.Data,
+      Category: pluginForm.value.Category,
     };
 
     const response = await createPlugin(pluginData);
@@ -1191,6 +1223,7 @@ const handleUpdatePlugin = async () => {
           AlwaysOnTop: pluginForm.value.AlwaysOnTop,
           Resizable: pluginForm.value.Resizable,
           FileUrl: fileUrl, // 如果有新文件则更新，否则保持原值
+          Category: pluginForm.value.Category,
         };
 
         const response = await updatePlugin(
@@ -1476,6 +1509,26 @@ const onRowClick = (event: { data: Plugin }) => {
     // 我的插件的详情展示
     showDetailDialog.value = true;
   }
+};
+
+// 定义插件分类选项
+const categoryOptions = [
+  { label: "开发工具", value: PluginCategory.DEVELOPMENT },
+  { label: "效率工具", value: PluginCategory.EFFICIENCY },
+  { label: "网络工具", value: PluginCategory.NETWORK },
+  { label: "系统工具", value: PluginCategory.SYSTEM },
+  { label: "娱乐工具", value: PluginCategory.ENTERTAINMENT },
+  { label: "其他", value: PluginCategory.OTHER },
+];
+
+/**
+ * 获取分类名称
+ * @param category - 分类值
+ * @returns 分类名称
+ */
+const getCategoryName = (category: number | undefined) => {
+  const categoryOption = categoryOptions.find((c) => c.value === category);
+  return categoryOption?.label || "未知分类";
 };
 </script>
 
