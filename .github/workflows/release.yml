@@ -92,6 +92,13 @@ jobs:
         with:
           workspaces: ./src-tauri -> target
 
+      # 获取 pnpm 缓存
+      - name: Sync node version and setup cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
       # 安装依赖并构建前端
       - name: Install app dependencies and build web
         run: |
