@@ -25,7 +25,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       # 发布 Release
       - name: Generate changelog
@@ -66,7 +65,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+
+      # 设置 pnpm
+      - uses: pnpm/action-setup@v3
+        with:
+          version: latest
 
       # 添加 Rust 目标
       - name: Add rust target
@@ -89,11 +92,18 @@ jobs:
         with:
           workspaces: ./src-tauri -> target
 
+      # 获取 pnpm 缓存
+      - name: Sync node version and setup cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
       # 安装依赖并构建前端
       - name: Install app dependencies and build web
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
 
       # 执行构建并推送 GitHub release
       - name: Build the app
