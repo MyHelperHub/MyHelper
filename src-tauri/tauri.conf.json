@@ -26,10 +26,10 @@
     ],
     "security": {
       "csp": {
-        "default-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https",
-        "media-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https",
-        "img-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https data: blob: *",
-        "connect-src": "'self' 'unsafe-inline' asset: ipc: http://ipc.localhost http://asset.localhost http https"
+        "default-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https https://myhelper.ialtone.xyz",
+        "media-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https https://myhelper.ialtone.xyz",
+        "img-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https data: blob: * https://myhelper.ialtone.xyz",
+        "connect-src": "'self' 'unsafe-inline' asset: ipc: http://ipc.localhost http://asset.localhost http https https://myhelper.ialtone.xyz"
       },
       "assetProtocol": {
         "enable": true,

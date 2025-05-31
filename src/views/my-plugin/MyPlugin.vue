@@ -3,7 +3,7 @@
     <Drawer v-model:visible="popoverRef" position="bottom" style="height: 60%">
       <template #header>
         <div class="flex items-center gap-2">
-          <span class="font-bold">常用软件</span>
+          <span class="font-bold">我的插件</span>
         </div>
       </template>
 
