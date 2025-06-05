@@ -20,25 +20,37 @@
           @click="selectLocalImage" />
         <i v-else class="pi pi-image image" @click="selectLocalImage"></i>
         <div class="input-container">
-          <CustomInput
-            v-model="formData.title"
-            class="input"
-            :label="'网站名称'" />
-          <CustomInput
-            v-model="formData.url"
-            class="input"
-            :label="'网站地址'" />
+          <div class="input-wrapper">
+            <label class="input-label">网站名称</label>
+            <InputText
+              v-model="formData.title"
+              class="input"
+              placeholder="请输入网站名称" />
+          </div>
+          <div class="input-wrapper">
+            <label class="input-label">网站地址</label>
+            <InputText
+              v-model="formData.url"
+              class="input"
+              placeholder="请输入网站地址" />
+          </div>
           <transition name="icon">
-            <div
+            <Button
               v-if="urlRegex.test(formData.url)"
-              class="get-icon"
-              @click="getIcon">
+              class="get-icon-btn"
+              @click="getIcon"
+              text
+              size="small">
               获取图标
-            </div>
+            </Button>
           </transition>
         </div>
         <div class="modal-footer">
-          <CustomButton class="button" @click="handleConfirm" />
+          <Button
+            class="confirm-button"
+            @click="handleConfirm"
+            label="确定"
+            severity="info" />
         </div>
       </div>
     </Dialog>
@@ -47,14 +59,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import CustomInput from "../../components/CustomInput.vue";
-import CustomButton from "../../components/CustomButton.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { showMessage } from "@/utils/message.ts";
 import { hideLoading, showLoading } from "@/utils/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 import { WebItem } from "@/interface/web";
 import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
 import { ipcGetWebIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
 
 const emit = defineEmits(["addWebItem", "editWebItem"]);
@@ -207,30 +219,43 @@ defineExpose({
     display: flex;
     align-items: center;
     flex-direction: column;
+    gap: 16px;
+    width: 200px;
 
-    .input {
-      margin: 5px;
-      width: 160px;
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+
+      .input-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+      }
+
+      .input {
+        width: 100%;
+        height: 32px;
+        font-size: 14px;
+      }
     }
 
-    .get-icon {
-      margin-left: 90px;
-      cursor: pointer;
-      color: #5264ae;
+    .get-icon-btn {
+      align-self: flex-end;
       font-size: 12px;
-      border: 1px solid #5264ae;
-      border-radius: 5px;
-      padding: 5px;
     }
   }
 
   .modal-footer {
     display: flex;
     justify-content: center;
+    margin-top: 20px;
 
-    .button {
-      width: 80px;
-      margin-top: 10px;
+    .confirm-button {
+      min-width: 80px;
+      height: 32px;
+      font-size: 14px;
     }
   }
 }
