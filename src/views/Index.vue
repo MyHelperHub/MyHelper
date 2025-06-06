@@ -1,27 +1,34 @@
 <template>
-  <div class="brand" data-tauri-drag-region>
-    <img class="logo" :src="avatarLogo" @click="showMenu" />
-  </div>
-  <Transition name="transition">
-    <div v-show="isShowMenu" class="home">
-      <div class="settings">
-        <SpeedDial
-          v-if="isShowMenu"
-          class="speed-dial"
-          button-class="p-button-text"
-          show-icon="pi pi-bars"
-          hide-icon="pi pi-times"
-          :model="menuItemsArray"
-          :radius="55"
-          type="quarter-circle"
-          direction="down-left"
-          :tooltipOptions="{ position: 'left', event: 'hover' }" />
-      </div>
-      <Search class="search" />
-      <span class="parting-line"></span>
-      <Menu></Menu>
+  <div class="app-container w-full h-full overflow-hidden">
+    <div class="brand absolute left-3 top-3 z-2" data-tauri-drag-region>
+      <img
+        class="logo h-60px w-60px rounded-full cursor-pointer z-1 select-none"
+        :src="avatarLogo"
+        @click="showMenu" />
     </div>
-  </Transition>
+    <Transition name="panel-transition">
+      <div
+        v-if="isShowMenu"
+        class="home w-full h-full box-border border-1 border-solid border-[rgba(230,235,240,0.7)] rounded-20px bg-gradient-to-b from-[#e5edf1] to-[#9fc0cf] list-none">
+        <div class="settings absolute right-0 top-10px z-3">
+          <SpeedDial
+            v-if="isShowMenu"
+            class="speed-dial"
+            button-class="p-button-text"
+            show-icon="pi pi-bars"
+            hide-icon="pi pi-times"
+            :model="menuItemsArray"
+            :radius="55"
+            type="quarter-circle"
+            direction="down-left"
+            :tooltipOptions="{ position: 'left', event: 'hover' }" />
+        </div>
+        <Search class="search relative top-72px" />
+        <span class="parting-line"></span>
+        <Menu></Menu>
+      </div>
+    </Transition>
+  </div>
 </template>
 <script setup lang="ts">
 import SpeedDial from "primevue/speeddial";
@@ -35,6 +42,7 @@ import { emit } from "@/utils/eventBus";
 import { handleWindowToggle } from "@/utils/windowManager";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { checkLogoPath } from "@/utils/user";
+import { delay } from "@/utils/common";
 
 const isShowMenu = ref(false);
 const avatarLogo = ref("/logo.png");
@@ -80,27 +88,37 @@ const menuItems = ref({
 // 将menuItems转为数组以供SpeedDial使用
 const menuItemsArray = computed(() => Object.values(menuItems.value));
 
-const showMenu = () => {
+const showMenu = async () => {
   hideMessage();
 
-  let width;
-  let height;
+  let width: number;
+  let height: number;
 
   if (isShowMenu.value) {
     width = 65;
     height = 65;
+    isShowMenu.value = false;
+    // 等待动画完成后再调整窗口大小
+    await delay(280).then(() => {
+      ipcSetWindowSize(width, height);
+    });
   } else {
     width = 250;
     height = 420;
+    ipcSetWindowSize(width, height);
     emit("closeAllMenu");
+    isShowMenu.value = true;
   }
-
-  ipcSetWindowSize(width, height);
-  isShowMenu.value = !isShowMenu.value;
 };
 </script>
 
 <style lang="less">
+.app-container {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
 .home {
   width: 100%;
   height: 100%;
@@ -110,14 +128,19 @@ const showMenu = () => {
   background: linear-gradient(#e5edf1, #9fc0cf);
   list-style-type: none;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  position: relative;
+
   .parting-line {
     position: absolute;
+    display: block;
     top: 65px;
+    left: 0;
     width: 100%;
-    margin-left: -1px;
-    border: none;
-    border-top: 1px solid rgba(58, 69, 80, 0.2);
+    height: 1px;
+    background-color: rgba(58, 69, 80, 0.2);
   }
+
   .search {
     position: relative;
     top: 72px;
@@ -146,26 +169,77 @@ const showMenu = () => {
     height: 60px;
     width: 60px;
     border-radius: 50%;
-    border: 4px solid rgba(230, 235, 240, 0.8);
     cursor: pointer;
     z-index: 1;
     // 禁止拖动
     -webkit-user-drag: none;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }
 
-.transition-enter-from,
-.transition-leave-to {
-  opacity: 0;
+.panel-transition-enter-active {
+  animation: panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: 33px 33px; 
+
+  .parting-line {
+    animation: none;
+  }
 }
 
-.transition-enter-to,
-.transition-leave-from {
-  opacity: 1;
+.panel-transition-leave-active {
+  animation: panel-out 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: 33px 33px;
+
+  .parting-line {
+    animation: none;
+  }
 }
 
-.transition-enter-active,
-.transition-leave-active {
-  transition: opacity 0.5s ease-in-out;
+@keyframes panel-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes panel-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>
