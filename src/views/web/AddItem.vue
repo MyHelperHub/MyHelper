@@ -10,8 +10,10 @@
       :dismissableMask="true"
       :header="formData.id === -1 ? '添加网站' : '编辑网站'"
       modal
-      appendTo="self"
-      :closable="false">
+      appendTo="body"
+      :closable="false"
+      :style="{ width: '220px' }"
+      position="center">
       <div class="modal-content">
         <img
           v-if="formData.logo"
@@ -195,67 +197,68 @@ defineExpose({
 
 .modal-content {
   background-color: #fff;
-  border-radius: 5px;
-
+  border-radius: 8px;
   display: flex;
   align-items: center;
   flex-direction: column;
+  padding: 8px;
 
   .image {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px;
+    padding: 4px;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    width: 48px;
-    height: 48px;
-    margin: 5px;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    margin: 4px;
     cursor: pointer;
-    font-size: 32px;
+    font-size: 24px;
   }
 
   .input-container {
     display: flex;
     align-items: center;
     flex-direction: column;
-    gap: 16px;
-    width: 200px;
+    gap: 12px;
+    width: 180px;
 
     .input-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       width: 100%;
 
       .input-label {
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 500;
         color: #374151;
       }
 
       .input {
         width: 100%;
-        height: 32px;
-        font-size: 14px;
+        height: 28px;
+        font-size: 12px;
       }
     }
 
     .get-icon-btn {
       align-self: flex-end;
-      font-size: 12px;
+      font-size: 11px;
+      padding: 4px 8px;
     }
   }
 
   .modal-footer {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 12px;
 
     .confirm-button {
-      min-width: 80px;
-      height: 32px;
-      font-size: 14px;
+      min-width: 60px;
+      height: 28px;
+      font-size: 12px;
     }
   }
 }

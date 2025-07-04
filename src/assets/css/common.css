@@ -1,0 +1,213 @@
+/* 通用样式变量和类 */
+
+/* 毛玻璃卡片基础样式 */
+.glass-card {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 109, 245, 0.15);
+}
+
+/* 功能卡片样式 */
+.feature-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.8));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+  padding: 14px 10px;
+  cursor: pointer;
+  min-height: 75px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+}
+
+.feature-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  box-shadow: 0 8px 32px rgba(79, 109, 245, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: rgba(79, 109, 245, 0.3);
+}
+
+.feature-card:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+/* 图标容器通用样式 */
+.icon-container {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 6px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container.web-theme {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container.app-theme {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container.input-theme {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.icon-container.plugin-theme {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 图标图片样式 */
+.icon-container .icon-image {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* 卡片标题通用样式 */
+.card-title {
+  font-size: 11px;
+  color: #334155;
+  text-align: center;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  word-wrap: break-word;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+/* 网格布局 */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.grid-3::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* 添加按钮样式 */
+.add-card {
+  background: linear-gradient(145deg, rgba(79, 109, 245, 0.08), rgba(118, 75, 162, 0.05)) !important;
+  border: 1px dashed rgba(79, 109, 245, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.add-card::before {
+  background: linear-gradient(90deg, transparent, rgba(79, 109, 245, 0.4), transparent) !important;
+}
+
+.add-card:hover {
+  background: linear-gradient(145deg, rgba(79, 109, 245, 0.12), rgba(118, 75, 162, 0.08)) !important;
+  border: 1px dashed rgba(79, 109, 245, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(79, 109, 245, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.add-card .icon-container {
+  background: rgba(255, 255, 255, 0.6) !important;
+  color: #4f6df5 !important;
+  font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 面板容器样式 */
+.panel-container {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 253, 250, 0.9));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(79, 109, 245, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* 列表卡片样式 */
+.list-card {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.list-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+  transition: all 0.3s ease;
+}
+
+.list-card.input-theme::before {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.list-card.plugin-theme::before {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.list-card:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 109, 245, 0.15);
+  border-color: rgba(79, 109, 245, 0.3);
+}
+
+.list-card:hover::before {
+  width: 4px;
+  box-shadow: 0 0 8px rgba(79, 109, 245, 0.3);
+} 

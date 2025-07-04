@@ -1,54 +1,71 @@
 <template>
-  <div class="open-web" keep-menu>
-    <ContextMenu
-      ref="contextMenuRef"
-      :model="menuItems"
-      :pt="{
-        root: { style: 'width: 120px; min-width: 120px' },
-      }" />
-    <div class="list">
-      <div
-        v-for="item in dataList"
-        :key="item.id"
-        class="item"
-        v-tooltip.bottom="{
-          value: item.title,
-          showDelay: 200,
-          pt: {
-            text: {
-              style: {
-                fontSize: '15px',
+  <Dialog
+    v-model:visible="visible"
+    :modal="true"
+    :dismissableMask="true"
+    :closable="false"
+    :showHeader="false"
+    :style="{ top: '60px', left: '15px' }">
+    <div class="web-panel">
+      <ContextMenu
+        ref="contextMenuRef"
+        :model="menuItems"
+        :pt="{
+          root: { style: 'width: 120px; min-width: 120px' },
+        }" />
+
+      <div class="grid-3">
+        <div
+          v-for="item in dataList"
+          :key="item.id"
+          class="feature-card hover-lift"
+          v-tooltip.bottom="{
+            value: item.title,
+            showDelay: 200,
+            pt: {
+              text: {
+                style: {
+                  fontSize: '12px',
+                },
               },
             },
-          },
-        }"
-        @click="navigateTo(item.url)"
-        @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-        <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
-        <i v-else class="pi pi-image"></i>
-        <div class="text">{{ item.title }}</div>
-      </div>
-      <AddItem
-        ref="addItemRef"
-        @addWebItem="addWebItem"
-        @editWebItem="editWebItem">
-        <div class="item">
-          <i class="pi pi-plus image"></i>
-          <div class="text">添加</div>
+          }"
+          @click="navigateTo(item.url)"
+          @contextmenu.prevent="(e) => handleContextMenu(e, item)">
+          <div class="icon-container web-theme">
+            <img
+              v-if="item.logo"
+              :src="convertFileSrc(item.logo)"
+              class="icon-image" />
+            <i v-else class="pi pi-image"></i>
+          </div>
+          <div class="card-title">{{ item.title }}</div>
         </div>
-      </AddItem>
+
+        <AddItem
+          ref="addItemRef"
+          @addWebItem="addWebItem"
+          @editWebItem="editWebItem">
+          <div class="feature-card add-card hover-lift">
+            <div class="icon-container">
+              <i class="pi pi-plus"></i>
+            </div>
+            <div class="card-title">添加</div>
+          </div>
+        </AddItem>
+      </div>
     </div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 import AddItem from "@/views/web/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { ref } from "vue";
+import { ref, defineExpose } from "vue";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
-import { emit, on } from "@/utils/eventBus";
+import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
 import ContextMenu from "primevue/contextmenu";
 import {
@@ -56,9 +73,11 @@ import {
   menuItems,
   handleContextMenu,
 } from "./utils/contextMenu";
+import Dialog from "primevue/dialog";
 
 const dataList = ref<WebItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
+const visible = ref(false);
 
 const init = async () => {
   try {
@@ -77,6 +96,7 @@ init();
 const openEditWebItem = async (item: WebItem) => {
   addItemRef.value?.openModal(item);
 };
+
 /** 跳转到指定链接 */
 const navigateTo = (url: string) => {
   // 检查 URL 是否以 http:// 或 https:// 开头
@@ -85,7 +105,7 @@ const navigateTo = (url: string) => {
   }
   ipcOpen(url)
     .then(() => {
-      emit("closeAllMenu");
+      visible.value = false;
     })
     .catch(() => {
       showMessage("打开失败!", 3000, 2);
@@ -152,64 +172,8 @@ const deleteWebItem = async (id: number) => {
     }
   }
 };
+
+defineExpose({ visible });
 </script>
 
-<style lang="less" scoped>
-.open-web {
-  position: absolute;
-  left: -13px;
-  background-color: rgb(242, 244, 253);
-  width: 210px;
-  min-height: 90px;
-  height: fit-content;
-  border-radius: 10px;
-  z-index: 2;
-  cursor: default;
-
-  .list {
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 13px;
-    margin: 15px 20px;
-    overflow: auto;
-    max-height: 145px;
-
-    // 隐藏滚动条
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    .item {
-      width: 45px;
-      height: 55px;
-      min-width: 45px;
-      min-height: 55px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 5px;
-      margin-left: 2px;
-      background-color: rgb(255, 255, 255);
-      border-radius: 5px;
-      cursor: pointer;
-
-      .image {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-      }
-
-      .text {
-        max-width: 40px;
-        font-size: 12px;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-    }
-  }
-}
-</style>
+<style lang="less" scoped></style>

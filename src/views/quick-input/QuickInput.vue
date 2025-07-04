@@ -1,180 +1,179 @@
 <template>
-  <div class="quick-input" keep-menu>
-    <div class="quick-input-header">
-      <h3 class="title">快捷输入</h3>
-      <i class="pi pi-times close-icon" @click="close"></i>
-    </div>
-    <div class="tabs-container">
-      <div class="tabs">
-        <div
-          class="tab"
+  <Dialog
+    v-model:visible="visible"
+    :modal="true"
+    :dismissableMask="true"
+    :closable="false"
+    :showHeader="false"
+    :style="{ top: '50px', left: '10px' }">
+    <div class="panel-container quick-input-container">
+      <!-- 头部标签切换 -->
+      <div class="tab-header">
+        <button
+          class="tab-btn"
           :class="{ active: activeTab === 0 }"
           @click="activeTab = 0">
-          常用
-        </div>
-        <div
-          class="tab"
+          <div class="tab-icon">
+            <i class="pi pi-file-edit"></i>
+          </div>
+          <span>常用文本</span>
+        </button>
+        <button
+          class="tab-btn"
           :class="{ active: activeTab === 1 }"
           @click="activeTab = 1">
-          剪贴板
-        </div>
+          <div class="tab-icon">
+            <i class="pi pi-clipboard"></i>
+          </div>
+          <span>剪贴板</span>
+        </button>
+      </div>
+
+      <!-- 内容区域 -->
+      <div class="tab-content">
+        <transition name="fade-slide" mode="out-in">
+          <div v-if="activeTab === 0" key="text" class="content-wrapper">
+            <CommonText />
+          </div>
+          <div v-else key="clipboard" class="content-wrapper">
+            <Clipboard />
+          </div>
+        </transition>
       </div>
     </div>
-    <div class="tab-content-wrapper">
-      <transition name="slide-fade" mode="out-in">
-        <div v-if="activeTab === 0" key="0" class="tab-content">
-          <CommonText />
-        </div>
-        <div v-else key="1" class="tab-content">
-          <Clipboard />
-        </div>
-      </transition>
-    </div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineExpose } from "vue";
+import Dialog from "primevue/dialog";
 import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
-import { emit } from "@/utils/eventBus";
+
+const visible = ref(false);
 
 /** 0为常用，1为剪贴板 */
 const activeTab = ref(0);
-const close = () => {
-  emit("closeAllMenu");
-};
+
+defineExpose({ visible });
 </script>
 
 <style lang="less">
-.quick-input {
-  position: absolute;
-  top: -185px;
-  left: -13px;
-  background-color: rgb(248, 250, 255);
-  width: 210px;
-  height: 330px;
-  border-radius: 12px;
-  z-index: 2;
-  cursor: default;
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.05),
-    0 10px 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  animation: popup 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-@keyframes popup {
-  0% {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.quick-input-header {
+.quick-input-container {
+  width: 200px;
+  height: 320px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 15px 8px;
-}
+  flex-direction: column;
 
-.title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.close-icon {
-  font-size: 14px;
-  color: #777;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.06);
-    color: #333;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      rgba(79, 109, 245, 0.3),
+      rgba(67, 233, 123, 0.3),
+      rgba(79, 109, 245, 0.3)
+    );
+    z-index: 1;
   }
 }
 
-.tabs-container {
-  padding: 0 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  margin-bottom: 10px;
-}
-
-.tabs {
+.tab-header {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 14px;
-  width: 100%;
-}
+  padding: 8px;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 
-.tab {
-  position: relative;
-  padding: 8px 0;
-  cursor: pointer;
-  color: #666;
-  transition: all 0.2s ease;
-  flex: 1;
-  text-align: center;
-  white-space: nowrap;
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
 
-  &:hover {
-    color: #4a85c9;
-  }
-
-  &.active {
-    color: #4a85c9;
-    font-weight: 500;
-
-    &:after {
-      content: "";
-      position: absolute;
-      bottom: -1px;
-      left: 20%;
-      width: 60%;
-      height: 2px;
-      background: #4a85c9;
-      border-radius: 2px 2px 0 0;
+    .tab-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: white;
+      background: linear-gradient(135deg, #94a3b8, #64748b);
       transition: all 0.3s ease;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    &.active {
+      background: rgba(255, 255, 255, 0.6);
+      color: #374151;
+      box-shadow: 0 2px 8px rgba(79, 109, 245, 0.2);
+
+      .tab-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+    }
+
+    span {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
     }
   }
 }
 
-.tab-content-wrapper {
-  position: relative;
-  height: calc(100% - 90px);
-  overflow: hidden;
-}
-
 .tab-content {
-  width: 100%;
-  height: 100%;
-  padding: 5px 15px;
+  flex: 1;
+  overflow: hidden;
+
+  .content-wrapper {
+    height: 100%;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      background: transparent;
+    }
+  }
 }
 
-/* 动画效果 */
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.slide-fade-enter-from {
+.fade-slide-enter-from {
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateX(10px) scale(0.98);
 }
 
-.slide-fade-leave-to {
+.fade-slide-leave-to {
   opacity: 0;
-  transform: translateX(-10px);
+  transform: translateX(-10px) scale(0.98);
+}
+
+.p-dialog .p-dialog-content {
+  padding: 0;
+  background: transparent;
 }
 </style>

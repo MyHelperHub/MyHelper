@@ -1,50 +1,68 @@
 <template>
-  <div class="open-app" keep-menu>
-    <ContextMenu
-      ref="contextMenuRef"
-      :model="menuItems"
-      :pt="{
-        root: { style: 'width: 120px; min-width: 120px' },
-      }" />
-    <div class="list">
-      <div
-        v-for="item in dataList"
-        :key="item.id"
-        class="item"
-        v-tooltip.bottom="{
-          value: item.title,
-          showDelay: 200,
-          pt: {
-            text: {
-              style: {
-                fontSize: '15px',
+  <Dialog
+    v-model:visible="visible"
+    :modal="true"
+    :dismissableMask="true"
+    :closable="false"
+    :showHeader="false"
+    :style="{ top: '120px', left: '15px' }">
+    <div class="app-panel">
+      <ContextMenu
+        ref="contextMenuRef"
+        :model="menuItems"
+        :pt="{
+          root: { style: 'width: 120px; min-width: 120px' },
+        }" />
+
+      <div class="grid-3">
+        <div
+          v-for="item in dataList"
+          :key="item.id"
+          class="feature-card hover-lift"
+          v-tooltip.bottom="{
+            value: item.title,
+            showDelay: 200,
+            pt: {
+              text: {
+                style: {
+                  fontSize: '12px',
+                },
               },
             },
-          },
-        }"
-        @contextmenu.prevent="(e) => handleContextMenu(e, item)"
-        @click="openApp(item.src)">
-        <img v-if="item.logo" :src="convertFileSrc(item.logo)" class="image" />
-        <i v-else class="pi pi-image"></i>
-        <div class="text">{{ item.title }}</div>
+          }"
+          @click="openApp(item.src)"
+          @contextmenu.prevent="(e) => handleContextMenu(e, item)">
+          <div class="icon-container app-theme">
+            <img
+              v-if="item.logo"
+              :src="convertFileSrc(item.logo)"
+              class="icon-image" />
+            <i v-else class="pi pi-desktop"></i>
+          </div>
+          <div class="card-title">{{ item.title }}</div>
+        </div>
+
+        <div class="feature-card add-card hover-lift" @click="addAppItem">
+          <div class="icon-container">
+            <i class="pi pi-plus"></i>
+          </div>
+          <div class="card-title">添加</div>
+        </div>
       </div>
-      <div class="item" @click="addAppItem">
-        <i class="pi pi-plus image"></i>
-        <div class="text">添加</div>
-      </div>
+
+      <EditItem ref="editItemRef" @editAppItem="editAppItem"></EditItem>
     </div>
-    <EditItem ref="editItemRef" @editAppItem="editAppItem"></EditItem>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
-import { open } from "@tauri-apps/plugin-dialog";
+import { open as tauriOpen } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { ref } from "vue";
+import { ref, defineExpose } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
-import { emit, on } from "@/utils/eventBus";
+import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import EditItem from "./EditItem.vue";
 import ContextMenu from "primevue/contextmenu";
@@ -53,9 +71,11 @@ import {
   menuItems,
   handleContextMenu,
 } from "./utils/contextMenu";
+import Dialog from "primevue/dialog";
 
 const dataList = ref<AppItem[]>([]);
 const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
+const visible = ref(false);
 
 const init = async () => {
   try {
@@ -74,7 +94,7 @@ init();
 const openApp = async (path: string) => {
   ipcOpen(path)
     .then(() => {
-      emit("closeAllMenu");
+      visible.value = false;
     })
     .catch(() => {
       showMessage("打开失败!", 3000, 2);
@@ -90,7 +110,7 @@ const addAppItem = async () => {
     logo: "",
   };
 
-  const filePath = (await open({
+  const filePath = (await tauriOpen({
     multiple: false,
     directory: false,
   })) as string;
@@ -170,64 +190,67 @@ const editAppItem = async (updatedItem: AppItem) => {
     showMessage("更新失败!", 3000, 2);
   }
 };
+
+defineExpose({ visible });
 </script>
 
 <style lang="less" scoped>
-.open-app {
-  position: absolute;
-  left: -13px;
-  background-color: rgb(242, 244, 253);
-  width: 210px;
-  min-height: 90px;
-  height: fit-content;
-  border-radius: 10px;
-  z-index: 2;
-  cursor: default;
+.app-panel {
+  .grid-3 {
+    max-height: 175px;
+  }
 
-  .list {
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 13px;
-    margin: 15px 20px;
-    overflow: auto;
-    max-height: 145px;
+  .feature-card {
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.9),
+      rgba(254, 242, 242, 0.8)
+    ) !important;
 
-    // 隐藏滚动条
-    &::-webkit-scrollbar {
-      display: none;
+    &:hover {
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.95),
+        rgba(254, 242, 242, 0.9)
+      ) !important;
+      box-shadow:
+        0 8px 32px rgba(249, 93, 108, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.08) !important;
+      border-color: rgba(249, 93, 108, 0.3) !important;
+    }
+  }
+
+  .add-card {
+    background: linear-gradient(
+      145deg,
+      rgba(249, 93, 108, 0.08),
+      rgba(255, 154, 158, 0.05)
+    ) !important;
+    border: 1px dashed rgba(249, 93, 108, 0.3) !important;
+
+    &::before {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(249, 93, 108, 0.4),
+        transparent
+      ) !important;
     }
 
-    .item {
-      width: 45px;
-      height: 55px;
-      min-width: 45px;
-      min-height: 55px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 5px;
-      margin-left: 2px;
-      background-color: rgb(255, 255, 255);
-      border-radius: 5px;
-      cursor: pointer;
+    &:hover {
+      background: linear-gradient(
+        145deg,
+        rgba(249, 93, 108, 0.12),
+        rgba(255, 154, 158, 0.08)
+      ) !important;
+      border: 1px dashed rgba(249, 93, 108, 0.4) !important;
+      box-shadow:
+        0 8px 32px rgba(249, 93, 108, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
 
-      .image {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-      }
-
-      .text {
-        margin-top: 2px;
-        max-width: 40px;
-        font-size: 12px;
-        overflow: hidden;
-        white-space: nowrap;
-      }
+    .icon-container {
+      color: #f5576c !important;
     }
   }
 }

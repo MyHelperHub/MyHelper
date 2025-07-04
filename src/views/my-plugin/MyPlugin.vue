@@ -1,33 +1,56 @@
 <template>
   <div class="my-plugin">
-    <Drawer v-model:visible="popoverRef" position="bottom" style="height: 60%">
+    <Drawer
+      v-model:visible="popoverRef"
+      position="bottom"
+      style="height: 60%"
+      class="plugin-drawer">
       <template #header>
-        <div class="flex items-center gap-2">
-          <span class="font-bold">我的插件</span>
+        <div class="drawer-header">
+          <div class="header-content">
+            <i class="pi pi-puzzle-piece header-icon"></i>
+            <div class="header-text">
+              <span class="header-title">我的插件</span>
+              <span class="header-subtitle">{{ enabledCount }} 个已启用</span>
+            </div>
+          </div>
         </div>
       </template>
 
-      <div class="icons-container">
-        <div
-          v-for="item in pluginList"
-          :key="item.windowId"
-          class="icon-wrapper"
-          v-tooltip.bottom="{
-            value: item.data.title,
-            showDelay: 200,
-            pt: {
-              text: {
-                style: {
-                  fontSize: '15px',
+      <div class="plugin-container">
+        <div v-if="pluginList.length === 0" class="empty-state">
+          <i class="pi pi-puzzle-piece"></i>
+          <span class="empty-title">暂无已启用的插件</span>
+          <span class="empty-subtitle">前往插件市场安装插件</span>
+        </div>
+
+        <div v-else class="plugin-grid">
+          <div
+            v-for="item in pluginList"
+            :key="item.windowId"
+            class="plugin-card"
+            v-tooltip.top="{
+              value: item.data.title,
+              showDelay: 300,
+              pt: {
+                text: {
+                  style: {
+                    fontSize: '12px',
+                  },
                 },
               },
-            },
-          }"
-          @click="handleClick(item)">
-          <div class="app-item">
-            <i class="icon">
-              <img :src="item.data.icon" :alt="item.data.title" />
-            </i>
+            }"
+            @click="handleClick(item)">
+            <div class="plugin-icon-wrapper">
+              <img
+                :src="item.data.icon"
+                :alt="item.data.title"
+                class="plugin-icon" />
+              <div class="plugin-glow"></div>
+            </div>
+            <div class="plugin-info">
+              <span class="plugin-title">{{ item.data.title }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -38,7 +61,7 @@
 <script setup lang="ts">
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import Drawer from "primevue/drawer";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { PluginConfig } from "@/interface/plugin";
 import { getPluginConfig } from "@/utils/plugin";
 import { showMessage } from "@/utils/message";
@@ -46,6 +69,8 @@ import { ipcFileExists } from "@/api/ipc/launch.api";
 
 const popoverRef = ref(false);
 const pluginList = ref<PluginConfig[]>([]);
+
+const enabledCount = computed(() => pluginList.value.length);
 
 const init = async () => {
   const allPlugins = (await getPluginConfig(["pluginList"])) as PluginConfig[];
@@ -94,59 +119,178 @@ defineExpose({ openPopover });
 </script>
 
 <style lang="less">
-@import "../../assets/css/variable.less";
+.my-plugin {
+  .plugin-drawer {
+    .p-drawer-header {
+      padding: 16px 20px 12px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(
+        135deg,
+        rgba(79, 109, 245, 0.1),
+        rgba(118, 75, 162, 0.1)
+      );
+      backdrop-filter: blur(10px);
+    }
 
-.p-drawer-header {
-  padding: 0.2rem 1rem 0 1rem !important;
-}
+    .drawer-header {
+      .header-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
 
-.icons-container {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 1.5rem;
-  gap: 1.5rem;
-  justify-content: flex-start;
-}
+        .header-icon {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #4f6df5, #764ba2);
+          color: white;
+          border-radius: 8px;
+          font-size: 14px;
+        }
 
-.icon-wrapper {
-  width: calc(33.33% - 1rem);
-  display: flex;
-  justify-content: center;
-  transition: all 0.2s ease;
+        .header-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
 
-  &:hover {
-    transform: translateY(-2px);
+          .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+          }
 
-    .icon {
-      background-color: #e5e7eb;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          .header-subtitle {
+            font-size: 12px;
+            color: #718096;
+          }
+        }
+      }
+    }
+
+    .p-drawer-content {
+      padding: 0 !important;
+      background: linear-gradient(
+        135deg,
+        rgba(245, 247, 250, 0.95),
+        rgba(237, 242, 247, 0.95)
+      );
+      backdrop-filter: blur(20px);
     }
   }
-}
 
-.app-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-}
+  .plugin-container {
+    padding: 20px;
+    height: 100%;
 
-.icon {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f3f4f6;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: #9ca3af;
 
-  img {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
+      i {
+        font-size: 48px;
+        opacity: 0.3;
+      }
+
+      .empty-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #6b7280;
+      }
+
+      .empty-subtitle {
+        font-size: 14px;
+        color: #9ca3af;
+      }
+    }
+
+    .plugin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 16px;
+      align-items: start;
+
+      .plugin-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 8px;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        position: relative;
+        overflow: hidden;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.8);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(79, 109, 245, 0.15);
+
+          .plugin-glow {
+            opacity: 0.8;
+            transform: scale(1.2);
+          }
+        }
+
+        &:active {
+          transform: translateY(-1px);
+        }
+
+        .plugin-icon-wrapper {
+          position: relative;
+          width: 48px;
+          height: 48px;
+
+          .plugin-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            position: relative;
+            z-index: 2;
+          }
+
+          .plugin-glow {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(135deg, #4f6df5, #764ba2);
+            border-radius: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1;
+          }
+        }
+
+        .plugin-info {
+          text-align: center;
+
+          .plugin-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: #374151;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
   }
 }
 </style>
