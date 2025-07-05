@@ -4,41 +4,12 @@ use std::path::PathBuf;
 
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
-use scraper::{Html, Selector};
+use regex::Regex;
 use url::Url;
 
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::path::get_myhelper_path;
 use crate::utils::reqwest::create_web_client;
-
-const ICON_SELECTORS: &[(&str, &str)] = &[
-    (
-        "link[rel='apple-touch-icon-precomposed'][sizes='180x180']",
-        "href",
-    ),
-    (
-        "link[rel='apple-touch-icon-precomposed'][sizes='192x192']",
-        "href",
-    ),
-    ("link[rel='apple-touch-icon-precomposed']", "href"),
-    ("link[rel='apple-touch-icon'][sizes='180x180']", "href"),
-    ("link[rel='apple-touch-icon'][sizes='192x192']", "href"),
-    ("link[rel='apple-touch-icon']", "href"),
-    (
-        "link[rel='icon'][type='image/png'][sizes='192x192']",
-        "href",
-    ),
-    (
-        "link[rel='icon'][type='image/png'][sizes='128x128']",
-        "href",
-    ),
-    ("link[rel='icon'][type='image/png']", "href"),
-    ("link[rel='icon']", "href"),
-    ("link[rel='icon'][type='image/x-icon']", "href"),
-    ("link[rel='shortcut icon']", "href"),
-    ("meta[property='og:image']", "content"),
-    ("meta[name='msapplication-TileImage']", "content"),
-];
 
 const ICON_SIZE: u32 = 32;
 
@@ -96,14 +67,35 @@ fn save_icon(img: image::DynamicImage, output_path: &PathBuf) -> Result<String, 
 }
 
 fn extract_icon_urls(html: &str) -> Vec<String> {
-    let document = Html::parse_document(html);
     let mut urls = Vec::new();
 
-    for (selector_str, attr) in ICON_SELECTORS {
-        if let Ok(selector) = Selector::parse(selector_str) {
-            if let Some(element) = document.select(&selector).next() {
-                if let Some(href) = element.value().attr(attr) {
-                    urls.push(href.to_string());
+    // 定义匹配各种图标链接的正则表达式
+    let patterns = [
+        // Apple Touch Icons
+        r#"<link[^>]*rel=['"]apple-touch-icon(?:-precomposed)?['"][^>]*href=['"]([^'"]+)['"][^>]*>"#,
+        r#"<link[^>]*href=['"]([^'"]+)['"][^>]*rel=['"]apple-touch-icon(?:-precomposed)?['"][^>]*>"#,
+        // Standard favicons
+        r#"<link[^>]*rel=['"]icon['"][^>]*href=['"]([^'"]+)['"][^>]*>"#,
+        r#"<link[^>]*href=['"]([^'"]+)['"][^>]*rel=['"]icon['"][^>]*>"#,
+        // Shortcut icons
+        r#"<link[^>]*rel=['"]shortcut icon['"][^>]*href=['"]([^'"]+)['"][^>]*>"#,
+        r#"<link[^>]*href=['"]([^'"]+)['"][^>]*rel=['"]shortcut icon['"][^>]*>"#,
+        // Open Graph images
+        r#"<meta[^>]*property=['"]og:image['"][^>]*content=['"]([^'"]+)['"][^>]*>"#,
+        r#"<meta[^>]*content=['"]([^'"]+)['"][^>]*property=['"]og:image['"][^>]*>"#,
+        // Microsoft tile images
+        r#"<meta[^>]*name=['"]msapplication-TileImage['"][^>]*content=['"]([^'"]+)['"][^>]*>"#,
+        r#"<meta[^>]*content=['"]([^'"]+)['"][^>]*name=['"]msapplication-TileImage['"][^>]*>"#,
+    ];
+
+    for pattern in &patterns {
+        if let Ok(regex) = Regex::new(pattern) {
+            for cap in regex.captures_iter(html) {
+                if let Some(url) = cap.get(1) {
+                    let url_str = url.as_str().to_string();
+                    if !urls.contains(&url_str) {
+                        urls.push(url_str);
+                    }
                 }
             }
         }

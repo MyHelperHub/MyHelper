@@ -59,7 +59,7 @@
 import { open as tauriOpen } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import { AppItem } from "@/interface/app";
 import { showMessage } from "@/utils/message";
 import { on } from "@/utils/eventBus";

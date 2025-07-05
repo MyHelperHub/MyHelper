@@ -62,7 +62,7 @@
 import AddItem from "@/views/web/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import { WebItem } from "@/interface/web";
 import { showMessage } from "@/utils/message.ts";
 import { on } from "@/utils/eventBus";

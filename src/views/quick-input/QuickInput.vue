@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose } from "vue";
+import { ref } from "vue";
 import Dialog from "primevue/dialog";
 import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
