@@ -9,19 +9,20 @@
             class="engine-icon"
             :src="selectedEngine.logo"
             :alt="selectedEngine.title" />
-          <div class="engine-indicator">
+          <div class="engine-indicator" :class="{ open: isPopoverOpen }">
             <i class="pi pi-chevron-down"></i>
           </div>
         </div>
 
         <Popover
           ref="popoverRef"
-          append-to="self"
+          append-to="body"
+          @show="isPopoverOpen = true"
+          @hide="isPopoverOpen = false"
           :pt="{
             root: {
               style: {
-                marginTop: '-5px',
-                marginLeft: '-8px',
+                marginTop: '2px',
               },
             },
           }">
@@ -70,6 +71,7 @@ import Popover from "primevue/popover";
 const searchData = ref("");
 const selectedEngine = ref(null);
 const popoverRef = ref(null);
+const isPopoverOpen = ref(false);
 
 /** 搜索引擎列表 */
 const searchEngines = [
@@ -174,16 +176,15 @@ function handleSearch() {
         align-items: center;
         color: #64748b;
         font-size: 10px;
-        transition: transform 0.2s ease;
 
         .pi-chevron-down {
           transition: transform 0.2s ease;
         }
-      }
-    }
 
-    &:hover .engine-indicator .pi-chevron-down {
-      transform: rotate(180deg);
+        &.open .pi-chevron-down {
+          transform: rotate(180deg);
+        }
+      }
     }
   }
 
