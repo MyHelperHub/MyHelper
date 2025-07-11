@@ -53,7 +53,7 @@
           <div
             class="icon-container plugin-theme"
             style="width: 24px; height: 24px; font-size: 12px">
-            <i class="pi pi-puzzle-piece"></i>
+            <i class="pi pi-objects-column"></i>
           </div>
           <span class="card-title">插件</span>
           <i class="pi pi-external-link action-icon"></i>
@@ -162,14 +162,14 @@ const openMyPlugin = () => {
       flex: 1;
       font-size: 13px;
       font-weight: 600;
-      color: #374151;
+      color: var(--theme-text);
       text-align: left;
       margin-top: 0;
     }
 
     .action-icon {
       font-size: 10px;
-      color: #6b7280;
+      color: var(--theme-text-muted) !important;
       transition: all 0.2s ease;
     }
   }
@@ -187,31 +187,52 @@ const openMyPlugin = () => {
     justify-content: center;
     gap: 6px;
     padding: 8px 12px;
-    border: none;
+    border: 1px solid rgba(var(--theme-border-rgb), 0.3);
     border-radius: 10px;
     cursor: pointer;
     font-size: 12px;
     font-weight: 500;
     transition: all 0.2s ease;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 
     &.label-btn {
-      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-      color: #8b4513;
+      background: linear-gradient(
+        135deg,
+        var(--theme-warning) 0%,
+        rgba(var(--theme-warning-rgb), 0.8) 100%
+      );
+      color: var(--theme-background);
+      border: 1px solid rgba(var(--theme-warning-rgb), 0.3);
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(252, 182, 159, 0.3);
+        box-shadow: 0 4px 12px rgba(var(--theme-warning-rgb), 0.3);
+        background: linear-gradient(
+          135deg,
+          var(--theme-warning) 0%,
+          rgba(var(--theme-warning-rgb), 0.9) 100%
+        );
       }
     }
 
     &.market-btn {
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      color: #6b46c1;
+      background: linear-gradient(
+        135deg,
+        var(--theme-info) 0%,
+        rgba(var(--theme-info-rgb), 0.8) 100%
+      );
+      color: var(--theme-background);
+      border: 1px solid rgba(var(--theme-info-rgb), 0.3);
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(168, 237, 234, 0.3);
+        box-shadow: 0 4px 12px rgba(var(--theme-info-rgb), 0.3);
+        background: linear-gradient(
+          135deg,
+          var(--theme-info) 0%,
+          rgba(var(--theme-info-rgb), 0.9) 100%
+        );
       }
     }
 

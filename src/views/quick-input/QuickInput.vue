@@ -74,9 +74,9 @@ defineExpose({ visible });
     height: 2px;
     background: linear-gradient(
       90deg,
-      rgba(79, 109, 245, 0.3),
-      rgba(67, 233, 123, 0.3),
-      rgba(79, 109, 245, 0.3)
+      rgba(var(--theme-primary-rgb), 0.3),
+      rgba(var(--theme-success-rgb), 0.3),
+      rgba(var(--theme-primary-rgb), 0.3)
     );
     z-index: 1;
   }
@@ -100,7 +100,7 @@ defineExpose({ visible });
     background: transparent;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    color: #64748b;
+    color: var(--theme-text-muted);
     font-size: 11px;
     font-weight: 600;
     position: relative;
@@ -115,22 +115,30 @@ defineExpose({ visible });
       justify-content: center;
       font-size: 10px;
       color: white;
-      background: linear-gradient(135deg, #94a3b8, #64748b);
+      background: linear-gradient(
+        135deg,
+        var(--theme-text-muted),
+        var(--theme-border)
+      );
       transition: all 0.3s ease;
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(var(--theme-background-rgb), 0.3);
       transform: translateY(-1px);
     }
 
     &.active {
-      background: rgba(255, 255, 255, 0.6);
-      color: #374151;
-      box-shadow: 0 2px 8px rgba(79, 109, 245, 0.2);
+      background: rgba(var(--theme-background-rgb), 0.6);
+      color: var(--theme-text);
+      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
 
       .tab-icon {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(
+          135deg,
+          var(--theme-primary) 0%,
+          var(--theme-info) 100%
+        );
       }
     }
 

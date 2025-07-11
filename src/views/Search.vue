@@ -1,7 +1,6 @@
 <template>
   <div class="search-container">
-    <div
-      class="search-wrapper backdrop-blur-sm bg-white/40 rounded-xl border border-white/30">
+    <div class="search-wrapper">
       <!-- 搜索引擎选择器 -->
       <div class="engine-selector" @click="popoverRef?.toggle($event)">
         <div class="engine-icon-wrapper">
@@ -26,8 +25,7 @@
               },
             },
           }">
-          <div
-            class="engine-dropdown backdrop-blur-md bg-white/80 rounded-lg border border-white/30">
+          <div class="engine-dropdown">
             <div
               v-for="(engine, index) in searchEngines"
               :key="index"
@@ -136,15 +134,20 @@ function handleSearch() {
     padding: 6px;
     transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(var(--theme-background-rgb), 0.4);
+    border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+    border-radius: 12px;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 12px rgba(79, 109, 245, 0.15);
+      background: rgba(var(--theme-background-rgb), 0.5);
+      box-shadow: var(--theme-shadow-md);
     }
 
     &:focus-within {
-      background: rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 0 2px rgba(79, 109, 245, 0.3);
+      background: rgba(var(--theme-background-rgb), 0.6);
+      box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.3);
     }
   }
 
@@ -157,7 +160,7 @@ function handleSearch() {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(var(--theme-background-rgb), 0.5);
     }
 
     .engine-icon-wrapper {
@@ -174,7 +177,7 @@ function handleSearch() {
       .engine-indicator {
         display: flex;
         align-items: center;
-        color: #64748b;
+        color: var(--theme-text-muted);
         font-size: 10px;
 
         .pi-chevron-down {
@@ -200,18 +203,18 @@ function handleSearch() {
       outline: none;
       background: transparent;
       font-size: 14px;
-      color: #2d3748;
+      color: var(--theme-text);
       padding: 6px 8px;
       border-radius: 6px;
       transition: all 0.2s ease;
 
       &::placeholder {
-        color: #94a3b8;
+        color: var(--theme-text-muted);
         font-weight: 400;
       }
 
       &:focus {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(var(--theme-background-rgb), 0.3);
       }
     }
 
@@ -220,7 +223,11 @@ function handleSearch() {
       height: 28px;
       border: none;
       border-radius: 50%;
-      background: linear-gradient(135deg, #4f6df5, #764ba2);
+      background: linear-gradient(
+        135deg,
+        var(--theme-primary),
+        var(--theme-primary-dark)
+      );
       color: white;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -233,7 +240,7 @@ function handleSearch() {
       &:hover {
         opacity: 1;
         transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(79, 109, 245, 0.3);
+        box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.3);
       }
 
       &:active {
@@ -242,7 +249,7 @@ function handleSearch() {
 
       &.active {
         opacity: 1;
-        box-shadow: 0 2px 8px rgba(79, 109, 245, 0.2);
+        box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
       }
     }
   }
@@ -252,7 +259,12 @@ function handleSearch() {
 .engine-dropdown {
   padding: 8px;
   min-width: 140px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  background: rgba(var(--theme-background-rgb), 0.9);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  box-shadow: var(--theme-shadow-lg);
 
   .engine-option {
     display: flex;
@@ -265,25 +277,26 @@ function handleSearch() {
     position: relative;
 
     &:hover {
-      background: rgba(79, 109, 245, 0.1);
+      background: rgba(var(--theme-primary-rgb), 0.1);
     }
 
     .option-icon {
       width: 16px;
       height: 16px;
       border-radius: 3px;
+      border: 1px solid rgba(var(--theme-border-rgb), 0.3);
     }
 
     .option-title {
       flex: 1;
       font-size: 13px;
-      color: #374151;
+      color: var(--theme-text);
       font-weight: 500;
     }
 
     .option-check {
       font-size: 12px;
-      color: #4f6df5;
+      color: var(--theme-primary);
     }
   }
 }

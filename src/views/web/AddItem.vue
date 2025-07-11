@@ -88,7 +88,7 @@ const showModal = ref(false);
 
 /** 打开AddItem弹窗 */
 const openModal = (item: WebItem) => {
-  formData.value = item;
+  formData.value = { ...item };
   showModal.value = true;
 };
 
@@ -196,8 +196,9 @@ defineExpose({
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--theme-background-card);
   border-radius: 8px;
+  color: var(--theme-text);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -208,13 +209,21 @@ defineExpose({
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--theme-border);
     border-radius: 8px;
     width: 40px;
     height: 40px;
     margin: 4px;
     cursor: pointer;
     font-size: 24px;
+    color: var(--theme-text-muted);
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--theme-primary);
+      color: var(--theme-primary);
+      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.15);
+    }
   }
 
   .input-container {
@@ -233,7 +242,7 @@ defineExpose({
       .input-label {
         font-size: 12px;
         font-weight: 500;
-        color: #374151;
+        color: var(--theme-text-secondary);
       }
 
       .input {

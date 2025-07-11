@@ -304,7 +304,7 @@ const handleLogin = async () => {
       font-size: 0.875rem;
 
       .link {
-        color: var(--primary-color);
+        color: var(--theme-primary);
         cursor: pointer;
 
         &:hover {

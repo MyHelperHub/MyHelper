@@ -4,14 +4,44 @@ use std::path::PathBuf;
 
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
-use regex::Regex;
 use url::Url;
 
 use crate::utils::error::{AppError, AppResult};
+use crate::utils::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
 use crate::utils::reqwest::create_web_client;
+use tl::ParserOptions;
 
 const ICON_SIZE: u32 = 32;
+
+const ICON_SELECTORS: &[(&str, &str)] = &[
+    (
+        "link[rel='apple-touch-icon-precomposed'][sizes='180x180']",
+        "href",
+    ),
+    (
+        "link[rel='apple-touch-icon-precomposed'][sizes='192x192']",
+        "href",
+    ),
+    ("link[rel='apple-touch-icon-precomposed']", "href"),
+    ("link[rel='apple-touch-icon'][sizes='180x180']", "href"),
+    ("link[rel='apple-touch-icon'][sizes='192x192']", "href"),
+    ("link[rel='apple-touch-icon']", "href"),
+    (
+        "link[rel='icon'][type='image/png'][sizes='192x192']",
+        "href",
+    ),
+    (
+        "link[rel='icon'][type='image/png'][sizes='128x128']",
+        "href",
+    ),
+    ("link[rel='icon'][type='image/png']", "href"),
+    ("link[rel='icon']", "href"),
+    ("link[rel='icon'][type='image/x-icon']", "href"),
+    ("link[rel='shortcut icon']", "href"),
+    ("meta[property='og:image']", "content"),
+    ("meta[name='msapplication-TileImage']", "content"),
+];
 
 #[derive(Debug)]
 enum IconError {
@@ -69,32 +99,29 @@ fn save_icon(img: image::DynamicImage, output_path: &PathBuf) -> Result<String, 
 fn extract_icon_urls(html: &str) -> Vec<String> {
     let mut urls = Vec::new();
 
-    // 定义匹配各种图标链接的正则表达式
-    let patterns = [
-        // Apple Touch Icons
-        r#"<link[^>]*rel=['"]apple-touch-icon(?:-precomposed)?['"][^>]*href=['"]([^'"]+)['"][^>]*>"#,
-        r#"<link[^>]*href=['"]([^'"]+)['"][^>]*rel=['"]apple-touch-icon(?:-precomposed)?['"][^>]*>"#,
-        // Standard favicons
-        r#"<link[^>]*rel=['"]icon['"][^>]*href=['"]([^'"]+)['"][^>]*>"#,
-        r#"<link[^>]*href=['"]([^'"]+)['"][^>]*rel=['"]icon['"][^>]*>"#,
-        // Shortcut icons
-        r#"<link[^>]*rel=['"]shortcut icon['"][^>]*href=['"]([^'"]+)['"][^>]*>"#,
-        r#"<link[^>]*href=['"]([^'"]+)['"][^>]*rel=['"]shortcut icon['"][^>]*>"#,
-        // Open Graph images
-        r#"<meta[^>]*property=['"]og:image['"][^>]*content=['"]([^'"]+)['"][^>]*>"#,
-        r#"<meta[^>]*content=['"]([^'"]+)['"][^>]*property=['"]og:image['"][^>]*>"#,
-        // Microsoft tile images
-        r#"<meta[^>]*name=['"]msapplication-TileImage['"][^>]*content=['"]([^'"]+)['"][^>]*>"#,
-        r#"<meta[^>]*content=['"]([^'"]+)['"][^>]*name=['"]msapplication-TileImage['"][^>]*>"#,
-    ];
+    // 解析HTML
+    let dom = match tl::parse(html, ParserOptions::default()) {
+        Ok(dom) => dom,
+        Err(_) => return urls,
+    };
 
-    for pattern in &patterns {
-        if let Ok(regex) = Regex::new(pattern) {
-            for cap in regex.captures_iter(html) {
-                if let Some(url) = cap.get(1) {
-                    let url_str = url.as_str().to_string();
-                    if !urls.contains(&url_str) {
-                        urls.push(url_str);
+    let parser = dom.parser();
+
+    for &(selector, attr) in ICON_SELECTORS {
+        // 使用CSS选择器查找元素
+        if let Some(mut selector_iter) = dom.query_selector(selector) {
+            for node_handle in selector_iter.by_ref() {
+                if let Some(node) = node_handle.get(parser) {
+                    if let Some(tag) = node.as_tag() {
+                        // 获取指定属性的值
+                        if let Some(attr_value) = tag.attributes().get(attr) {
+                            if let Some(url_str) = attr_value {
+                                let url_str = url_str.as_utf8_str().to_string();
+                                if !url_str.is_empty() && !urls.contains(&url_str) {
+                                    urls.push(url_str);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -144,51 +171,90 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
     if let Ok(favicon_url) = url.join("/favicon.ico") {
         if let Ok(Some(data)) = try_load_icon(&client, favicon_url.as_str()).await {
             if let Ok(img) = image::load_from_memory(&data) {
+                let _ = Logger::write_log(LogEntry {
+                    level: "info".to_string(),
+                    message: format!("获取网站图标成功: {} (方案: favicon.ico)", domain),
+                    timestamp: String::new(),
+                    details: Some(favicon_url.to_string()),
+                });
                 return save_icon(img, &output_path).map_err(AppError::from);
             }
         }
     }
 
     // 尝试从 HTML 中查找图标
-    let html = match client.get(url.as_str()).send().await {
-        Ok(response) if response.status().is_success() => match response.text().await {
-            Ok(text) => text,
-            Err(e) => {
-                println!("Failed to get HTML content: {}", e);
-                return Err(
-                    IconError::NetworkError("Failed to get HTML content".to_string()).into(),
-                );
-            }
-        },
-        Ok(_) => return Err(IconError::NetworkError("Failed to get webpage".to_string()).into()),
-        Err(e) if e.is_timeout() => {
-            return Err(IconError::NetworkError("Request timeout".to_string()).into());
-        }
-        Err(e) => {
-            return Err(IconError::NetworkError(e.to_string()).into());
-        }
-    };
+    let html_result = client.get(url.as_str()).send().await;
 
-    // 在同步代码中提取所有可能图标URL
-    let icon_urls = extract_icon_urls(&html);
+    if let Ok(response) = html_result {
+        if response.status().is_success() {
+            if let Ok(text) = response.text().await {
+                // 使用 tl 解析HTML并提取图标 URL
+                let icon_urls = extract_icon_urls(&text);
 
-    // 异步尝试获取每个图标
-    for href in icon_urls {
-        let icon_url = if href.starts_with("http") {
-            href
-        } else {
-            match url.join(&href) {
-                Ok(u) => u.to_string(),
-                Err(_) => continue,
-            }
-        };
+                // 异步尝试获取每个图标
+                for href in icon_urls {
+                    let icon_url = if href.starts_with("http") {
+                        href
+                    } else {
+                        match url.join(&href) {
+                            Ok(u) => u.to_string(),
+                            Err(_) => continue,
+                        }
+                    };
 
-        if let Ok(Some(data)) = try_load_icon(&client, &icon_url).await {
-            if let Ok(img) = image::load_from_memory(&data) {
-                return save_icon(img, &output_path).map_err(AppError::from);
+                    if let Ok(Some(data)) = try_load_icon(&client, &icon_url).await {
+                        if let Ok(img) = image::load_from_memory(&data) {
+                            let _ = Logger::write_log(LogEntry {
+                                level: "info".to_string(),
+                                message: format!("获取网站图标成功: {} (方案: HTML解析)", domain),
+                                timestamp: String::new(),
+                                details: Some(icon_url.clone()),
+                            });
+                            return save_icon(img, &output_path).map_err(AppError::from);
+                        }
+                    }
+                }
             }
         }
     }
+
+    // 备选方案1：使用 Favicon.im 服务
+    let domain = url.host_str().unwrap_or("");
+    let favicon_im_url = format!("https://favicon.im/{}?larger=true", domain);
+
+    if let Ok(Some(data)) = try_load_icon(&client, &favicon_im_url).await {
+        if let Ok(img) = image::load_from_memory(&data) {
+            let _ = Logger::write_log(LogEntry {
+                level: "info".to_string(),
+                message: format!("获取网站图标成功: {} (方案: Favicon.im)", domain),
+                timestamp: String::new(),
+                details: Some(favicon_im_url.clone()),
+            });
+            return save_icon(img, &output_path).map_err(AppError::from);
+        }
+    }
+
+    // 备选方案2：使用 Google Favicon 服务
+    let google_favicon_url = format!("https://www.google.com/s2/favicons?domain={}&sz=64", domain);
+
+    if let Ok(Some(data)) = try_load_icon(&client, &google_favicon_url).await {
+        if let Ok(img) = image::load_from_memory(&data) {
+            let _ = Logger::write_log(LogEntry {
+                level: "info".to_string(),
+                message: format!("获取网站图标成功: {} (方案: Google服务)", domain),
+                timestamp: String::new(),
+                details: Some(google_favicon_url.clone()),
+            });
+            return save_icon(img, &output_path).map_err(AppError::from);
+        }
+    }
+
+    let _ = Logger::write_log(LogEntry {
+        level: "warn".to_string(),
+        message: format!("获取网站图标失败: {} (所有方案都失败)", domain),
+        timestamp: String::new(),
+        details: Some(url.to_string()),
+    });
 
     Err(IconError::NotFound.into())
 }

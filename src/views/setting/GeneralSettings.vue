@@ -180,10 +180,12 @@ const handleDataReset = async (
 
 <style lang="less" scoped>
 .setting-section {
+  color: var(--theme-text);
+
   h3 {
     margin-bottom: 20px;
     font-size: 1.2rem;
-    color: #333;
+    color: var(--theme-text) !important;
   }
 
   .item {
@@ -193,11 +195,12 @@ const handleDataReset = async (
     display: flex;
     justify-content: space-between;
     align-items: center;
-    --p-toggleswitch-checked-background: rgb(74, 159, 238);
+    --p-toggleswitch-checked-background: var(--theme-primary);
+    color: var(--theme-text);
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.04);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      background-color: rgba(var(--theme-primary-rgb), 0.04);
+      box-shadow: var(--theme-shadow-sm);
     }
 
     .item-right {
@@ -208,17 +211,7 @@ const handleDataReset = async (
     }
   }
 
-  :deep(.p-toggleswitch.p-component) {
-    &.p-toggleswitch-checked {
-      .p-toggleswitch-slider {
-        background: rgb(74, 159, 238);
-      }
-
-      &:hover .p-toggleswitch-slider {
-        background: rgb(0, 132, 255);
-      }
-    }
-  }
+  // ToggleSwitch样式已在全局theme.less中配置
 }
 
 .modal-content {

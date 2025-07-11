@@ -59,6 +59,11 @@ impl Logger {
         file.write_all(log_line.as_bytes())
             .map_err(|e| format!("Failed to write to log file: {}", e))?;
 
+        #[cfg(debug_assertions)]
+        {
+            println!("{}", log_line);
+        }
+
         Ok(())
     }
 

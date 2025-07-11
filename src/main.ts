@@ -8,7 +8,7 @@ import router from "./router";
 import "primeicons/primeicons.css";
 import { Window } from "@tauri-apps/api/window";
 import PrimeVue from "primevue/config";
-import Lara from '@primeuix/themes/aura';
+import Lara from "@primeuix/themes/aura";
 import { ipcSetWindowSize } from "./api/ipc/window.api";
 import {
   handleSettingChange,
@@ -24,6 +24,10 @@ import { getUserConfig } from "./utils/user";
 import GlobalData from "./utils/globalData";
 import { User } from "./interface/user";
 import { ErrorHandler } from "./utils/errorHandler";
+
+// 主题系统
+import { initTheme } from "@/utils/theme";
+import { initThemeHelpers } from "@/utils/themeHelpers";
 
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
@@ -100,5 +104,29 @@ app.use(PrimeVue, {
 app.directive("tooltip", Tooltip);
 app.use(ConfirmationService);
 app.use(ToastService);
+
+// 初始化主题系统
+initTheme().catch(console.error);
+
+// 初始化主题辅助工具
+initThemeHelpers();
+
+// 监听主题更新事件（用于同步多个webview的主题）
+listen("theme:update", async (event) => {
+  try {
+    // 延迟导入，避免循环依赖
+    const { applyTheme } = await import("@/utils/theme");
+    const config = event.payload as any;
+
+    // 只应用主题，不保存配置（避免递归）
+    if (config.customColors) {
+      await applyTheme(undefined, config.customColors, true);
+    } else if (config.currentThemeId) {
+      await applyTheme(config.currentThemeId, undefined, true);
+    }
+  } catch (error) {
+    console.error("同步主题失败:", error);
+  }
+}).catch(console.error);
 
 app.mount("#app");

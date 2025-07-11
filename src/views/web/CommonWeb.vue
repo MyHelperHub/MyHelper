@@ -32,7 +32,7 @@
           }"
           @click="navigateTo(item.url)"
           @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-          <div class="icon-container web-theme">
+          <div class="icon-container">
             <img
               v-if="item.logo"
               :src="convertFileSrc(item.logo)"
@@ -176,4 +176,16 @@ const deleteWebItem = async (id: number) => {
 defineExpose({ visible });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.web-panel {
+  .card-title {
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-height: 1.2;
+    max-height: calc(1.2em * 3);
+  }
+}
+</style>

@@ -7,12 +7,25 @@
       <div class="container">
         <div class="search-wrapper" data-tauri-drag-region>
           <div class="search-input">
-            <InputText v-model="state.keyword" placeholder="搜索插件..." @keydown.enter="handleSearch" />
-            <i v-if="state.keyword" class="pi pi-times-circle clear-button" @click="clearSearch" />
-            <Button class="search-button" icon="pi pi-search" @click="handleSearch" />
+            <InputText
+              v-model="state.keyword"
+              placeholder="搜索插件..."
+              @keydown.enter="handleSearch" />
+            <i
+              v-if="state.keyword"
+              class="pi pi-times-circle clear-button"
+              @click="clearSearch" />
+            <Button
+              class="search-button"
+              icon="pi pi-search"
+              @click="handleSearch" />
           </div>
           <div class="button-group">
-            <Button icon="pi pi-list" label="已安装插件" class="installed-button" @click="handleShowInstalled" />
+            <Button
+              icon="pi pi-list"
+              label="已安装插件"
+              class="installed-button"
+              @click="handleShowInstalled" />
           </div>
         </div>
       </div>
@@ -29,8 +42,13 @@
             </template>
             <template #content>
               <div class="menu-wrapper">
-                <Listbox v-model="state.category" :options="categoryMenuItems" optionLabel="label" optionValue="value"
-                  class="category-menu-list" @change="selectCategory" />
+                <Listbox
+                  v-model="state.category"
+                  :options="categoryMenuItems"
+                  optionLabel="label"
+                  optionValue="value"
+                  class="category-menu-list"
+                  @change="selectCategory" />
               </div>
             </template>
           </Card>
@@ -41,51 +59,76 @@
           <!-- 排序和筛选工具栏 -->
           <Toolbar class="toolbar">
             <template #start>
-              <Select v-model="state.sort" :options="sortOptions" optionLabel="label" optionValue="value"
-                class="sort-select" placeholder="排序方式" :panelStyle="{ width: '200px' }" @change="handleSortChange" />
+              <Select
+                v-model="state.sort"
+                :options="sortOptions"
+                optionLabel="label"
+                optionValue="value"
+                class="sort-select"
+                placeholder="排序方式"
+                :panelStyle="{ width: '200px' }"
+                @change="handleSortChange" />
             </template>
             <template #end>
-              <Select v-model="state.timeFilter" :options="timeFilterOptions" optionLabel="label" optionValue="value"
-                placeholder="选择时间范围" class="time-filter-select" :panelStyle="{ width: '200px' }"
+              <Select
+                v-model="state.timeFilter"
+                :options="timeFilterOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="选择时间范围"
+                class="time-filter-select"
+                :panelStyle="{ width: '200px' }"
                 @change="handleTimeFilterChange" />
             </template>
           </Toolbar>
 
           <!-- 插件网格 -->
           <div class="plugin-grid">
-            <Card v-for="pluginDetail in plugins" :key="pluginDetail.Plugin.Id" class="plugin-card"
+            <Card
+              v-for="pluginDetail in plugins"
+              :key="pluginDetail.Plugin.Id"
+              class="plugin-card"
               @click="showPluginDetail(pluginDetail)">
               <template #header>
                 <div class="card-header">
-                  <Image class="plugin-icon" :src="pluginDetail.Plugin.Icon" width="64" height="64" />
+                  <Image
+                    class="plugin-icon"
+                    :src="pluginDetail.Plugin.Icon"
+                    width="64"
+                    height="64" />
                   <div class="plugin-info">
-                    <h3 v-tooltip.bottom="{
-                      value: pluginDetail.Plugin.Name,
-                      showDelay: 500,
-                      pt: {
-                        text: {
-                          style: {
-                            fontSize: '15px',
+                    <h3
+                      v-tooltip.bottom="{
+                        value: pluginDetail.Plugin.Name,
+                        showDelay: 500,
+                        pt: {
+                          text: {
+                            style: {
+                              fontSize: '15px',
+                            },
                           },
                         },
-                      },
-                    }">
+                      }">
                       {{ pluginDetail.Plugin.Name }}
                     </h3>
                     <p>{{ pluginDetail.Plugin.Author }}</p>
                   </div>
                   <div class="plugin-stats">
-                    <Rating v-model="pluginDetail.Plugin.Rating" :cancel="false" readonly v-tooltip.bottom="{
-                      value: `${pluginDetail.Plugin.Rating}分`,
-                      showDelay: 500,
-                      pt: {
-                        text: {
-                          style: {
-                            fontSize: '15px',
+                    <Rating
+                      v-model="pluginDetail.Plugin.Rating"
+                      :cancel="false"
+                      readonly
+                      v-tooltip.bottom="{
+                        value: `${pluginDetail.Plugin.Rating}分`,
+                        showDelay: 500,
+                        pt: {
+                          text: {
+                            style: {
+                              fontSize: '15px',
+                            },
                           },
                         },
-                      },
-                    }" />
+                      }" />
                     <div class="downloads">
                       {{ formatNumber(pluginDetail.Plugin.Downloads) }}次下载
                     </div>
@@ -98,22 +141,42 @@
                 </div>
                 <div class="card-footer">
                   <div class="plugin-tags">
-                    <Tag v-for="tag in pluginDetail.Plugin.Tags" :key="tag" :value="tag" severity="info" />
+                    <Tag
+                      v-for="tag in pluginDetail.Plugin.Tags"
+                      :key="tag"
+                      :value="tag"
+                      severity="info" />
                   </div>
-                  <template v-if="
-                    installedPluginIds.includes(pluginDetail.Plugin.WindowId)
-                  ">
-                    <Button v-if="
-                      checkPluginUpdate(
-                        installedPlugins.find(
-                          (p) => p.WindowId === pluginDetail.Plugin.WindowId,
-                        )?.Version || '',
-                        pluginDetail.Plugin.Version,
-                      )
-                    " icon="pi pi-sync" label="有更新" severity="info" size="small" />
-                    <Button v-else icon="pi pi-check" label="已安装" severity="success" size="small" disabled />
+                  <template
+                    v-if="
+                      installedPluginIds.includes(pluginDetail.Plugin.WindowId)
+                    ">
+                    <Button
+                      v-if="
+                        checkPluginUpdate(
+                          installedPlugins.find(
+                            (p) => p.WindowId === pluginDetail.Plugin.WindowId,
+                          )?.Version || '',
+                          pluginDetail.Plugin.Version,
+                        )
+                      "
+                      icon="pi pi-sync"
+                      label="有更新"
+                      severity="info"
+                      size="small" />
+                    <Button
+                      v-else
+                      icon="pi pi-check"
+                      label="已安装"
+                      severity="success"
+                      size="small"
+                      disabled />
                   </template>
-                  <Button v-else icon="pi pi-download" label="下载" size="small" />
+                  <Button
+                    v-else
+                    icon="pi pi-download"
+                    label="下载"
+                    size="small" />
                 </div>
               </template>
             </Card>
@@ -121,32 +184,54 @@
 
           <!-- 分页 -->
           <div class="pagination">
-            <Paginator :first="(state.pageIndex - 1) * state.pageSize" :rows="state.pageSize"
-              :total-records="state.total" :rows-per-page-options="[20, 40, 60]" @page="onPageChange" />
+            <Paginator
+              :first="(state.pageIndex - 1) * state.pageSize"
+              :rows="state.pageSize"
+              :total-records="state.total"
+              :rows-per-page-options="[20, 40, 60]"
+              @page="onPageChange" />
           </div>
         </div>
       </div>
     </div>
 
     <!-- 详情对话框 -->
-    <Dialog v-model:visible="showDetail" :modal="true" :style="{ width: '50vw' }" :header="selectedPlugin?.Name"
-      class="plugin-detail-dialog" dismissableMask>
+    <Dialog
+      v-model:visible="showDetail"
+      :modal="true"
+      :style="{ width: '50vw' }"
+      :header="selectedPlugin?.Name"
+      class="plugin-detail-dialog"
+      dismissableMask>
       <div class="plugin-detail" v-if="selectedPlugin">
         <!-- 插件头部信息 -->
         <div class="plugin-header">
-          <Image :src="selectedPlugin.Icon" :alt="selectedPlugin.Name" width="64" height="64" />
+          <Image
+            :src="selectedPlugin.Icon"
+            :alt="selectedPlugin.Name"
+            width="64"
+            height="64" />
           <div class="plugin-info">
             <p class="author">作者：{{ selectedPlugin.Author }}</p>
             <div class="stats" v-if="!isPluginInstalled(selectedPlugin)">
               <div class="rating-wrapper">
-                <Rating :modelValue="selectedPlugin.Rating" :cancel="false" readonly />
+                <Rating
+                  :modelValue="selectedPlugin.Rating"
+                  :cancel="false"
+                  readonly />
               </div>
-              <span class="downloads">{{ formatNumber(selectedPlugin.Downloads) }}次下载</span>
+              <span class="downloads"
+                >{{ formatNumber(selectedPlugin.Downloads) }}次下载</span
+              >
             </div>
             <div class="stats" v-else>
               <div class="rating-wrapper">
-                <Rating v-model="userRating" :cancel="false"
-                  :readonly="selectedPluginIsRated || selectedPlugin.Id === -1" @change="handleRating" v-tooltip.bottom="{
+                <Rating
+                  v-model="userRating"
+                  :cancel="false"
+                  :readonly="selectedPluginIsRated || selectedPlugin.Id === -1"
+                  @change="handleRating"
+                  v-tooltip.bottom="{
                     value: `${userRating}分`,
                     showDelay: 500,
                     pt: {
@@ -157,12 +242,16 @@
                       },
                     },
                   }" />
-                <span class="rating-hint" v-if="
-                  !selectedPluginIsRated &&
-                  userData?.Token &&
-                  installedPluginIds.includes(selectedPlugin?.WindowId || '') &&
-                  selectedPlugin.Id !== -1
-                ">
+                <span
+                  class="rating-hint"
+                  v-if="
+                    !selectedPluginIsRated &&
+                    userData?.Token &&
+                    installedPluginIds.includes(
+                      selectedPlugin?.WindowId || '',
+                    ) &&
+                    selectedPlugin.Id !== -1
+                  ">
                   点击星星进行评分
                 </span>
                 <span class="rating-hint" v-else-if="selectedPluginIsRated">
@@ -178,7 +267,11 @@
 
         <!-- 插件标签 -->
         <div class="plugin-tags">
-          <Tag v-for="tag in selectedPlugin.Tags" :key="tag" :value="tag" severity="info" />
+          <Tag
+            v-for="tag in selectedPlugin.Tags"
+            :key="tag"
+            :value="tag"
+            severity="info" />
         </div>
 
         <!-- 插件详细描述 -->
@@ -190,11 +283,21 @@
         <!-- 插件截图 -->
         <div class="screenshots" v-if="selectedPlugin.Screenshots?.length">
           <h3>插件截图</h3>
-          <Carousel :value="selectedPlugin.Screenshots" :numVisible="1" :numScroll="1" :circular="true"
-            :showIndicators="true" :showNavigators="true" class="screenshot-carousel">
+          <Carousel
+            :value="selectedPlugin.Screenshots"
+            :numVisible="1"
+            :numScroll="1"
+            :circular="true"
+            :showIndicators="true"
+            :showNavigators="true"
+            class="screenshot-carousel">
             <template #item="slotProps">
               <div class="screenshot-container">
-                <Image :src="slotProps.data" alt="screenshot" preview imageClass="screenshot-image" />
+                <Image
+                  :src="slotProps.data"
+                  alt="screenshot"
+                  preview
+                  imageClass="screenshot-image" />
               </div>
             </template>
           </Carousel>
@@ -216,7 +319,9 @@
                       )?.Version
                     }}
                     <template v-if="hasUpdate">
-                      <span class="latest-version">(最新版本: {{ selectedPlugin?.Version }})</span>
+                      <span class="latest-version"
+                        >(最新版本: {{ selectedPlugin?.Version }})</span
+                      >
                     </template>
                   </template>
                   <template v-else>
@@ -243,11 +348,13 @@
                 }}</span>
               </div>
             </div>
-            <div class="info-item" v-if="
-              isPluginInstalled(selectedPlugin) &&
-              selectedPlugin.installTime &&
-              formatDate(selectedPlugin.installTime, true)
-            ">
+            <div
+              class="info-item"
+              v-if="
+                isPluginInstalled(selectedPlugin) &&
+                selectedPlugin.installTime &&
+                formatDate(selectedPlugin.installTime, true)
+              ">
               <i class="pi pi-download"></i>
               <div class="info-content">
                 <span class="label">安装时间</span>
@@ -264,28 +371,59 @@
         <div class="dialog-footer">
           <Button label="取消" class="p-button-text" @click="closeDetail" />
           <template v-if="isPluginInstalled(selectedPlugin)">
-            <Button v-if="hasUpdate" label="更新" icon="pi pi-sync" severity="info"
+            <Button
+              v-if="hasUpdate"
+              label="更新"
+              icon="pi pi-sync"
+              severity="info"
               @click="handleDownload(selectedPlugin, true)" />
-            <Button v-else label="已安装" icon="pi pi-check" severity="success" disabled />
+            <Button
+              v-else
+              label="已安装"
+              icon="pi pi-check"
+              severity="success"
+              disabled />
           </template>
-          <Button v-else label="下载" severity="primary" @click="handleDownload(selectedPlugin, false)" />
+          <Button
+            v-else
+            label="下载"
+            severity="primary"
+            @click="handleDownload(selectedPlugin, false)" />
         </div>
       </template>
     </Dialog>
 
     <!-- 已安装插件对话框 -->
-    <Dialog v-model:visible="showInstalled" :modal="true" header="已安装插件" :style="{ width: '80vw' }"
+    <Dialog
+      v-model:visible="showInstalled"
+      :modal="true"
+      header="已安装插件"
+      :style="{ width: '80vw' }"
       class="installed-plugins-dialog">
       <div class="installed-plugins-list">
         <div class="toolbar-container">
-          <Button icon="pi pi-upload" label="从本地导入" class="p-button-outlined mb-3" @click="openImportDialog" />
+          <Button
+            icon="pi pi-upload"
+            label="从本地导入"
+            class="p-button-outlined mb-3"
+            @click="openImportDialog" />
         </div>
-        <DataTable :value="installedPlugins" :paginator="true" :rows="5" tableStyle="min-width: 50rem"
+        <DataTable
+          :value="installedPlugins"
+          :paginator="true"
+          :rows="5"
+          tableStyle="min-width: 50rem"
           class="installed-table">
           <Column field="Name" header="插件名称" :sortable="true">
             <template #body="slotProps">
-              <div class="plugin-name-cell clickable" @click="showPluginDetail(slotProps.data)">
-                <Image :src="slotProps.data.Icon" :alt="slotProps.data.Name" width="32" height="32" />
+              <div
+                class="plugin-name-cell clickable"
+                @click="showPluginDetail(slotProps.data)">
+                <Image
+                  :src="slotProps.data.Icon"
+                  :alt="slotProps.data.Name"
+                  width="32"
+                  height="32" />
                 <div class="plugin-basic-info">
                   <span class="name">{{ slotProps.data.Name }}</span>
                   <span class="description">{{
@@ -301,14 +439,18 @@
                 <span class="current-version">{{
                   slotProps.data.Version
                 }}</span>
-                <Tag v-if="
-                  checkPluginUpdate(
-                    slotProps.data.Version,
-                    plugins.find(
-                      (p) => p.Plugin.WindowId === slotProps.data.WindowId,
-                    )?.Plugin.Version || '',
-                  )
-                " severity="warning" value="有更新" class="update-tag" />
+                <Tag
+                  v-if="
+                    checkPluginUpdate(
+                      slotProps.data.Version,
+                      plugins.find(
+                        (p) => p.Plugin.WindowId === slotProps.data.WindowId,
+                      )?.Plugin.Version || '',
+                    )
+                  "
+                  severity="warning"
+                  value="有更新"
+                  class="update-tag" />
               </div>
             </template>
           </Column>
@@ -329,32 +471,56 @@
           <Column field="Status" header="状态" :sortable="true">
             <template #body="slotProps">
               <div class="status-cell">
-                <Tag :severity="slotProps.data.config?.isEnabled ? 'success' : 'danger'
-                  " :value="slotProps.data.config?.isEnabled ? '已启用' : '已禁用'
-                    " />
+                <Tag
+                  :severity="
+                    slotProps.data.config?.isEnabled ? 'success' : 'danger'
+                  "
+                  :value="
+                    slotProps.data.config?.isEnabled ? '已启用' : '已禁用'
+                  " />
               </div>
             </template>
           </Column>
           <Column header="操作" :style="{ width: '8rem' }">
             <template #body="slotProps">
               <div class="action-cell">
-                <Button v-if="slotProps.data.HasUpdate" icon="pi pi-sync" severity="info" text v-tooltip.top="'更新插件'"
-                  @click="handleDownload(slotProps.data, true)" class="action-button" />
-                <Button :icon="slotProps.data.config?.isEnabled
-                  ? 'pi pi-check-circle'
-                  : 'pi pi-times-circle'
-                  " :severity="slotProps.data.config?.isEnabled ? 'success' : 'danger'
-                    " text v-tooltip.top="slotProps.data.config?.isEnabled
+                <Button
+                  v-if="slotProps.data.HasUpdate"
+                  icon="pi pi-sync"
+                  severity="info"
+                  text
+                  v-tooltip.top="'更新插件'"
+                  @click="handleDownload(slotProps.data, true)"
+                  class="action-button" />
+                <Button
+                  :icon="
+                    slotProps.data.config?.isEnabled
+                      ? 'pi pi-check-circle'
+                      : 'pi pi-times-circle'
+                  "
+                  :severity="
+                    slotProps.data.config?.isEnabled ? 'success' : 'danger'
+                  "
+                  text
+                  v-tooltip.top="
+                    slotProps.data.config?.isEnabled
                       ? '点击禁用插件'
                       : '点击启用插件'
-                      " @click="
-                        togglePlugin(
-                          slotProps.data,
-                          !slotProps.data.config?.isEnabled,
-                        )
-                        " class="action-button" />
-                <Button icon="pi pi-trash" severity="danger" text v-tooltip.top="'卸载插件'"
-                  @click="(e) => uninstallPlugin(slotProps.data, e)" class="action-button" />
+                  "
+                  @click="
+                    togglePlugin(
+                      slotProps.data,
+                      !slotProps.data.config?.isEnabled,
+                    )
+                  "
+                  class="action-button" />
+                <Button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text
+                  v-tooltip.top="'卸载插件'"
+                  @click="(e) => uninstallPlugin(slotProps.data, e)"
+                  class="action-button" />
               </div>
             </template>
           </Column>
@@ -364,11 +530,20 @@
 
     <!-- 添加开发者按钮 -->
     <div class="developer-button">
-      <Button icon="pi pi-code" label="我是开发者" text @click="gotoDevelop" class="developer-link" />
+      <Button
+        icon="pi pi-code"
+        label="我是开发者"
+        text
+        @click="gotoDevelop"
+        class="developer-link" />
     </div>
 
     <!-- 本地插件导入对话框 -->
-    <Dialog v-model:visible="showImportDialog" :modal="true" header="导入本地插件" :style="{ width: '40vw' }"
+    <Dialog
+      v-model:visible="showImportDialog"
+      :modal="true"
+      header="导入本地插件"
+      :style="{ width: '40vw' }"
       class="plugin-import-dialog">
       <div class="import-content" v-if="localPluginFile">
         <div class="file-info">
@@ -376,7 +551,11 @@
           <div class="file-details">
             <div class="file-name">{{ localPluginFile.name }}</div>
             <div class="file-size text-xs text-gray-500">
-              {{ localPluginFile.size > 0 ? formatFileSize(localPluginFile.size) : '大小未知' }}
+              {{
+                localPluginFile.size > 0
+                  ? formatFileSize(localPluginFile.size)
+                  : "大小未知"
+              }}
             </div>
           </div>
         </div>
@@ -384,51 +563,60 @@
         <h3 class="text-lg font-semibold mt-4 mb-3">基本信息</h3>
 
         <div class="form-group mt-3">
-          <label for="pluginWindowId" class="block mb-2">插件ID (唯一标识符)</label>
+          <label for="pluginWindowId" class="block mb-2"
+            >插件ID (唯一标识符)</label
+          >
           <div class="info-text-display">
-            {{ localPluginInfo.windowId || '-' }}
+            {{ localPluginInfo.windowId || "-" }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginTitle" class="block mb-2">插件名称</label>
           <div class="info-text-display">
-            {{ localPluginInfo.title || '-' }}
+            {{ localPluginInfo.title || "-" }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginDesc" class="block mb-2">插件描述</label>
           <div class="info-text-display">
-            {{ localPluginInfo.description || '-' }}
+            {{ localPluginInfo.description || "-" }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginAuthor" class="block mb-2">作者</label>
           <div class="info-text-display">
-            {{ localPluginInfo.author || '本地导入' }}
+            {{ localPluginInfo.author || "本地导入" }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginVersion" class="block mb-2">版本</label>
           <div class="info-text-display">
-            {{ localPluginInfo.version || '1.0.0' }}
+            {{ localPluginInfo.version || "1.0.0" }}
           </div>
         </div>
 
-        <div v-if="localPluginInfo.tags && localPluginInfo.tags.length > 0" class="form-group mt-3">
+        <div
+          v-if="localPluginInfo.tags && localPluginInfo.tags.length > 0"
+          class="form-group mt-3">
           <label for="pluginTags" class="block mb-2">标签</label>
           <div class="info-text-display">
-            <Tag v-for="tag in localPluginInfo.tags" :key="tag" :value="tag" severity="info" class="mr-1" />
+            <Tag
+              v-for="tag in localPluginInfo.tags"
+              :key="tag"
+              :value="tag"
+              severity="info"
+              class="mr-1" />
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginEmail" class="block mb-2">邮箱</label>
           <div class="info-text-display">
-            {{ localPluginInfo.email || '-' }}
+            {{ localPluginInfo.email || "-" }}
           </div>
         </div>
 
@@ -437,35 +625,43 @@
         <div class="form-group mt-3">
           <label for="pluginSize" class="block mb-2">窗口大小</label>
           <div class="info-text-display">
-            {{ localPluginInfo.size ? `${localPluginInfo.size[0]} × ${localPluginInfo.size[1]}` : '-' }}
+            {{
+              localPluginInfo.size
+                ? `${localPluginInfo.size[0]} × ${localPluginInfo.size[1]}`
+                : "-"
+            }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginPosition" class="block mb-2">窗口位置</label>
           <div class="info-text-display">
-            {{ localPluginInfo.position ? `X:${localPluginInfo.position[0]}, Y:${localPluginInfo.position[1]}` : '-' }}
+            {{
+              localPluginInfo.position
+                ? `X:${localPluginInfo.position[0]}, Y:${localPluginInfo.position[1]}`
+                : "-"
+            }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginAlwaysOnTop" class="block mb-2">置顶窗口</label>
           <div class="info-text-display">
-            {{ localPluginInfo.alwaysOnTop ? '是' : '否 (默认)' }}
+            {{ localPluginInfo.alwaysOnTop ? "是" : "否 (默认)" }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginResizable" class="block mb-2">可调整大小</label>
           <div class="info-text-display">
-            {{ localPluginInfo.resizable !== false ? '是 (默认)' : '否' }}
+            {{ localPluginInfo.resizable !== false ? "是 (默认)" : "否" }}
           </div>
         </div>
 
         <div class="form-group mt-3">
           <label for="pluginIcon" class="block mb-2">图标</label>
           <div class="info-text-display">
-            {{ localPluginInfo.icon || './icon.png (默认)' }}
+            {{ localPluginInfo.icon || "./icon.png (默认)" }}
           </div>
         </div>
       </div>
@@ -474,14 +670,26 @@
         <div class="text-center py-4">
           <i class="pi pi-upload text-4xl text-gray-400 mb-3"></i>
           <p>请先选择要导入的插件文件</p>
-          <Button label="选择文件" icon="pi pi-file" class="mt-3" @click="openFileSelector" />
+          <Button
+            label="选择文件"
+            icon="pi pi-file"
+            class="mt-3"
+            @click="openFileSelector" />
         </div>
       </div>
 
       <template #footer>
         <div class="dialog-footer">
-          <Button label="取消" class="p-button-text" @click="closeImportDialog" />
-          <Button label="导入" icon="pi pi-check" :disabled="!canImport" severity="primary" @click="importLocalPlugin" />
+          <Button
+            label="取消"
+            class="p-button-text"
+            @click="closeImportDialog" />
+          <Button
+            label="导入"
+            icon="pi pi-check"
+            :disabled="!canImport"
+            severity="primary"
+            @click="importLocalPlugin" />
         </div>
       </template>
     </Dialog>
@@ -519,7 +727,11 @@ import {
   ratePlugin,
 } from "@/api/network/plugin.api";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { ipcUninstallPlugin, ipcInstallLocalPlugin, ipcAnalyzePluginPackage } from "@/api/ipc/plugin.api";
+import {
+  ipcUninstallPlugin,
+  ipcInstallLocalPlugin,
+  ipcAnalyzePluginPackage,
+} from "@/api/ipc/plugin.api";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import { WindowOperation } from "@/interface/enum";
 import { ResponseCodeEnum } from "@/interface/enum";
@@ -550,7 +762,11 @@ const userRating = ref(0);
 const showInstalled = ref(false);
 const userData = ref<{ Token?: string } | null>(null);
 const showImportDialog = ref(false);
-const localPluginFile = ref<{ path: string, name: string, size: number } | null>(null);
+const localPluginFile = ref<{
+  path: string;
+  name: string;
+  size: number;
+} | null>(null);
 const localPluginInfo = ref<{
   windowId: string;
   title: string;
@@ -568,7 +784,7 @@ const localPluginInfo = ref<{
 }>({
   windowId: "",
   title: "",
-  description: ""
+  description: "",
 });
 
 /** 状态管理 */
@@ -1160,7 +1376,7 @@ const openImportDialog = () => {
   localPluginInfo.value = {
     windowId: "",
     title: "",
-    description: ""
+    description: "",
   };
   showImportDialog.value = true;
 };
@@ -1176,10 +1392,12 @@ const openFileSelector = async () => {
   try {
     const selected = await open({
       multiple: false,
-      filters: [{
-        name: 'ZIP文件',
-        extensions: ['zip']
-      }]
+      filters: [
+        {
+          name: "ZIP文件",
+          extensions: ["zip"],
+        },
+      ],
     });
 
     // 如果用户取消了选择，selected可能为null或undefined
@@ -1203,7 +1421,7 @@ const analyzePluginPackage = async (filePath: string) => {
   try {
     showLoading();
     // 调用IPC方法解析插件包
-    const result = await ipcAnalyzePluginPackage(filePath) as {
+    const result = (await ipcAnalyzePluginPackage(filePath)) as {
       success: boolean;
       message?: string;
       size?: number;
@@ -1233,7 +1451,7 @@ const analyzePluginPackage = async (filePath: string) => {
     localPluginFile.value = {
       path: filePath,
       name: fileName,
-      size: result.size || 0
+      size: result.size || 0,
     };
 
     // 设置从mhPlugin.json中读取的数据
@@ -1250,9 +1468,8 @@ const analyzePluginPackage = async (filePath: string) => {
       position: result.pluginInfo.position,
       alwaysOnTop: result.pluginInfo.alwaysOnTop,
       resizable: result.pluginInfo.resizable,
-      icon: result.pluginInfo.icon
+      icon: result.pluginInfo.icon,
     };
-
   } catch (error) {
     toast.add({
       severity: "error",
@@ -1274,7 +1491,10 @@ const importLocalPlugin = async () => {
     showLoading();
 
     // 调用安装本地插件的IPC接口
-    await ipcInstallLocalPlugin(localPluginFile.value.path, localPluginInfo.value.windowId);
+    await ipcInstallLocalPlugin(
+      localPluginFile.value.path,
+      localPluginInfo.value.windowId,
+    );
 
     // 构建插件配置并保存
     const currentConfig = (await getPluginConfig(["pluginList"])) || [];
@@ -1314,7 +1534,9 @@ const importLocalPlugin = async () => {
     };
 
     // 如果已存在同ID的插件，则替换它
-    const index = pluginList.findIndex((p) => p.windowId === localPluginInfo.value.windowId);
+    const index = pluginList.findIndex(
+      (p) => p.windowId === localPluginInfo.value.windowId,
+    );
     if (index !== -1) {
       pluginList[index] = pluginConfig;
     } else {
@@ -1368,7 +1590,7 @@ onMounted(async () => {
 <style lang="less" scoped>
 .plugin-market {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--theme-background-secondary);
 
   .close-button {
     position: absolute;
@@ -1376,12 +1598,23 @@ onMounted(async () => {
     right: 12px;
     cursor: pointer;
     z-index: 5001;
+    color: var(--theme-text-muted);
+    font-size: 16px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--theme-text);
+      transform: scale(1.1);
+    }
   }
 
   .search-area {
-    background-color: #f3f4f6;
-    border-bottom: 1px solid #e5e7eb;
+    background: rgba(var(--theme-background-rgb), 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--theme-border);
     padding: 1rem 0;
+    color: var(--theme-text);
 
     .container {
       max-width: 80rem;
@@ -1412,11 +1645,11 @@ onMounted(async () => {
         transform: translateY(-50%);
         cursor: pointer;
         padding: 0.5rem;
-        color: #6b7280;
+        color: var(--theme-text-muted);
         z-index: 1;
 
         &:hover {
-          color: #1a73e8;
+          color: var(--theme-primary);
         }
       }
 
@@ -1428,11 +1661,11 @@ onMounted(async () => {
         padding: 0.5rem;
         border: none;
         background-color: transparent;
-        color: #6b7280;
+        color: var(--theme-text-muted);
 
         &:hover {
-          color: #1a73e8;
-          background-color: #f3f4f6;
+          color: var(--theme-primary);
+          background-color: var(--theme-background-secondary);
         }
 
         &:focus {
@@ -1468,6 +1701,8 @@ onMounted(async () => {
 
       .card-title {
         padding: 0 0.75rem;
+        color: var(--theme-text) !important;
+        font-weight: 600;
       }
 
       :deep(.p-listbox-list-container) {
@@ -1558,7 +1793,7 @@ onMounted(async () => {
         }
 
         p {
-          color: #6b7280;
+          color: var(--theme-text-muted);
           font-size: 0.875rem;
           margin-top: 0.25rem;
         }
@@ -1568,12 +1803,12 @@ onMounted(async () => {
         text-align: right;
 
         .no-rating {
-          color: #6b7280;
+          color: var(--theme-text-muted);
           font-size: 0.875rem;
         }
 
         .downloads {
-          color: #6b7280;
+          color: var(--theme-text-muted);
           font-size: 0.875rem;
           margin-top: 0.25rem;
         }
@@ -1581,7 +1816,7 @@ onMounted(async () => {
 
       .plugin-description {
         height: 60px; // 固定描述区域高度
-        color: #4b5563;
+        color: var(--theme-text);
         font-size: 0.875rem;
         display: -webkit-box;
         -webkit-box-orient: vertical;
@@ -1634,7 +1869,7 @@ onMounted(async () => {
 
 /* PrimeVue 组件样式覆盖 */
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {
-  color: #fbbf24;
+  color: var(--theme-warning);
 }
 
 .plugin-detail-dialog {
@@ -1653,7 +1888,7 @@ onMounted(async () => {
         flex: 1;
 
         .author {
-          color: #666;
+          color: var(--theme-text-muted);
           margin: 5px 0;
         }
 
@@ -1669,7 +1904,7 @@ onMounted(async () => {
             gap: 0.25rem;
 
             .rating-hint {
-              color: #666;
+              color: var(--theme-text-muted);
               font-size: 0.75rem;
             }
 
@@ -1682,14 +1917,14 @@ onMounted(async () => {
                 }
 
                 &.p-rating-item-active .p-rating-icon {
-                  color: #fbbf24;
+                  color: var(--theme-warning);
                 }
               }
             }
           }
 
           .downloads {
-            color: #666;
+            color: var(--theme-text-muted);
           }
         }
       }
@@ -1711,7 +1946,7 @@ onMounted(async () => {
       p {
         white-space: pre-line;
         line-height: 1.6;
-        color: #333;
+        color: var(--theme-text);
       }
     }
 
@@ -1905,7 +2140,7 @@ onMounted(async () => {
 
         .description {
           font-size: 0.875rem;
-          color: #666;
+          color: var(--theme-text-muted);
           margin-top: 0.25rem;
         }
       }
@@ -1963,9 +2198,9 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     padding: 0.75rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--theme-border);
     border-radius: 6px;
-    background-color: #f9fafb;
+    background-color: var(--theme-background-secondary);
   }
 
   .file-details {
@@ -1984,8 +2219,8 @@ onMounted(async () => {
 
 .info-text-display {
   padding: 0.75rem;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background-color: var(--theme-background-secondary);
+  border: 1px solid var(--theme-border);
   border-radius: 6px;
   min-height: 41px;
   line-height: 1.5;

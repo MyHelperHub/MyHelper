@@ -223,7 +223,7 @@ const captureHotkey = async (event: KeyboardEvent) => {
   border-radius: 8px;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(var(--theme-text-rgb), 0.02);
   }
 
   .hotkey-info {
@@ -234,7 +234,7 @@ const captureHotkey = async (event: KeyboardEvent) => {
     h4 {
       font-size: 0.9rem;
       font-weight: normal;
-      color: #555;
+      color: var(--theme-text-secondary);
       width: 140px;
       margin: 0;
     }
@@ -254,31 +254,32 @@ const captureHotkey = async (event: KeyboardEvent) => {
     opacity: 0.7;
 
     .hotkey-input {
-      background-color: #f0f0f0;
-      color: #888;
+      background-color: var(--theme-background-secondary);
+      color: var(--theme-text-muted);
     }
   }
 
   &.recording .hotkey-input {
-    border-color: rgb(74, 159, 238);
-    box-shadow: 0 0 0 2px rgba(74, 159, 238, 0.2);
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
   }
 }
 
 .hotkey-input {
   width: 100%;
   padding: 6px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--theme-border);
   border-radius: 6px;
   font-size: 0.9rem;
-  background-color: #f9f9f9;
+  background-color: var(--theme-background-card);
+  color: var(--theme-text);
   cursor: pointer;
   text-align: center;
 
   &:focus {
     outline: none;
-    border-color: rgb(74, 159, 238);
-    box-shadow: 0 0 0 2px rgba(74, 159, 238, 0.2);
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
   }
 
   &:disabled {
@@ -297,18 +298,18 @@ const captureHotkey = async (event: KeyboardEvent) => {
 }
 
 .edit-icon {
-  color: rgb(74, 159, 238);
+  color: var(--theme-primary);
 
   &:hover {
-    color: rgb(0, 132, 255);
+    color: var(--theme-primary-dark);
   }
 }
 
 .delete-icon {
-  color: #999;
+  color: var(--theme-text-muted);
 
   &:hover {
-    color: #ff6b6b;
+    color: var(--theme-error);
   }
 
   &.disabled {
@@ -316,20 +317,10 @@ const captureHotkey = async (event: KeyboardEvent) => {
     opacity: 0.5;
 
     &:hover {
-      color: #999;
+      color: var(--theme-text-muted);
     }
   }
 }
 
-:deep(.p-toggleswitch.p-component) {
-  &.p-toggleswitch-checked {
-    .p-toggleswitch-slider {
-      background: rgb(74, 159, 238);
-    }
-
-    &:hover .p-toggleswitch-slider {
-      background: rgb(0, 132, 255);
-    }
-  }
-}
+// ToggleSwitch样式已在全局theme.less中配置
 </style>

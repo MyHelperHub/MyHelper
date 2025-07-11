@@ -177,7 +177,11 @@ const pasteTo = (item: QuickInputItem) => {
     width: 20px;
     height: 20px;
     border-radius: 6px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(
+      135deg,
+      var(--theme-primary) 0%,
+      var(--theme-info) 100%
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -190,7 +194,7 @@ const pasteTo = (item: QuickInputItem) => {
   .add-text {
     font-size: 11px;
     font-weight: 600;
-    color: #374151;
+    color: var(--theme-text);
     letter-spacing: 0.3px;
   }
 
@@ -221,7 +225,7 @@ const pasteTo = (item: QuickInputItem) => {
 
     .text-display {
       font-size: 12px;
-      color: #374151;
+      color: var(--theme-text);
       line-height: 1.4;
       font-weight: 500;
       overflow: hidden;
@@ -232,24 +236,24 @@ const pasteTo = (item: QuickInputItem) => {
 
     .text-input {
       width: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(79, 109, 245, 0.3);
+      background: rgba(var(--theme-background-rgb), 0.8);
+      border: 1px solid rgba(var(--theme-primary-rgb), 0.3);
       border-radius: 6px;
       padding: 6px 8px;
       font-size: 12px;
-      color: #374151;
+      color: var(--theme-text);
       font-weight: 500;
       outline: none;
       transition: all 0.3s ease;
 
       &:focus {
-        border-color: #4facfe;
-        box-shadow: 0 0 0 2px rgba(79, 109, 245, 0.2);
-        background: rgba(255, 255, 255, 0.95);
+        border-color: var(--theme-primary);
+        box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
+        background: rgba(var(--theme-background-rgb), 0.95);
       }
 
       &::placeholder {
-        color: #9ca3af;
+        color: var(--theme-text-muted);
         font-weight: 400;
       }
     }
@@ -277,22 +281,30 @@ const pasteTo = (item: QuickInputItem) => {
       transition: all 0.2s ease;
 
       &.edit-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(
+          135deg,
+          var(--theme-primary) 0%,
+          var(--theme-primary-dark) 100%
+        );
         color: white;
 
         &:hover {
           transform: scale(1.1);
-          box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.4);
         }
       }
 
       &.delete-btn {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(
+          135deg,
+          var(--theme-error) 0%,
+          var(--theme-warning) 100%
+        );
         color: white;
 
         &:hover {
           transform: scale(1.1);
-          box-shadow: 0 2px 8px rgba(245, 87, 108, 0.4);
+          box-shadow: 0 2px 8px rgba(var(--theme-error-rgb), 0.4);
         }
       }
     }

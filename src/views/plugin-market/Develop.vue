@@ -1536,7 +1536,7 @@ const getCategoryName = (category: number | undefined) => {
 .plugin-develop {
   display: flex;
   height: 100vh;
-  background-color: #fff;
+  background-color: var(--theme-background);
   overflow: hidden;
 
   .close-button {
@@ -1545,12 +1545,20 @@ const getCategoryName = (category: number | undefined) => {
     right: 12px;
     cursor: pointer;
     z-index: 5001;
+    color: var(--theme-text-muted);
+    font-size: 16px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--theme-text);
+      transform: scale(1.1);
+    }
   }
 
   .sidebar {
     width: 240px;
-    background: #ffffff;
-    border-right: 1px solid #e4e4e4;
+    background: var(--theme-background-card);
+    border-right: 1px solid var(--theme-border);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -1561,8 +1569,8 @@ const getCategoryName = (category: number | undefined) => {
       padding: 1rem 1.5rem;
       font-size: 1.2rem;
       font-weight: 600;
-      color: #2c3e50;
-      border-bottom: 1px solid #e4e4e4;
+      color: var(--theme-text);
+      border-bottom: 1px solid var(--theme-border);
       flex-shrink: 0;
 
       .back-button {
@@ -1570,7 +1578,7 @@ const getCategoryName = (category: number | undefined) => {
         margin-right: 0.5rem;
 
         &:hover {
-          background: #f0f7ff;
+          background: var(--theme-background-secondary);
         }
       }
 
@@ -1590,7 +1598,7 @@ const getCategoryName = (category: number | undefined) => {
         padding: 0.875rem 1.5rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        color: #666;
+        color: var(--theme-text-muted);
         margin: 0.2rem 0.5rem;
         border-radius: 6px;
 
@@ -1601,13 +1609,13 @@ const getCategoryName = (category: number | undefined) => {
 
         &:hover,
         &.active {
-          background: #f0f7ff;
-          color: var(--primary-color);
+          background: rgba(var(--theme-primary-rgb), 0.1);
+          color: var(--theme-primary);
         }
 
         &.active {
           font-weight: 500;
-          border-left: 3px solid var(--primary-color);
+          border-left: 3px solid var(--theme-primary);
         }
       }
     }
@@ -1619,20 +1627,20 @@ const getCategoryName = (category: number | undefined) => {
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    background: #ffffff;
+    background: var(--theme-background);
 
     .content-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 2rem;
-      border-bottom: 1px solid #e4e4e4;
+      border-bottom: 1px solid var(--theme-border);
       flex-shrink: 0;
 
       h2 {
         margin: 0;
         font-weight: 600;
-        color: #2c3e50;
+        color: var(--theme-text);
       }
     }
 
@@ -1643,7 +1651,7 @@ const getCategoryName = (category: number | undefined) => {
 
       :deep(.p-datatable-wrapper) {
         border-radius: 8px;
-        border: 1px solid #e4e4e4;
+        border: 1px solid var(--theme-border);
         overflow: hidden;
       }
 
@@ -1652,7 +1660,7 @@ const getCategoryName = (category: number | undefined) => {
       }
 
       :deep(.p-datatable-tbody > tr:hover) {
-        background-color: #f8f9fa;
+        background-color: var(--theme-background-secondary);
       }
     }
 
@@ -1696,7 +1704,7 @@ const getCategoryName = (category: number | undefined) => {
       position: relative;
       border-radius: 6px;
       overflow: hidden;
-      border: 1px solid #e4e4e4;
+      border: 1px solid var(--theme-border);
       aspect-ratio: 16/9;
 
       .image-container {
@@ -1733,9 +1741,9 @@ const getCategoryName = (category: number | undefined) => {
 
     .upload-button {
       aspect-ratio: 16/9;
-      border: 2px dashed #e4e4e4;
+      border: 2px dashed var(--theme-border);
       border-radius: 6px;
-      background: #f8f9fa;
+      background: var(--theme-background-secondary);
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
@@ -1744,22 +1752,22 @@ const getCategoryName = (category: number | undefined) => {
 
       &.dragging,
       &:hover {
-        border-color: var(--primary-color);
-        background: #f0f7ff;
+        border-color: var(--theme-primary);
+        background: rgba(var(--theme-primary-rgb), 0.1);
       }
 
       .upload-content {
         text-align: center;
-        color: #666;
+        color: var(--theme-text-muted);
 
         i {
-          color: var(--primary-color);
+          color: var(--theme-primary);
           display: block;
         }
 
         p {
           margin: 0;
-          color: #666;
+          color: var(--theme-text-muted);
         }
 
         small {
@@ -1775,7 +1783,7 @@ const getCategoryName = (category: number | undefined) => {
   .p-dialog-header,
   .p-dialog-footer {
     padding: 1.5rem;
-    border-bottom: 1px solid #e4e4e4;
+    border-bottom: 1px solid var(--theme-border);
   }
 
   .p-dialog-content {
@@ -1818,8 +1826,8 @@ const getCategoryName = (category: number | undefined) => {
 
   .debug-link {
     &:hover {
-      color: var(--primary-color);
-      background-color: var(--surface-100);
+      color: var(--theme-primary);
+      background-color: var(--theme-background-secondary);
     }
   }
 }
@@ -1830,16 +1838,16 @@ const getCategoryName = (category: number | undefined) => {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--theme-background-secondary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--theme-border);
   border-radius: 4px;
 
   &:hover {
-    background: #999;
+    background: var(--theme-text-muted);
   }
 }
 
@@ -1911,10 +1919,10 @@ const getCategoryName = (category: number | undefined) => {
             width: 0.5rem;
             height: 0.5rem;
             border-radius: 50%;
-            background: #ccc;
+            background: var(--theme-border);
 
             &.p-highlight {
-              background: var(--primary-color);
+              background: var(--theme-primary);
             }
           }
         }

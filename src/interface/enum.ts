@@ -1,5 +1,6 @@
 export enum SettingMenuItemEnum {
   General = "general",
+  Theme = "theme",
   About = "about",
 }
 

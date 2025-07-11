@@ -52,7 +52,7 @@ defineExpose({ showLoading, hideLoading });
   .loading-spinner {
     width: 30px;
     height: 30px;
-    border: 2px solid #36c2c7;
+    border: 2px solid var(--theme-primary);
     border-top-color: transparent;
     border-radius: 100%;
 

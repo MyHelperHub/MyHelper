@@ -7,6 +7,7 @@
       </div>
       <div class="content-container" data-tauri-drag-region>
         <GeneralSettings v-show="activeMenu === SettingMenuItemEnum.General" />
+        <ThemeSettings v-show="activeMenu === SettingMenuItemEnum.Theme" />
         <AboutSettings v-show="activeMenu === SettingMenuItemEnum.About" />
       </div>
     </div>
@@ -21,6 +22,7 @@ import { WindowOperation } from "@/interface/enum";
 import { initSetting } from "./utils/settingRegistry";
 import GeneralSettings from "@/views/setting/GeneralSettings.vue";
 import AboutSettings from "@/views/setting/AboutSettings.vue";
+import ThemeSettings from "@/views/setting/components/ThemeSettings.vue";
 import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
@@ -32,6 +34,12 @@ const menuItems = ref([
     class: "font-bold",
     icon: "pi pi-cog",
     command: () => (activeMenu.value = SettingMenuItemEnum.General),
+  },
+  {
+    label: "主题设置",
+    class: "font-bold",
+    icon: "pi pi-palette",
+    command: () => (activeMenu.value = SettingMenuItemEnum.Theme),
   },
   {
     label: "关于",
@@ -58,7 +66,8 @@ const handleMenuClick = (event: any) => {
 .settings-wrap {
   width: 100%;
   height: 100%;
-  background-color: rgb(240, 240, 240);
+  background: var(--theme-background);
+  color: var(--theme-text);
 
   .close-button {
     position: absolute;
@@ -66,6 +75,14 @@ const handleMenuClick = (event: any) => {
     right: 12px;
     cursor: pointer;
     z-index: 1;
+    color: var(--theme-text-muted);
+    font-size: 16px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--theme-text);
+      transform: scale(1.1);
+    }
   }
 
   .layout-container {
@@ -75,18 +92,71 @@ const handleMenuClick = (event: any) => {
     .menu-container {
       width: 170px;
       height: 100%;
+      background: var(--theme-background-secondary);
+      border-right: 1px solid var(--theme-border);
 
       .p-menu {
         height: 100%;
         width: 100%;
         border: none;
         min-width: 80%;
+        background: var(--theme-background-secondary);
+        border-radius: 0;
+        box-shadow: none;
+
+        .p-menuitem-link {
+          color: var(--theme-text);
+          padding: 12px 16px;
+          background: transparent;
+
+          &:hover {
+            background: rgba(var(--theme-primary-rgb), 0.1) !important;
+            color: var(--theme-primary);
+          }
+
+          &:focus,
+          &.p-focus,
+          &[data-p-focused="true"] {
+            background: rgba(var(--theme-primary-rgb), 0.15) !important;
+            color: var(--theme-primary);
+
+            .p-menuitem-icon {
+              color: var(--theme-primary);
+            }
+
+            .p-menu-item-label {
+              color: var(--theme-primary);
+            }
+          }
+
+          .p-menuitem-icon {
+            color: var(--theme-text-secondary);
+            margin-right: 8px;
+          }
+
+          &:hover .p-menuitem-icon {
+            color: var(--theme-primary);
+          }
+
+          .p-menuitem-text {
+            color: inherit;
+          }
+
+          .p-menu-item-label {
+            color: var(--theme-text);
+          }
+
+          &:hover .p-menu-item-label {
+            color: var(--theme-primary);
+          }
+        }
       }
     }
 
     .content-container {
       flex: 1;
       padding: 20px 10px;
+      background: var(--theme-background);
     }
   }
 }

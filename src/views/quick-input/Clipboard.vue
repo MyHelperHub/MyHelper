@@ -110,7 +110,11 @@ const pasteTo = async (item: QuickInputItem) => {
     width: 24px;
     height: 24px;
     border-radius: 6px;
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    background: linear-gradient(
+      135deg,
+      var(--theme-success) 0%,
+      var(--theme-info) 100%
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -129,7 +133,7 @@ const pasteTo = async (item: QuickInputItem) => {
 
     .clipboard-text {
       font-size: 12px;
-      color: #374151;
+      color: var(--theme-text);
       line-height: 1.4;
       font-weight: 500;
       overflow: hidden;
@@ -141,7 +145,7 @@ const pasteTo = async (item: QuickInputItem) => {
 
     .clipboard-meta {
       font-size: 9px;
-      color: #9ca3af;
+      color: var(--theme-text-muted);
       font-weight: 500;
       letter-spacing: 0.3px;
     }
@@ -154,8 +158,8 @@ const pasteTo = async (item: QuickInputItem) => {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: rgba(67, 233, 123, 0.1);
-    color: #10b981;
+    background: rgba(var(--theme-success-rgb), 0.1);
+    color: var(--theme-success);
     font-size: 8px;
     font-weight: bold;
     opacity: 0;
@@ -183,7 +187,11 @@ const pasteTo = async (item: QuickInputItem) => {
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #94a3b8, #64748b);
+    background: linear-gradient(
+      135deg,
+      var(--theme-text-muted),
+      var(--theme-border)
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -199,7 +207,7 @@ const pasteTo = async (item: QuickInputItem) => {
       display: block;
       font-size: 12px;
       font-weight: 600;
-      color: #64748b;
+      color: var(--theme-text-secondary);
       margin-bottom: 4px;
       letter-spacing: 0.3px;
     }
@@ -207,7 +215,7 @@ const pasteTo = async (item: QuickInputItem) => {
     .empty-subtitle {
       display: block;
       font-size: 10px;
-      color: #9ca3af;
+      color: var(--theme-text-muted);
       font-weight: 500;
       letter-spacing: 0.2px;
     }

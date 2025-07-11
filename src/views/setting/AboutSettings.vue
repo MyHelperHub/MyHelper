@@ -227,7 +227,7 @@ const handleClick = (e: MouseEvent) => {
   h3 {
     margin-bottom: 20px;
     font-size: 1.2rem;
-    color: #333;
+    color: var(--theme-text);
   }
 
   .about {
@@ -256,11 +256,11 @@ const handleClick = (e: MouseEvent) => {
         align-items: center;
         user-select: text;
         .intro-item-left {
-          color: unset;
+          color: var(--theme-text);
           min-width: 80px;
         }
         .intro-item-right {
-          color: #666;
+          color: var(--theme-text-secondary);
           cursor: pointer;
         }
       }
@@ -270,7 +270,7 @@ const handleClick = (e: MouseEvent) => {
       bottom: 20px;
       margin-top: 20px;
       font-size: 0.8rem;
-      color: #666;
+      color: var(--theme-text-secondary);
       .footer-item {
         text-align: center;
         justify-content: center;
@@ -317,13 +317,13 @@ const handleClick = (e: MouseEvent) => {
     .progress-bar {
       width: 100%;
       height: 6px;
-      background-color: #eee;
+      background-color: var(--theme-background-secondary);
       border-radius: 3px;
       overflow: hidden;
 
       .progress-fill {
         height: 100%;
-        background-color: var(--primary-color, #4a9fee);
+        background-color: var(--theme-primary);
         transition: width 0.3s ease;
       }
     }
@@ -332,7 +332,7 @@ const handleClick = (e: MouseEvent) => {
       display: block;
       text-align: center;
       font-size: 0.9rem;
-      color: #666;
+      color: var(--theme-text-secondary);
       margin-top: 0.5rem;
     }
   }

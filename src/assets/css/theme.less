@@ -1,0 +1,1030 @@
+/**
+ * 主题变量系统
+ * 这个文件定义了主题的CSS变量和相关样式类
+ */
+
+/* ===== 主题CSS变量定义 ===== */
+:root {
+  /* 主要颜色变量 */
+  --theme-primary: #4f6df5;
+  --theme-primary-light: #6b7eff;
+  --theme-primary-dark: #3b5bdb;
+  --theme-primary-rgb: 79, 109, 245;
+  --theme-primary-light-rgb: 107, 126, 255;
+  --theme-primary-dark-rgb: 59, 91, 219;
+
+  /* 背景颜色变量 */
+  --theme-background: #ffffff;
+  --theme-background-secondary: #f8fafc;
+  --theme-background-card: #ffffff;
+  --theme-background-rgb: 255, 255, 255;
+  --theme-background-secondary-rgb: 248, 250, 252;
+  --theme-background-card-rgb: 255, 255, 255;
+
+  /* 文字颜色变量 */
+  --theme-text: #1e293b;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #64748b;
+  --theme-text-rgb: 30, 41, 59;
+  --theme-text-secondary-rgb: 71, 85, 105;
+  --theme-text-muted-rgb: 100, 116, 139;
+
+  /* 边框颜色变量 */
+  --theme-border: #e2e8f0;
+  --theme-border-light: #f1f5f9;
+  --theme-border-rgb: 226, 232, 240;
+  --theme-border-light-rgb: 241, 245, 249;
+
+  /* 功能性颜色变量 */
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+  --theme-error: #ef4444;
+  --theme-info: #3b82f6;
+  --theme-success-rgb: 16, 185, 129;
+  --theme-warning-rgb: 245, 158, 11;
+  --theme-error-rgb: 239, 68, 68;
+  --theme-info-rgb: 59, 130, 246;
+
+  /* 渐变变量（可选） */
+  --theme-gradient: linear-gradient(45deg, #4f6df5 0%, #8b5cf6 100%);
+
+  /* 透明度辅助变量 */
+  --theme-overlay-light: rgba(var(--theme-background-rgb), 0.9);
+  --theme-overlay-medium: rgba(var(--theme-background-rgb), 0.7);
+  --theme-overlay-dark: rgba(var(--theme-background-rgb), 0.5);
+
+  /* 阴影变量 */
+  --theme-shadow-sm: 0 1px 3px rgba(var(--theme-text-rgb), 0.1);
+  --theme-shadow-md: 0 4px 12px rgba(var(--theme-primary-rgb), 0.15);
+  --theme-shadow-lg: 0 8px 32px rgba(var(--theme-primary-rgb), 0.2);
+
+  /* 毛玻璃效果变量 */
+  --theme-glass-background: rgba(var(--theme-background-rgb), 0.4);
+  --theme-glass-border: rgba(var(--theme-background-rgb), 0.3);
+  --theme-glass-backdrop: blur(10px);
+}
+
+/* ===== 深色模式变量 ===== */
+[data-theme="dark"] {
+  /* 主要颜色变量 - 深色模式 */
+  --theme-primary: #6366f1;
+  --theme-primary-light: #818cf8;
+  --theme-primary-dark: #4f46e5;
+  --theme-primary-rgb: 99, 102, 241;
+  --theme-primary-light-rgb: 129, 140, 248;
+  --theme-primary-dark-rgb: 79, 70, 229;
+
+  /* 背景颜色变量 - 深色模式 */
+  --theme-background: #0f172a;
+  --theme-background-secondary: #1e293b;
+  --theme-background-card: #334155;
+  --theme-background-rgb: 15, 23, 42;
+  --theme-background-secondary-rgb: 30, 41, 59;
+  --theme-background-card-rgb: 51, 65, 85;
+
+  /* 文字颜色变量 - 深色模式 */
+  --theme-text: #f8fafc;
+  --theme-text-secondary: #cbd5e1;
+  --theme-text-muted: #94a3b8;
+  --theme-text-rgb: 248, 250, 252;
+  --theme-text-secondary-rgb: 203, 213, 225;
+  --theme-text-muted-rgb: 148, 163, 184;
+
+  /* 边框颜色变量 - 深色模式 */
+  --theme-border: #334155;
+  --theme-border-light: #475569;
+  --theme-border-rgb: 51, 65, 85;
+  --theme-border-light-rgb: 71, 85, 105;
+
+  /* 功能性颜色变量 - 深色模式 */
+  --theme-success: #059669;
+  --theme-warning: #d97706;
+  --theme-error: #dc2626;
+  --theme-info: #2563eb;
+  --theme-success-rgb: 5, 150, 105;
+  --theme-warning-rgb: 217, 119, 6;
+  --theme-error-rgb: 220, 38, 38;
+  --theme-info-rgb: 37, 99, 235;
+
+  /* 毛玻璃效果变量 - 深色模式 */
+  --theme-glass-background: rgba(var(--theme-background-card-rgb), 0.4);
+  --theme-glass-border: rgba(var(--theme-background-card-rgb), 0.3);
+}
+
+/* ===== 主题样式类 ===== */
+
+/* 背景样式类 */
+.theme-bg {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+}
+
+.theme-bg-secondary {
+  background-color: var(--theme-background-secondary);
+  color: var(--theme-text);
+}
+
+.theme-bg-card {
+  background-color: var(--theme-background-card);
+  color: var(--theme-text);
+}
+
+/* 主题色背景 */
+.theme-bg-primary {
+  background-color: var(--theme-primary);
+  color: white;
+}
+
+.theme-bg-gradient {
+  background: var(--theme-gradient);
+  color: white;
+}
+
+/* 文字颜色样式类 */
+.theme-text {
+  color: var(--theme-text);
+}
+
+.theme-text-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.theme-text-muted {
+  color: var(--theme-text-muted);
+}
+
+.theme-text-primary {
+  color: var(--theme-primary);
+}
+
+/* 边框样式类 */
+.theme-border {
+  border-color: var(--theme-border);
+}
+
+.theme-border-light {
+  border-color: var(--theme-border-light);
+}
+
+.theme-border-primary {
+  border-color: var(--theme-primary);
+}
+
+/* 功能性颜色样式类 */
+.theme-success {
+  color: var(--theme-success);
+}
+
+.theme-warning {
+  color: var(--theme-warning);
+}
+
+.theme-error {
+  color: var(--theme-error);
+}
+
+.theme-info {
+  color: var(--theme-info);
+}
+
+.theme-bg-success {
+  background-color: var(--theme-success);
+  color: white;
+}
+
+.theme-bg-warning {
+  background-color: var(--theme-warning);
+  color: white;
+}
+
+.theme-bg-error {
+  background-color: var(--theme-error);
+  color: white;
+}
+
+.theme-bg-info {
+  background-color: var(--theme-info);
+  color: white;
+}
+
+/* 毛玻璃卡片主题化 */
+.theme-glass-card {
+  background: var(--theme-glass-background);
+  backdrop-filter: var(--theme-glass-backdrop);
+  border: 1px solid var(--theme-glass-border);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+}
+
+.theme-glass-card:hover {
+  background: rgba(var(--theme-background-rgb), 0.6);
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-md);
+}
+
+/* 功能卡片主题化 */
+.theme-feature-card {
+  background: linear-gradient(
+    145deg,
+    rgba(var(--theme-background-rgb), 0.9),
+    rgba(var(--theme-background-secondary-rgb), 0.8)
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--theme-background-rgb), 0.4);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+  padding: 14px 10px;
+  cursor: pointer;
+  min-height: 75px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--theme-shadow-sm), var(--theme-shadow-md);
+}
+
+.theme-feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--theme-background-rgb), 0.8),
+    transparent
+  );
+}
+
+.theme-feature-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(
+    145deg,
+    rgba(var(--theme-background-rgb), 0.95),
+    rgba(var(--theme-background-secondary-rgb), 0.9)
+  );
+  box-shadow: var(--theme-shadow-lg), var(--theme-shadow-md);
+  border-color: rgba(var(--theme-primary-rgb), 0.3);
+}
+
+/* 列表卡片主题化 */
+.theme-list-card {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: rgba(var(--theme-background-rgb), 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--theme-background-rgb), 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-list-card:hover {
+  background: rgba(var(--theme-background-rgb), 0.7);
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-md);
+  border-color: rgba(var(--theme-primary-rgb), 0.3);
+}
+
+/* 面板容器主题化 */
+.theme-panel-container {
+  background: linear-gradient(
+    145deg,
+    rgba(var(--theme-background-rgb), 0.95),
+    rgba(var(--theme-background-secondary-rgb), 0.9)
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--theme-background-rgb), 0.4);
+  border-radius: 16px;
+  box-shadow: var(--theme-shadow-lg), var(--theme-shadow-md);
+}
+
+/* 按钮主题化 */
+.theme-button-primary {
+  background: var(--theme-primary);
+  color: white;
+  border: 1px solid var(--theme-primary);
+  transition: all 0.3s ease;
+}
+
+.theme-button-primary:hover {
+  background: var(--theme-primary-dark);
+  border-color: var(--theme-primary-dark);
+  box-shadow: var(--theme-shadow-md);
+}
+
+.theme-button-gradient {
+  background: var(--theme-gradient);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.theme-button-gradient:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-lg);
+}
+
+/* 输入框主题化 */
+.theme-input {
+  background: var(--theme-background-card);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  transition: all 0.3s ease;
+}
+
+.theme-input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1);
+}
+
+.theme-input::placeholder {
+  color: var(--theme-text-muted);
+}
+
+/* 滚动条主题化 */
+.theme-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.theme-scrollbar::-webkit-scrollbar-track {
+  background: var(--theme-background-secondary);
+  border-radius: 3px;
+}
+
+.theme-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--theme-border);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.theme-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-primary);
+}
+
+/* 渐变遮罩层 */
+.theme-gradient-overlay {
+  position: relative;
+}
+
+.theme-gradient-overlay::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--theme-gradient);
+  opacity: 0.1;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* 主题切换动画 */
+.theme-transition {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* 响应式主题调整 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* 在没有明确设置主题时，跟随系统设置 */
+    --theme-primary: #6366f1;
+    --theme-background: #0f172a;
+    --theme-text: #f8fafc;
+    /* 其他深色变量... */
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --theme-border: var(--theme-text);
+    --theme-shadow-sm: 0 1px 3px rgba(var(--theme-text-rgb), 0.3);
+    --theme-shadow-md: 0 4px 12px rgba(var(--theme-text-rgb), 0.3);
+    --theme-shadow-lg: 0 8px 32px rgba(var(--theme-text-rgb), 0.4);
+  }
+}
+
+/* ===== PrimeVue 组件主题化 ===== */
+
+/* 通用按钮样式 */
+.p-button {
+  background: var(--theme-primary) !important;
+  border: 1px solid var(--theme-primary) !important;
+  color: white !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+}
+
+.p-button:hover {
+  background: var(--theme-primary-dark) !important;
+  border-color: var(--theme-primary-dark) !important;
+  box-shadow: var(--theme-shadow-md) !important;
+}
+
+.p-button:focus {
+  box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.2) !important;
+}
+
+.p-button.p-button-secondary {
+  background: var(--theme-background-secondary) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-button.p-button-secondary:hover {
+  background: var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-button.p-button-outlined {
+  background: transparent !important;
+  border: 1px solid var(--theme-primary) !important;
+  color: var(--theme-primary) !important;
+}
+
+.p-button.p-button-outlined:hover {
+  background: var(--theme-primary) !important;
+  color: white !important;
+}
+
+.p-button.p-button-text {
+  background: transparent !important;
+  border: none !important;
+  color: var(--theme-primary) !important;
+}
+
+.p-button.p-button-text:hover {
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
+}
+
+/* 输入框样式 */
+.p-inputtext,
+.p-inputnumber-input,
+.p-dropdown,
+.p-multiselect,
+.p-calendar,
+.p-password input {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-inputtext:focus,
+.p-inputnumber-input:focus,
+.p-dropdown:focus,
+.p-multiselect:focus,
+.p-calendar:focus,
+.p-password input:focus {
+  border-color: var(--theme-primary) !important;
+  box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1) !important;
+}
+
+.p-inputtext::placeholder,
+.p-inputnumber-input::placeholder,
+.p-password input::placeholder {
+  color: var(--theme-text-muted) !important;
+}
+
+/* 对话框样式 */
+.p-dialog {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--theme-shadow-lg) !important;
+}
+
+.p-dialog .p-dialog-header {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+.p-dialog .p-dialog-title {
+  color: var(--theme-text) !important;
+  font-weight: 600 !important;
+}
+
+.p-dialog .p-dialog-content {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-dialog .p-dialog-footer {
+  background: var(--theme-background-card) !important;
+  border-top: 1px solid var(--theme-border) !important;
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+.p-dialog .p-dialog-header-close {
+  color: var(--theme-text-secondary) !important;
+}
+
+.p-dialog .p-dialog-header-close:hover {
+  color: var(--theme-primary) !important;
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
+}
+
+/* 遮罩层样式 */
+.p-dialog-mask {
+  background: rgba(var(--theme-text-rgb), 0.5) !important;
+}
+
+/* Fieldset 样式 */
+.p-fieldset {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 8px !important;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease !important;
+}
+
+.p-fieldset .p-fieldset-legend {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+  border: 1px solid var(--theme-border) !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+}
+
+.p-fieldset .p-fieldset-content {
+  color: var(--theme-text) !important;
+}
+
+/* 菜单样式 */
+.p-menu {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--theme-shadow-lg) !important;
+}
+
+.p-menu .p-menuitem-link {
+  color: var(--theme-text) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-menu .p-menuitem-link:hover {
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
+  color: var(--theme-primary) !important;
+}
+
+.p-menu .p-menuitem-link .p-menuitem-icon {
+  color: var(--theme-text-secondary) !important;
+}
+
+.p-menu .p-menuitem-link:hover .p-menuitem-icon {
+  color: var(--theme-primary) !important;
+}
+
+/* Toast 样式 */
+.p-toast {
+  z-index: 9999 !important;
+}
+
+.p-toast .p-toast-message {
+  border-radius: 8px !important;
+  box-shadow: var(--theme-shadow-lg) !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-info {
+  background: var(--theme-info) !important;
+  border: 1px solid var(--theme-info) !important;
+  color: white !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-success {
+  background: var(--theme-success) !important;
+  border: 1px solid var(--theme-success) !important;
+  color: white !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn {
+  background: var(--theme-warning) !important;
+  border: 1px solid var(--theme-warning) !important;
+  color: white !important;
+}
+
+.p-toast .p-toast-message.p-toast-message-error {
+  background: var(--theme-error) !important;
+  border: 1px solid var(--theme-error) !important;
+  color: white !important;
+}
+
+/* 确认对话框样式 */
+.p-confirm-dialog .p-dialog-content {
+  color: var(--theme-text) !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-message {
+  color: var(--theme-text-secondary) !important;
+}
+
+/* 下拉菜单样式 */
+.p-dropdown-panel {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 6px !important;
+  box-shadow: var(--theme-shadow-lg) !important;
+}
+
+.p-dropdown-item {
+  color: var(--theme-text) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-dropdown-item:hover {
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
+  color: var(--theme-primary) !important;
+}
+
+.p-dropdown-item.p-highlight {
+  background: var(--theme-primary) !important;
+  color: white !important;
+}
+
+/* 文件上传样式 */
+.p-fileupload .p-fileupload-choose {
+  background: var(--theme-primary) !important;
+  border: 1px solid var(--theme-primary) !important;
+  color: white !important;
+  border-radius: 6px !important;
+}
+
+.p-fileupload .p-fileupload-choose:hover {
+  background: var(--theme-primary-dark) !important;
+  border-color: var(--theme-primary-dark) !important;
+}
+
+/* 进度条样式 */
+.p-progressbar {
+  background: var(--theme-background-secondary) !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+.p-progressbar .p-progressbar-value {
+  background: var(--theme-primary) !important;
+  transition: width 0.3s ease !important;
+}
+
+/* 标签页样式 */
+.p-tabview .p-tabview-nav {
+  background: var(--theme-background-card) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+}
+
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  color: var(--theme-text-secondary) !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  color: var(--theme-primary) !important;
+  border-bottom: 2px solid var(--theme-primary) !important;
+}
+
+.p-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+  color: var(--theme-primary) !important;
+  background: rgba(var(--theme-primary-rgb), 0.05) !important;
+}
+
+.p-tabview .p-tabview-panels {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+}
+
+/* 滚动条样式统一 */
+.p-scrollpanel .p-scrollpanel-bar {
+  background: var(--theme-border) !important;
+  border-radius: 3px !important;
+}
+
+.p-scrollpanel .p-scrollpanel-bar:hover {
+  background: var(--theme-primary) !important;
+}
+
+/* 开关按钮样式 */
+.p-toggleswitch.p-component.p-toggleswitch-checked .p-toggleswitch-slider {
+  background: var(--theme-primary) !important;
+}
+
+.p-toggleswitch.p-component.p-toggleswitch-checked:hover
+  .p-toggleswitch-slider {
+  background: var(--theme-primary-dark) !important;
+}
+
+.p-toggleswitch .p-toggleswitch-slider {
+  background: var(--theme-border) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-toggleswitch:hover .p-toggleswitch-slider {
+  background: var(--theme-text-muted) !important;
+}
+
+/* 卡片样式 */
+.p-card {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--theme-shadow-sm) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-card .p-card-header {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+}
+
+.p-card .p-card-content {
+  color: var(--theme-text) !important;
+}
+
+.p-card .p-card-footer {
+  background: var(--theme-background-card) !important;
+  border-top: 1px solid var(--theme-border) !important;
+}
+
+/* 标签样式 */
+.p-tag {
+  background: var(--theme-primary) !important;
+  color: white !important;
+  border-radius: 4px !important;
+}
+
+.p-tag.p-tag-info {
+  background: var(--theme-info) !important;
+}
+
+.p-tag.p-tag-success {
+  background: var(--theme-success) !important;
+}
+
+.p-tag.p-tag-warning {
+  background: var(--theme-warning) !important;
+}
+
+.p-tag.p-tag-danger {
+  background: var(--theme-error) !important;
+}
+
+/* 评分样式 */
+.p-rating .p-rating-item .p-rating-icon {
+  color: var(--theme-text-muted) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-rating .p-rating-item.p-rating-item-active .p-rating-icon {
+  color: var(--theme-warning) !important;
+}
+
+.p-rating .p-rating-item:hover .p-rating-icon {
+  color: var(--theme-warning) !important;
+}
+
+/* 选择按钮样式 */
+.p-selectbutton .p-button {
+  background: var(--theme-background-secondary) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-selectbutton .p-button.p-highlight {
+  background: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+  color: white !important;
+}
+
+.p-selectbutton .p-button:hover {
+  background: var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-selectbutton .p-button.p-highlight:hover {
+  background: var(--theme-primary-dark) !important;
+  border-color: var(--theme-primary-dark) !important;
+}
+
+/* 滑块样式 */
+.p-slider {
+  background: var(--theme-border) !important;
+}
+
+.p-slider .p-slider-range {
+  background: var(--theme-primary) !important;
+}
+
+.p-slider .p-slider-handle {
+  background: var(--theme-primary) !important;
+  border: 2px solid var(--theme-primary) !important;
+}
+
+.p-slider .p-slider-handle:hover {
+  background: var(--theme-primary-dark) !important;
+  border-color: var(--theme-primary-dark) !important;
+}
+
+/* 列表框样式 */
+.p-listbox {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-listbox .p-listbox-item {
+  color: var(--theme-text) !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-listbox .p-listbox-item:hover {
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
+  color: var(--theme-primary) !important;
+}
+
+.p-listbox .p-listbox-item.p-highlight {
+  background: var(--theme-primary) !important;
+  color: white !important;
+}
+
+/* 复选框样式 */
+.p-checkbox .p-checkbox-box {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.p-checkbox .p-checkbox-box:hover {
+  border-color: var(--theme-primary) !important;
+}
+
+.p-checkbox .p-checkbox-box.p-highlight {
+  background: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+.p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon {
+  color: white !important;
+}
+
+/* 单选按钮样式 */
+.p-radiobutton .p-radiobutton-box {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.p-radiobutton .p-radiobutton-box:hover {
+  border-color: var(--theme-primary) !important;
+}
+
+.p-radiobutton .p-radiobutton-box.p-highlight {
+  border-color: var(--theme-primary) !important;
+}
+
+.p-radiobutton .p-radiobutton-box.p-highlight .p-radiobutton-icon {
+  background: var(--theme-primary) !important;
+}
+
+/* 徽章样式 */
+.p-badge {
+  background: var(--theme-primary) !important;
+  color: white !important;
+}
+
+.p-badge.p-badge-success {
+  background: var(--theme-success) !important;
+}
+
+.p-badge.p-badge-info {
+  background: var(--theme-info) !important;
+}
+
+.p-badge.p-badge-warning {
+  background: var(--theme-warning) !important;
+}
+
+.p-badge.p-badge-danger {
+  background: var(--theme-error) !important;
+}
+
+/* 抽屉样式 */
+.p-drawer {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.p-drawer .p-drawer-header {
+  background: var(--theme-background-card) !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-drawer .p-drawer-content {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+}
+
+.p-drawer .p-drawer-footer {
+  background: var(--theme-background-card) !important;
+  border-top: 1px solid var(--theme-border) !important;
+}
+
+/* 工具栏样式 */
+.p-toolbar {
+  background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
+  border-radius: 6px !important;
+}
+
+/* 分页器样式 */
+.p-paginator {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 6px !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page {
+  background: transparent !important;
+  color: var(--theme-text) !important;
+  border: 1px solid transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
+  color: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: var(--theme-primary) !important;
+  color: white !important;
+  border-color: var(--theme-primary) !important;
+}
+
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last {
+  background: transparent !important;
+  color: var(--theme-text) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+
+.p-paginator .p-paginator-first:hover,
+.p-paginator .p-paginator-prev:hover,
+.p-paginator .p-paginator-next:hover,
+.p-paginator .p-paginator-last:hover {
+  background: var(--theme-background-secondary) !important;
+  color: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition,
+  .theme-glass-card,
+  .theme-feature-card,
+  .theme-list-card,
+  .theme-button-primary,
+  .theme-button-gradient,
+  .theme-input,
+  .p-button,
+  .p-inputtext,
+  .p-dialog,
+  .p-menu .p-menuitem-link,
+  .p-toggleswitch .p-toggleswitch-slider,
+  .p-rating .p-rating-item .p-rating-icon,
+  .p-listbox .p-listbox-item,
+  .p-checkbox .p-checkbox-box,
+  .p-radiobutton .p-radiobutton-box,
+  .p-slider .p-slider-handle {
+    transition: none !important;
+  }
+}

@@ -13,9 +13,7 @@
 
     <!-- 大窗模式：显示完整界面 -->
     <Transition name="panel-transition">
-      <div
-        v-if="isShowMenu"
-        class="main-panel backdrop-blur-md bg-gradient-to-br from-blue-100/90 via-purple-50/90 to-indigo-100/90 border border-white/30 rounded-2xl shadow-2xl">
+      <div v-if="isShowMenu" class="main-panel">
         <!-- 头部区域 -->
         <div class="header-section">
           <!-- Logo和标题 -->
@@ -241,6 +239,15 @@ const showMenu = async () => {
   overflow: hidden;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(
+    145deg,
+    rgba(var(--theme-background-rgb), 0.9),
+    rgba(var(--theme-background-secondary-rgb), 0.8),
+    rgba(var(--theme-primary-rgb), 0.1)
+  );
+  border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+  border-radius: 16px;
+  box-shadow: var(--theme-shadow-xl);
 }
 
 .header-section {
@@ -248,7 +255,7 @@ const showMenu = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(var(--theme-border-light-rgb), 0.2);
 
   .header-left {
     display: flex;
@@ -261,12 +268,14 @@ const showMenu = async () => {
       border-radius: 50%;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(79, 109, 245, 0.2);
+      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
       animation: logo-slide-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      border: 1px solid rgba(var(--theme-primary-rgb), 0.15);
 
       &:hover {
         transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(79, 109, 245, 0.3);
+        box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.3);
+        border-color: rgba(var(--theme-primary-rgb), 0.3);
       }
     }
 
@@ -279,15 +288,19 @@ const showMenu = async () => {
       .title-text {
         font-size: 14px;
         font-weight: 600;
-        color: #2d3748;
-        background: linear-gradient(135deg, #4f6df5, #764ba2);
+        color: var(--theme-text);
+        background: linear-gradient(
+          135deg,
+          var(--theme-primary),
+          var(--theme-primary-dark)
+        );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
 
       .subtitle-text {
         font-size: 10px;
-        color: #718096;
+        color: var(--theme-text-muted);
         margin-top: 1px;
       }
     }
@@ -301,22 +314,50 @@ const showMenu = async () => {
     .action-btn {
       width: 28px;
       height: 28px;
-      border: none;
+      border: 1px solid rgba(var(--theme-border-rgb), 0.3);
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(var(--theme-background-rgb), 0.6);
       backdrop-filter: blur(10px);
-      color: #4a5568;
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--theme-text-secondary) !important;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
+      position: relative;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(var(--theme-background-rgb), 0.8),
+          rgba(var(--theme-background-secondary-rgb), 0.6)
+        );
+        border-radius: 50%;
+        z-index: -1;
+        transition: all 0.2s ease;
+      }
 
       &:hover {
-        background: rgba(255, 255, 255, 0.8);
         transform: scale(1.1);
-        color: #2d3748;
+        color: var(--theme-text) !important;
+        border-color: rgba(var(--theme-primary-rgb), 0.4);
+        box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.15);
+
+        &::before {
+          background: linear-gradient(
+            135deg,
+            rgba(var(--theme-background-rgb), 0.9),
+            rgba(var(--theme-primary-rgb), 0.1)
+          );
+        }
       }
 
       &:active {
@@ -328,7 +369,7 @@ const showMenu = async () => {
 
 .search-section {
   padding: 8px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(var(--theme-border-light-rgb), 0.15);
   animation: section-fade-in 0.2s cubic-bezier(0.25, 1, 0.5, 1) 0.12s both;
 }
 

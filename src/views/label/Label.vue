@@ -69,7 +69,7 @@ const handleClose = () => {
       font-size: 18px;
       font-weight: bold;
       resize: none;
-      color: #666464;
+      color: var(--theme-text-secondary);
 
       /* 隐藏滚动条的样式 */
       &::-webkit-scrollbar {
@@ -91,6 +91,14 @@ const handleClose = () => {
     top: 5px;
     right: 5px;
     cursor: pointer;
+    color: var(--theme-text-muted);
+    font-size: 16px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--theme-text);
+      transform: scale(1.1);
+    }
   }
 }
 </style>

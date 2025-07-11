@@ -118,14 +118,24 @@ const handleClose = () => {
 .my-container {
   width: 100%;
   height: 100%;
-  background-color: rgb(240, 240, 240);
+  background-color: var(--theme-background);
+  color: var(--theme-text);
   padding: 10px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 
   .close-button {
     position: absolute;
     top: 5px;
     right: 12px;
     cursor: pointer;
+    color: var(--theme-text-secondary);
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: var(--theme-primary);
+    }
   }
 
   .avatar-upload-container {
@@ -138,11 +148,16 @@ const handleClose = () => {
       width: 70px;
       height: 70px;
       border-radius: 50%;
-      border: 4px solid rgba(230, 235, 240, 0.8);
+      border: 4px solid var(--theme-border);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: border-color 0.3s ease;
+
+      &:hover {
+        border-color: var(--theme-primary);
+      }
 
       img {
         width: 100%;
@@ -158,8 +173,8 @@ const handleClose = () => {
         height: 100%;
         align-items: center;
         justify-content: center;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #fff;
+        background-color: rgba(var(--theme-primary-rgb), 0.8);
+        color: white;
         font-size: 16px;
         opacity: 0;
         visibility: hidden;
@@ -180,9 +195,35 @@ const handleClose = () => {
       }
     }
   }
+
   .cropper-container {
     width: 200px;
     height: 150px;
+  }
+
+  // 特殊的文件上传样式覆盖
+  :deep(.p-fileupload) {
+    .p-fileupload-choose {
+      background: transparent !important;
+      border: none !important;
+      color: white !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 50% !important;
+
+      &:hover {
+        background: transparent !important;
+      }
+
+      .p-button-label {
+        color: white !important;
+        font-size: 12px !important;
+      }
+    }
   }
 }
 </style>

@@ -32,7 +32,7 @@
           }"
           @click="openApp(item.src)"
           @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-          <div class="icon-container app-theme">
+          <div class="icon-container">
             <img
               v-if="item.logo"
               :src="convertFileSrc(item.logo)"
@@ -196,43 +196,56 @@ defineExpose({ visible });
 
 <style lang="less" scoped>
 .app-panel {
+  background: var(--theme-background-card) !important;
+  color: var(--theme-text) !important;
+
   .grid-3 {
     max-height: 175px;
+  }
+
+  .card-title {
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-height: 1.2;
+    max-height: calc(1.2em * 3);
   }
 
   .feature-card {
     background: linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.9),
-      rgba(254, 242, 242, 0.8)
+      rgba(var(--theme-background-rgb), 0.9),
+      rgba(var(--theme-error-rgb), 0.04)
     ) !important;
 
     &:hover {
       background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.95),
-        rgba(254, 242, 242, 0.9)
+        rgba(var(--theme-background-rgb), 0.95),
+        rgba(var(--theme-error-rgb), 0.06)
       ) !important;
       box-shadow:
-        0 8px 32px rgba(249, 93, 108, 0.15),
-        0 2px 8px rgba(0, 0, 0, 0.08) !important;
-      border-color: rgba(249, 93, 108, 0.3) !important;
+        0 8px 32px rgba(var(--theme-error-rgb), 0.15),
+        var(--theme-shadow-sm) !important;
+      border-color: rgba(var(--theme-error-rgb), 0.3) !important;
     }
   }
 
   .add-card {
     background: linear-gradient(
       145deg,
-      rgba(249, 93, 108, 0.08),
-      rgba(255, 154, 158, 0.05)
+      rgba(var(--theme-error-rgb), 0.08),
+      rgba(var(--theme-error-rgb), 0.05)
     ) !important;
-    border: 1px dashed rgba(249, 93, 108, 0.3) !important;
+    border: 1px dashed rgba(var(--theme-error-rgb), 0.3) !important;
 
     &::before {
       background: linear-gradient(
         90deg,
         transparent,
-        rgba(249, 93, 108, 0.4),
+        rgba(var(--theme-error-rgb), 0.4),
         transparent
       ) !important;
     }
@@ -240,17 +253,17 @@ defineExpose({ visible });
     &:hover {
       background: linear-gradient(
         145deg,
-        rgba(249, 93, 108, 0.12),
-        rgba(255, 154, 158, 0.08)
+        rgba(var(--theme-error-rgb), 0.12),
+        rgba(var(--theme-error-rgb), 0.08)
       ) !important;
-      border: 1px dashed rgba(249, 93, 108, 0.4) !important;
+      border: 1px dashed rgba(var(--theme-error-rgb), 0.4) !important;
       box-shadow:
-        0 8px 32px rgba(249, 93, 108, 0.2),
-        0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        0 8px 32px rgba(var(--theme-error-rgb), 0.2),
+        var(--theme-shadow-sm) !important;
     }
 
     .icon-container {
-      color: #f5576c !important;
+      color: var(--theme-error) !important;
     }
   }
 }
