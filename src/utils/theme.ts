@@ -6,30 +6,17 @@ import type {
   ThemeColors,
   ColorValue,
   PresetTheme,
-  GradientConfig,
   ThemeApplyResult,
 } from "@/interface/theme.d";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
 
-/**
- * 默认主题配置
- */
 const DEFAULT_THEME_CONFIG: ThemeConfig = {
   mode: ThemeMode.Light,
   currentThemeId: "default-light",
-  enableGradient: false,
 };
 
-// 全局变量
 let isUpdatingTheme = false;
-
-/**
- * 颜色转换工具函数
- */
 export const colorUtils = {
-  /**
-   * HEX转RGB
-   */
   hexToRgb(hex: string): string {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!result) return "";
@@ -39,9 +26,6 @@ export const colorUtils = {
     return `rgb(${r}, ${g}, ${b})`;
   },
 
-  /**
-   * HEX转HSL
-   */
   hexToHsl(hex: string): string {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!result) return "";
@@ -76,9 +60,6 @@ export const colorUtils = {
     return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
   },
 
-  /**
-   * RGB转HEX
-   */
   rgbToHex(rgb: string): string {
     const result = rgb.match(/\d+/g);
     if (!result) return "";
@@ -88,9 +69,6 @@ export const colorUtils = {
     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
   },
 
-  /**
-   * HSL转HEX
-   */
   hslToHex(hsl: string): string {
     const result = hsl.match(/\d+/g);
     if (!result) return "";
@@ -207,6 +185,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
+      // 添加透明度配置
+      transparency: {
+        background: 0.92,
+        backgroundSecondary: 0.85,
+        card: 0.9,
+      },
     },
   },
   {
@@ -229,6 +213,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#2563eb"),
+      // 添加透明度配置
+      transparency: {
+        background: 0.88,
+        backgroundSecondary: 0.82,
+        card: 0.85,
+      },
     },
   },
   {
@@ -236,27 +226,33 @@ export const presetThemes: PresetTheme[] = [
     name: "蓝色渐变",
     mode: ThemeMode.Custom,
     colors: {
-      primary: colorUtils.createColorValue("#3b82f6"),
-      primaryLight: colorUtils.createColorValue("#60a5fa"),
-      primaryDark: colorUtils.createColorValue("#2563eb"),
-      background: colorUtils.createColorValue("#ffffff"),
-      backgroundSecondary: colorUtils.createColorValue("#f0f9ff"),
-      backgroundCard: colorUtils.createColorValue("#ffffff"),
-      text: colorUtils.createColorValue("#1e293b"),
-      textSecondary: colorUtils.createColorValue("#475569"),
-      textMuted: colorUtils.createColorValue("#64748b"),
-      border: colorUtils.createColorValue("#e2e8f0"),
-      borderLight: colorUtils.createColorValue("#f1f5f9"),
-      success: colorUtils.createColorValue("#10b981"),
-      warning: colorUtils.createColorValue("#f59e0b"),
-      error: colorUtils.createColorValue("#ef4444"),
-      info: colorUtils.createColorValue("#3b82f6"),
+      primary: colorUtils.createColorValue("#1e40af"),
+      primaryLight: colorUtils.createColorValue("#3b82f6"),
+      primaryDark: colorUtils.createColorValue("#1e3a8a"),
+      background: colorUtils.createColorValue("#eff6ff"),
+      backgroundSecondary: colorUtils.createColorValue("#dbeafe"),
+      backgroundCard: colorUtils.createColorValue("#f0f9ff"),
+      text: colorUtils.createColorValue("#1e3a8a"),
+      textSecondary: colorUtils.createColorValue("#1e40af"),
+      textMuted: colorUtils.createColorValue("#3b82f6"),
+      border: colorUtils.createColorValue("#bfdbfe"),
+      borderLight: colorUtils.createColorValue("#dbeafe"),
+      success: colorUtils.createColorValue("#059669"),
+      warning: colorUtils.createColorValue("#d97706"),
+      error: colorUtils.createColorValue("#dc2626"),
+      info: colorUtils.createColorValue("#0284c7"),
+      transparency: {
+        background: 0.88,
+        backgroundSecondary: 0.82,
+        card: 0.85,
+      },
       gradient: {
         type: "linear",
-        angle: 45,
+        angle: 135,
         stops: [
-          { color: colorUtils.createColorValue("#3b82f6"), position: 0 },
-          { color: colorUtils.createColorValue("#8b5cf6"), position: 100 },
+          { color: colorUtils.createColorValue("#1e40af"), position: 0 },
+          { color: colorUtils.createColorValue("#3b82f6"), position: 50 },
+          { color: colorUtils.createColorValue("#6366f1"), position: 100 },
         ],
       },
     },
@@ -291,6 +287,168 @@ export const presetThemes: PresetTheme[] = [
       },
     },
   },
+  {
+    id: "tech-blue",
+    name: "科技蓝",
+    mode: ThemeMode.Custom,
+    colors: {
+      primary: colorUtils.createColorValue("#00d4ff"),
+      primaryLight: colorUtils.createColorValue("#33ddff"),
+      primaryDark: colorUtils.createColorValue("#00a8cc"),
+      background: colorUtils.createColorValue("#050912"),
+      backgroundSecondary: colorUtils.createColorValue("#0f1829"),
+      backgroundCard: colorUtils.createColorValue("#1a2332"),
+      text: colorUtils.createColorValue("#e6f3ff"),
+      textSecondary: colorUtils.createColorValue("#b3d9f2"),
+      textMuted: colorUtils.createColorValue("#8fb8d6"),
+      border: colorUtils.createColorValue("#1e2832"),
+      borderLight: colorUtils.createColorValue("#2a3441"),
+      success: colorUtils.createColorValue("#00ffa3"),
+      warning: colorUtils.createColorValue("#ff8c00"),
+      error: colorUtils.createColorValue("#ff4757"),
+      info: colorUtils.createColorValue("#74b9ff"),
+      transparency: {
+        background: 0.85,
+        backgroundSecondary: 0.78,
+        card: 0.82,
+      },
+    },
+  },
+  {
+    id: "nature-green",
+    name: "自然绿",
+    mode: ThemeMode.Custom,
+    colors: {
+      primary: colorUtils.createColorValue("#10b981"),
+      primaryLight: colorUtils.createColorValue("#34d399"),
+      primaryDark: colorUtils.createColorValue("#059669"),
+      background: colorUtils.createColorValue("#f0f9f4"),
+      backgroundSecondary: colorUtils.createColorValue("#e6f7ed"),
+      backgroundCard: colorUtils.createColorValue("#ffffff"),
+      text: colorUtils.createColorValue("#064e3b"),
+      textSecondary: colorUtils.createColorValue("#047857"),
+      textMuted: colorUtils.createColorValue("#065f46"),
+      border: colorUtils.createColorValue("#d1fae5"),
+      borderLight: colorUtils.createColorValue("#ecfdf5"),
+      success: colorUtils.createColorValue("#22c55e"),
+      warning: colorUtils.createColorValue("#f59e0b"),
+      error: colorUtils.createColorValue("#ef4444"),
+      info: colorUtils.createColorValue("#06b6d4"),
+      transparency: {
+        background: 0.95,
+        backgroundSecondary: 0.88,
+        card: 0.92,
+      },
+    },
+  },
+  {
+    id: "sunset-orange",
+    name: "夕阳橙",
+    mode: ThemeMode.Custom,
+    colors: {
+      primary: colorUtils.createColorValue("#f97316"),
+      primaryLight: colorUtils.createColorValue("#fb923c"),
+      primaryDark: colorUtils.createColorValue("#ea580c"),
+      background: colorUtils.createColorValue("#fef7ed"),
+      backgroundSecondary: colorUtils.createColorValue("#fed7aa"),
+      backgroundCard: colorUtils.createColorValue("#ffffff"),
+      text: colorUtils.createColorValue("#9a3412"),
+      textSecondary: colorUtils.createColorValue("#c2410c"),
+      textMuted: colorUtils.createColorValue("#ea580c"),
+      border: colorUtils.createColorValue("#fed7aa"),
+      borderLight: colorUtils.createColorValue("#ffedd5"),
+      success: colorUtils.createColorValue("#22c55e"),
+      warning: colorUtils.createColorValue("#eab308"),
+      error: colorUtils.createColorValue("#ef4444"),
+      info: colorUtils.createColorValue("#3b82f6"),
+      transparency: {
+        background: 0.93,
+        backgroundSecondary: 0.86,
+        card: 0.9,
+      },
+    },
+  },
+  {
+    id: "purple-dream",
+    name: "紫色梦幻",
+    mode: ThemeMode.Custom,
+    colors: {
+      primary: colorUtils.createColorValue("#a855f7"),
+      primaryLight: colorUtils.createColorValue("#c084fc"),
+      primaryDark: colorUtils.createColorValue("#9333ea"),
+      background: colorUtils.createColorValue("#0f0a1e"),
+      backgroundSecondary: colorUtils.createColorValue("#1e1533"),
+      backgroundCard: colorUtils.createColorValue("#2d2348"),
+      text: colorUtils.createColorValue("#f8f7ff"),
+      textSecondary: colorUtils.createColorValue("#d4d1f0"),
+      textMuted: colorUtils.createColorValue("#b8b5d1"),
+      border: colorUtils.createColorValue("#3b1f6b"),
+      borderLight: colorUtils.createColorValue("#4c2a7d"),
+      success: colorUtils.createColorValue("#10b981"),
+      warning: colorUtils.createColorValue("#f59e0b"),
+      error: colorUtils.createColorValue("#f43f5e"),
+      info: colorUtils.createColorValue("#06b6d4"),
+      transparency: {
+        background: 0.87,
+        backgroundSecondary: 0.8,
+        card: 0.84,
+      },
+    },
+  },
+  {
+    id: "minimal-mono",
+    name: "极简黑白",
+    mode: ThemeMode.Custom,
+    colors: {
+      primary: colorUtils.createColorValue("#374151"),
+      primaryLight: colorUtils.createColorValue("#6b7280"),
+      primaryDark: colorUtils.createColorValue("#111827"),
+      background: colorUtils.createColorValue("#fafafa"),
+      backgroundSecondary: colorUtils.createColorValue("#f5f5f5"),
+      backgroundCard: colorUtils.createColorValue("#ffffff"),
+      text: colorUtils.createColorValue("#111827"),
+      textSecondary: colorUtils.createColorValue("#374151"),
+      textMuted: colorUtils.createColorValue("#6b7280"),
+      border: colorUtils.createColorValue("#e5e7eb"),
+      borderLight: colorUtils.createColorValue("#f3f4f6"),
+      success: colorUtils.createColorValue("#059669"),
+      warning: colorUtils.createColorValue("#d97706"),
+      error: colorUtils.createColorValue("#dc2626"),
+      info: colorUtils.createColorValue("#0284c7"),
+      transparency: {
+        background: 0.96,
+        backgroundSecondary: 0.9,
+        card: 0.94,
+      },
+    },
+  },
+  {
+    id: "cyberpunk",
+    name: "赛博朋克",
+    mode: ThemeMode.Custom,
+    colors: {
+      primary: colorUtils.createColorValue("#ff0080"),
+      primaryLight: colorUtils.createColorValue("#ff3399"),
+      primaryDark: colorUtils.createColorValue("#cc0066"),
+      background: colorUtils.createColorValue("#0a0014"),
+      backgroundSecondary: colorUtils.createColorValue("#1a002b"),
+      backgroundCard: colorUtils.createColorValue("#2d0042"),
+      text: colorUtils.createColorValue("#ff00ff"),
+      textSecondary: colorUtils.createColorValue("#cc00cc"),
+      textMuted: colorUtils.createColorValue("#990099"),
+      border: colorUtils.createColorValue("#660099"),
+      borderLight: colorUtils.createColorValue("#8800cc"),
+      success: colorUtils.createColorValue("#00ff88"),
+      warning: colorUtils.createColorValue("#ffaa00"),
+      error: colorUtils.createColorValue("#ff0044"),
+      info: colorUtils.createColorValue("#0088ff"),
+      transparency: {
+        background: 0.82,
+        backgroundSecondary: 0.75,
+        card: 0.8,
+      },
+    },
+  },
 ];
 
 /**
@@ -301,7 +459,12 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
 
   // 基础颜色变量
   Object.entries(colors).forEach(([key, value]) => {
-    if (key !== "gradient" && typeof value === "object" && "hex" in value) {
+    if (
+      key !== "gradient" &&
+      key !== "transparency" &&
+      typeof value === "object" &&
+      "hex" in value
+    ) {
       const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
       variables[`--theme-${cssKey}`] = value.hex;
       variables[`--theme-${cssKey}-rgb`] = value.rgb
@@ -312,6 +475,19 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
         .replace(")", "");
     }
   });
+
+  // 透明度变量
+  const transparency = colors.transparency || {
+    background: 0.9,
+    backgroundSecondary: 0.85,
+    card: 0.88,
+  };
+
+  variables["--theme-transparency-background"] =
+    transparency.background.toString();
+  variables["--theme-transparency-background-secondary"] =
+    transparency.backgroundSecondary.toString();
+  variables["--theme-transparency-card"] = transparency.card.toString();
 
   // 渐变变量
   if (colors.gradient) {
@@ -338,11 +514,7 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
  * 应用主题变量到DOM（优化版本）
  */
 function applyThemeVariables(variables: Record<string, string>): void {
-  const root = document.documentElement;
-
-  // 使用 requestAnimationFrame 来批量更新CSS变量，避免阻塞UI
   requestAnimationFrame(() => {
-    // 使用DocumentFragment来批量更新样式，减少重绘次数
     const style = document.createElement("style");
     const cssRules = Object.entries(variables)
       .map(([key, value]) => `  ${key}: ${value};`)
@@ -527,21 +699,5 @@ export async function initTheme(): Promise<void> {
     await applyTheme("default-light", undefined, true);
   } finally {
     isUpdatingTheme = false;
-  }
-}
-
-/**
- * 创建渐变色字符串
- */
-export function createGradientString(gradient: GradientConfig): string {
-  const { type, angle, stops } = gradient;
-  const gradientStops = stops
-    .map((stop) => `${stop.color.hex} ${stop.position}%`)
-    .join(", ");
-
-  if (type === "linear") {
-    return `linear-gradient(${angle || 45}deg, ${gradientStops})`;
-  } else {
-    return `radial-gradient(circle, ${gradientStops})`;
   }
 }

@@ -237,17 +237,24 @@ const showMenu = async () => {
   height: 100%;
   position: relative;
   overflow: hidden;
+  border-radius: 16px;
+  box-shadow: var(--theme-shadow-xl);
+
+  // 统一透明度样式（适用于所有模式）
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   background: linear-gradient(
     145deg,
-    rgba(var(--theme-background-rgb), 0.9),
-    rgba(var(--theme-background-secondary-rgb), 0.8),
-    rgba(var(--theme-primary-rgb), 0.1)
+    rgba(
+      var(--theme-background-rgb),
+      var(--theme-transparency-background, 0.9)
+    ),
+    rgba(
+      var(--theme-background-secondary-rgb),
+      var(--theme-transparency-background-secondary, 0.85)
+    )
   );
   border: 1px solid rgba(var(--theme-border-rgb), 0.3);
-  border-radius: 16px;
-  box-shadow: var(--theme-shadow-xl);
 }
 
 .header-section {
@@ -294,6 +301,7 @@ const showMenu = async () => {
           var(--theme-primary),
           var(--theme-primary-dark)
         );
+        background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }

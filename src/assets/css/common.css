@@ -18,26 +18,31 @@
   box-shadow: var(--theme-shadow-md);
 }
 
-/* 功能卡片样式 */
+/* 功能卡片样式  */
 .feature-card {
   background: linear-gradient(
     145deg,
-    rgba(var(--theme-background-rgb), 0.9),
-    rgba(var(--theme-background-secondary-rgb), 0.8)
+    rgba(var(--theme-background-card-rgb), var(--theme-transparency-card, 0.9)),
+    rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary, 0.85))
   );
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(var(--theme-background-rgb), 0.4);
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  padding: 14px 10px;
+  padding: 16px 12px;
   cursor: pointer;
-  min-height: 75px;
+  min-height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: var(--theme-shadow-sm), var(--theme-shadow-md);
+  justify-content: center;
+  box-shadow: 
+    0 1px 3px rgba(var(--theme-text-rgb), 0.08),
+    0 2px 12px rgba(var(--theme-primary-rgb), 0.05),
+    inset 0 1px 0 rgba(var(--theme-background-rgb), 0.1);
   color: var(--theme-text);
 }
 
@@ -51,20 +56,42 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(var(--theme-background-rgb), 0.8),
+    rgba(var(--theme-background-rgb), 0.6),
     transparent
   );
 }
 
+.feature-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--theme-primary-rgb), 0.02) 0%,
+    transparent 50%,
+    rgba(var(--theme-primary-rgb), 0.02) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
 .feature-card:hover {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-3px) scale(1.02);
   background: linear-gradient(
     145deg,
-    rgba(var(--theme-background-rgb), 0.95),
-    rgba(var(--theme-background-secondary-rgb), 0.9)
+    rgba(var(--theme-background-card-rgb), calc(var(--theme-transparency-card, 0.9) + 0.05)),
+    rgba(var(--theme-background-secondary-rgb), calc(var(--theme-transparency-background-secondary, 0.85) + 0.05))
   );
-  box-shadow: var(--theme-shadow-lg), var(--theme-shadow-md);
-  border-color: rgba(var(--theme-primary-rgb), 0.3);
+  box-shadow: 
+    0 4px 12px rgba(var(--theme-text-rgb), 0.12),
+    0 8px 24px rgba(var(--theme-primary-rgb), 0.15),
+    inset 0 1px 0 rgba(var(--theme-background-rgb), 0.2);
+  border-color: rgba(var(--theme-primary-rgb), 0.4);
+}
+
+.feature-card:hover::after {
+  opacity: 1;
 }
 
 .feature-card:active {
@@ -216,35 +243,60 @@
   box-shadow: var(--theme-shadow-sm);
 }
 
-/* 面板容器样式 */
+/* 面板容器样式  */
 .panel-container {
   background: linear-gradient(
     145deg,
-    rgba(var(--theme-background-rgb), 0.95),
-    rgba(var(--theme-background-secondary-rgb), 0.9)
+    rgba(var(--theme-background-rgb), var(--theme-transparency-background, 0.9)),
+    rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary, 0.85))
   );
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(var(--theme-background-rgb), 0.4);
-  border-radius: 16px;
-  box-shadow: var(--theme-shadow-lg), var(--theme-shadow-md);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+  border-radius: 18px;
+  box-shadow: 
+    0 4px 16px rgba(var(--theme-text-rgb), 0.08),
+    0 8px 32px rgba(var(--theme-primary-rgb), 0.06),
+    inset 0 1px 0 rgba(var(--theme-background-rgb), 0.1);
   color: var(--theme-text);
+  position: relative;
+  overflow: hidden;
 }
 
-/* 列表卡片样式 */
+.panel-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--theme-background-rgb), 0.6),
+    transparent
+  );
+}
+
+/* 列表卡片样式  */
 .list-card {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 12px 14px;
   margin-bottom: 8px;
-  background: rgba(var(--theme-background-rgb), 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(var(--theme-background-rgb), 0.4);
-  border-radius: 10px;
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card, 0.9));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--theme-border-rgb), 0.25);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   color: var(--theme-text);
+  box-shadow: 
+    0 1px 3px rgba(var(--theme-text-rgb), 0.06),
+    0 2px 8px rgba(var(--theme-primary-rgb), 0.04);
 }
 
 .list-card::before {
@@ -256,32 +308,37 @@
   height: 100%;
   border-radius: 0 2px 2px 0;
   transition: all 0.3s ease;
+  opacity: 0;
 }
 
 .list-card.input-theme::before {
   background: linear-gradient(
-    135deg,
-    var(--theme-info) 0%,
-    var(--theme-primary-light) 100%
+    180deg,
+    rgba(var(--theme-info-rgb), 0.4) 0%,
+    rgba(var(--theme-primary-light-rgb), 0.6) 50%,
+    rgba(var(--theme-info-rgb), 0.4) 100%
   );
 }
 
 .list-card.plugin-theme::before {
   background: linear-gradient(
-    135deg,
-    var(--theme-success) 0%,
-    var(--theme-info) 100%
+    180deg,
+    rgba(var(--theme-success-rgb), 0.4) 0%,
+    rgba(var(--theme-info-rgb), 0.6) 50%,
+    rgba(var(--theme-success-rgb), 0.4) 100%
   );
 }
 
 .list-card:hover {
-  background: rgba(var(--theme-background-rgb), 0.7);
+  background: rgba(var(--theme-background-card-rgb), calc(var(--theme-transparency-card, 0.9) + 0.05));
   transform: translateY(-1px);
-  box-shadow: var(--theme-shadow-md);
-  border-color: rgba(var(--theme-primary-rgb), 0.3);
+  box-shadow: 
+    0 2px 8px rgba(var(--theme-text-rgb), 0.1),
+    0 4px 16px rgba(var(--theme-primary-rgb), 0.08);
+  border-color: rgba(var(--theme-primary-rgb), 0.4);
 }
 
 .list-card:hover::before {
+  opacity: 1;
   width: 4px;
-  box-shadow: 0 0 8px rgba(var(--theme-primary-rgb), 0.3);
 }

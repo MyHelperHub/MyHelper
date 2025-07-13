@@ -34,6 +34,15 @@ export interface GradientConfig {
 }
 
 /**
+ * 透明度配置接口
+ */
+export interface TransparencyConfig {
+  background: number; // 主背景透明度 0.1-1
+  backgroundSecondary: number; // 次要背景透明度 0.1-1
+  card: number; // 卡片透明度 0.1-1
+}
+
+/**
  * 主题颜色配置接口
  */
 export interface ThemeColors {
@@ -64,6 +73,9 @@ export interface ThemeColors {
 
   // 渐变配置（可选）
   gradient?: GradientConfig;
+
+  // 透明度配置（可选）
+  transparency?: TransparencyConfig;
 }
 
 /**
@@ -82,9 +94,8 @@ export interface PresetTheme {
  */
 export interface ThemeConfig {
   mode: ThemeMode;
-  currentThemeId?: string; // 当前使用的预设主题ID
-  customColors?: ThemeColors; // 自定义颜色配置
-  enableGradient: boolean; // 是否启用渐变
+  currentThemeId?: string;
+  customColors?: ThemeColors;
 }
 
 /**
