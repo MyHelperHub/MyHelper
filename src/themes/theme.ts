@@ -1,5 +1,5 @@
-import { getConfig, setConfig } from "./config";
-import { useDebounce } from "./common";
+import { getConfig, setConfig } from "../utils/config";
+import { useDebounce } from "../utils/common";
 import { ThemeMode } from "@/interface/theme.d";
 import type {
   ThemeConfig,
@@ -9,6 +9,7 @@ import type {
   ThemeApplyResult,
 } from "@/interface/theme.d";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
+import { ErrorHandler } from "../utils/errorHandler";
 
 const DEFAULT_THEME_CONFIG: ThemeConfig = {
   mode: ThemeMode.Light,
@@ -16,10 +17,23 @@ const DEFAULT_THEME_CONFIG: ThemeConfig = {
 };
 
 let isUpdatingTheme = false;
+let cachedStyleElement: HTMLStyleElement | null = null;
+let lastAppliedVariables: string = "";
+
+const DEFAULT_TRANSPARENCY = {
+  light: { background: 0.92, backgroundSecondary: 0.85, card: 0.9 },
+  dark: { background: 0.88, backgroundSecondary: 0.82, card: 0.85 },
+  custom: { background: 0.88, backgroundSecondary: 0.82, card: 0.85 },
+};
+
 export const colorUtils = {
   hexToRgb(hex: string): string {
+    const shorthand = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthand, (_, r, g, b) => r + r + g + g + b + b);
+
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!result) return "";
+
     const r = parseInt(result[1], 16);
     const g = parseInt(result[2], 16);
     const b = parseInt(result[3], 16);
@@ -61,53 +75,31 @@ export const colorUtils = {
   },
 
   rgbToHex(rgb: string): string {
-    const result = rgb.match(/\d+/g);
-    if (!result) return "";
-    const r = parseInt(result[0]);
-    const g = parseInt(result[1]);
-    const b = parseInt(result[2]);
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    const match = rgb.match(/\d+/g);
+    if (!match) return "";
+    return `#${match
+      .slice(0, 3)
+      .map((x) => (+x).toString(16).padStart(2, "0"))
+      .join("")}`;
   },
 
-  hslToHex(hsl: string): string {
-    const result = hsl.match(/\d+/g);
-    if (!result) return "";
-
-    const h = parseInt(result[0]) / 360;
-    const s = parseInt(result[1]) / 100;
-    const l = parseInt(result[2]) / 100;
-
-    const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    let r, g, b;
-    if (s === 0) {
-      r = g = b = l;
-    } else {
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1 / 3);
-      g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1 / 3);
-    }
-
-    const toHex = (c: number) => {
-      const hex = Math.round(c * 255).toString(16);
-      return hex.length === 1 ? "0" + hex : hex;
-    };
-
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  adjustBrightness(hex: string, amount: number): string {
+    const num = parseInt(hex.replace("#", ""), 16);
+    const amt = Math.round(2.55 * amount);
+    const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+    const G = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amt));
+    const B = Math.min(255, Math.max(0, (num & 0x0000ff) + amt));
+    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
   },
 
-  /**
-   * 创建颜色值对象
-   */
+  lighten(hex: string, amount: number): string {
+    return this.adjustBrightness(hex, amount);
+  },
+
+  darken(hex: string, amount: number): string {
+    return this.adjustBrightness(hex, -amount);
+  },
+
   createColorValue(hex: string): ColorValue {
     return {
       hex,
@@ -116,38 +108,6 @@ export const colorUtils = {
     };
   },
 
-  /**
-   * 调亮颜色
-   */
-  lighten(hex: string, amount: number): string {
-    const color = parseInt(hex.slice(1), 16);
-    const amt = Math.round(2.55 * amount);
-    const R = (color >> 16) + amt;
-    const G = ((color >> 8) & 0x00ff) + amt;
-    const B = (color & 0x0000ff) + amt;
-    return (
-      "#" +
-      (
-        0x1000000 +
-        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-        (B < 255 ? (B < 1 ? 0 : B) : 255)
-      )
-        .toString(16)
-        .slice(1)
-    );
-  },
-
-  /**
-   * 调暗颜色
-   */
-  darken(hex: string, amount: number): string {
-    return this.lighten(hex, -amount);
-  },
-
-  /**
-   * 生成颜色调色板
-   */
   generatePalette(baseColor: string): ColorValue[] {
     const palette: ColorValue[] = [];
     for (let i = -40; i <= 40; i += 10) {
@@ -162,7 +122,7 @@ export const colorUtils = {
 };
 
 /**
- * 预设主题
+ * 预设主题配置
  */
 export const presetThemes: PresetTheme[] = [
   {
@@ -185,12 +145,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
-      // 添加透明度配置
-      transparency: {
-        background: 0.92,
-        backgroundSecondary: 0.85,
-        card: 0.9,
-      },
+      transparency: DEFAULT_TRANSPARENCY.light,
     },
   },
   {
@@ -213,12 +168,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#2563eb"),
-      // 添加透明度配置
-      transparency: {
-        background: 0.88,
-        backgroundSecondary: 0.82,
-        card: 0.85,
-      },
+      transparency: DEFAULT_TRANSPARENCY.dark,
     },
   },
   {
@@ -241,11 +191,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#0284c7"),
-      transparency: {
-        background: 0.88,
-        backgroundSecondary: 0.82,
-        card: 0.85,
-      },
+      transparency: DEFAULT_TRANSPARENCY.custom,
       gradient: {
         type: "linear",
         angle: 135,
@@ -277,6 +223,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
+      transparency: DEFAULT_TRANSPARENCY.custom,
       gradient: {
         type: "linear",
         angle: 135,
@@ -307,11 +254,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#ff8c00"),
       error: colorUtils.createColorValue("#ff4757"),
       info: colorUtils.createColorValue("#74b9ff"),
-      transparency: {
-        background: 0.85,
-        backgroundSecondary: 0.78,
-        card: 0.82,
-      },
+      transparency: { background: 0.85, backgroundSecondary: 0.78, card: 0.82 },
     },
   },
   {
@@ -334,11 +277,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#06b6d4"),
-      transparency: {
-        background: 0.95,
-        backgroundSecondary: 0.88,
-        card: 0.92,
-      },
+      transparency: { background: 0.95, backgroundSecondary: 0.88, card: 0.92 },
     },
   },
   {
@@ -361,11 +300,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#eab308"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
-      transparency: {
-        background: 0.93,
-        backgroundSecondary: 0.86,
-        card: 0.9,
-      },
+      transparency: { background: 0.93, backgroundSecondary: 0.86, card: 0.9 },
     },
   },
   {
@@ -388,11 +323,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#f43f5e"),
       info: colorUtils.createColorValue("#06b6d4"),
-      transparency: {
-        background: 0.87,
-        backgroundSecondary: 0.8,
-        card: 0.84,
-      },
+      transparency: { background: 0.87, backgroundSecondary: 0.8, card: 0.84 },
     },
   },
   {
@@ -415,11 +346,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#0284c7"),
-      transparency: {
-        background: 0.96,
-        backgroundSecondary: 0.9,
-        card: 0.94,
-      },
+      transparency: { background: 0.96, backgroundSecondary: 0.9, card: 0.94 },
     },
   },
   {
@@ -442,11 +369,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#ffaa00"),
       error: colorUtils.createColorValue("#ff0044"),
       info: colorUtils.createColorValue("#0088ff"),
-      transparency: {
-        background: 0.82,
-        backgroundSecondary: 0.75,
-        card: 0.8,
-      },
+      transparency: { background: 0.82, backgroundSecondary: 0.75, card: 0.8 },
     },
   },
 ];
@@ -459,30 +382,57 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
 
   // 基础颜色变量
   Object.entries(colors).forEach(([key, value]) => {
-    if (
-      key !== "gradient" &&
-      key !== "transparency" &&
-      typeof value === "object" &&
-      "hex" in value
-    ) {
+    if (key === "transparency" || key === "gradient") return;
+
+    if (value && typeof value === "object" && "hex" in value) {
       const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
       variables[`--theme-${cssKey}`] = value.hex;
-      variables[`--theme-${cssKey}-rgb`] = value.rgb
-        .replace("rgb(", "")
-        .replace(")", "");
-      variables[`--theme-${cssKey}-hsl`] = value.hsl
-        .replace("hsl(", "")
-        .replace(")", "");
+      variables[`--theme-${cssKey}-rgb`] = value.rgb.replace(/rgb\(|\)/g, "");
+      variables[`--theme-${cssKey}-hsl`] = value.hsl.replace(/hsl\(|\)/g, "");
     }
   });
 
-  // 透明度变量
-  const transparency = colors.transparency || {
-    background: 0.9,
-    backgroundSecondary: 0.85,
-    card: 0.88,
+  // PrimeVue 组件变量
+  const primeVueMapping = {
+    "--p-text-color": colors.text.hex,
+    "--p-text-hover-color": colors.text.hex,
+    "--p-text-muted-color": colors.textMuted.hex,
+    "--p-content-hover-background": colors.backgroundSecondary.hex,
+    "--p-content-hover-color": colors.text.hex,
+    "--p-highlight-background": `rgba(${colors.primary.rgb.replace(/rgb\(|\)/g, "")}, 0.1)`,
+    "--p-highlight-color": colors.primary.hex,
+    "--p-highlight-focus-background": `rgba(${colors.primary.rgb.replace(/rgb\(|\)/g, "")}, 0.15)`,
+    "--p-highlight-focus-color": colors.primary.hex,
+    "--p-menu-item-focus-color": colors.text.hex,
+    "--p-menu-item-focus-background": colors.backgroundSecondary.hex,
+    "--p-menu-item-color": colors.textSecondary.hex,
+    "--p-menu-background": colors.background.hex,
+    "--p-menu-border-color": colors.border.hex,
+    "--p-button-primary-background": colors.primary.hex,
+    "--p-button-primary-border-color": colors.primary.hex,
+    "--p-button-primary-color": colors.background.hex,
+    "--p-button-primary-hover-background": colors.primaryLight.hex,
+    "--p-button-primary-hover-border-color": colors.primaryLight.hex,
+    "--p-input-background": colors.backgroundCard.hex,
+    "--p-input-border-color": colors.border.hex,
+    "--p-input-color": colors.text.hex,
+    "--p-input-focus-border-color": colors.primary.hex,
+    "--p-dialog-background": colors.backgroundCard.hex,
+    "--p-dialog-border-color": colors.border.hex,
+    "--p-dialog-color": colors.text.hex,
+    "--p-select-background": colors.backgroundCard.hex,
+    "--p-select-border-color": colors.border.hex,
+    "--p-select-color": colors.text.hex,
+    "--p-select-option-background": colors.background.hex,
+    "--p-select-option-color": colors.text.hex,
+    "--p-select-option-focus-background": colors.backgroundSecondary.hex,
+    "--p-select-option-focus-color": colors.text.hex,
   };
 
+  Object.assign(variables, primeVueMapping);
+
+  // 透明度变量
+  const transparency = colors.transparency || DEFAULT_TRANSPARENCY.custom;
   variables["--theme-transparency-background"] =
     transparency.background.toString();
   variables["--theme-transparency-background-secondary"] =
@@ -492,16 +442,14 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
   // 渐变变量
   if (colors.gradient) {
     const { type, angle, stops } = colors.gradient;
+    const gradientStops = stops
+      .map((stop) => `${stop.color.hex} ${stop.position}%`)
+      .join(", ");
+
     if (type === "linear") {
-      const gradientStops = stops
-        .map((stop) => `${stop.color.hex} ${stop.position}%`)
-        .join(", ");
       variables["--theme-gradient"] =
         `linear-gradient(${angle || 45}deg, ${gradientStops})`;
     } else if (type === "radial") {
-      const gradientStops = stops
-        .map((stop) => `${stop.color.hex} ${stop.position}%`)
-        .join(", ");
       variables["--theme-gradient"] =
         `radial-gradient(circle, ${gradientStops})`;
     }
@@ -511,25 +459,26 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
 }
 
 /**
- * 应用主题变量到DOM（优化版本）
+ * 应用主题变量
  */
 function applyThemeVariables(variables: Record<string, string>): void {
+  const cssRules = Object.entries(variables)
+    .map(([key, value]) => `  ${key}: ${value};`)
+    .join("\n");
+
+  const cssContent = `:root {\n${cssRules}\n}`;
+
+  if (lastAppliedVariables === cssContent) return;
+
   requestAnimationFrame(() => {
-    const style = document.createElement("style");
-    const cssRules = Object.entries(variables)
-      .map(([key, value]) => `  ${key}: ${value};`)
-      .join("\n");
-
-    style.textContent = `:root {\n${cssRules}\n}`;
-
-    // 替换现有的主题样式
-    const existingStyle = document.getElementById("dynamic-theme-vars");
-    if (existingStyle) {
-      existingStyle.remove();
+    if (!cachedStyleElement) {
+      cachedStyleElement = document.createElement("style");
+      cachedStyleElement.id = "dynamic-theme-vars";
+      document.head.appendChild(cachedStyleElement);
     }
 
-    style.id = "dynamic-theme-vars";
-    document.head.appendChild(style);
+    cachedStyleElement.textContent = cssContent;
+    lastAppliedVariables = cssContent;
   });
 }
 
@@ -541,24 +490,20 @@ export async function getCurrentThemeConfig(): Promise<ThemeConfig> {
     const config = await getConfig<ThemeConfig>("themeConfig");
     return config || DEFAULT_THEME_CONFIG;
   } catch (error) {
-    console.error("获取主题配置失败:", error);
+    await ErrorHandler.handleError(error, "获取主题配置");
     return DEFAULT_THEME_CONFIG;
   }
 }
 
-/**
- * 保存主题配置（防抖版本）
- */
 const debouncedSaveConfig = useDebounce(async (config: ThemeConfig) => {
-  if (isUpdatingTheme) return; // 防止递归调用
+  if (isUpdatingTheme) return;
 
   try {
     isUpdatingTheme = true;
     await setConfig("themeConfig", config);
-    // 通知所有webview更新主题
     await tauriEmit("theme:update", config);
   } catch (error) {
-    console.error("保存主题配置失败:", error);
+    await ErrorHandler.handleError(error, "保存主题配置");
   } finally {
     isUpdatingTheme = false;
   }
@@ -569,16 +514,14 @@ const debouncedSaveConfig = useDebounce(async (config: ThemeConfig) => {
  */
 export async function saveThemeConfig(config: ThemeConfig): Promise<void> {
   try {
-    // 先同步更新内存中的配置，再异步保存到数据库
     debouncedSaveConfig(config);
   } catch (error) {
-    console.error("保存主题配置失败:", error);
-    throw error;
+    await ErrorHandler.handleError(error, "保存主题配置");
   }
 }
 
 /**
- * 应用主题（优化版本）
+ * 应用主题
  */
 export async function applyTheme(
   themeId?: string,
@@ -590,23 +533,25 @@ export async function applyTheme(
     let config = await getCurrentThemeConfig();
 
     if (customColors) {
-      // 使用自定义颜色
       colors = customColors;
       config.mode = ThemeMode.Custom;
       config.customColors = customColors;
       config.currentThemeId = undefined;
     } else if (themeId) {
-      // 使用预设主题
       const preset = presetThemes.find((t) => t.id === themeId);
       if (!preset) {
-        throw new Error(`主题 ${themeId} 不存在`);
+        await ErrorHandler.handleError(`主题 ${themeId} 不存在`, "应用主题");
+        return {
+          success: false,
+          error: `主题 ${themeId} 不存在`,
+          appliedColors: presetThemes[0].colors,
+        };
       }
       colors = preset.colors;
       config.mode = preset.mode;
       config.currentThemeId = themeId;
       config.customColors = undefined;
     } else {
-      // 使用当前配置
       if (config.customColors) {
         colors = config.customColors;
       } else {
@@ -617,27 +562,28 @@ export async function applyTheme(
       }
     }
 
-    // 生成并应用CSS变量
     const variables = generateCSSVariables(colors);
     applyThemeVariables(variables);
 
-    // 更新data-theme属性
+    const isDark = config.mode === ThemeMode.Dark;
     document.documentElement.setAttribute(
       "data-theme",
-      config.mode === ThemeMode.Dark ? "dark" : "light",
+      isDark ? "dark" : "light",
     );
 
-    // 保存配置（除非明确跳过）
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
     if (!skipSave) {
       await saveThemeConfig(config);
     }
 
-    return {
-      success: true,
-      appliedColors: colors,
-    };
+    return { success: true, appliedColors: colors };
   } catch (error) {
-    console.error("应用主题失败:", error);
+    await ErrorHandler.handleError(error, "应用主题");
     return {
       success: false,
       error: error instanceof Error ? error.message : "应用主题失败",
@@ -659,10 +605,15 @@ export async function toggleThemeMode(): Promise<ThemeApplyResult> {
     if (targetTheme) {
       return await applyTheme(targetTheme.id);
     } else {
-      throw new Error("找不到目标主题模式");
+      await ErrorHandler.handleError("找不到目标主题模式", "切换主题模式");
+      return {
+        success: false,
+        error: "找不到目标主题模式",
+        appliedColors: presetThemes[0].colors,
+      };
     }
   } catch (error) {
-    console.error("切换主题模式失败:", error);
+    await ErrorHandler.handleError(error, "切换主题模式");
     return {
       success: false,
       error: error instanceof Error ? error.message : "切换主题模式失败",
@@ -671,21 +622,16 @@ export async function toggleThemeMode(): Promise<ThemeApplyResult> {
   }
 }
 
-// 自动切换主题功能已移除
-
 /**
- * 初始化主题系统（优化版本）
+ * 初始化主题系统
  */
 export async function initTheme(): Promise<void> {
-  // 防止重复初始化
   if (isUpdatingTheme) return;
 
   try {
     isUpdatingTheme = true;
-
     const config = await getCurrentThemeConfig();
 
-    // 应用当前主题（跳过保存，避免递归）
     if (config.customColors) {
       await applyTheme(undefined, config.customColors, true);
     } else if (config.currentThemeId) {
@@ -694,10 +640,35 @@ export async function initTheme(): Promise<void> {
       await applyTheme("default-light", undefined, true);
     }
   } catch (error) {
-    console.error("初始化主题失败:", error);
-    // 应用默认主题
-    await applyTheme("default-light", undefined, true);
+    await ErrorHandler.handleError(error, "主题初始化");
+
+    try {
+      await applyTheme("default-light", undefined, true);
+    } catch (fallbackError) {
+      await ErrorHandler.handleError(fallbackError, "默认主题降级失败");
+    }
   } finally {
     isUpdatingTheme = false;
+  }
+}
+
+/**
+ * 设置主题更新事件监听器
+ */
+export async function setupThemeListener(): Promise<void> {
+  try {
+    const { listen } = await import("@tauri-apps/api/event");
+
+    await listen("theme:update", async (event) => {
+      const config = event.payload as any;
+
+      if (config.customColors) {
+        await applyTheme(undefined, config.customColors, true);
+      } else if (config.currentThemeId) {
+        await applyTheme(config.currentThemeId, undefined, true);
+      }
+    });
+  } catch (error) {
+    await ErrorHandler.handleError(error, "主题事件监听器设置");
   }
 }

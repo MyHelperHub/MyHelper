@@ -335,7 +335,7 @@ import Button from "primevue/button";
 import Slider from "primevue/slider";
 import ColorPicker from "primevue/colorpicker";
 import InputText from "primevue/inputtext";
-import { colorUtils, presetThemes } from "@/utils/theme";
+import { colorUtils, presetThemes } from "@/themes/theme";
 import { showMessage } from "@/utils/message";
 
 interface CustomThemeConfig {

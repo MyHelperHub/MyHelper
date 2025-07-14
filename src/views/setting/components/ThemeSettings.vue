@@ -63,7 +63,7 @@ import {
   applyTheme,
   presetThemes,
   colorUtils,
-} from "@/utils/theme";
+} from "@/themes/theme";
 import { ThemeMode } from "@/interface/theme.d";
 import type { ThemeConfig, ThemeColors } from "@/interface/theme.d";
 import { showMessage } from "@/utils/message";
@@ -180,7 +180,6 @@ const handleCustomThemeApply = async (config: any) => {
     showMessage("应用自定义主题失败", 2500, 2);
   }
 };
-
 
 const getThemePreviewColor = (theme: any) => {
   if (theme.colors.gradient) {

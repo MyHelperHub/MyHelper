@@ -93,7 +93,6 @@ const handleMenuClick = (event: any) => {
       width: 170px;
       height: 100%;
       background: var(--theme-background-secondary);
-      border-right: 1px solid var(--theme-border);
 
       .p-menu {
         height: 100%;
