@@ -99,6 +99,13 @@ app.use(router);
 app.use(PrimeVue, {
   theme: {
     preset: Lara,
+    options: {
+      darkModeSelector: '.dark',
+      cssLayer: {
+        name: 'primevue',
+        order: 'tailwind-base, primevue, tailwind-utilities'
+      }
+    }
   },
 });
 app.directive("tooltip", Tooltip);
@@ -106,7 +113,11 @@ app.use(ConfirmationService);
 app.use(ToastService);
 
 // 初始化主题系统
-Promise.all([initTheme(), setupThemeListener(), initThemeHelpers()]).catch(
+Promise.all([
+  initTheme(), 
+  setupThemeListener(), 
+  initThemeHelpers()
+]).catch(
   (error) => ErrorHandler.handleError(error, "主题系统初始化失败"),
 );
 

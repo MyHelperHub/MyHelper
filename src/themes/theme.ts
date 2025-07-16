@@ -11,6 +11,9 @@ import type {
 import { emit as tauriEmit } from "@tauri-apps/api/event";
 import { ErrorHandler } from "../utils/errorHandler";
 
+// PrimeVue 主题集成
+import { applyPrimeVueTheme } from "./primevue";
+
 const DEFAULT_THEME_CONFIG: ThemeConfig = {
   mode: ThemeMode.Light,
   currentThemeId: "default-light",
@@ -392,44 +395,8 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
     }
   });
 
-  // PrimeVue 组件变量
-  const primeVueMapping = {
-    "--p-text-color": colors.text.hex,
-    "--p-text-hover-color": colors.text.hex,
-    "--p-text-muted-color": colors.textMuted.hex,
-    "--p-content-hover-background": colors.backgroundSecondary.hex,
-    "--p-content-hover-color": colors.text.hex,
-    "--p-highlight-background": `rgba(${colors.primary.rgb.replace(/rgb\(|\)/g, "")}, 0.1)`,
-    "--p-highlight-color": colors.primary.hex,
-    "--p-highlight-focus-background": `rgba(${colors.primary.rgb.replace(/rgb\(|\)/g, "")}, 0.15)`,
-    "--p-highlight-focus-color": colors.primary.hex,
-    "--p-menu-item-focus-color": colors.text.hex,
-    "--p-menu-item-focus-background": colors.backgroundSecondary.hex,
-    "--p-menu-item-color": colors.textSecondary.hex,
-    "--p-menu-background": colors.background.hex,
-    "--p-menu-border-color": colors.border.hex,
-    "--p-button-primary-background": colors.primary.hex,
-    "--p-button-primary-border-color": colors.primary.hex,
-    "--p-button-primary-color": colors.background.hex,
-    "--p-button-primary-hover-background": colors.primaryLight.hex,
-    "--p-button-primary-hover-border-color": colors.primaryLight.hex,
-    "--p-input-background": colors.backgroundCard.hex,
-    "--p-input-border-color": colors.border.hex,
-    "--p-input-color": colors.text.hex,
-    "--p-input-focus-border-color": colors.primary.hex,
-    "--p-dialog-background": colors.backgroundCard.hex,
-    "--p-dialog-border-color": colors.border.hex,
-    "--p-dialog-color": colors.text.hex,
-    "--p-select-background": colors.backgroundCard.hex,
-    "--p-select-border-color": colors.border.hex,
-    "--p-select-color": colors.text.hex,
-    "--p-select-option-background": colors.background.hex,
-    "--p-select-option-color": colors.text.hex,
-    "--p-select-option-focus-background": colors.backgroundSecondary.hex,
-    "--p-select-option-focus-color": colors.text.hex,
-  };
-
-  Object.assign(variables, primeVueMapping);
+  // 注意：PrimeVue 组件变量现在通过 PrimeVue 主题管理器处理
+  // 这里保留一些基础变量用于向后兼容
 
   // 透明度变量
   const transparency = colors.transparency || DEFAULT_TRANSPARENCY.custom;
@@ -562,8 +529,17 @@ export async function applyTheme(
       }
     }
 
+    // 应用传统 CSS 变量（保持向后兼容）
     const variables = generateCSSVariables(colors);
     applyThemeVariables(variables);
+
+    // 应用 PrimeVue 主题
+    try {
+      applyPrimeVueTheme(colors, config.mode);
+    } catch (primeVueError) {
+      // PrimeVue 主题应用失败不应该阻止整个主题系统
+      console.warn("PrimeVue 主题应用失败:", primeVueError);
+    }
 
     const isDark = config.mode === ThemeMode.Dark;
     document.documentElement.setAttribute(
