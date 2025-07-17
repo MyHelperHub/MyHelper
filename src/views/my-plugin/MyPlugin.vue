@@ -105,6 +105,11 @@ defineExpose({ openPopover });
   background: var(--theme-background-card) !important;
 }
 
+.p-drawer-content {
+  background: var(--theme-background-card) !important;
+  padding: 0 !important;
+}
+
 .header-content {
   display: flex;
   flex-direction: column;

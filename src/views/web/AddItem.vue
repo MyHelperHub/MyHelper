@@ -12,9 +12,10 @@
       modal
       appendTo="body"
       :closable="false"
-      :style="{ width: '220px' }"
+      :style="{ width: '240px' }"
       position="center">
-      <div class="modal-content">
+      <div class="dialog-wrapper">
+        <div class="modal-content">
         <img
           v-if="formData.logo"
           class="image"
@@ -54,6 +55,7 @@
             label="确定"
             severity="info" />
         </div>
+      </div>
       </div>
     </Dialog>
   </div>
@@ -195,10 +197,17 @@ defineExpose({
   cursor: pointer;
 }
 
+.dialog-wrapper {
+  background: var(--theme-background-card) !important;
+  margin: -1rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
 .modal-content {
-  background-color: var(--theme-background-card);
+  background-color: var(--theme-background-card) !important;
   border-radius: 8px;
-  color: var(--theme-text);
+  color: var(--theme-text) !important;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -209,19 +218,19 @@ defineExpose({
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border: 1px solid var(--theme-border);
+    border: 1px solid var(--theme-border) !important;
     border-radius: 8px;
     width: 40px;
     height: 40px;
     margin: 4px;
     cursor: pointer;
     font-size: 24px;
-    color: var(--theme-text-muted);
+    color: var(--theme-text-muted) !important;
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: var(--theme-primary);
-      color: var(--theme-primary);
+      border-color: var(--theme-primary) !important;
+      color: var(--theme-primary) !important;
       box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.15);
     }
   }
@@ -231,7 +240,7 @@ defineExpose({
     align-items: center;
     flex-direction: column;
     gap: 12px;
-    width: 180px;
+    width: 200px;
 
     .input-wrapper {
       display: flex;
@@ -242,7 +251,7 @@ defineExpose({
       .input-label {
         font-size: 12px;
         font-weight: 500;
-        color: var(--theme-text-secondary);
+        color: var(--theme-text-secondary) !important;
       }
 
       .input {

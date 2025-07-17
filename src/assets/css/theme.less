@@ -536,54 +536,17 @@
 
 /* 通用按钮样式 */
 .p-button {
-  background: var(--theme-primary) !important;
-  border: 1px solid var(--theme-primary) !important;
-  color: white !important;
   border-radius: 6px !important;
   transition: all 0.3s ease !important;
   font-weight: 500 !important;
 }
 
 .p-button:hover {
-  background: var(--theme-primary-dark) !important;
-  border-color: var(--theme-primary-dark) !important;
   box-shadow: var(--theme-shadow-md) !important;
 }
 
 .p-button:focus {
   box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.2) !important;
-}
-
-.p-button.p-button-secondary {
-  background: var(--theme-background-secondary) !important;
-  border: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
-}
-
-.p-button.p-button-secondary:hover {
-  background: var(--theme-border) !important;
-  color: var(--theme-text) !important;
-}
-
-.p-button.p-button-outlined {
-  background: transparent !important;
-  border: 1px solid var(--theme-primary) !important;
-  color: var(--theme-primary) !important;
-}
-
-.p-button.p-button-outlined:hover {
-  background: var(--theme-primary) !important;
-  color: white !important;
-}
-
-.p-button.p-button-text {
-  background: transparent !important;
-  border: none !important;
-  color: var(--theme-primary) !important;
-}
-
-.p-button.p-button-text:hover {
-  background: rgba(var(--theme-primary-rgb), 0.1) !important;
 }
 
 /* 输入框样式 */
@@ -593,9 +556,6 @@
 .p-multiselect,
 .p-calendar,
 .p-password input {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
   border-radius: 6px !important;
   transition: all 0.3s ease !important;
 }
@@ -606,14 +566,7 @@
 .p-multiselect:focus,
 .p-calendar:focus,
 .p-password input:focus {
-  border-color: var(--theme-primary) !important;
   box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1) !important;
-}
-
-.p-inputtext::placeholder,
-.p-inputnumber-input::placeholder,
-.p-password input::placeholder {
-  color: var(--theme-text-muted) !important;
 }
 
 /* 对话框样式 */
@@ -622,14 +575,15 @@
   border: 1px solid var(--theme-border) !important;
   border-radius: 12px !important;
   box-shadow: var(--theme-shadow-lg) !important;
+  color: var(--theme-text) !important;
 }
 
 .p-dialog .p-dialog-header {
   background: var(--theme-background-card) !important;
-  color: var(--theme-text) !important;
   border-bottom: 1px solid var(--theme-border) !important;
   border-top-left-radius: 12px !important;
   border-top-right-radius: 12px !important;
+  color: var(--theme-text) !important;
 }
 
 .p-dialog .p-dialog-title {
@@ -640,6 +594,7 @@
 .p-dialog .p-dialog-content {
   background: var(--theme-background-card) !important;
   color: var(--theme-text) !important;
+  overflow: hidden !important;
 }
 
 .p-dialog .p-dialog-footer {
@@ -665,51 +620,28 @@
 
 /* Fieldset 样式 */
 .p-fieldset {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
   border-radius: 8px !important;
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease !important;
 }
 
 .p-fieldset .p-fieldset-legend {
-  background: var(--theme-background-card) !important;
-  color: var(--theme-text) !important;
-  border: 1px solid var(--theme-border) !important;
   padding: 6px 12px !important;
   border-radius: 6px !important;
   font-weight: 600 !important;
 }
 
-.p-fieldset .p-fieldset-content {
-  color: var(--theme-text) !important;
-}
-
 /* 菜单样式 */
 .p-menu {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
   border-radius: 8px !important;
   box-shadow: var(--theme-shadow-lg) !important;
 }
 
 .p-menu .p-menuitem-link {
-  color: var(--theme-text) !important;
   transition: all 0.3s ease !important;
 }
 
 .p-menu .p-menuitem-link:hover {
   background: rgba(var(--theme-primary-rgb), 0.1) !important;
-  color: var(--theme-primary) !important;
-}
-
-.p-menu .p-menuitem-link .p-menuitem-icon {
-  color: var(--theme-text-secondary) !important;
-}
-
-.p-menu .p-menuitem-link:hover .p-menuitem-icon {
-  color: var(--theme-primary) !important;
 }
 
 /* Toast 样式 */
@@ -722,326 +654,110 @@
   box-shadow: var(--theme-shadow-lg) !important;
 }
 
-.p-toast .p-toast-message.p-toast-message-info {
-  background: var(--theme-info) !important;
-  border: 1px solid var(--theme-info) !important;
-  color: white !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-success {
-  background: var(--theme-success) !important;
-  border: 1px solid var(--theme-success) !important;
-  color: white !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-warn {
-  background: var(--theme-warning) !important;
-  border: 1px solid var(--theme-warning) !important;
-  color: white !important;
-}
-
-.p-toast .p-toast-message.p-toast-message-error {
-  background: var(--theme-error) !important;
-  border: 1px solid var(--theme-error) !important;
-  color: white !important;
-}
-
-/* 确认对话框样式 */
-.p-confirm-dialog .p-dialog-content {
-  color: var(--theme-text) !important;
-}
-
-.p-confirm-dialog .p-confirm-dialog-message {
-  color: var(--theme-text-secondary) !important;
-}
-
 /* 下拉菜单样式 */
 .p-dropdown-panel {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
   border-radius: 6px !important;
   box-shadow: var(--theme-shadow-lg) !important;
 }
 
 .p-dropdown-item {
-  color: var(--theme-text) !important;
   transition: all 0.3s ease !important;
 }
 
 .p-dropdown-item:hover {
   background: rgba(var(--theme-primary-rgb), 0.1) !important;
-  color: var(--theme-primary) !important;
-}
-
-.p-dropdown-item.p-highlight {
-  background: var(--theme-primary) !important;
-  color: white !important;
 }
 
 /* 文件上传样式 */
 .p-fileupload .p-fileupload-choose {
-  background: var(--theme-primary) !important;
-  border: 1px solid var(--theme-primary) !important;
-  color: white !important;
   border-radius: 6px !important;
-}
-
-.p-fileupload .p-fileupload-choose:hover {
-  background: var(--theme-primary-dark) !important;
-  border-color: var(--theme-primary-dark) !important;
 }
 
 /* 进度条样式 */
 .p-progressbar {
-  background: var(--theme-background-secondary) !important;
   border-radius: 6px !important;
   overflow: hidden !important;
 }
 
 .p-progressbar .p-progressbar-value {
-  background: var(--theme-primary) !important;
   transition: width 0.3s ease !important;
 }
 
 /* 标签页样式 */
-.p-tabview .p-tabview-nav {
-  background: var(--theme-background-card) !important;
-  border-bottom: 1px solid var(--theme-border) !important;
-}
-
 .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-  color: var(--theme-text-secondary) !important;
   background: transparent !important;
   border: none !important;
   transition: all 0.3s ease !important;
 }
 
 .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-  color: var(--theme-primary) !important;
   border-bottom: 2px solid var(--theme-primary) !important;
 }
 
 .p-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
-  color: var(--theme-primary) !important;
   background: rgba(var(--theme-primary-rgb), 0.05) !important;
-}
-
-.p-tabview .p-tabview-panels {
-  background: var(--theme-background-card) !important;
-  color: var(--theme-text) !important;
 }
 
 /* 滚动条样式统一 */
 .p-scrollpanel .p-scrollpanel-bar {
-  background: var(--theme-border) !important;
   border-radius: 3px !important;
 }
 
-.p-scrollpanel .p-scrollpanel-bar:hover {
-  background: var(--theme-primary) !important;
-}
-
 /* 开关按钮样式 */
-.p-toggleswitch.p-component.p-toggleswitch-checked .p-toggleswitch-slider {
-  background: var(--theme-primary) !important;
-}
-
-.p-toggleswitch.p-component.p-toggleswitch-checked:hover
-  .p-toggleswitch-slider {
-  background: var(--theme-primary-dark) !important;
-}
-
 .p-toggleswitch .p-toggleswitch-slider {
-  background: var(--theme-border) !important;
   transition: all 0.3s ease !important;
-}
-
-.p-toggleswitch:hover .p-toggleswitch-slider {
-  background: var(--theme-text-muted) !important;
 }
 
 /* 卡片样式 */
 .p-card {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
   border-radius: 8px !important;
   box-shadow: var(--theme-shadow-sm) !important;
-  color: var(--theme-text) !important;
-}
-
-.p-card .p-card-header {
-  background: var(--theme-background-card) !important;
-  color: var(--theme-text) !important;
-  border-bottom: 1px solid var(--theme-border) !important;
-}
-
-.p-card .p-card-content {
-  color: var(--theme-text) !important;
-}
-
-.p-card .p-card-footer {
-  background: var(--theme-background-card) !important;
-  border-top: 1px solid var(--theme-border) !important;
 }
 
 /* 标签样式 */
 .p-tag {
-  background: var(--theme-primary) !important;
-  color: white !important;
   border-radius: 4px !important;
-}
-
-.p-tag.p-tag-info {
-  background: var(--theme-info) !important;
-}
-
-.p-tag.p-tag-success {
-  background: var(--theme-success) !important;
-}
-
-.p-tag.p-tag-warning {
-  background: var(--theme-warning) !important;
-}
-
-.p-tag.p-tag-danger {
-  background: var(--theme-error) !important;
 }
 
 /* 评分样式 */
 .p-rating .p-rating-item .p-rating-icon {
-  color: var(--theme-text-muted) !important;
   transition: all 0.3s ease !important;
 }
 
-.p-rating .p-rating-item.p-rating-item-active .p-rating-icon {
-  color: var(--theme-warning) !important;
-}
-
-.p-rating .p-rating-item:hover .p-rating-icon {
-  color: var(--theme-warning) !important;
-}
-
-/* 选择按钮样式 */
-.p-selectbutton .p-button {
-  background: var(--theme-background-secondary) !important;
-  border: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
-}
-
-.p-selectbutton .p-button.p-highlight {
-  background: var(--theme-primary) !important;
-  border-color: var(--theme-primary) !important;
-  color: white !important;
-}
-
-.p-selectbutton .p-button:hover {
-  background: var(--theme-border) !important;
-  color: var(--theme-text) !important;
-}
-
-.p-selectbutton .p-button.p-highlight:hover {
-  background: var(--theme-primary-dark) !important;
-  border-color: var(--theme-primary-dark) !important;
-}
-
-/* 滑块样式 */
-.p-slider {
-  background: var(--theme-border) !important;
-}
-
-.p-slider .p-slider-range {
-  background: var(--theme-primary) !important;
-}
-
-.p-slider .p-slider-handle {
-  background: var(--theme-primary) !important;
-  border: 2px solid var(--theme-primary) !important;
-}
-
-.p-slider .p-slider-handle:hover {
-  background: var(--theme-primary-dark) !important;
-  border-color: var(--theme-primary-dark) !important;
-}
-
 /* 列表框样式 */
-.p-listbox {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
-}
-
 .p-listbox .p-listbox-item {
-  color: var(--theme-text) !important;
   transition: all 0.3s ease !important;
 }
 
 .p-listbox .p-listbox-item:hover {
   background: rgba(var(--theme-primary-rgb), 0.1) !important;
-  color: var(--theme-primary) !important;
 }
 
-.p-listbox .p-listbox-item.p-highlight {
-  background: var(--theme-primary) !important;
-  color: white !important;
+/* 工具栏样式 */
+.p-toolbar {
+  border-radius: 6px !important;
 }
 
-/* 复选框样式 */
-.p-checkbox .p-checkbox-box {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
+/* 分页器样式 */
+.p-paginator {
+  border-radius: 6px !important;
 }
 
-.p-checkbox .p-checkbox-box:hover {
-  border-color: var(--theme-primary) !important;
+.p-paginator .p-paginator-pages .p-paginator-page {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  transition: all 0.3s ease !important;
 }
 
-.p-checkbox .p-checkbox-box.p-highlight {
-  background: var(--theme-primary) !important;
-  border-color: var(--theme-primary) !important;
+.p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background: rgba(var(--theme-primary-rgb), 0.1) !important;
 }
 
-.p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon {
-  color: white !important;
-}
-
-/* 单选按钮样式 */
-.p-radiobutton .p-radiobutton-box {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
-}
-
-.p-radiobutton .p-radiobutton-box:hover {
-  border-color: var(--theme-primary) !important;
-}
-
-.p-radiobutton .p-radiobutton-box.p-highlight {
-  border-color: var(--theme-primary) !important;
-}
-
-.p-radiobutton .p-radiobutton-box.p-highlight .p-radiobutton-icon {
-  background: var(--theme-primary) !important;
-}
-
-/* 徽章样式 */
-.p-badge {
-  background: var(--theme-primary) !important;
-  color: white !important;
-}
-
-.p-badge.p-badge-success {
-  background: var(--theme-success) !important;
-}
-
-.p-badge.p-badge-info {
-  background: var(--theme-info) !important;
-}
-
-.p-badge.p-badge-warning {
-  background: var(--theme-warning) !important;
-}
-
-.p-badge.p-badge-danger {
-  background: var(--theme-error) !important;
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last {
+  background: transparent !important;
 }
 
 /* 抽屉样式 */
@@ -1066,57 +782,23 @@
   border-top: 1px solid var(--theme-border) !important;
 }
 
-/* 工具栏样式 */
-.p-toolbar {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
-  border-radius: 6px !important;
+/* 抽屉遮罩层 */
+.p-drawer-mask {
+  background: rgba(var(--theme-text-rgb), 0.5) !important;
 }
 
-/* 分页器样式 */
-.p-paginator {
-  background: var(--theme-background-card) !important;
-  color: var(--theme-text) !important;
-  border: 1px solid var(--theme-border) !important;
-  border-radius: 6px !important;
+/* 小弹窗样式优化 - 移除滚动条 */
+.p-dialog[style*="width: 240px"] .p-dialog-content,
+.p-dialog[style*="width: 220px"] .p-dialog-content {
+  overflow: hidden !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 0 !important;
 }
 
-.p-paginator .p-paginator-pages .p-paginator-page {
-  background: transparent !important;
-  color: var(--theme-text) !important;
-  border: 1px solid transparent !important;
-  transition: all 0.3s ease !important;
-}
-
-.p-paginator .p-paginator-pages .p-paginator-page:hover {
-  background: rgba(var(--theme-primary-rgb), 0.1) !important;
-  color: var(--theme-primary) !important;
-  border-color: var(--theme-primary) !important;
-}
-
-.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-  background: var(--theme-primary) !important;
-  color: white !important;
-  border-color: var(--theme-primary) !important;
-}
-
-.p-paginator .p-paginator-first,
-.p-paginator .p-paginator-prev,
-.p-paginator .p-paginator-next,
-.p-paginator .p-paginator-last {
-  background: transparent !important;
-  color: var(--theme-text) !important;
-  border: 1px solid var(--theme-border) !important;
-}
-
-.p-paginator .p-paginator-first:hover,
-.p-paginator .p-paginator-prev:hover,
-.p-paginator .p-paginator-next:hover,
-.p-paginator .p-paginator-last:hover {
-  background: var(--theme-background-secondary) !important;
-  color: var(--theme-primary) !important;
-  border-color: var(--theme-primary) !important;
+.p-dialog[style*="width: 240px"],
+.p-dialog[style*="width: 220px"] {
+  overflow: visible !important;
 }
 
 /* 减少动画模式支持 */

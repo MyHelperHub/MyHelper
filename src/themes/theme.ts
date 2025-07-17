@@ -391,19 +391,13 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
       const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
       variables[`--theme-${cssKey}`] = value.hex;
       variables[`--theme-${cssKey}-rgb`] = value.rgb.replace(/rgb\(|\)/g, "");
-      variables[`--theme-${cssKey}-hsl`] = value.hsl.replace(/hsl\(|\)/g, "");
     }
   });
 
-  // 注意：PrimeVue 组件变量现在通过 PrimeVue 主题管理器处理
-  // 这里保留一些基础变量用于向后兼容
-
   // 透明度变量
   const transparency = colors.transparency || DEFAULT_TRANSPARENCY.custom;
-  variables["--theme-transparency-background"] =
-    transparency.background.toString();
-  variables["--theme-transparency-background-secondary"] =
-    transparency.backgroundSecondary.toString();
+  variables["--theme-transparency-background"] = transparency.background.toString();
+  variables["--theme-transparency-background-secondary"] = transparency.backgroundSecondary.toString();
   variables["--theme-transparency-card"] = transparency.card.toString();
 
   // 渐变变量
@@ -414,11 +408,9 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
       .join(", ");
 
     if (type === "linear") {
-      variables["--theme-gradient"] =
-        `linear-gradient(${angle || 45}deg, ${gradientStops})`;
+      variables["--theme-gradient"] = `linear-gradient(${angle || 45}deg, ${gradientStops})`;
     } else if (type === "radial") {
-      variables["--theme-gradient"] =
-        `radial-gradient(circle, ${gradientStops})`;
+      variables["--theme-gradient"] = `radial-gradient(circle, ${gradientStops})`;
     }
   }
 

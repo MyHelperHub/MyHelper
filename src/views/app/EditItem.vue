@@ -12,9 +12,10 @@
       modal
       appendTo="body"
       :closable="false"
-      :style="{ width: '200px' }"
+      :style="{ width: '220px' }"
       position="center">
-      <div class="modal-content">
+      <div class="dialog-wrapper">
+        <div class="modal-content">
         <img
           v-if="formData.logo"
           class="image"
@@ -42,6 +43,7 @@
             label="确定"
             severity="info" />
         </div>
+      </div>
       </div>
     </Dialog>
   </div>
@@ -166,6 +168,13 @@ defineExpose({
   cursor: pointer;
 }
 
+.dialog-wrapper {
+  background: var(--theme-background-card) !important;
+  margin: -1rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
 .modal-content {
   background-color: var(--theme-background-card) !important;
   border-radius: 8px;
@@ -202,7 +211,7 @@ defineExpose({
     align-items: center;
     flex-direction: column;
     gap: 12px;
-    width: 160px;
+    width: 180px;
 
     .input-wrapper {
       display: flex;

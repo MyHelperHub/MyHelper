@@ -1,53 +1,34 @@
 /**
- * 简化的 PrimeVue 主题集成
+ * 简化的 PrimeVue 主题色对接
  */
 
 import type { ThemeColors, ThemeMode } from "@/interface/theme.d";
 import { colorUtils } from "../theme";
 
 /**
- * 将主题颜色转换为 PrimeVue CSS 变量
+ * 将主题颜色应用到 PrimeVue --p-* 变量
  */
 export function applyPrimeVueTheme(colors: ThemeColors, mode: ThemeMode): void {
-  const isDark = mode === "dark";
+  const root = document.documentElement;
   
   // 生成主色调色板
   const primaryPalette = generatePrimaryPalette(colors.primary.hex);
   
-  // 创建 CSS 变量
-  const variables: Record<string, string> = {};
-  
-  // 主色调变量
+  // 批量更新主色调色板变量
   Object.entries(primaryPalette).forEach(([key, value]) => {
-    variables[`--p-primary-${key}`] = value;
+    root.style.setProperty(`--p-primary-${key}`, value);
   });
   
-  // 基础颜色变量
-  variables['--p-primary-color'] = colors.primary.hex;
-  variables['--p-text-color'] = colors.text.hex;
-  variables['--p-text-muted-color'] = colors.textMuted.hex;
-  variables['--p-surface-0'] = colors.background.hex;
-  variables['--p-surface-50'] = colors.backgroundSecondary.hex;
-  variables['--p-content-background'] = colors.backgroundCard.hex;
-  variables['--p-content-border-color'] = colors.border.hex;
-  variables['--p-highlight-background'] = `${colors.primary.hex}1a`;
-  variables['--p-highlight-color'] = colors.primary.hex;
-  
-  // 表单字段变量
-  variables['--p-form-field-background'] = colors.backgroundCard.hex;
-  variables['--p-form-field-border-color'] = colors.border.hex;
-  variables['--p-form-field-focus-border-color'] = colors.primary.hex;
-  variables['--p-form-field-color'] = colors.text.hex;
-  
-  // 应用变量到文档
-  const root = document.documentElement;
-  Object.entries(variables).forEach(([property, value]) => {
-    root.style.setProperty(property, value);
-  });
+  // 设置暗色模式类
+  if (mode === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
 }
 
 /**
- * 生成主色调色板
+ * 生成主色调色板 (50-950)
  */
 function generatePrimaryPalette(baseColor: string): Record<string, string> {
   const palette: Record<string, string> = {};
