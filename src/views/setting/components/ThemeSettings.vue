@@ -235,17 +235,8 @@ onMounted(() => {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 16px;
-    max-height: 220px;
-    overflow-y: auto;
-    overflow-x: hidden;
     padding: 0 8px 16px 0;
     margin-right: -8px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
 
     .preset-theme-card {
       display: flex;

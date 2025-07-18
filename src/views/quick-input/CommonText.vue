@@ -8,13 +8,7 @@
         root: { style: 'width: 120px; min-width: 120px' },
       }" />
 
-    <!-- 添加文本按钮 -->
-    <div v-if="!editingId" class="add-section" @click="addItem">
-      <div class="add-icon">
-        <i class="pi pi-plus"></i>
-      </div>
-      <span class="add-text">添加文本</span>
-    </div>
+    <!-- 添加文本按钮 - 移除原来的位置 -->
 
     <!-- 文本列表 -->
     <VirtualList
@@ -27,42 +21,39 @@
       class="text-list">
       <template #default="{ item }">
         <div
-          class="list-card input-theme"
+          class="theme-list-card quick-input-item"
           @click="pasteTo(item)"
           @contextmenu.prevent="(e) => handleContextMenu(e, item)">
+          
+          <!-- 简单图标 -->
+          <div class="item-icon">
+            <i class="pi pi-file"></i>
+          </div>
+
           <!-- 内容区域 -->
-          <div class="card-content">
-            <div v-if="editingId !== item.id" class="text-display">
+          <div class="item-content">
+            <div v-if="editingId !== item.id" class="item-text">
               {{ item.text || "空内容" }}
             </div>
             <input
               v-else
               v-model="item.text"
-              class="text-input"
+              class="item-input"
               placeholder="输入文本内容..."
               :data-id="item.id"
               @blur="save"
               @keyup.enter="save" />
           </div>
-
-          <!-- 操作区域 -->
-          <div v-if="editingId !== item.id" class="card-actions">
-            <button
-              class="action-btn edit-btn"
-              @click.stop="editItem(item.id)"
-              v-tooltip="'编辑'">
-              <i class="pi pi-pencil"></i>
-            </button>
-            <button
-              class="action-btn delete-btn"
-              @click.stop="deleteItem(item.id)"
-              v-tooltip="'删除'">
-              <i class="pi pi-trash"></i>
-            </button>
-          </div>
         </div>
       </template>
     </VirtualList>
+    
+    <!-- 固定在右下角的添加按钮 -->
+    <div class="floating-add-button" @click="addItem">
+      <div class="fab-icon">
+        <i class="pi pi-plus"></i>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -161,153 +152,119 @@ const pasteTo = (item: QuickInputItem) => {
   gap: 8px;
 }
 
-.add-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  border: 1.5px dashed rgba(79, 109, 245, 0.3);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 
-  .add-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    background: linear-gradient(
-      135deg,
-      var(--theme-primary) 0%,
-      var(--theme-info) 100%
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-  }
+.text-list {
+  flex: 1;
+  
+  .quick-input-item {
+    width: 100%;
+    margin-bottom: 6px;
+    
+    .item-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--theme-text-muted);
+      font-size: 12px;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
 
-  .add-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--theme-text);
-    letter-spacing: 0.3px;
-  }
+    .item-content {
+      flex: 1;
+      min-width: 0;
+      margin-left: 6px;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.6);
-    border-color: rgba(79, 109, 245, 0.5);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 109, 245, 0.15);
+      .item-text {
+        font-size: 13px;
+        color: var(--theme-text);
+        line-height: 1.4;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+      }
 
-    .add-icon {
-      transform: scale(1.1) rotate(90deg);
+      .item-input {
+        width: 100%;
+        background: rgba(var(--theme-background-card-rgb), 0.9);
+        border: 1px solid var(--theme-border);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 13px;
+        color: var(--theme-text);
+        font-weight: 500;
+        outline: none;
+        transition: all 0.3s ease;
+
+        &:focus {
+          border-color: var(--theme-primary);
+          box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.1);
+          background: rgba(var(--theme-background-card-rgb), 1);
+        }
+
+        &::placeholder {
+          color: var(--theme-text-muted);
+          font-weight: 400;
+        }
+      }
+    }
+    
+    &:hover .item-icon {
+      color: var(--theme-primary);
     }
   }
 }
 
-.text-list {
-  flex: 1;
-
-  .list-card:hover .card-actions {
-    opacity: 1;
-    transform: translateX(0);
+/* 浮动按钮样式 */
+.floating-add-button {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--theme-primary) 0%,
+    var(--theme-primary-light) 100%
+  );
+  box-shadow: 
+    0 4px 16px rgba(var(--theme-primary-rgb), 0.3),
+    0 2px 8px rgba(var(--theme-text-rgb), 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 10;
+  
+  .fab-icon {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
   }
-
-  .card-content {
-    flex: 1;
-    min-width: 0;
-    margin-left: 8px;
-
-    .text-display {
-      font-size: 12px;
-      color: var(--theme-text);
-      line-height: 1.4;
-      font-weight: 500;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      letter-spacing: 0.2px;
-    }
-
-    .text-input {
-      width: 100%;
-      background: rgba(var(--theme-background-rgb), 0.8);
-      border: 1px solid rgba(var(--theme-primary-rgb), 0.3);
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-size: 12px;
-      color: var(--theme-text);
-      font-weight: 500;
-      outline: none;
-      transition: all 0.3s ease;
-
-      &:focus {
-        border-color: var(--theme-primary);
-        box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
-        background: rgba(var(--theme-background-rgb), 0.95);
-      }
-
-      &::placeholder {
-        color: var(--theme-text-muted);
-        font-weight: 400;
-      }
+  
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+      0 6px 20px rgba(var(--theme-primary-rgb), 0.4),
+      0 4px 12px rgba(var(--theme-text-rgb), 0.15);
+    
+    .fab-icon {
+      transform: rotate(90deg);
     }
   }
-
-  .card-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    opacity: 0;
-    transform: translateX(8px);
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-
-    .action-btn {
-      width: 24px;
-      height: 24px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: bold;
-      transition: all 0.2s ease;
-
-      &.edit-btn {
-        background: linear-gradient(
-          135deg,
-          var(--theme-primary) 0%,
-          var(--theme-primary-dark) 100%
-        );
-        color: white;
-
-        &:hover {
-          transform: scale(1.1);
-          box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.4);
-        }
-      }
-
-      &.delete-btn {
-        background: linear-gradient(
-          135deg,
-          var(--theme-error) 0%,
-          var(--theme-warning) 100%
-        );
-        color: white;
-
-        &:hover {
-          transform: scale(1.1);
-          box-shadow: 0 2px 8px rgba(var(--theme-error-rgb), 0.4);
-        }
-      }
-    }
+  
+  &:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 
+      0 2px 8px rgba(var(--theme-primary-rgb), 0.3),
+      0 1px 4px rgba(var(--theme-text-rgb), 0.1);
   }
 }
 </style>

@@ -283,6 +283,20 @@ pub fn init() -> impl tauri::plugin::Plugin<tauri::Wry> {
                         }
                     }
 
+                    // 弹窗相关快捷键需要确保主窗口显示并发送事件
+                    "toggleWebList" | "toggleAppList" | "toggleQuickInput" => {
+                        // 确保主窗口显示
+                        if let Some(window) = app.get_webview_window("main") {
+                            if !window.is_visible().unwrap_or(false) {
+                                let _ = window.unminimize();
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                        // 发送事件到前端处理弹窗逻辑
+                        let _ = app.emit("hotkey-triggered", &action);
+                    }
+
                     // 默认情况下，所有其他动作都通知前端处理
                     _ => {
                         let _ = app.emit("hotkey-triggered", &action);

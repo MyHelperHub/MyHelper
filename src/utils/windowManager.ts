@@ -1,7 +1,12 @@
-import { ipcWindowControl, ipcCreateNewWindow } from "@/api/ipc/window.api";
+import { ipcWindowControl, ipcCreateNewWindow, ipcSetWindowSize } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { WindowConfig } from "@/interface/window";
-import { Ref } from "vue";
+import { Ref, ref } from "vue";
+import { delay } from "@/utils/common";
+import { hideMessage } from "@/utils/message";
+
+// 全局主窗口菜单展开状态
+export const isMainMenuVisible = ref(false);
 
 /**
  * 统一的窗口控制函数
@@ -35,5 +40,31 @@ export const handleWindowToggle = async (
   } catch (error) {
     // 确保状态与实际窗口状态同步
     isOpen.value = false;
+  }
+};
+
+/**
+ * 主窗口菜单展开/收起控制函数
+ * 使用全局状态管理主窗口的展开/收起状态
+ */
+export const handleMainWindowToggle = async () => {
+  hideMessage();
+
+  let width: number;
+  let height: number;
+
+  if (isMainMenuVisible.value) {
+    width = 65;
+    height = 65;
+    isMainMenuVisible.value = false;
+    // 等待动画完成后再调整窗口大小
+    await delay(220).then(() => {
+      ipcSetWindowSize(width, height);
+    });
+  } else {
+    width = 250;
+    height = 420;
+    ipcSetWindowSize(width, height);
+    isMainMenuVisible.value = true;
   }
 };

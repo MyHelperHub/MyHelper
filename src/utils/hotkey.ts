@@ -2,10 +2,15 @@ import { HotkeyConfig } from "./../interface/database.d";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Logger } from "./logger";
 import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api";
+import { emit } from "./eventBus";
+import { isMainMenuVisible, handleMainWindowToggle } from "./windowManager";
 
 // 快捷键常量
 export const HotkeyActions = {
   TOGGLE_PANEL: "togglePanel",
+  TOGGLE_WEB_LIST: "toggleWebList",
+  TOGGLE_APP_LIST: "toggleAppList",
+  TOGGLE_QUICK_INPUT: "toggleQuickInput",
   // TOGGLE_PROXY: "toggleProxy",
 } as const;
 
@@ -25,6 +30,21 @@ export const HOTKEY_DEFINITIONS: HotkeyDefinition[] = [
     id: HotkeyActions.TOGGLE_PANEL,
     title: "打开/关闭主窗口",
     defaultKey: "control+F1",
+  },
+  {
+    id: HotkeyActions.TOGGLE_WEB_LIST,
+    title: "打开网站列表弹窗",
+    defaultKey: "control+F2",
+  },
+  {
+    id: HotkeyActions.TOGGLE_APP_LIST,
+    title: "打开软件列表弹窗",
+    defaultKey: "control+F3",
+  },
+  {
+    id: HotkeyActions.TOGGLE_QUICK_INPUT,
+    title: "打开快捷输入弹窗",
+    defaultKey: "control+F4",
   },
   // {
   //   id: HotkeyActions.TOGGLE_PROXY,
@@ -61,14 +81,45 @@ export const getDefaultHotkeyConfig = () => {
 let hotkeyUnlistener: UnlistenFn | null = null;
 
 /**
+ * 确保主窗口处于展开状态
+ * 如果当前是小窗模式，先展开为大窗模式
+ */
+const ensureMainWindowExpanded = async () => {
+  if (!isMainMenuVisible.value) {
+    console.log("当前是小窗模式，先展开主窗口");
+    await handleMainWindowToggle();
+    // 等待窗口展开动画完成
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+};
+
+/**
  * 处理快捷键动作
  */
-const handleHotkeyAction = (action: string) => {
+const handleHotkeyAction = async (action: string) => {
   // 根据动作类型执行相应操作
   switch (action) {
     case HotkeyActions.TOGGLE_PANEL:
-      // 后端处理
       console.log("触发打开/关闭主窗口快捷键");
+      await handleMainWindowToggle();
+      break;
+    case HotkeyActions.TOGGLE_WEB_LIST:
+      console.log("触发打开网站列表弹窗快捷键");
+      // 先确保主窗口展开，再打开弹窗
+      await ensureMainWindowExpanded();
+      emit("hotkey-open-commonWeb");
+      break;
+    case HotkeyActions.TOGGLE_APP_LIST:
+      console.log("触发打开软件列表弹窗快捷键");
+      // 先确保主窗口展开，再打开弹窗
+      await ensureMainWindowExpanded();
+      emit("hotkey-open-commonApp");
+      break;
+    case HotkeyActions.TOGGLE_QUICK_INPUT:
+      console.log("触发打开快捷输入弹窗快捷键");
+      // 先确保主窗口展开，再打开弹窗
+      await ensureMainWindowExpanded();
+      emit("hotkey-open-quickInput");
       break;
     // case HotkeyActions.TOGGLE_PROXY:
     //   console.log("触发打开/关闭系统代理快捷键");

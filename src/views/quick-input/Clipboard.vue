@@ -18,25 +18,20 @@
       class="clipboard-list">
       <template #default="{ item }">
         <div
-          class="list-card plugin-theme"
+          class="theme-list-card clipboard-item"
           @click="pasteTo(item)"
           @contextmenu.prevent="(e) => handleClipboardContextMenu(e, item)">
-          <!-- 类型图标 -->
-          <div class="type-icon">
+          
+          <!-- 简单图标 -->
+          <div class="item-icon">
             <i class="pi pi-copy"></i>
           </div>
 
           <!-- 内容区域 -->
-          <div class="card-content">
-            <div class="clipboard-text">
+          <div class="item-content">
+            <div class="item-text">
               {{ item.text || "空内容" }}
             </div>
-            <div class="clipboard-meta">剪贴板项目</div>
-          </div>
-
-          <!-- 操作指示器 -->
-          <div class="action-indicator">
-            <i class="pi pi-arrow-right"></i>
           </div>
         </div>
       </template>
@@ -94,78 +89,44 @@ const pasteTo = async (item: QuickInputItem) => {
 
 .clipboard-list {
   flex: 1;
-
-  .list-card:hover {
-    .type-icon {
-      transform: scale(1.1);
-    }
-
-    .action-indicator {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .type-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background: linear-gradient(
-      135deg,
-      var(--theme-success) 0%,
-      var(--theme-info) 100%
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-  }
-
-  .card-content {
-    flex: 1;
-    min-width: 0;
-    margin-left: 12px;
-    margin-right: 8px;
-
-    .clipboard-text {
-      font-size: 12px;
-      color: var(--theme-text);
-      line-height: 1.4;
-      font-weight: 500;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      letter-spacing: 0.2px;
-      margin-bottom: 2px;
-    }
-
-    .clipboard-meta {
-      font-size: 9px;
+  
+  .clipboard-item {
+    width: 100%;
+    margin-bottom: 6px;
+    
+    .item-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--theme-text-muted);
-      font-weight: 500;
-      letter-spacing: 0.3px;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
     }
-  }
 
-  .action-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: rgba(var(--theme-success-rgb), 0.1);
-    color: var(--theme-success);
-    font-size: 8px;
-    font-weight: bold;
-    opacity: 0;
-    transform: translateX(8px);
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    flex-shrink: 0;
+    .item-content {
+      flex: 1;
+      min-width: 0;
+      margin-left: 6px;
+
+      .item-text {
+        font-size: 13px;
+        color: var(--theme-text);
+        line-height: 1.4;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+      }
+    }
+    
+    
+    &:hover .item-icon {
+      color: var(--theme-primary);
+    }
   }
 }
 

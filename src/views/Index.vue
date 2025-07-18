@@ -58,17 +58,19 @@
 
 <script setup lang="ts">
 import { ref, toRef } from "vue";
-import { ipcSetWindowSize } from "@/api/ipc/window.api";
 import { listen } from "@tauri-apps/api/event";
-import { handleWindowToggle } from "@/utils/windowManager";
+import {
+  handleWindowToggle,
+  handleMainWindowToggle,
+  isMainMenuVisible,
+} from "@/utils/windowManager";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { checkLogoPath } from "@/utils/user";
-import { delay } from "@/utils/common";
-import { hideMessage } from "@/utils/message";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
 
-const isShowMenu = ref(false);
+// 使用全局状态
+const isShowMenu = isMainMenuVisible;
 const avatarLogo = ref("/logo.png");
 
 const init = () => {
@@ -114,25 +116,7 @@ const handleAction = (action: "my" | "settings") => {
 };
 
 const showMenu = async () => {
-  hideMessage();
-
-  let width: number;
-  let height: number;
-
-  if (isShowMenu.value) {
-    width = 65;
-    height = 65;
-    isShowMenu.value = false;
-    // 等待动画完成后再调整窗口大小
-    await delay(220).then(() => {
-      ipcSetWindowSize(width, height);
-    });
-  } else {
-    width = 250;
-    height = 420;
-    ipcSetWindowSize(width, height);
-    isShowMenu.value = true;
-  }
+  await handleMainWindowToggle();
 };
 </script>
 

@@ -156,6 +156,18 @@ const handleMenuClick = (event: any) => {
       flex: 1;
       padding: 20px 10px;
       background: var(--theme-background);
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 100%;
+    }
+
+    .content-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .content-container {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
     }
   }
 }

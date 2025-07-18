@@ -53,8 +53,6 @@
   --theme-transparency-background-secondary: 0.8;
   --theme-transparency-card: 0.85;
 
-
-
   /* 透明度辅助变量 */
   --theme-overlay-light: rgba(var(--theme-background-rgb), 0.9);
   --theme-overlay-medium: rgba(var(--theme-background-rgb), 0.7);
@@ -216,7 +214,10 @@
 
 /* 毛玻璃卡片主题化   */
 .theme-glass-card {
-  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card, 0.9));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card, 0.9)
+  );
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(var(--theme-border-rgb), 0.25);
@@ -224,7 +225,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 1px 3px rgba(var(--theme-text-rgb), 0.06),
     0 2px 8px rgba(var(--theme-primary-rgb), 0.04),
     inset 0 1px 0 rgba(var(--theme-background-rgb), 0.1);
@@ -246,9 +247,12 @@
 }
 
 .theme-glass-card:hover {
-  background: rgba(var(--theme-background-card-rgb), calc(var(--theme-transparency-card, 0.9) + 0.05));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    calc(var(--theme-transparency-card, 0.9) + 0.05)
+  );
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 4px 12px rgba(var(--theme-text-rgb), 0.1),
     0 8px 24px rgba(var(--theme-primary-rgb), 0.08),
     inset 0 1px 0 rgba(var(--theme-background-rgb), 0.15);
@@ -260,7 +264,10 @@
   background: linear-gradient(
     145deg,
     rgba(var(--theme-background-card-rgb), var(--theme-transparency-card, 0.9)),
-    rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary, 0.85))
+    rgba(
+      var(--theme-background-secondary-rgb),
+      var(--theme-transparency-background-secondary, 0.85)
+    )
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -276,7 +283,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 
+  box-shadow:
     0 1px 3px rgba(var(--theme-text-rgb), 0.08),
     0 2px 12px rgba(var(--theme-primary-rgb), 0.05),
     inset 0 1px 0 rgba(var(--theme-background-rgb), 0.1);
@@ -316,10 +323,16 @@
   transform: translateY(-3px) scale(1.02);
   background: linear-gradient(
     145deg,
-    rgba(var(--theme-background-card-rgb), calc(var(--theme-transparency-card, 0.9) + 0.05)),
-    rgba(var(--theme-background-secondary-rgb), calc(var(--theme-transparency-background-secondary, 0.85) + 0.05))
+    rgba(
+      var(--theme-background-card-rgb),
+      calc(var(--theme-transparency-card, 0.9) + 0.05)
+    ),
+    rgba(
+      var(--theme-background-secondary-rgb),
+      calc(var(--theme-transparency-background-secondary, 0.85) + 0.05)
+    )
   );
-  box-shadow: 
+  box-shadow:
     0 4px 12px rgba(var(--theme-text-rgb), 0.12),
     0 8px 24px rgba(var(--theme-primary-rgb), 0.15),
     inset 0 1px 0 rgba(var(--theme-background-rgb), 0.2);
@@ -340,7 +353,10 @@
   align-items: center;
   padding: 12px 14px;
   margin-bottom: 8px;
-  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card, 0.9));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card, 0.9)
+  );
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(var(--theme-border-rgb), 0.25);
@@ -349,7 +365,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 1px 3px rgba(var(--theme-text-rgb), 0.06),
     0 2px 8px rgba(var(--theme-primary-rgb), 0.04);
 }
@@ -373,9 +389,12 @@
 }
 
 .theme-list-card:hover {
-  background: rgba(var(--theme-background-card-rgb), calc(var(--theme-transparency-card, 0.9) + 0.05));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    calc(var(--theme-transparency-card, 0.9) + 0.05)
+  );
   transform: translateY(-1px);
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(var(--theme-text-rgb), 0.1),
     0 4px 16px rgba(var(--theme-primary-rgb), 0.08);
   border-color: rgba(var(--theme-primary-rgb), 0.4);
@@ -390,14 +409,20 @@
 .theme-panel-container {
   background: linear-gradient(
     145deg,
-    rgba(var(--theme-background-rgb), var(--theme-transparency-background, 0.9)),
-    rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary, 0.85))
+    rgba(
+      var(--theme-background-rgb),
+      var(--theme-transparency-background, 0.9)
+    ),
+    rgba(
+      var(--theme-background-secondary-rgb),
+      var(--theme-transparency-background-secondary, 0.85)
+    )
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(var(--theme-border-rgb), 0.3);
   border-radius: 18px;
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(var(--theme-text-rgb), 0.08),
     0 8px 32px rgba(var(--theme-primary-rgb), 0.06),
     inset 0 1px 0 rgba(var(--theme-background-rgb), 0.1);
@@ -571,8 +596,8 @@
 
 /* 对话框样式 */
 .p-dialog {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
+  background: transparent !important;
+  border: none !important;
   border-radius: 12px !important;
   box-shadow: var(--theme-shadow-lg) !important;
   color: var(--theme-text) !important;
@@ -580,6 +605,7 @@
 
 .p-dialog .p-dialog-header {
   background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
   border-bottom: 1px solid var(--theme-border) !important;
   border-top-left-radius: 12px !important;
   border-top-right-radius: 12px !important;
@@ -593,8 +619,17 @@
 
 .p-dialog .p-dialog-content {
   background: var(--theme-background-card) !important;
+  border: 1px solid var(--theme-border) !important;
   color: var(--theme-text) !important;
   overflow: hidden !important;
+  border-radius: 12px !important;
+}
+
+/* 当对话框有header时，content的上边框圆角应该为0 */
+.p-dialog:has(.p-dialog-header) .p-dialog-content {
+  border-top: none !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
 
 .p-dialog .p-dialog-footer {
@@ -621,7 +656,9 @@
 /* Fieldset 样式 */
 .p-fieldset {
   border-radius: 8px !important;
-  transition: background-color 0.3s ease, border-color 0.3s ease !important;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease !important;
 }
 
 .p-fieldset .p-fieldset-legend {

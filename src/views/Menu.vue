@@ -88,10 +88,11 @@ import CommonWeb from "@/views/web/CommonWeb.vue";
 import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
 import MyPlugin from "@/views/my-plugin/MyPlugin.vue";
-import { ref, toRef, type Ref } from "vue";
+import { ref, toRef, type Ref, onMounted, onUnmounted } from "vue";
 import { ContainState, type CommonState } from "@/interface/menu.d";
 import { handleWindowToggle } from "@/utils/windowManager";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
+import { on, off } from "@/utils/eventBus";
 
 const myPluginRef = ref<InstanceType<typeof MyPlugin> | null>(null);
 const commonState = {
@@ -109,6 +110,15 @@ const containState = ref<ContainState>({
 const openCommon = (key: CommonState) => {
   const target = commonState[key];
   if (!target.value) return;
+
+  // 先关闭其他弹窗
+  Object.entries(commonState).forEach(([k, ref]) => {
+    if (k !== key && ref.value) {
+      ref.value.visible = false;
+    }
+  });
+
+  // 打开目标弹窗
   target.value.visible = true;
 };
 
@@ -132,6 +142,25 @@ const openPluginMarket = () => {
 const openMyPlugin = () => {
   myPluginRef.value?.openPopover();
 };
+
+// 快捷键事件处理函数
+const handleHotkeyWebList = () => openCommon("commonWeb");
+const handleHotkeyAppList = () => openCommon("commonApp");
+const handleHotkeyQuickInput = () => openCommon("quickInput");
+
+onMounted(() => {
+  // 通过eventBus监听来自hotkey.ts的事件
+  on("hotkey-open-commonWeb", handleHotkeyWebList);
+  on("hotkey-open-commonApp", handleHotkeyAppList);
+  on("hotkey-open-quickInput", handleHotkeyQuickInput);
+});
+
+onUnmounted(() => {
+  // 清理eventBus事件监听器
+  off("hotkey-open-commonWeb");
+  off("hotkey-open-commonApp");
+  off("hotkey-open-quickInput");
+});
 </script>
 
 <style lang="less">
