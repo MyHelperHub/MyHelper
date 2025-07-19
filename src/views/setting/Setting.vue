@@ -22,7 +22,7 @@ import { WindowOperation } from "@/interface/enum";
 import { initSetting } from "./utils/settingRegistry";
 import GeneralSettings from "@/views/setting/GeneralSettings.vue";
 import AboutSettings from "@/views/setting/AboutSettings.vue";
-import ThemeSettings from "@/views/setting/components/ThemeSettings.vue";
+import ThemeSettings from "@/views/setting/ThemeSettings.vue";
 import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 

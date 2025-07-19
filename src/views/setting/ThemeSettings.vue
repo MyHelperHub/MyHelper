@@ -173,6 +173,7 @@ const handleCustomThemeApply = async (config: any) => {
     if (result.success) {
       currentConfig.value.mode = ThemeMode.Custom;
       currentConfig.value.currentThemeId = undefined;
+      currentConfig.value.customColors = fullCustomColors;
       showMessage("自定义主题应用成功", 2500, 1);
     }
   } catch (error) {

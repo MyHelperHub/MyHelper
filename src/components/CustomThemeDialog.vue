@@ -378,6 +378,7 @@ const createConfigFromTheme = (theme?: any): CustomThemeConfig => {
     card: 0.85,
   };
 
+  // 如果有自定义颜色配置
   if (theme?.customColors) {
     return {
       transparency: theme.customColors.transparency || defaultTransparency,
@@ -393,7 +394,9 @@ const createConfigFromTheme = (theme?: any): CustomThemeConfig => {
         error: theme.customColors.error?.hex || "#ef4444",
       },
     };
-  } else if (theme?.currentThemeId) {
+  } 
+  // 如果有预设主题ID
+  else if (theme?.currentThemeId) {
     const preset = presetThemes.find((p) => p.id === theme.currentThemeId);
     if (preset) {
       return {
@@ -412,6 +415,25 @@ const createConfigFromTheme = (theme?: any): CustomThemeConfig => {
     }
   }
 
+  // 默认配置（基于浅色主题）
+  const defaultTheme = presetThemes.find(p => p.id === "default-light");
+  if (defaultTheme) {
+    return {
+      transparency: defaultTheme.colors.transparency || defaultTransparency,
+      colors: {
+        primary: defaultTheme.colors.primary.hex,
+        background: defaultTheme.colors.background.hex,
+        backgroundSecondary: defaultTheme.colors.backgroundSecondary.hex,
+        text: defaultTheme.colors.text.hex,
+        textSecondary: defaultTheme.colors.textSecondary.hex,
+        success: defaultTheme.colors.success.hex,
+        warning: defaultTheme.colors.warning.hex,
+        error: defaultTheme.colors.error.hex,
+      },
+    };
+  }
+
+  // 最后的后备配置
   return {
     transparency: defaultTransparency,
     colors: {
@@ -429,6 +451,14 @@ const createConfigFromTheme = (theme?: any): CustomThemeConfig => {
 
 const localConfig = ref<CustomThemeConfig>(createConfigFromTheme());
 
+// 通用的RGB转RGBA函数
+const toRgba = (rgbStr: string, alpha: number) => {
+  if (rgbStr && rgbStr.startsWith('rgb(')) {
+    return rgbStr.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+  }
+  return `rgba(255, 255, 255, ${alpha})`; // 后备方案
+};
+
 const previewStyles = computed(() => {
   const bgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
   const bgSecondaryRgb = colorUtils.hexToRgb(
@@ -437,7 +467,7 @@ const previewStyles = computed(() => {
   const primaryRgb = colorUtils.hexToRgb(localConfig.value.colors.primary);
 
   return {
-    background: `linear-gradient(145deg, ${bgRgb.replace("rgb(", "rgba(").replace(")", `, ${localConfig.value.transparency.background})`)}, ${bgSecondaryRgb.replace("rgb(", "rgba(").replace(")", `, ${localConfig.value.transparency.backgroundSecondary})`)}, ${primaryRgb.replace("rgb(", "rgba(").replace(")", ", 0.1)")})`,
+    background: `linear-gradient(145deg, ${toRgba(bgRgb, localConfig.value.transparency.background)}, ${toRgba(bgSecondaryRgb, localConfig.value.transparency.backgroundSecondary)}, ${toRgba(primaryRgb, 0.1)})`,
     backdropFilter: "blur(20px)",
     borderRadius: "12px",
     border: `1px solid ${localConfig.value.colors.backgroundSecondary}40`,
@@ -449,10 +479,9 @@ const previewStyles = computed(() => {
 
 const previewCardStyles = computed(() => {
   const cardBgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
+  
   return {
-    background: cardBgRgb
-      .replace("rgb(", "rgba(")
-      .replace(")", `, ${localConfig.value.transparency.card})`),
+    background: toRgba(cardBgRgb, localConfig.value.transparency.card),
     backdropFilter: "blur(10px)",
     borderRadius: "8px",
     border: `1px solid ${localConfig.value.colors.backgroundSecondary}60`,
@@ -464,8 +493,9 @@ const previewCardStyles = computed(() => {
 
 const transparencyDemoStyles = computed(() => {
   const bgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
+  
   return {
-    background: `linear-gradient(135deg, ${bgRgb.replace("rgb(", "rgba(").replace(")", `, ${localConfig.value.transparency.background})`)} 0%, ${bgRgb.replace("rgb(", "rgba(").replace(")", `, ${localConfig.value.transparency.backgroundSecondary})`)} 100%)`,
+    background: `linear-gradient(135deg, ${toRgba(bgRgb, localConfig.value.transparency.background)} 0%, ${toRgba(bgRgb, localConfig.value.transparency.backgroundSecondary)} 100%)`,
     backdropFilter: "blur(15px)",
     borderRadius: "8px",
     border: `1px solid ${localConfig.value.colors.backgroundSecondary}40`,
@@ -480,10 +510,26 @@ const updateTransparency = () => {
 };
 
 const updateColor = (colorKey: string, value: string | undefined) => {
-  if (value && value.startsWith("#")) {
+  if (!value) return;
+  
+  let hexColor = value;
+  
+  // 如果不是以#开头，尝试转换
+  if (!hexColor.startsWith("#")) {
+    // 如果是rgb格式，转换为hex
+    if (hexColor.startsWith("rgb")) {
+      hexColor = colorUtils.rgbToHex(hexColor);
+    } else {
+      // 添加#前缀
+      hexColor = `#${hexColor}`;
+    }
+  }
+  
+  // 验证hex格式
+  if (/^#[0-9A-Fa-f]{6}$/.test(hexColor)) {
     localConfig.value.colors[
       colorKey as keyof typeof localConfig.value.colors
-    ] = value;
+    ] = hexColor;
   }
 };
 
