@@ -20,8 +20,7 @@
                     v-model="localConfig.transparency.background"
                     :min="0.1"
                     :max="1"
-                    :step="0.05"
-                    @update:modelValue="updateTransparency" />
+                    :step="0.05" />
                   <span class="slider-value"
                     >{{
                       Math.round(localConfig.transparency.background * 100)
@@ -37,8 +36,7 @@
                     v-model="localConfig.transparency.backgroundSecondary"
                     :min="0.1"
                     :max="1"
-                    :step="0.05"
-                    @update:modelValue="updateTransparency" />
+                    :step="0.05" />
                   <span class="slider-value"
                     >{{
                       Math.round(
@@ -56,8 +54,7 @@
                     v-model="localConfig.transparency.card"
                     :min="0.1"
                     :max="1"
-                    :step="0.05"
-                    @update:modelValue="updateTransparency" />
+                    :step="0.05" />
                   <span class="slider-value"
                     >{{
                       Math.round(localConfig.transparency.card * 100)
@@ -77,11 +74,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.primary"
-                    format="hex"
-                    @update:modelValue="updateColor('primary', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.primary"
-                    @update:modelValue="updateColor('primary', $event)"
                     class="color-input"
                     placeholder="#4f6df5" />
                 </div>
@@ -92,11 +87,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.background"
-                    format="hex"
-                    @update:modelValue="updateColor('background', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.background"
-                    @update:modelValue="updateColor('background', $event)"
                     class="color-input"
                     placeholder="#ffffff" />
                 </div>
@@ -107,15 +100,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.backgroundSecondary"
-                    format="hex"
-                    @update:modelValue="
-                      updateColor('backgroundSecondary', $event)
-                    " />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.backgroundSecondary"
-                    @update:modelValue="
-                      updateColor('backgroundSecondary', $event)
-                    "
                     class="color-input"
                     placeholder="#f8fafc" />
                 </div>
@@ -132,11 +119,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.text"
-                    format="hex"
-                    @update:modelValue="updateColor('text', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.text"
-                    @update:modelValue="updateColor('text', $event)"
                     class="color-input"
                     placeholder="#1e293b" />
                 </div>
@@ -147,11 +132,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.textSecondary"
-                    format="hex"
-                    @update:modelValue="updateColor('textSecondary', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.textSecondary"
-                    @update:modelValue="updateColor('textSecondary', $event)"
                     class="color-input"
                     placeholder="#475569" />
                 </div>
@@ -168,11 +151,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.success"
-                    format="hex"
-                    @update:modelValue="updateColor('success', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.success"
-                    @update:modelValue="updateColor('success', $event)"
                     class="color-input"
                     placeholder="#10b981" />
                 </div>
@@ -183,11 +164,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.warning"
-                    format="hex"
-                    @update:modelValue="updateColor('warning', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.warning"
-                    @update:modelValue="updateColor('warning', $event)"
                     class="color-input"
                     placeholder="#f59e0b" />
                 </div>
@@ -198,11 +177,9 @@
                 <div class="color-picker-container">
                   <ColorPicker
                     v-model="localConfig.colors.error"
-                    format="hex"
-                    @update:modelValue="updateColor('error', $event)" />
+                    format="hex" />
                   <InputText
                     v-model="localConfig.colors.error"
-                    @update:modelValue="updateColor('error', $event)"
                     class="color-input"
                     placeholder="#ef4444" />
                 </div>
@@ -335,8 +312,8 @@ import Button from "primevue/button";
 import Slider from "primevue/slider";
 import ColorPicker from "primevue/colorpicker";
 import InputText from "primevue/inputtext";
-import { colorUtils, presetThemes } from "@/themes/theme";
-import { showMessage } from "@/utils/message";
+import { colorUtils } from "@/themes/theme";
+import { showMessage } from "@/composables/message";
 
 interface CustomThemeConfig {
   transparency: {
@@ -366,99 +343,90 @@ const emit = defineEmits<{
   apply: [config: CustomThemeConfig];
 }>();
 
+// 双向绑定弹窗显示状态
 const isVisible = computed({
   get: () => props.visible,
   set: (value) => emit("update:visible", value),
 });
 
-const createConfigFromTheme = (theme?: any): CustomThemeConfig => {
+/**
+ * 从CSS变量中获取颜色值
+ * @param varName CSS变量名
+ * @returns 十六进制颜色值或空字符串
+ */
+const getColorFromCSSVar = (varName: string): string => {
+  const root = document.documentElement;
+  const value = getComputedStyle(root).getPropertyValue(varName).trim();
+  
+  if (value.startsWith('rgb')) {
+    return colorUtils.rgbToHex(value);
+  }
+  if (value.startsWith('#')) {
+    return value;
+  }
+  return '';
+};
+
+/**
+ * 获取当前应用的主题配置
+ * @returns 当前主题配置对象
+ */
+const getCurrentThemeColors = (): CustomThemeConfig => {
   const defaultTransparency = {
     background: 0.9,
     backgroundSecondary: 0.8,
     card: 0.85,
   };
 
-  // 如果有自定义颜色配置
-  if (theme?.customColors) {
-    return {
-      transparency: theme.customColors.transparency || defaultTransparency,
-      colors: {
-        primary: theme.customColors.primary?.hex || "#4f6df5",
-        background: theme.customColors.background?.hex || "#ffffff",
-        backgroundSecondary:
-          theme.customColors.backgroundSecondary?.hex || "#f8fafc",
-        text: theme.customColors.text?.hex || "#1e293b",
-        textSecondary: theme.customColors.textSecondary?.hex || "#475569",
-        success: theme.customColors.success?.hex || "#10b981",
-        warning: theme.customColors.warning?.hex || "#f59e0b",
-        error: theme.customColors.error?.hex || "#ef4444",
-      },
-    };
-  } 
-  // 如果有预设主题ID
-  else if (theme?.currentThemeId) {
-    const preset = presetThemes.find((p) => p.id === theme.currentThemeId);
-    if (preset) {
-      return {
-        transparency: preset.colors.transparency || defaultTransparency,
-        colors: {
-          primary: preset.colors.primary.hex,
-          background: preset.colors.background.hex,
-          backgroundSecondary: preset.colors.backgroundSecondary.hex,
-          text: preset.colors.text.hex,
-          textSecondary: preset.colors.textSecondary.hex,
-          success: preset.colors.success.hex,
-          warning: preset.colors.warning.hex,
-          error: preset.colors.error.hex,
-        },
-      };
-    }
-  }
+  const bgAlpha = getComputedStyle(document.documentElement).getPropertyValue('--theme-transparency-background').trim();
+  const bgSecondaryAlpha = getComputedStyle(document.documentElement).getPropertyValue('--theme-transparency-backgroundSecondary').trim();
+  const cardAlpha = getComputedStyle(document.documentElement).getPropertyValue('--theme-transparency-card').trim();
 
-  // 默认配置（基于浅色主题）
-  const defaultTheme = presetThemes.find(p => p.id === "default-light");
-  if (defaultTheme) {
-    return {
-      transparency: defaultTheme.colors.transparency || defaultTransparency,
-      colors: {
-        primary: defaultTheme.colors.primary.hex,
-        background: defaultTheme.colors.background.hex,
-        backgroundSecondary: defaultTheme.colors.backgroundSecondary.hex,
-        text: defaultTheme.colors.text.hex,
-        textSecondary: defaultTheme.colors.textSecondary.hex,
-        success: defaultTheme.colors.success.hex,
-        warning: defaultTheme.colors.warning.hex,
-        error: defaultTheme.colors.error.hex,
-      },
-    };
-  }
-
-  // 最后的后备配置
   return {
-    transparency: defaultTransparency,
+    transparency: {
+      background: bgAlpha ? parseFloat(bgAlpha) : defaultTransparency.background,
+      backgroundSecondary: bgSecondaryAlpha ? parseFloat(bgSecondaryAlpha) : defaultTransparency.backgroundSecondary,
+      card: cardAlpha ? parseFloat(cardAlpha) : defaultTransparency.card,
+    },
     colors: {
-      primary: "#4f6df5",
-      background: "#ffffff",
-      backgroundSecondary: "#f8fafc",
-      text: "#1e293b",
-      textSecondary: "#475569",
-      success: "#10b981",
-      warning: "#f59e0b",
-      error: "#ef4444",
+      primary: getColorFromCSSVar('--theme-primary') || "#4f6df5",
+      background: getColorFromCSSVar('--theme-background') || "#ffffff",
+      backgroundSecondary: getColorFromCSSVar('--theme-background-secondary') || "#f8fafc",
+      text: getColorFromCSSVar('--theme-text') || "#1e293b",
+      textSecondary: getColorFromCSSVar('--theme-text-secondary') || "#475569",
+      success: getColorFromCSSVar('--theme-success') || "#10b981",
+      warning: getColorFromCSSVar('--theme-warning') || "#f59e0b",
+      error: getColorFromCSSVar('--theme-error') || "#ef4444",
     },
   };
 };
 
-const localConfig = ref<CustomThemeConfig>(createConfigFromTheme());
+// 当前编辑的配置
+const localConfig = ref<CustomThemeConfig>(getCurrentThemeColors());
+// 原始配置，用于取消和重置操作
+const originalConfig = ref<CustomThemeConfig>(getCurrentThemeColors());
 
-// 通用的RGB转RGBA函数
-const toRgba = (rgbStr: string, alpha: number) => {
-  if (rgbStr && rgbStr.startsWith('rgb(')) {
-    return rgbStr.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+/**
+ * 将颜色值转换为带透明度的RGBA格式
+ * @param hexOrRgb 十六进制或RGB颜色值
+ * @param alpha 透明度值 (0-1)
+ * @returns RGBA颜色字符串
+ */
+const toRgba = (hexOrRgb: string, alpha: number) => {
+  if (!hexOrRgb) return `rgba(255, 255, 255, ${alpha})`;
+  
+  let rgbStr = hexOrRgb;
+  if (hexOrRgb.startsWith('#')) {
+    rgbStr = colorUtils.hexToRgb(hexOrRgb);
   }
-  return `rgba(255, 255, 255, ${alpha})`; // 后备方案
+  
+  if (rgbStr && rgbStr.startsWith("rgb(")) {
+    return rgbStr.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
+  }
+  return `rgba(255, 255, 255, ${alpha})`;
 };
 
+// 预览容器样式
 const previewStyles = computed(() => {
   const bgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
   const bgSecondaryRgb = colorUtils.hexToRgb(
@@ -477,9 +445,10 @@ const previewStyles = computed(() => {
   };
 });
 
+// 预览卡片样式
 const previewCardStyles = computed(() => {
   const cardBgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
-  
+
   return {
     background: toRgba(cardBgRgb, localConfig.value.transparency.card),
     backdropFilter: "blur(10px)",
@@ -491,9 +460,10 @@ const previewCardStyles = computed(() => {
   };
 });
 
+// 透明度演示样式
 const transparencyDemoStyles = computed(() => {
   const bgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
-  
+
   return {
     background: `linear-gradient(135deg, ${toRgba(bgRgb, localConfig.value.transparency.background)} 0%, ${toRgba(bgRgb, localConfig.value.transparency.backgroundSecondary)} 100%)`,
     backdropFilter: "blur(15px)",
@@ -505,66 +475,45 @@ const transparencyDemoStyles = computed(() => {
   };
 });
 
-const updateTransparency = () => {
-  // 透明度更新时的逻辑处理
-};
-
-const updateColor = (colorKey: string, value: string | undefined) => {
-  if (!value) return;
-  
-  let hexColor = value;
-  
-  // 如果不是以#开头，尝试转换
-  if (!hexColor.startsWith("#")) {
-    // 如果是rgb格式，转换为hex
-    if (hexColor.startsWith("rgb")) {
-      hexColor = colorUtils.rgbToHex(hexColor);
-    } else {
-      // 添加#前缀
-      hexColor = `#${hexColor}`;
-    }
-  }
-  
-  // 验证hex格式
-  if (/^#[0-9A-Fa-f]{6}$/.test(hexColor)) {
-    localConfig.value.colors[
-      colorKey as keyof typeof localConfig.value.colors
-    ] = hexColor;
-  }
-};
-
+/**
+ * 重置配置到打开弹窗时的状态
+ */
 const resetConfig = () => {
-  localConfig.value = createConfigFromTheme(props.currentTheme);
+  localConfig.value = JSON.parse(JSON.stringify(originalConfig.value));
   showMessage("配置已重置", 2000, 1);
 };
 
+/**
+ * 关闭弹窗并恢复原始配置
+ */
 const closeDialog = () => {
+  localConfig.value = JSON.parse(JSON.stringify(originalConfig.value));
   isVisible.value = false;
 };
 
+/**
+ * 应用当前配置
+ */
 const applyConfig = () => {
-  emit("apply", localConfig.value);
-  closeDialog();
-  showMessage("主题配置已应用", 2000, 1);
+  try {
+    emit("apply", localConfig.value);
+    originalConfig.value = JSON.parse(JSON.stringify(localConfig.value));
+    isVisible.value = false;
+    showMessage("主题配置已应用", 2000, 1);
+  } catch (error) {
+    console.error("应用主题配置失败:", error);
+    showMessage("应用主题配置失败", 3000, 3);
+  }
 };
 
-// 监听弹窗打开，重置配置
+// 监听弹窗打开，初始化配置
 watch(isVisible, (newVal) => {
   if (newVal) {
-    localConfig.value = createConfigFromTheme(props.currentTheme);
+    const config = getCurrentThemeColors();
+    localConfig.value = JSON.parse(JSON.stringify(config));
+    originalConfig.value = JSON.parse(JSON.stringify(config));
   }
 });
-
-// 监听currentTheme变化
-watch(
-  () => props.currentTheme,
-  (newTheme) => {
-    if (isVisible.value) {
-      localConfig.value = createConfigFromTheme(newTheme);
-    }
-  },
-  { deep: true },
-);
 </script>
 
 <style lang="less" scoped>

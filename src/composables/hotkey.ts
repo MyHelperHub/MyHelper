@@ -1,9 +1,9 @@
-import { HotkeyConfig } from "./../interface/database.d";
+import { HotkeyConfig } from "../interface/database";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { Logger } from "./logger";
-import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api";
-import { emit } from "./eventBus";
-import { isMainMenuVisible, handleMainWindowToggle } from "./windowManager";
+import { Logger } from "../utils/logger.ts";
+import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api.ts";
+import { emit } from "../utils/eventBus.ts";
+import { isMainMenuVisible, handleMainWindowToggle } from "../utils/windowManager.ts";
 
 // 快捷键常量
 export const HotkeyActions = {

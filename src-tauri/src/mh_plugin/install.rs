@@ -1,5 +1,5 @@
 use crate::utils::error::{AppError, AppResult};
-use crate::utils::logger::{LogEntry, Logger};
+use crate::services::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
 use reqwest::Client;
 use serde_json;

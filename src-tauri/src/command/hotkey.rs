@@ -1,4 +1,4 @@
-use crate::utils::hotkey::HotkeyManager;
+use crate::core::hotkey::HotkeyManager;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

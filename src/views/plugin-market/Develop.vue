@@ -655,7 +655,7 @@ import {
   uploadImage,
 } from "@/api/network/plugin.api";
 import { PluginStatus, PluginCategory } from "@/interface/plugin.d";
-import { showLoading, hideLoading } from "@/utils/loading";
+import { showLoading, hideLoading } from "@/composables/loading.ts";
 import GlobalData from "@/utils/globalData";
 import Paginator from "primevue/paginator";
 

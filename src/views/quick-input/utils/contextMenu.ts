@@ -1,15 +1,21 @@
 import { QuickInputItem } from "@/interface/quickInput";
+import { useContextMenu } from "@/composables/useContextMenu";
 import { emit } from "@/utils/eventBus";
 import type { MenuItem } from "primevue/menuitem";
-import { ref } from "vue";
 
-export const contextMenuRef = ref();
-export const menuItems = ref<MenuItem[]>([]);
+// 主菜单 - 使用通用的 contextMenu 组合式函数
+const { contextMenuRef, menuItems, showContextMenu } = useContextMenu();
 
-// Clipboard专用的右键菜单引用和菜单项
-export const clipboardContextMenuRef = ref();
-export const clipboardMenuItems = ref<MenuItem[]>([]);
+// Clipboard专用菜单 - 使用通用的 contextMenu 组合式函数
+const {
+  contextMenuRef: clipboardContextMenuRef,
+  menuItems: clipboardMenuItems,
+  showContextMenu: showClipboardContextMenu,
+} = useContextMenu();
 
+/**
+ * 获取 QuickInput 项的菜单项
+ */
 function getContextMenuItems(item: QuickInputItem): MenuItem[] {
   return [
     {
@@ -32,6 +38,9 @@ function getContextMenuItems(item: QuickInputItem): MenuItem[] {
   ];
 }
 
+/**
+ * 获取 Clipboard 项的菜单项
+ */
 function getClipboardContextMenuItems(item: QuickInputItem): MenuItem[] {
   return [
     {
@@ -44,15 +53,28 @@ function getClipboardContextMenuItems(item: QuickInputItem): MenuItem[] {
   ];
 }
 
+/**
+ * 处理右键菜单事件
+ */
 export function handleContextMenu(event: MouseEvent, item: QuickInputItem) {
-  menuItems.value = getContextMenuItems(item);
-  contextMenuRef.value.show(event);
+  const items = getContextMenuItems(item);
+  showContextMenu(event, items);
 }
 
+/**
+ * 处理 Clipboard 右键菜单事件
+ */
 export function handleClipboardContextMenu(
   event: MouseEvent,
   item: QuickInputItem,
 ) {
-  clipboardMenuItems.value = getClipboardContextMenuItems(item);
-  clipboardContextMenuRef.value.show(event);
+  const items = getClipboardContextMenuItems(item);
+  showClipboardContextMenu(event, items);
 }
+
+export {
+  contextMenuRef,
+  menuItems,
+  clipboardContextMenuRef,
+  clipboardMenuItems,
+};

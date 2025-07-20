@@ -713,7 +713,7 @@ import Carousel from "primevue/carousel";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { useRouter } from "vue-router";
-import { showLoading, hideLoading } from "@/utils/loading";
+import { showLoading, hideLoading } from "@/composables/loading.ts";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import {

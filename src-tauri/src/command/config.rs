@@ -1,4 +1,4 @@
-use crate::utils::config::{utils_get_config, utils_set_config};
+use crate::services::config::{utils_get_config, utils_set_config};
 use crate::utils::error::{AppError, AppResult};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
@@ -43,13 +43,11 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
             return Err(AppError::Error("缺少要设置的键".to_string()));
         }
 
-        let key = keys[0].clone();
-
         if keys.len() == 1 {
             // 到达最后一个键，更新值
             match data {
                 Value::Object(map) => {
-                    map.insert(key, value);
+                    map.insert(keys[0].to_string(), value);
                 }
                 _ => {
                     return Err(AppError::Error("无法更新非对象类型的配置数据".to_string()));
@@ -61,14 +59,14 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
                 let map = data
                     .as_object_mut()
                     .ok_or_else(|| AppError::Error("配置数据不是对象类型".to_string()))?;
-                map.entry(key.clone())
+                map.entry(keys[0].to_string())
                     .or_insert_with(|| Value::Object(Map::new()))
             };
 
             if let Value::Object(_) = nested_data {
                 update_nested_value(nested_data, &keys[1..], value)?;
             } else {
-                return Err(AppError::Error(format!("配置中键 {} 的类型不是对象", key)));
+                return Err(AppError::Error(format!("配置中键 {} 的类型不是对象", &keys[0])));
             }
         }
 
@@ -124,13 +122,11 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
                 return Err(AppError::Error("缺少要删除的键".to_string()));
             }
 
-            let key = keys[0].clone();
-
             if keys.len() == 1 {
                 // 到达最后一个键，删除值
                 match data {
                     Value::Object(map) => {
-                        map.remove(&key);
+                        map.remove(&keys[0]);
                     }
                     _ => {
                         return Err(AppError::Error(
@@ -140,12 +136,12 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
                 }
             } else {
                 // 递归删除嵌套字段
-                match data.get_mut(&key) {
+                match data.get_mut(&keys[0]) {
                     Some(nested_data) => {
                         delete_nested_key(nested_data, &keys[1..])?;
                     }
                     None => {
-                        return Err(AppError::Error(format!("配置中不存在键: {}", key)));
+                        return Err(AppError::Error(format!("配置中不存在键: {}", &keys[0])));
                     }
                 }
             }

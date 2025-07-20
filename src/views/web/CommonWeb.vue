@@ -36,6 +36,7 @@
             <img
               v-if="item.logo"
               :src="convertFileSrc(item.logo)"
+              loading="lazy"
               class="icon-image" />
             <i v-else class="pi pi-image"></i>
           </div>
@@ -64,7 +65,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { ref } from "vue";
 import { WebItem } from "@/interface/web";
-import { showMessage } from "@/utils/message.ts";
+import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
 import ContextMenu from "primevue/contextmenu";

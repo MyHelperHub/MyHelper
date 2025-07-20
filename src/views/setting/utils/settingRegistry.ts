@@ -1,12 +1,12 @@
 import {
   startClipboardListening,
   stopClipboardListening,
-} from "@/utils/clipboard";
-import { setHotkeyEnabled } from "@/utils/hotkey";
+} from "@/composables/clipboard.ts";
+import { setHotkeyEnabled } from "@/composables/hotkey.ts";
 import { registerTask } from "./startupManager";
 import { AppConfig } from "@/interface/database";
 import { getConfig } from "@/utils/config";
-import { setAutoStartEnabled, syncAutoStartState } from "@/utils/autosStart";
+import { setAutoStartEnabled, syncAutoStartState } from "@/composables/autosStart.ts";
 
 // 模块级缓存变量，存储初始化时的配置
 let cachedSettingConfig: AppConfig["settingConfig"] | null = null;

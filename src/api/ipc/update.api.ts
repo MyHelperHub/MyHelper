@@ -1,6 +1,6 @@
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import { UpdateProgress, UpdateResult } from "@/interface/update";
 
 export async function ipcCheckForUpdates(): Promise<UpdateResult> {

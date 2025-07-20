@@ -61,7 +61,7 @@
 import { QuickInputItem } from "@/interface/quickInput";
 import { nextTick, ref } from "vue";
 import { getConfig, setConfig } from "@/utils/config";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { on } from "@/utils/eventBus";
 import VirtualList from "@/components/VirtualList.vue";

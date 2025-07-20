@@ -10,8 +10,8 @@ import { onMounted, ref } from "vue";
 import Message from "./components/Message.vue";
 import Loading from "./components/Loading.vue";
 import Toast from "primevue/toast";
-import { setMessageRef } from "./utils/message";
-import { setLoadingRef } from "./utils/loading";
+import { setMessageRef } from "./composables/message";
+import { setLoadingRef } from "./composables/loading";
 
 const messageRef = ref(null);
 const loadingRef = ref(null);

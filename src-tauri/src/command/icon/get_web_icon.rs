@@ -7,7 +7,7 @@ use image::ImageEncoder;
 use url::Url;
 
 use crate::utils::error::{AppError, AppResult};
-use crate::utils::logger::{LogEntry, Logger};
+use crate::services::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
 use crate::utils::reqwest::create_web_client;
 use tl::ParserOptions;
@@ -208,7 +208,7 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                                 level: "info".to_string(),
                                 message: format!("获取网站图标成功: {} (方案: HTML解析)", domain),
                                 timestamp: String::new(),
-                                details: Some(icon_url.clone()),
+                                details: Some(icon_url),
                             });
                             return save_icon(img, &output_path).map_err(AppError::from);
                         }
@@ -228,7 +228,7 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                 level: "info".to_string(),
                 message: format!("获取网站图标成功: {} (方案: Favicon.im)", domain),
                 timestamp: String::new(),
-                details: Some(favicon_im_url.clone()),
+                details: Some(favicon_im_url),
             });
             return save_icon(img, &output_path).map_err(AppError::from);
         }
@@ -243,7 +243,7 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                 level: "info".to_string(),
                 message: format!("获取网站图标成功: {} (方案: Google服务)", domain),
                 timestamp: String::new(),
-                details: Some(google_favicon_url.clone()),
+                details: Some(google_favicon_url),
             });
             return save_icon(img, &output_path).map_err(AppError::from);
         }

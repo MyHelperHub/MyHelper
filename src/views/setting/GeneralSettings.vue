@@ -98,9 +98,9 @@ import { useConfirm } from "primevue/useconfirm";
 import { ref } from "vue";
 import { getConfig, setConfig, resetConfig } from "@/utils/config";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import HotkeySettings from "./components/HotkeySettings.vue";
-import { setHotkeyEnabled, getDefaultHotkeyConfig } from "@/utils/hotkey";
+import { setHotkeyEnabled, getDefaultHotkeyConfig } from "@/composables/hotkey.ts";
 
 const settingData = ref({
   clipboardListening: false,

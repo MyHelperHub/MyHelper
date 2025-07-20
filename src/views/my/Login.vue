@@ -104,7 +104,7 @@ import Password from "primevue/password";
 import Button from "primevue/button";
 import FloatLabel from "primevue/floatlabel";
 import { login, register } from "@/api/network/user.api";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import { setUserConfig } from "@/utils/user";
 import { User, UserForm } from "@/interface/user";
 import GlobalData from "@/utils/globalData";

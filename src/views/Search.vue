@@ -66,13 +66,8 @@ import { ref } from "vue";
 import { ipcOpen } from "@/api/ipc/launch.api";
 import Popover from "primevue/popover";
 
-const searchData = ref("");
-const selectedEngine = ref(null);
-const popoverRef = ref(null);
-const isPopoverOpen = ref(false);
-
 /** 搜索引擎列表 */
-const searchEngines = [
+const searchEngines = Object.freeze([
   {
     title: "Baidu",
     logo: new URL("../assets/images/engine/baidu.png", import.meta.url).href,
@@ -105,10 +100,12 @@ const searchEngines = [
       ipcOpen(`https://search.yahoo.com/search?p=${data}`);
     },
   },
-];
+]);
 
-/** 默认选中的搜索引擎 */
-selectedEngine.value = searchEngines[0];
+const searchData = ref("");
+const selectedEngine = ref(searchEngines[0]);
+const popoverRef = ref(null);
+const isPopoverOpen = ref(false);
 
 const selectEngine = (engine) => {
   selectedEngine.value = engine;

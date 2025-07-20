@@ -131,8 +131,8 @@ import {
   ipcCheckForUpdates,
   ipcDownloadAndInstallUpdate,
 } from "@/api/ipc/update.api";
-import { showMessage } from "@/utils/message";
-import { copyToClipboard } from "@/utils/clipboard";
+import { showMessage } from "@/composables/message.ts";
+import { copyToClipboard } from "@/composables/clipboard.ts";
 import type { UpdateState } from "@/interface/update";
 import { marked } from "marked";
 import DOMPurify from "dompurify";

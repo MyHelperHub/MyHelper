@@ -1,5 +1,5 @@
-use crate::utils::app_handle::AppHandleManager;
-use crate::utils::logger::{LogEntry, Logger};
+use crate::core::app_handle::AppHandleManager;
+use crate::services::logger::{LogEntry, Logger};
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::collections::HashMap;

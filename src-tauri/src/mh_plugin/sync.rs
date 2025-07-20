@@ -1,8 +1,8 @@
-use crate::utils::database::{
+use crate::services::database::{
     batch_insert_plugin_configs, batch_remove_plugin_configs, query_plugin_ids,
 };
 use crate::utils::error::{AppError, AppResult};
-use crate::utils::logger::{LogEntry, Logger};
+use crate::services::logger::{LogEntry, Logger};
 use crate::utils::path::get_myhelper_path;
 use serde_json::{json, Value};
 use simd_json;

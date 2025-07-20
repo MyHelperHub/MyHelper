@@ -5,7 +5,7 @@ use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-use super::path::get_myhelper_path;
+use crate::utils::path::get_myhelper_path;
 
 // 获取配置文件的路径并确保目录存在
 pub fn get_config_path(config_type: &str) -> Result<PathBuf, String> {

@@ -108,7 +108,7 @@ pub async fn start_clipboard_listener() -> AppResult<()> {
         return Ok(());
     }
 
-    let app_handle = crate::utils::app_handle::AppHandleManager::clone()
+    let app_handle = crate::core::app_handle::AppHandleManager::clone()
         .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
 
     CLIPBOARD_LISTENER.store(true, Ordering::SeqCst);

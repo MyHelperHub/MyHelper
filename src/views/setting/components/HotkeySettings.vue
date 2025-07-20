@@ -61,11 +61,11 @@
 
 <script setup lang="ts">
 import ToggleSwitch from "primevue/toggleswitch";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import { ref } from "vue";
 import { delay } from "@/utils/common";
 import { HotkeyConfig } from "@/interface/database";
-import { getHotkeyItemsMap } from "@/utils/hotkey";
+import { getHotkeyItemsMap } from "@/composables/hotkey.ts";
 
 // 快捷键项目配置，从统一配置获取
 const hotkeyItems = getHotkeyItemsMap();

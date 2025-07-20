@@ -36,6 +36,7 @@
             <img
               v-if="item.logo"
               :src="convertFileSrc(item.logo)"
+              loading="lazy"
               class="icon-image" />
             <i v-else class="pi pi-desktop"></i>
           </div>
@@ -61,7 +62,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { ref } from "vue";
 import { AppItem } from "@/interface/app";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import EditItem from "./EditItem.vue";

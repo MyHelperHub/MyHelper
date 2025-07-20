@@ -52,8 +52,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { showMessage } from "@/utils/message.ts";
-import { hideLoading, showLoading } from "@/utils/loading.ts";
+import { showMessage } from "@/composables/message.ts";
+import { hideLoading, showLoading } from "@/composables/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";

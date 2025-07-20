@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { QuickInputItem } from "@/interface/quickInput";
-import { clipboardData, removeClipboardItem } from "@/utils/clipboard";
+import { clipboardData, removeClipboardItem } from "@/composables/clipboard.ts";
 import { on } from "@/utils/eventBus";
 import VirtualList from "@/components/VirtualList.vue";
 import ContextMenu from "primevue/contextmenu";

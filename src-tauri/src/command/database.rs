@@ -1,4 +1,4 @@
-use crate::utils::database::get_connection;
+use crate::services::database::get_connection;
 use crate::utils::error::{AppError, AppResult};
 use serde_json::{json, Value};
 use simd_json;

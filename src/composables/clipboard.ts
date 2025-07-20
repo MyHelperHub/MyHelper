@@ -4,8 +4,8 @@ import { QuickInputItem } from "@/interface/quickInput";
 import {
   ipcStartClipboardListener,
   ipcStopClipboardListener,
-} from "@/api/ipc/clipboard.api";
-import { showMessage } from "./message";
+} from "@/api/ipc/clipboard.api.ts";
+import { showMessage } from "./message.ts";
 
 // 响应式的剪贴板数据引用
 export const clipboardData = ref<QuickInputItem[]>([]);

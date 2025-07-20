@@ -1,4 +1,4 @@
-use crate::utils::app_handle::AppHandleManager;
+use crate::core::app_handle::AppHandleManager;
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::reqwest::create_web_client;
 use serde_json::Value;

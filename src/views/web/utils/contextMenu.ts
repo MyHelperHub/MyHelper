@@ -1,11 +1,14 @@
 import { WebItem } from "@/interface/web";
+import { useContextMenu } from "@/composables/useContextMenu";
 import { emit } from "@/utils/eventBus";
 import type { MenuItem } from "primevue/menuitem";
-import { ref } from "vue";
 
-export const contextMenuRef = ref();
-export const menuItems = ref<MenuItem[]>([]);
+// 使用通用的 contextMenu 组合式函数
+const { contextMenuRef, menuItems, showContextMenu } = useContextMenu();
 
+/**
+ * 获取 Web 项的菜单项
+ */
 function getContextMenuItems(item: WebItem): MenuItem[] {
   return [
     {
@@ -28,7 +31,12 @@ function getContextMenuItems(item: WebItem): MenuItem[] {
   ];
 }
 
+/**
+ * 处理右键菜单事件
+ */
 export function handleContextMenu(event: MouseEvent, item: WebItem) {
-  menuItems.value = getContextMenuItems(item);
-  contextMenuRef.value.show(event);
+  const items = getContextMenuItems(item);
+  showContextMenu(event, items);
 }
+
+export { contextMenuRef, menuItems };

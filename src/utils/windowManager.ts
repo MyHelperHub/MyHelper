@@ -3,7 +3,7 @@ import { WindowOperation } from "@/interface/enum";
 import { WindowConfig } from "@/interface/window";
 import { Ref, ref } from "vue";
 import { delay } from "@/utils/common";
-import { hideMessage } from "@/utils/message";
+import { hideMessage } from "@/composables/message.ts";
 
 // 全局主窗口菜单展开状态
 export const isMainMenuVisible = ref(false);

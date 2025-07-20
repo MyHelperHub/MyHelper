@@ -27,7 +27,7 @@
           @click="handleClick(item)">
           <div class="app-item">
             <i class="icon">
-              <img :src="item.data.icon" :alt="item.data.title" />
+              <img :src="item.data.icon" :alt="item.data.title" loading="lazy" />
             </i>
           </div>
         </div>
@@ -42,7 +42,7 @@ import Drawer from "primevue/drawer";
 import { computed, ref } from "vue";
 import type { PluginConfig } from "@/interface/plugin";
 import { getPluginConfig } from "@/utils/plugin";
-import { showMessage } from "@/utils/message";
+import { showMessage } from "@/composables/message.ts";
 import { ipcFileExists } from "@/api/ipc/launch.api";
 
 const popoverRef = ref(false);
