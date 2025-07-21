@@ -1,22 +1,17 @@
 use crate::services::config::{utils_get_config, utils_set_config};
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppError;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 
 /// 获取配置数据
-///
-/// # Arguments
-///
-/// * `keys` - 配置键的路径，以数组形式表示嵌套层级
-///
-/// # Returns
-///
-/// * `AppResult<Option<Value>>` - 成功返回配置值，失败返回错误信息
-
 #[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
-    utils_get_config("config", keys).map_err(|e| AppError::Error(e))
+pub fn get_config(keys: Vec<String>) -> Result<ApiResponse<Option<Value>>, AppError> {
+    match utils_get_config("config", keys) {
+        Ok(value) => Ok(ApiResponse::success(value)),
+        Err(e) => Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e)),
+    }
 }
 
 /// 保存配置数据
@@ -28,19 +23,20 @@ pub fn get_config(keys: Vec<String>) -> AppResult<Option<Value>> {
 ///
 /// # Returns
 ///
-/// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
+/// * `ApiResponse<()>` - 操作成功返回成功响应，失败返回错误响应
 
 #[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
-    let mut config_data = utils_get_config("config", vec![])
-        .map_err(|e| AppError::Error(e))?
-        .unwrap_or_default();
+pub fn set_config(keys: Vec<String>, value: Value) -> Result<ApiResponse<()>, AppError> {
+    let mut config_data = match utils_get_config("config", vec![]) {
+        Ok(value) => value.unwrap_or_default(),
+        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e)),
+    };
 
     // 使用递归函数更新嵌套字段
-    fn update_nested_value(data: &mut Value, keys: &[String], value: Value) -> AppResult<()> {
+    fn update_nested_value(data: &mut Value, keys: &[String], value: Value) -> Result<(), String> {
         if keys.is_empty() {
-            return Err(AppError::Error("缺少要设置的键".to_string()));
+            return Err("缺少要设置的键".to_string());
         }
 
         if keys.len() == 1 {
@@ -50,7 +46,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
                     map.insert(keys[0].to_string(), value);
                 }
                 _ => {
-                    return Err(AppError::Error("无法更新非对象类型的配置数据".to_string()));
+                    return Err("无法更新非对象类型的配置数据".to_string());
                 }
             }
         } else {
@@ -58,7 +54,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
             let nested_data = {
                 let map = data
                     .as_object_mut()
-                    .ok_or_else(|| AppError::Error("配置数据不是对象类型".to_string()))?;
+                    .ok_or_else(|| "配置数据不是对象类型".to_string())?;
                 map.entry(keys[0].to_string())
                     .or_insert_with(|| Value::Object(Map::new()))
             };
@@ -66,24 +62,27 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
             if let Value::Object(_) = nested_data {
                 update_nested_value(nested_data, &keys[1..], value)?;
             } else {
-                return Err(AppError::Error(format!("配置中键 {} 的类型不是对象", &keys[0])));
+                return Err(format!("配置中键 {} 的类型不是对象", &keys[0]));
             }
         }
 
         Ok(())
     }
 
-    update_nested_value(&mut config_data, &keys, value)?;
+    if let Err(e) = update_nested_value(&mut config_data, &keys, value) {
+        return Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e));
+    }
 
     // 将 Map<String, Value> 转换为 HashMap<String, Value>
-    let config_hashmap: HashMap<String, Value> = config_data
-        .as_object()
-        .ok_or_else(|| AppError::Error("配置数据不是对象类型".to_string()))?
-        .clone()
-        .into_iter()
-        .collect();
+    let config_hashmap: HashMap<String, Value> = match config_data.as_object() {
+        Some(obj) => obj.clone().into_iter().collect(),
+        None => return Ok(ApiResponse::error(ApiStatusCode::ErrConfig, "配置数据不是对象类型")),
+    };
 
-    utils_set_config("config", config_hashmap).map_err(|e| AppError::Error(e))
+    match utils_set_config("config", config_hashmap) {
+        Ok(_) => Ok(ApiResponse::success(())),
+        Err(e) => Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e)),
+    }
 }
 
 /// 删除配置数据
@@ -94,14 +93,15 @@ pub fn set_config(keys: Vec<String>, value: Value) -> AppResult<()> {
 ///
 /// # Returns
 ///
-/// * `AppResult<()>` - 操作成功返回 Ok(()), 失败返回错误信息
+/// * `ApiResponse<()>` - 操作成功返回成功响应，失败返回错误响应
 
 #[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
-    let mut data = utils_get_config("config", vec![])
-        .map_err(|e| AppError::Error(e))?
-        .unwrap_or_default();
+pub fn delete_config(keys: Vec<String>) -> Result<ApiResponse<()>, AppError> {
+    let mut data = match utils_get_config("config", vec![]) {
+        Ok(value) => value.unwrap_or_default(),
+        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e)),
+    };
 
     // 如果传入的 keys 为空，删除所有配置
     if keys.is_empty() {
@@ -110,16 +110,17 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
                 map.clear();
             }
             _ => {
-                return Err(AppError::Error(
-                    "无法从非对象类型的配置数据中删除所有键".to_string(),
+                return Ok(ApiResponse::error(
+                    ApiStatusCode::ErrConfig,
+                    "无法从非对象类型的配置数据中删除所有键",
                 ));
             }
         }
     } else {
         // 使用递归函数删除嵌套字段
-        fn delete_nested_key(data: &mut Value, keys: &[String]) -> AppResult<()> {
+        fn delete_nested_key(data: &mut Value, keys: &[String]) -> Result<(), String> {
             if keys.is_empty() {
-                return Err(AppError::Error("缺少要删除的键".to_string()));
+                return Err("缺少要删除的键".to_string());
             }
 
             if keys.len() == 1 {
@@ -129,9 +130,7 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
                         map.remove(&keys[0]);
                     }
                     _ => {
-                        return Err(AppError::Error(
-                            "无法从非对象类型的配置数据中删除键".to_string(),
-                        ));
+                        return Err("无法从非对象类型的配置数据中删除键".to_string());
                     }
                 }
             } else {
@@ -141,7 +140,7 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
                         delete_nested_key(nested_data, &keys[1..])?;
                     }
                     None => {
-                        return Err(AppError::Error(format!("配置中不存在键: {}", &keys[0])));
+                        return Err(format!("配置中不存在键: {}", &keys[0]));
                     }
                 }
             }
@@ -149,16 +148,19 @@ pub fn delete_config(keys: Vec<String>) -> AppResult<()> {
             Ok(())
         }
 
-        delete_nested_key(&mut data, &keys)?;
+        if let Err(e) = delete_nested_key(&mut data, &keys) {
+            return Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e));
+        }
     }
 
     // 将 Map<String, Value> 转换为 HashMap<String, Value>
-    let config_hashmap: HashMap<String, Value> = data
-        .as_object()
-        .ok_or_else(|| AppError::Error("配置数据不是对象类型".to_string()))?
-        .clone()
-        .into_iter()
-        .collect();
+    let config_hashmap: HashMap<String, Value> = match data.as_object() {
+        Some(obj) => obj.clone().into_iter().collect(),
+        None => return Ok(ApiResponse::error(ApiStatusCode::ErrConfig, "配置数据不是对象类型")),
+    };
 
-    utils_set_config("config", config_hashmap).map_err(|e| AppError::Error(e))
+    match utils_set_config("config", config_hashmap) {
+        Ok(_) => Ok(ApiResponse::success(())),
+        Err(e) => Ok(ApiResponse::error(ApiStatusCode::ErrConfig, e)),
+    }
 }

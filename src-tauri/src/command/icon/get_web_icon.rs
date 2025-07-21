@@ -6,10 +6,11 @@ use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
 use url::Url;
 
-use crate::utils::error::{AppError, AppResult};
 use crate::services::logger::{LogEntry, Logger};
+use crate::utils::error::AppError;
 use crate::utils::path::get_myhelper_path;
 use crate::utils::reqwest::create_web_client;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
 use tl::ParserOptions;
 
 const ICON_SIZE: u32 = 32;
@@ -48,7 +49,6 @@ enum IconError {
     NetworkError(String),
     ParseError(String),
     IoError(String),
-    NotFound,
 }
 
 impl From<IconError> for AppError {
@@ -57,7 +57,6 @@ impl From<IconError> for AppError {
             IconError::NetworkError(msg) => AppError::Error(format!("Network error: {}", msg)),
             IconError::ParseError(msg) => AppError::Error(format!("Parse error: {}", msg)),
             IconError::IoError(msg) => AppError::Error(format!("IO error: {}", msg)),
-            IconError::NotFound => AppError::Error("No icon found".to_string()),
         }
     }
 }
@@ -141,7 +140,7 @@ fn extract_icon_urls(html: &str) -> Vec<String> {
 ///
 /// * `AppResult<String>` - 成功返回保存的图标文件路径
 #[tauri::command]
-pub async fn get_web_icon(url: String) -> AppResult<String> {
+pub async fn get_web_icon(url: String) -> Result<ApiResponse<String>, AppError> {
     // 检查并补全 URL
     let url = if !url.starts_with("http://") && !url.starts_with("https://") {
         format!("https://{}", url)
@@ -177,7 +176,9 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                     timestamp: String::new(),
                     details: Some(favicon_url.to_string()),
                 });
-                return save_icon(img, &output_path).map_err(AppError::from);
+                return Ok(ApiResponse::success(
+                    save_icon(img, &output_path).map_err(AppError::from)?,
+                ));
             }
         }
     }
@@ -210,7 +211,9 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                                 timestamp: String::new(),
                                 details: Some(icon_url),
                             });
-                            return save_icon(img, &output_path).map_err(AppError::from);
+                            return Ok(ApiResponse::success(
+                                save_icon(img, &output_path).map_err(AppError::from)?,
+                            ));
                         }
                     }
                 }
@@ -230,7 +233,9 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                 timestamp: String::new(),
                 details: Some(favicon_im_url),
             });
-            return save_icon(img, &output_path).map_err(AppError::from);
+            return Ok(ApiResponse::success(
+                save_icon(img, &output_path).map_err(AppError::from)?,
+            ));
         }
     }
 
@@ -245,7 +250,9 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
                 timestamp: String::new(),
                 details: Some(google_favicon_url),
             });
-            return save_icon(img, &output_path).map_err(AppError::from);
+            return Ok(ApiResponse::success(
+                save_icon(img, &output_path).map_err(AppError::from)?,
+            ));
         }
     }
 
@@ -256,5 +263,8 @@ pub async fn get_web_icon(url: String) -> AppResult<String> {
         details: Some(url.to_string()),
     });
 
-    Err(IconError::NotFound.into())
+    Ok(ApiResponse::error(
+        ApiStatusCode::ErrFileNotFound,
+        "No icon found".to_string(),
+    ))
 }

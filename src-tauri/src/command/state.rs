@@ -1,4 +1,5 @@
-use crate::utils::error::AppResult;
+use crate::utils::error::AppError;
+use crate::utils::response::ApiResponse;
 use parking_lot::RwLock;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -16,10 +17,10 @@ pub async fn set_global_data(
     state: State<'_, Arc<GlobalData>>,
     key: String,
     value: Value,
-) -> AppResult<()> {
+) -> Result<ApiResponse<()>, AppError> {
     let mut data = state.data.write();
     data.insert(key, value);
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 #[permission_macro::permission("main", "setting", "my", "pluginMarket")]
@@ -27,18 +28,21 @@ pub async fn set_global_data(
 pub async fn get_global_data(
     state: State<'_, Arc<GlobalData>>,
     key: Option<String>,
-) -> AppResult<Option<Value>> {
+) -> Result<ApiResponse<Option<Value>>, AppError> {
     let data = state.data.read();
     match key {
-        Some(k) => Ok(data.get(&k).cloned()),
-        None => Ok(Some(serde_json::to_value(&*data).unwrap_or_default())),
+        Some(k) => Ok(ApiResponse::success(data.get(&k).cloned())),
+        None => Ok(ApiResponse::success(Some(serde_json::to_value(&*data).unwrap_or_default()))),
     }
 }
 
 #[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub async fn delete_global_data(state: State<'_, Arc<GlobalData>>, key: String) -> AppResult<()> {
+pub async fn delete_global_data(
+    state: State<'_, Arc<GlobalData>>, 
+    key: String
+) -> Result<ApiResponse<()>, AppError> {
     let mut data = state.data.write();
     data.remove(&key);
-    Ok(())
+    Ok(ApiResponse::success(()))
 }

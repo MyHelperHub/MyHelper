@@ -1,4 +1,7 @@
-use crate::core::hotkey::HotkeyManager;
+use crate::{
+    core::hotkey::HotkeyManager,
+    utils::{error::AppError, response::ApiResponse},
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -17,10 +20,11 @@ pub struct HotkeyConfig {
 }
 
 #[tauri::command]
-pub fn set_hotkey_enabled(config: HotkeyConfig) -> bool {
+pub fn set_hotkey_enabled(config: HotkeyConfig) -> Result<ApiResponse<()>, AppError> {
     // 总开关关闭时直接禁用所有快捷键
     if !config.enabled {
-        return HotkeyManager::global().set_enabled(false);
+        HotkeyManager::global().set_enabled(false);
+        return Ok(ApiResponse::success(()));
     }
 
     // 总开关打开，根据各项配置设置快捷键
@@ -48,5 +52,6 @@ pub fn set_hotkey_enabled(config: HotkeyConfig) -> bool {
     }
 
     // 更新快捷键配置
-    HotkeyManager::global().set_hotkeys(hotkeys)
+    HotkeyManager::global().set_hotkeys(hotkeys);
+    Ok(ApiResponse::success(()))
 }

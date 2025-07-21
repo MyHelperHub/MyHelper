@@ -1,6 +1,7 @@
 use crate::core::app_handle::AppHandleManager;
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppError;
 use crate::utils::reqwest::create_web_client;
+use crate::utils::response::ApiResponse;
 use serde_json::Value;
 use std::path::Path;
 use tauri::{image::Image, LogicalSize, Manager, WebviewUrl, WebviewWindowBuilder};
@@ -19,7 +20,7 @@ const SMALL_SCREEN_SCALE_FACTOR: f64 = 1.3;
 /// * `width` - 基于参考分辨率的目标宽度
 /// * `height` - 基于参考分辨率的目标高度
 #[tauri::command]
-pub async fn set_window_size(width: f64, height: f64) -> AppResult<()> {
+pub async fn set_window_size(width: f64, height: f64) -> Result<ApiResponse<()>, AppError> {
     let app_handle = AppHandleManager::clone()
         .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
 
@@ -64,7 +65,7 @@ pub async fn set_window_size(width: f64, height: f64) -> AppResult<()> {
         .set_zoom(adjusted_scale_factor)
         .map_err(|e| AppError::Error(e.to_string()))?;
 
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 /// 创建新窗口
@@ -91,7 +92,7 @@ pub async fn create_new_window(
     resizable: Option<bool>,
     icon: Option<String>,
     loading: Option<bool>,
-) -> AppResult<()> {
+) -> Result<ApiResponse<()>, AppError> {
     let app_handle = AppHandleManager::clone()
         .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
 
@@ -107,7 +108,7 @@ pub async fn create_new_window(
         existing_window
             .set_focus()
             .map_err(|e| AppError::Error(e.to_string()))?;
-        return Ok(());
+        return Ok(ApiResponse::success(()));
     }
 
     // 获取显示器信息，增加容错处理
@@ -241,7 +242,7 @@ pub async fn create_new_window(
         new_window.show().map_err(|e| e.to_string())?;
     }
 
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 /// 窗口操作类型
@@ -285,7 +286,7 @@ pub async fn window_control(
     window: tauri::Window,
     operation: i32,
     params: Option<Value>,
-) -> AppResult<()> {
+) -> Result<ApiResponse<()>, AppError> {
     let app_handle = AppHandleManager::clone()
         .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
 
@@ -325,11 +326,11 @@ pub async fn window_control(
     }
     .map_err(|e| AppError::Error(e.to_string()))?;
 
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 #[tauri::command]
-pub fn open_devtools() {
+pub fn open_devtools() -> Result<ApiResponse<()>, AppError> {
     if let Some(app_handle) = AppHandleManager::clone() {
         if let Some(window) = app_handle.get_webview_window("main") {
             if !window.is_devtools_open() {
@@ -339,6 +340,7 @@ pub fn open_devtools() {
             }
         }
     }
+    Ok(ApiResponse::success(()))
 }
 
 /// 检查文件是否存在
@@ -351,6 +353,6 @@ pub fn open_devtools() {
 ///
 /// * `bool` - 文件是否存在
 #[tauri::command]
-pub fn file_exists(path: String) -> bool {
-    Path::new(&path).exists()
+pub fn file_exists(path: String) -> Result<ApiResponse<bool>, AppError> {
+    Ok(ApiResponse::success(Path::new(&path).exists()))
 }

@@ -42,44 +42,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            set_window_size,
-            get_app_icon,
-            get_web_icon,
-            set_local_icon,
-            set_logo,
-            delete_icon,
-            file_exists,
-            get_config,
-            set_config,
-            delete_config,
-            open_web_or_app,
-            create_new_window,
-            window_control,
-            start_clipboard_listener,
-            stop_clipboard_listener,
-            write_clipboard,
-            paste,
-            mh_plugin_install,
-            mh_plugin_install_local,
-            mh_plugin_uninstall,
-            mh_plugin_analyze_package,
-            set_global_data,
-            get_global_data,
-            delete_global_data,
-            mh_get_self_config,
-            mh_set_self_config,
-            mh_delete_self_config,
-            open_devtools,
-            write_log,
-            get_config_value,
-            set_config_value,
-            delete_config_value,
-            set_plugin_config_value,
-            get_plugin_config_value,
-            delete_plugin_config_value,
-            set_hotkey_enabled,
-        ])
+        .invoke_handler(generate_app_handlers!())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(crate::core::hotkey::init())

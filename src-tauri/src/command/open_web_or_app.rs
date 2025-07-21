@@ -1,4 +1,7 @@
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::{
+    error::AppError,
+    response::{ApiResponse, ApiStatusCode},
+};
 use open::that;
 #[allow(unused_imports)]
 use std::process::Command;
@@ -15,10 +18,10 @@ use std::process::Command;
 
 #[permission_macro::permission("main")]
 #[tauri::command]
-pub fn open_web_or_app(path: String) -> AppResult<()> {
+pub fn open_web_or_app(path: String) -> Result<ApiResponse<()>, AppError> {
     // 首先尝试使用 open::that
     if let Ok(_) = that(&path) {
-        return Ok(());
+        return Ok(ApiResponse::success(()));
     }
 
     // 如果在 Linux 下 open::that 失败，尝试直接执行
@@ -28,9 +31,12 @@ pub fn open_web_or_app(path: String) -> AppResult<()> {
             Command::new(&path)
                 .spawn()
                 .map_err(|e| AppError::Error(format!("无法执行 {}: {}", path, e)))?;
-            return Ok(());
+            return Ok(ApiResponse::success(()));
         }
     }
 
-    Err(AppError::Error(format!("无法打开 {}", path)))
+    Ok(ApiResponse::error(
+        ApiStatusCode::ErrSystem,
+        format!("无法打开 {}", path),
+    ))
 }

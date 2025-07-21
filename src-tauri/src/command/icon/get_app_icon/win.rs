@@ -26,8 +26,9 @@ use windows::{
     },
 };
 
-use crate::utils::error::AppResult;
+use crate::utils::error::AppError;
 use crate::utils::path::get_myhelper_path;
+use crate::utils::response::ApiResponse;
 
 /// COM 初始化令牌，用于确保 COM 环境的正确初始化和清理
 struct InitializationToken;
@@ -49,10 +50,10 @@ impl Drop for InitializationToken {
 /// # Returns
 ///
 /// * `AppResult<String>` - 成功返回保存的图标文件路径
-pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
+pub fn get_app_icon(exe_path: &str) -> Result<ApiResponse<String>, AppError> {
     // 检查路径是否存在
     if !Path::new(exe_path).exists() {
-        return Ok(String::new());
+        return Ok(ApiResponse::success(String::new()));
     }
 
     // 获取用户目录
@@ -74,7 +75,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let _token = if unsafe { CoInitialize(None) }.is_ok() {
         Some(InitializationToken)
     } else {
-        return Ok(String::new());
+        return Ok(ApiResponse::success(String::new()));
     };
 
     // 获取图标
@@ -82,7 +83,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let shell_item: IShellItemImageFactory =
         match unsafe { SHCreateItemFromParsingName(&path, None) } {
             Ok(factory) => factory,
-            Err(_) => return Ok(String::new()),
+            Err(_) => return Ok(ApiResponse::success(String::new())),
         };
 
     let bitmap_size = SIZE { cx: 128, cy: 128 };
@@ -90,7 +91,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let bitmap = match unsafe { shell_item.GetImage(bitmap_size, SIIGBF_ICONONLY | SIIGBF_SCALEUP) }
     {
         Ok(bmp) => bmp,
-        Err(_) => return Ok(String::new()),
+        Err(_) => return Ok(ApiResponse::success(String::new())),
     };
 
     // 确保位图资源被正确释放
@@ -104,7 +105,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let imaging_factory: IWICImagingFactory =
         match unsafe { CoCreateInstance(&CLSID_WICImagingFactory, None, CLSCTX_ALL) } {
             Ok(factory) => factory,
-            Err(_) => return Ok(String::new()),
+            Err(_) => return Ok(ApiResponse::success(String::new())),
         };
 
     // 创建位图
@@ -116,7 +117,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         )
     } {
         Ok(bmp) => bmp,
-        Err(_) => return Ok(String::new()),
+        Err(_) => return Ok(ApiResponse::success(String::new())),
     };
 
     let source_rect = WICRect {
@@ -129,7 +130,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 获取像素格式
     let pixel_format = match unsafe { wic_bitmap.GetPixelFormat() } {
         Ok(format) => format,
-        Err(_) => return Ok(String::new()),
+        Err(_) => return Ok(ApiResponse::success(String::new())),
     };
 
     // 处理像素数据
@@ -138,7 +139,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     {
         let mut pixels = vec![0u8; 128 * 128 * 4];
         if let Err(_) = unsafe { wic_bitmap.CopyPixels(&source_rect, 128 * 4, &mut pixels) } {
-            return Ok(String::new());
+            return Ok(ApiResponse::success(String::new()));
         }
 
         // 如果是 BGRA 格式，转换为 RGBA
@@ -149,13 +150,13 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         }
         pixels
     } else {
-        return Ok(String::new());
+        return Ok(ApiResponse::success(String::new()));
     };
 
     // 创建图像缓冲区
     let img_buffer = match ImageBuffer::<Rgba<u8>, _>::from_raw(128, 128, pixels) {
         Some(buffer) => buffer,
-        None => return Ok(String::new()),
+        None => return Ok(ApiResponse::success(String::new())),
     };
 
     let img = DynamicImage::ImageRgba8(img_buffer);
@@ -163,7 +164,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 保存为 PNG
     let output_file = match File::create(&output_path) {
         Ok(file) => file,
-        Err(_) => return Ok(String::new()),
+        Err(_) => return Ok(ApiResponse::success(String::new())),
     };
     let writer = BufWriter::new(output_file);
     let encoder = PngEncoder::new(writer);
@@ -174,8 +175,8 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         img.height(),
         img.color().into(),
     ) {
-        return Ok(String::new());
+        return Ok(ApiResponse::success(String::new()));
     }
 
-    Ok(output_path.display().to_string())
+    Ok(ApiResponse::success(output_path.display().to_string()))
 }

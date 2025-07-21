@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeApi } from "./wrapper";
 
 /**
  * 设置配置值
@@ -9,7 +9,7 @@ export async function ipcSetConfigValue(
   key: string,
   value: any,
 ): Promise<void> {
-  await invoke("set_config_value", { key, value });
+  await invokeApi<void>("set_config_value", { key, value });
 }
 
 /**
@@ -20,7 +20,7 @@ export async function ipcSetConfigValue(
 export async function ipcGetConfigValue<T = any>(
   key: string,
 ): Promise<T | null> {
-  return await invoke<T | null>("get_config_value", { key });
+  return await invokeApi<T | null>("get_config_value", { key });
 }
 
 /**
@@ -28,16 +28,23 @@ export async function ipcGetConfigValue<T = any>(
  * @param key 配置键名，如果为空字符串则删除所有配置
  */
 export async function ipcDeleteConfigValue(key: string): Promise<void> {
-  await invoke("delete_config_value", { key });
+  await invokeApi<void>("delete_config_value", { key });
 }
 
+/**
+ * 设置插件配置值
+ * @param windowId 窗口ID
+ * @param info 插件信息
+ * @param config 配置信息
+ * @param data 数据信息
+ */
 export async function ipcSetPluginConfigValue(
   windowId: string,
   info: any,
   config: any,
   data: any,
-) {
-  return await invoke("set_plugin_config_value", {
+): Promise<void> {
+  await invokeApi<void>("set_plugin_config_value", {
     windowId,
     info,
     config,
@@ -45,10 +52,19 @@ export async function ipcSetPluginConfigValue(
   });
 }
 
-export async function ipcGetPluginConfigValue(windowId?: string) {
-  return await invoke("get_plugin_config_value", { windowId });
+/**
+ * 获取插件配置值
+ * @param windowId 窗口ID，可选
+ * @returns 插件配置列表
+ */
+export async function ipcGetPluginConfigValue(windowId?: string): Promise<any[]> {
+  return await invokeApi<any[]>("get_plugin_config_value", { windowId });
 }
 
-export async function ipcDeletePluginConfigValue(windowId?: string) {
-  return await invoke("delete_plugin_config_value", { windowId });
+/**
+ * 删除插件配置值
+ * @param windowId 窗口ID，可选
+ */
+export async function ipcDeletePluginConfigValue(windowId?: string): Promise<void> {
+  await invokeApi<void>("delete_plugin_config_value", { windowId });
 }

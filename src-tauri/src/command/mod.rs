@@ -1,6 +1,7 @@
 pub mod common;
 pub mod config;
 pub mod database;
+pub mod handlers;
 pub mod hotkey;
 pub mod icon;
 pub mod logger;

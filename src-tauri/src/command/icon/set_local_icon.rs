@@ -7,8 +7,10 @@ use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
 
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppError;
 use crate::utils::path::get_myhelper_path;
+use crate::utils::response::ApiResponse;
+use crate::utils::response::ApiStatusCode;
 
 /**
  * 设置本地图标
@@ -16,7 +18,7 @@ use crate::utils::path::get_myhelper_path;
  * @param app_type 应用类型，0为网页图标，1为应用图标
  */
 #[tauri::command]
-pub fn set_local_icon(image_path: &str, app_type: u32) -> AppResult<String> {
+pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<ApiResponse<String>, AppError> {
     let myhelper_path = get_myhelper_path().map_err(|e| AppError::Error(e))?;
     let icon_path = myhelper_path.join("Image");
 
@@ -45,7 +47,12 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> AppResult<String> {
             let file_name = format!("{}{}.png", "app_image_", random_file_name);
             sub_path.join(file_name)
         }
-        _ => return Err(AppError::Error("Invalid app type".to_string())),
+        _ => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrParamsInvalid,
+                "Invalid app type".to_string(),
+            ))
+        }
     };
 
     // 确保目录存在
@@ -68,7 +75,9 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> AppResult<String> {
         .map_err(|e| AppError::Error(e.to_string()))?;
 
     // 返回文件路径
-    Ok(output_path.to_string_lossy().to_string())
+    Ok(ApiResponse::success(
+        output_path.to_string_lossy().to_string(),
+    ))
 }
 
 /**
@@ -76,7 +85,7 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> AppResult<String> {
  * @param image_base64 图片的 base64 编码
  */
 #[tauri::command]
-pub fn set_logo(image_base64: &str) -> Result<String, AppError> {
+pub fn set_logo(image_base64: &str) -> Result<ApiResponse<String>, AppError> {
     let myhelper_path = get_myhelper_path().map_err(|e| AppError::Error(e))?;
     let icon_path = myhelper_path.join("Image");
 
@@ -104,7 +113,9 @@ pub fn set_logo(image_base64: &str) -> Result<String, AppError> {
         )
         .map_err(|e| AppError::Error(e.to_string()))?;
 
-    Ok(output_path.to_string_lossy().to_string())
+    Ok(ApiResponse::success(
+        output_path.to_string_lossy().to_string(),
+    ))
 }
 
 fn load_image_from_base64(base64_str: &str) -> Result<DynamicImage, AppError> {

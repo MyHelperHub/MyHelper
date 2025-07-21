@@ -1,47 +1,81 @@
 use crate::services::database::get_connection;
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppError;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
 use serde_json::{json, Value};
 use simd_json;
 
 #[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub fn set_config_value(key: &str, value: Value) -> AppResult<()> {
+pub fn set_config_value(key: &str, value: Value) -> Result<ApiResponse<()>, AppError> {
     let conn = get_connection();
     let conn = conn.lock();
 
-    let json_value = serde_json::to_string(&value)
-        .map_err(|e| AppError::Error(format!("序列化配置值失败: {}", e)))?;
+    let json_value = match serde_json::to_string(&value) {
+        Ok(v) => v,
+        Err(e) => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("序列化配置值失败: {}", e),
+            ))
+        }
+    };
 
-    conn.execute(
+    match conn.execute(
         "INSERT OR REPLACE INTO config (key, value) VALUES (?1, ?2)",
         [key, &json_value],
-    )
-    .map_err(|e| AppError::Error(format!("保存配置值失败: {}", e)))?;
-
-    Ok(())
+    ) {
+        Ok(_) => Ok(ApiResponse::success(())),
+        Err(e) => Ok(ApiResponse::error(
+            ApiStatusCode::ErrDatabase,
+            format!("保存配置值失败: {}", e),
+        )),
+    }
 }
 
 #[permission_macro::permission("main", "setting", "my", "pluginMarket")]
 #[tauri::command]
-pub fn get_config_value(key: &str) -> AppResult<Option<Value>> {
+pub fn get_config_value(key: &str) -> Result<ApiResponse<Option<Value>>, AppError> {
     let conn = get_connection();
     let conn = conn.lock();
 
-    let mut stmt = conn
-        .prepare("SELECT value FROM config WHERE key = ?1")
-        .map_err(|e| AppError::Error(format!("准备查询语句失败: {}", e)))?;
+    let mut stmt = match conn.prepare("SELECT value FROM config WHERE key = ?1") {
+        Ok(s) => s,
+        Err(e) => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("准备查询语句失败: {}", e),
+            ))
+        }
+    };
 
-    let mut rows = stmt
-        .query([key])
-        .map_err(|e| AppError::Error(format!("执行查询失败: {}", e)))?;
+    let mut rows = match stmt.query([key]) {
+        Ok(r) => r,
+        Err(e) => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("执行查询失败: {}", e),
+            ))
+        }
+    };
 
-    if let Some(row) = rows
-        .next()
-        .map_err(|e| AppError::Error(format!("获取查询结果失败: {}", e)))?
-    {
-        let json_str: String = row
-            .get(0)
-            .map_err(|e| AppError::Error(format!("获取配置值失败: {}", e)))?;
+    if let Some(row) = match rows.next() {
+        Ok(r) => r,
+        Err(e) => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("获取查询结果失败: {}", e),
+            ))
+        }
+    } {
+        let json_str: String = match row.get(0) {
+            Ok(s) => s,
+            Err(e) => {
+                return Ok(ApiResponse::error(
+                    ApiStatusCode::ErrDatabase,
+                    format!("获取配置值失败: {}", e),
+                ))
+            }
+        };
 
         // 使用simd-json加速解析
         let mut json_bytes = json_str.into_bytes();
@@ -49,32 +83,47 @@ pub fn get_config_value(key: &str) -> AppResult<Option<Value>> {
             Ok(v) => v,
             Err(_) => {
                 // 回退到标准serde_json
-                serde_json::from_slice(&json_bytes)
-                    .map_err(|e| AppError::Error(format!("解析配置值失败: {}", e)))?
+                match serde_json::from_slice(&json_bytes) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        return Ok(ApiResponse::error(
+                            ApiStatusCode::ErrDatabase,
+                            format!("解析配置值失败: {}", e),
+                        ))
+                    }
+                }
             }
         };
 
-        Ok(Some(value))
+        Ok(ApiResponse::success(Some(value)))
     } else {
-        Ok(None)
+        Ok(ApiResponse::success(None))
     }
 }
 
 #[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
-pub fn delete_config_value(key: &str) -> AppResult<()> {
+pub fn delete_config_value(key: &str) -> Result<ApiResponse<()>, AppError> {
     let conn = get_connection();
     let conn = conn.lock();
 
     if key.is_empty() {
-        conn.execute("DELETE FROM config", [])
-            .map_err(|e| AppError::Error(format!("删除所有配置失败: {}", e)))?;
+        match conn.execute("DELETE FROM config", []) {
+            Ok(_) => Ok(ApiResponse::success(())),
+            Err(e) => Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("删除所有配置失败: {}", e),
+            )),
+        }
     } else {
-        conn.execute("DELETE FROM config WHERE key = ?1", [key])
-            .map_err(|e| AppError::Error(format!("删除配置值失败: {}", e)))?;
+        match conn.execute("DELETE FROM config WHERE key = ?1", [key]) {
+            Ok(_) => Ok(ApiResponse::success(())),
+            Err(e) => Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("删除配置值失败: {}", e),
+            )),
+        }
     }
-
-    Ok(())
 }
 
 #[permission_macro::permission("main", "pluginMarket")]
@@ -84,7 +133,7 @@ pub fn set_plugin_config_value(
     info: Value,
     config: Value,
     data: Value,
-) -> AppResult<()> {
+) -> Result<ApiResponse<()>, AppError> {
     let conn = get_connection();
     let conn = conn.lock();
 
@@ -101,12 +150,14 @@ pub fn set_plugin_config_value(
     )
     .map_err(|e| AppError::Error(format!("保存插件配置失败: {}", e)))?;
 
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 #[permission_macro::permission("main", "pluginMarket")]
 #[tauri::command]
-pub fn get_plugin_config_value(window_id: Option<&str>) -> AppResult<Vec<Value>> {
+pub fn get_plugin_config_value(
+    window_id: Option<&str>,
+) -> Result<ApiResponse<Vec<Value>>, AppError> {
     let conn = get_connection();
     let conn = conn.lock();
 
@@ -174,12 +225,12 @@ pub fn get_plugin_config_value(window_id: Option<&str>) -> AppResult<Vec<Value>>
         }));
     }
 
-    Ok(result)
+    Ok(ApiResponse::success(result))
 }
 
 #[permission_macro::permission("main", "pluginMarket")]
 #[tauri::command]
-pub fn delete_plugin_config_value(window_id: Option<&str>) -> AppResult<()> {
+pub fn delete_plugin_config_value(window_id: Option<&str>) -> Result<ApiResponse<()>, AppError> {
     let conn = get_connection();
     let conn = conn.lock();
 
@@ -191,5 +242,5 @@ pub fn delete_plugin_config_value(window_id: Option<&str>) -> AppResult<()> {
             .map_err(|e| AppError::Error(format!("删除所有插件配置失败: {}", e)))?;
     }
 
-    Ok(())
+    Ok(ApiResponse::success(()))
 }

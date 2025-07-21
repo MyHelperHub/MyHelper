@@ -16,7 +16,8 @@ pub use win::*;
 #[cfg(target_os = "linux")]
 pub use linux::*;
 
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppError;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
 use clipboard_rs::{
     Clipboard, ClipboardContext, ClipboardHandler, ClipboardWatcher, ClipboardWatcherContext,
     ContentFormat, WatcherShutdown,
@@ -103,33 +104,37 @@ impl ClipboardHandler for Manager {
 ///
 /// 开始监听系统剪贴板的变化，当内容更新时触发事件
 #[tauri::command]
-pub async fn start_clipboard_listener() -> AppResult<()> {
+pub async fn start_clipboard_listener() -> Result<ApiResponse<()>, AppError> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
-        return Ok(());
+        return Ok(ApiResponse::success(()));
     }
 
-    let app_handle = crate::core::app_handle::AppHandleManager::clone()
-        .ok_or_else(|| AppError::Error("获取AppHandle失败".to_string()))?;
+    let app_handle = match crate::core::app_handle::AppHandleManager::clone() {
+        Some(handle) => handle,
+        None => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, "获取AppHandle失败")),
+    };
 
     CLIPBOARD_LISTENER.store(true, Ordering::SeqCst);
 
     let (tx, _rx) = mpsc::channel::<String>(10);
     let manager = Manager::new(tx.clone(), app_handle.clone());
-    let mut watcher = ClipboardWatcherContext::new()
-        .map_err(|e| AppError::Error(format!("创建剪贴板监听程序失败： {}", e)))?;
+    let mut watcher = match ClipboardWatcherContext::new() {
+        Ok(w) => w,
+        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("创建剪贴板监听程序失败： {}", e))),
+    };
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
     *get_watcher_shutdown().lock() = Some(watcher_shutdown);
 
     watcher.start_watch();
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 /// 停止剪贴板监听
 ///
 /// 停止监听系统剪贴板的变化
 #[tauri::command]
-pub async fn stop_clipboard_listener() -> AppResult<()> {
+pub async fn stop_clipboard_listener() -> Result<ApiResponse<()>, AppError> {
     if CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
         let mut shutdown_lock = get_watcher_shutdown().lock();
         if let Some(shutdown) = shutdown_lock.take() {
@@ -137,7 +142,7 @@ pub async fn stop_clipboard_listener() -> AppResult<()> {
         }
         CLIPBOARD_LISTENER.store(false, Ordering::SeqCst);
     }
-    Ok(())
+    Ok(ApiResponse::success(()))
 }
 
 /// 写入内容到剪贴板
@@ -146,15 +151,17 @@ pub async fn stop_clipboard_listener() -> AppResult<()> {
 ///
 /// * `text` - 要写入剪贴板的文本内容
 #[tauri::command]
-pub async fn write_clipboard(text: String) -> AppResult<()> {
+pub async fn write_clipboard(text: String) -> Result<ApiResponse<()>, AppError> {
     // 设置标志位，标记这是内部操作
     INTERNAL_CLIPBOARD_OPERATION.store(true, Ordering::SeqCst);
 
-    let ctx = ClipboardContext::new()
-        .map_err(|e| AppError::Error(format!("Failed to create clipboard context: {}", e)))?;
+    let ctx = match ClipboardContext::new() {
+        Ok(c) => c,
+        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("Failed to create clipboard context: {}", e))),
+    };
 
-    ctx.set_text(text)
-        .map_err(|e| AppError::Error(format!("Failed to set clipboard content: {}", e)))?;
-
-    Ok(())
+    match ctx.set_text(text) {
+        Ok(_) => Ok(ApiResponse::success(())),
+        Err(e) => Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("Failed to set clipboard content: {}", e))),
+    }
 }

@@ -29,26 +29,26 @@ pub fn get_config_path(config_type: &str) -> Result<PathBuf, String> {
 
 // 读取配置文件
 fn read_config(config_path: &Path) -> Result<HashMap<String, Value>, String> {
-    if config_path.exists() {
-        let mut file = File::open(config_path).map_err(|e| e.to_string())?;
-        let mut buffer = Vec::new();
-        file.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
+    if !config_path.exists() {
+        return Ok(HashMap::with_capacity(8)); 
+    }
 
-        // 如果文件为空，返回空的 HashMap
-        if buffer.is_empty() {
-            return Ok(HashMap::new());
-        }
+    let mut file = File::open(config_path).map_err(|e| e.to_string())?;
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
 
-        // 使用simd-json加速解析
-        match simd_json::serde::from_slice::<HashMap<String, Value>>(&mut buffer) {
-            Ok(data) => Ok(data),
-            Err(_) => {
-                // 回退到标准serde_json
-                serde_json::from_slice(&buffer).map_err(|e| e.to_string())
-            }
+    // 如果文件为空，返回空的 HashMap
+    if buffer.is_empty() {
+        return Ok(HashMap::with_capacity(8));
+    }
+
+    // 使用simd-json加速解析
+    match simd_json::serde::from_slice::<HashMap<String, Value>>(&mut buffer) {
+        Ok(data) => Ok(data),
+        Err(_) => {
+            // 回退到标准serde_json
+            serde_json::from_slice(&buffer).map_err(|e| e.to_string())
         }
-    } else {
-        Ok(HashMap::new())
     }
 }
 
@@ -58,12 +58,9 @@ pub fn utils_set_config(config_type: &str, new_data: HashMap<String, Value>) -> 
     let mut current_data = read_config(&config_path)?;
 
     // 合并新数据
-    for (key, value) in new_data {
-        current_data.insert(key, value);
-    }
+    current_data.extend(new_data);
 
-    let config_data = serde_json::to_string_pretty(&current_data).map_err(|e| e.to_string())?;
-
+    let config_data = serde_json::to_string(&current_data).map_err(|e| e.to_string())?;
     std::fs::write(&config_path, config_data).map_err(|e| e.to_string())?;
 
     Ok(())
@@ -76,8 +73,8 @@ pub fn utils_get_config(config_type: &str, keys: Vec<String>) -> Result<Option<V
 
     let mut current_value = Value::Object(data.into_iter().collect::<Map<_, _>>());
 
-    for key in keys {
-        match current_value.get(&key) {
+    for key in &keys { 
+        match current_value.get(key) {
             Some(value) => current_value = value.clone(),
             None => return Ok(None),
         }

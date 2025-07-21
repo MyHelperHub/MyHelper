@@ -1,18 +1,15 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeApi, safeInvokeApi } from "./wrapper";
 import { WindowConfig } from "@/interface/window";
 import { WindowOperation } from "@/interface/enum";
 
 /**
  * 创建新窗口
  * @param options 窗口配置选项
+ * @returns 创建是否成功
  */
-export const ipcCreateNewWindow = async (options: WindowConfig) => {
-  try {
-    await invoke("create_new_window", { ...options });
-    return true;
-  } catch (e) {
-    return false;
-  }
+export const ipcCreateNewWindow = async (options: WindowConfig): Promise<boolean> => {
+  const response = await safeInvokeApi<void>("create_new_window", { ...options });
+  return response.code === 0; // 成功返回 true，失败返回 false
 };
 
 /**
@@ -23,12 +20,8 @@ export const ipcCreateNewWindow = async (options: WindowConfig) => {
 export const ipcWindowControl = async (
   operation: WindowOperation,
   params?: any,
-) => {
-  try {
-    await invoke("window_control", { operation, params });
-  } catch (e) {
-    throw e;
-  }
+): Promise<void> => {
+  await invokeApi<void>("window_control", { operation, params });
 };
 
 /**
@@ -36,6 +29,6 @@ export const ipcWindowControl = async (
  * @param width 窗口宽度
  * @param height 窗口高度
  */
-export const ipcSetWindowSize = (width: number, height: number) => {
-  invoke("set_window_size", { width, height });
+export const ipcSetWindowSize = async (width: number, height: number): Promise<void> => {
+  await invokeApi<void>("set_window_size", { width, height });
 };

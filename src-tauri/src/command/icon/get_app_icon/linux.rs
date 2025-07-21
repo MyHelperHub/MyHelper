@@ -9,8 +9,9 @@ use image::ImageEncoder;
 use image::{DynamicImage, ImageBuffer, Rgba};
 use rand::{rng, Rng};
 
-use crate::utils::error::AppResult;
+use crate::utils::error::AppError;
 use crate::utils::path::get_myhelper_path;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
 
 /// 获取应用程序图标
 ///
@@ -20,11 +21,11 @@ use crate::utils::path::get_myhelper_path;
 ///
 /// # Returns
 ///
-/// * `AppResult<String>` - 成功返回保存的图标文件路径
-pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
+/// * `Result<ApiResponse<String>, AppError>` - 成功返回保存的图标文件路径
+pub fn get_app_icon(exe_path: &str) -> Result<ApiResponse<String>, AppError> {
     // 检查路径是否存在
     if !Path::new(exe_path).exists() {
-        return Ok(String::new());
+        return Ok(ApiResponse::success(String::new()));
     }
 
     // 获取用户目录
@@ -33,7 +34,9 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
         .map_err(|e| e.to_string())?;
 
     if !myhelper_path.exists() {
-        fs::create_dir_all(&myhelper_path).map_err(|e| e.to_string())?;
+        if let Err(e) = fs::create_dir_all(&myhelper_path) {
+            return Ok(ApiResponse::error(ApiStatusCode::ErrFileWrite, format!("Failed to create directory: {}", e)));
+        }
     }
 
     // 生成随机文件名
@@ -44,20 +47,20 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     // 初始化 GTK
     if gtk::init().is_err() {
-        return Ok(String::new());
+        return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, "Failed to initialize GTK"));
     }
 
     // 获取文件信息
     let file = GioFile::for_path(exe_path);
     let file_info = match file.query_info("*", FileQueryInfoFlags::NONE, None::<&Cancellable>) {
         Ok(info) => info,
-        Err(_) => return Ok(String::new()),
+        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrFileRead, format!("Failed to query file info: {}", e))),
     };
 
     // 获取内容类型和图标
     let content_type = match file_info.content_type() {
         Some(ct) => ct,
-        None => return Ok(String::new()),
+        None => return Ok(ApiResponse::success(String::new())),
     };
 
     let icon = gio::functions::content_type_get_icon(&content_type);
@@ -66,7 +69,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     let pixbuf = if let Some(themed_icon) = icon.dynamic_cast_ref::<gio::ThemedIcon>() {
         let icon_theme = match gtk::IconTheme::default() {
             Some(theme) => theme,
-            None => return Ok(String::new()),
+            None => return Ok(ApiResponse::success(String::new())),
         };
 
         // 尝试从图标名称列表中获取图标
@@ -92,10 +95,10 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
         match pb {
             Some(p) => p,
-            None => return Ok(String::new()),
+            None => return Ok(ApiResponse::success(String::new())),
         }
     } else {
-        return Ok(String::new());
+        return Ok(ApiResponse::success(String::new()));
     };
 
     // 转换为 RGBA 格式
@@ -105,7 +108,7 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
 
     let img_buffer = match ImageBuffer::<Rgba<u8>, _>::from_raw(width, height, pixels) {
         Some(buffer) => buffer,
-        None => return Ok(String::new()),
+        None => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, "Failed to create image buffer")),
     };
 
     let img = DynamicImage::ImageRgba8(img_buffer);
@@ -113,19 +116,19 @@ pub fn get_app_icon(exe_path: &str) -> AppResult<String> {
     // 保存为 PNG
     let output_file = match File::create(&output_path) {
         Ok(file) => file,
-        Err(_) => return Ok(String::new()),
+        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrFileWrite, format!("Failed to create output file: {}", e))),
     };
     let writer = BufWriter::new(output_file);
     let encoder = PngEncoder::new(writer);
 
-    if let Err(_) = encoder.write_image(
+    if let Err(e) = encoder.write_image(
         img.as_bytes(),
         img.width(),
         img.height(),
         img.color().into(),
     ) {
-        return Ok(String::new());
+        return Ok(ApiResponse::error(ApiStatusCode::ErrFileWrite, format!("Failed to write PNG: {}", e)));
     }
 
-    Ok(output_path.display().to_string())
+    Ok(ApiResponse::success(output_path.display().to_string()))
 }

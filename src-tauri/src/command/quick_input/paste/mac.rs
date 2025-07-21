@@ -1,14 +1,15 @@
 use crate::get_previous_window;
-use crate::utils::error::{AppError, AppResult};
+use crate::utils::error::AppError;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
 use cocoa::{
     appkit::{NSApplicationActivationOptions, NSRunningApplication},
     base::nil,
 };
 
-fn focus_previous_window() -> AppResult<()> {
+fn focus_previous_window() -> Result<(), String> {
     let process_id = match get_previous_window() {
         Some(process_id) => process_id,
-        None => return Err(AppError::Error("No previous window found".to_string())),
+        None => return Err("No previous window found".to_string()),
     };
 
     unsafe {
@@ -21,17 +22,20 @@ fn focus_previous_window() -> AppResult<()> {
 }
 
 #[tauri::command]
-pub async fn paste() -> AppResult<()> {
-    focus_previous_window()?;
+pub async fn paste() -> Result<ApiResponse<()>, AppError> {
+    if let Err(e) = focus_previous_window() {
+        return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, e));
+    }
 
     let script =
         r#"osascript -e 'tell application "System Events" to keystroke "v" using command down'"#;
 
-    std::process::Command::new("sh")
+    match std::process::Command::new("sh")
         .arg("-c")
         .arg(script)
         .output()
-        .map_err(|e| AppError::Error(format!("Failed to execute paste command: {}", e)))?;
-
-    Ok(())
+    {
+        Ok(_) => Ok(ApiResponse::success(())),
+        Err(e) => Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("Failed to execute paste command: {}", e))),
+    }
 }
