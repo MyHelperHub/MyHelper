@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeApi } from "./wrapper";
 
 /**
  * 设置或更新全局数据
@@ -9,7 +9,7 @@ export const ipcSetGlobalData = async (
   key: string,
   value: string,
 ): Promise<void> => {
-  return await invoke("set_global_data", { key, value });
+  return await invokeApi("set_global_data", { key, value });
 };
 
 /**
@@ -20,7 +20,7 @@ export const ipcSetGlobalData = async (
 export const ipcGetGlobalData = async (
   key?: string,
 ): Promise<string | null> => {
-  return await invoke("get_global_data", { key });
+  return await invokeApi("get_global_data", { key });
 };
 
 /**
@@ -28,5 +28,5 @@ export const ipcGetGlobalData = async (
  * @param key 键名
  */
 export const ipcDeleteGlobalData = async (key: string): Promise<void> => {
-  return await invoke("delete_global_data", { key });
+  return await invokeApi("delete_global_data", { key });
 };

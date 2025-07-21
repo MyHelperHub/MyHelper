@@ -15,10 +15,10 @@ export interface ApiResponse<T> {
  */
 export class ApiError extends Error {
   public readonly code: number;
-  
+
   constructor(code: number, message: string) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.code = code;
   }
 }
@@ -43,7 +43,10 @@ export function handleApiResponse<T>(response: ApiResponse<T>): T {
  * @returns 处理后的响应数据
  * @throws {ApiError} 当API调用失败时抛出异常
  */
-export async function invokeApi<T>(command: string, args?: Record<string, any>): Promise<T> {
+export async function invokeApi<T>(
+  command: string,
+  args?: Record<string, any>,
+): Promise<T> {
   try {
     const response = await invoke<ApiResponse<T>>(command, args);
     return handleApiResponse(response);
@@ -52,12 +55,12 @@ export async function invokeApi<T>(command: string, args?: Record<string, any>):
     if (error instanceof ApiError) {
       throw error;
     }
-    
+
     // 如果是Tauri调用错误，包装为ApiError
     if (error instanceof Error) {
       throw new ApiError(ApiStatusCode.ERR_SYSTEM, error.message);
     }
-    
+
     // 未知错误
     throw new ApiError(ApiStatusCode.ERR_SYSTEM, String(error));
   }
@@ -69,7 +72,10 @@ export async function invokeApi<T>(command: string, args?: Record<string, any>):
  * @param args 命令参数
  * @returns API响应对象，包含成功或失败的完整信息
  */
-export async function safeInvokeApi<T>(command: string, args?: Record<string, any>): Promise<ApiResponse<T>> {
+export async function safeInvokeApi<T>(
+  command: string,
+  args?: Record<string, any>,
+): Promise<ApiResponse<T>> {
   try {
     return await invoke<ApiResponse<T>>(command, args);
   } catch (error) {
@@ -81,7 +87,7 @@ export async function safeInvokeApi<T>(command: string, args?: Record<string, an
         message: error.message,
       };
     }
-    
+
     return {
       code: ApiStatusCode.ERR_SYSTEM,
       data: null,
@@ -123,6 +129,6 @@ export function getErrorDescription(code: number): string {
     [ApiStatusCode.ERR_NETWORK_TIMEOUT]: "网络超时",
     [ApiStatusCode.ERR_NETWORK_UNREACHABLE]: "网络不可达",
   };
-  
+
   return descriptions[code] || `未知错误 (${code})`;
 }

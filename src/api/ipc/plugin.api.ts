@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeApi } from "./wrapper";
 
 /**
  * 安装插件
@@ -6,7 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
  * @param windowId 插件的窗口ID
  */
 export const ipcInstallPlugin = async (url: string, windowId: string) => {
-  return invoke("mh_plugin_install", { url, windowId });
+  return invokeApi("mh_plugin_install", { url, windowId });
 };
 
 /**
@@ -18,7 +18,7 @@ export const ipcInstallLocalPlugin = async (
   filePath: string,
   windowId: string,
 ) => {
-  return invoke("mh_plugin_install_local", { filePath, windowId });
+  return invokeApi("mh_plugin_install_local", { filePath, windowId });
 };
 
 /**
@@ -29,7 +29,7 @@ export const ipcInstallLocalPlugin = async (
  * await ipcUninstallPlugin('my-plugin-window');
  */
 export const ipcUninstallPlugin = async (windowId: string) => {
-  return invoke("mh_plugin_uninstall", { windowId });
+  return invokeApi("mh_plugin_uninstall", { windowId });
 };
 
 /**
@@ -38,5 +38,5 @@ export const ipcUninstallPlugin = async (windowId: string) => {
  * @returns 插件包信息，包含插件ID、名称、描述等
  */
 export const ipcAnalyzePluginPackage = async (filePath: string) => {
-  return invoke("mh_plugin_analyze_package", { filePath });
+  return invokeApi("mh_plugin_analyze_package", { filePath });
 };
