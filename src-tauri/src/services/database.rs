@@ -1,12 +1,15 @@
 use crate::utils::error::{AppError, AppResult};
 use crate::utils::path::get_myhelper_path;
 use once_cell::sync::OnceCell;
-use parking_lot::Mutex;
-use rusqlite::{params, Connection, Result};
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::{params, Result};
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-static DB_INSTANCE: OnceCell<Mutex<Connection>> = OnceCell::new();
+type DatabasePool = Pool<SqliteConnectionManager>;
+
+static DB_POOL: OnceCell<DatabasePool> = OnceCell::new();
 
 pub fn init_database() -> Result<()> {
     let app_dir =
@@ -14,29 +17,48 @@ pub fn init_database() -> Result<()> {
     let db_path = app_dir.join("myhelper.db");
     ensure_parent_dir_exists(&db_path);
 
-    let conn = Connection::open(&db_path)?;
+    // 创建连接池配置
+    let manager = SqliteConnectionManager::file(&db_path);
+    let pool = Pool::builder()
+        .max_size(10)  // 最大连接数
+        .min_idle(Some(2))  // 最小空闲连接数
+        .max_lifetime(Some(std::time::Duration::from_secs(3600))) // 连接最大存活时间1小时
+        .idle_timeout(Some(std::time::Duration::from_secs(600))) // 空闲超时10分钟
+        .build(manager)
+        .map_err(|e| rusqlite::Error::SqliteFailure(
+            rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_CANTOPEN),
+            Some(format!("创建连接池失败: {}", e))
+        ))?;
 
-    // 创建配置表
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS config (
-            key TEXT PRIMARY KEY,
-            value TEXT NOT NULL
-        )",
-        [],
-    )?;
+    // 初始化数据库表
+    {
+        let conn = pool.get().map_err(|e| rusqlite::Error::SqliteFailure(
+            rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_CANTOPEN),
+            Some(format!("获取连接失败: {}", e))
+        ))?;
 
-    // 创建插件配置表
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS plugin_config (
-            window_id TEXT PRIMARY KEY,
-            info TEXT NOT NULL,
-            config TEXT NOT NULL,
-            data TEXT NOT NULL
-        )",
-        [],
-    )?;
+        // 创建配置表
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            )",
+            [],
+        )?;
 
-    DB_INSTANCE.get_or_init(|| Mutex::new(conn));
+        // 创建插件配置表
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS plugin_config (
+                window_id TEXT PRIMARY KEY,
+                info TEXT NOT NULL,
+                config TEXT NOT NULL,
+                data TEXT NOT NULL
+            )",
+            [],
+        )?;
+    }
+
+    DB_POOL.get_or_init(|| pool);
     Ok(())
 }
 
@@ -46,13 +68,15 @@ fn ensure_parent_dir_exists(path: &PathBuf) {
     }
 }
 
-pub fn get_connection() -> &'static Mutex<Connection> {
-    DB_INSTANCE.get().expect("数据库未初始化")
+pub fn get_db_pool() -> &'static DatabasePool {
+    DB_POOL.get().expect("数据库未初始化")
 }
 
 /// 从数据库中查询所有插件的 window_id
 pub fn query_plugin_ids() -> AppResult<HashSet<String>> {
-    let conn = get_connection().lock();
+    let pool = get_db_pool();
+    let conn = pool.get().map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
+    
     let mut stmt = conn
         .prepare_cached("SELECT window_id FROM plugin_config")
         .map_err(|e| AppError::Error(format!("准备查询语句失败: {}", e)))?;
@@ -80,7 +104,9 @@ pub fn batch_insert_plugin_configs(configs: &[(String, String, String, String)])
         return Ok(());
     }
 
-    let mut conn = get_connection().lock();
+    let pool = get_db_pool();
+    let mut conn = pool.get().map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
+    
     let tx = conn
         .transaction()
         .map_err(|e| AppError::Error(format!("创建事务失败: {}", e)))?;
@@ -117,7 +143,9 @@ pub fn batch_remove_plugin_configs(window_ids: &[String]) -> AppResult<()> {
         return Ok(());
     }
 
-    let mut conn = get_connection().lock();
+    let pool = get_db_pool();
+    let mut conn = pool.get().map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
+    
     let tx = conn
         .transaction()
         .map_err(|e| AppError::Error(format!("创建事务失败: {}", e)))?;

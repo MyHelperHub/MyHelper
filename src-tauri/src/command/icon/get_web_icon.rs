@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use image::codecs::png::PngEncoder;
 use image::ImageEncoder;
 use url::Url;
+use once_cell::sync::Lazy;
 
 use crate::services::logger::{LogEntry, Logger};
 use crate::utils::error::AppError;
@@ -14,6 +15,11 @@ use crate::utils::response::{ApiResponse, ApiStatusCode};
 use tl::ParserOptions;
 
 const ICON_SIZE: u32 = 32;
+
+// 全局 HTTP 客户端，避免重复创建连接
+static HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+    create_web_client().expect("Failed to create global HTTP client")
+});
 
 const ICON_SELECTORS: &[(&str, &str)] = &[
     (
@@ -46,7 +52,6 @@ const ICON_SELECTORS: &[(&str, &str)] = &[
 
 #[derive(Debug)]
 enum IconError {
-    NetworkError(String),
     ParseError(String),
     IoError(String),
 }
@@ -54,7 +59,6 @@ enum IconError {
 impl From<IconError> for AppError {
     fn from(err: IconError) -> Self {
         match err {
-            IconError::NetworkError(msg) => AppError::Error(format!("Network error: {}", msg)),
             IconError::ParseError(msg) => AppError::Error(format!("Parse error: {}", msg)),
             IconError::IoError(msg) => AppError::Error(format!("IO error: {}", msg)),
         }
@@ -164,7 +168,8 @@ pub async fn get_web_icon(url: String) -> Result<ApiResponse<String>, AppError> 
     }
 
     let output_path = myhelper_path.join(format!("{}.png", domain));
-    let client = create_web_client().map_err(|e| IconError::NetworkError(e.to_string()))?;
+    // 使用全局复用的 HTTP 客户端
+    let client = &*HTTP_CLIENT;
 
     // 优先尝试从 /favicon.ico 获取图标
     if let Ok(favicon_url) = url.join("/favicon.ico") {

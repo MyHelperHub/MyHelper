@@ -61,21 +61,20 @@ impl Manager {
     }
 
     /// 处理剪贴板文本内容
-    fn handle_text(&self) {
+    fn handle_text(&self, text: String) {
         // 如果监听已经停止，不处理剪贴板事件
         if !CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
             return;
         }
-        if let Ok(text) = self.ctx.get_text() {
-            let _ = self.sender.try_send(text.clone());
+        
+        let _ = self.sender.try_send(text.clone());
 
-            let app_handle = self.app_handle.clone();
-            async_runtime::spawn(async move {
-                if let Err(e) = app_handle.emit("clipboard-updated", text) {
-                    eprintln!("Failed to emit event: {}", e);
-                }
-            });
-        }
+        let app_handle = self.app_handle.clone();
+        async_runtime::spawn(async move {
+            if let Err(e) = app_handle.emit("clipboard-updated", text) {
+                eprintln!("Failed to emit event: {}", e);
+            }
+        });
     }
 }
 
@@ -89,11 +88,11 @@ impl ClipboardHandler for Manager {
         }
 
         if self.ctx.has(ContentFormat::Text) {
-            self.handle_text();
-            println!("{}", self.ctx.get_text().unwrap());
-            let _ = self
-                .app_handle
-                .emit("clipboard-updated", self.ctx.get_text().unwrap());
+            // 只获取一次剪贴板内容，避免重复系统调用
+            if let Ok(text) = self.ctx.get_text() {
+                println!("{}", text);
+                self.handle_text(text);
+            }
         } else {
             println!("Clipboard does not contain text format.");
         }

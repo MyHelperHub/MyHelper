@@ -19,6 +19,7 @@ macro_rules! generate_app_handlers {
             set_config,
             delete_config,
             get_config_value,
+            get_config_values_batch,
             set_config_value,
             delete_config_value,
             set_plugin_config_value,

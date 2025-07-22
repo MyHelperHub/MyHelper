@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@primeuix/themes": "^1.0.3",
-    "@tauri-apps/api": "^2.6.0",
+    "@tauri-apps/api": "^2.7.0",
     "@tauri-apps/plugin-autostart": "^2.5.0",
-    "@tauri-apps/plugin-dialog": "^2.3.0",
+    "@tauri-apps/plugin-dialog": "^2.3.1",
     "@tauri-apps/plugin-global-shortcut": "^2.3.0",
     "@tauri-apps/plugin-process": "^2.3.0",
     "@tauri-apps/plugin-shell": "^2.3.0",
@@ -37,7 +37,7 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.6.2",
+    "@tauri-apps/cli": "^2.7.1",
     "@types/dompurify": "^3.2.0",
     "@types/marked": "^5.0.2",
     "@types/node": "^22.7.4",

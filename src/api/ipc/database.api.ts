@@ -24,6 +24,17 @@ export async function ipcGetConfigValue<T = any>(
 }
 
 /**
+ * 批量获取配置值
+ * @param keys 配置键名数组
+ * @returns 配置值映射对象，键为配置名，值为配置值（不存在时为null）
+ */
+export async function ipcGetConfigValuesBatch<T = any>(
+  keys: string[],
+): Promise<Record<string, T | null>> {
+  return await invokeApi<Record<string, T | null>>("get_config_values_batch", { keys });
+}
+
+/**
  * 删除配置值
  * @param key 配置键名，如果为空字符串则删除所有配置
  */

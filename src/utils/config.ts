@@ -1,4 +1,4 @@
-import { getConfigValue, setConfigValue, deleteConfigValue } from "./database";
+import { getConfigValue, setConfigValue, deleteConfigValue, getConfigValuesBatch } from "./database";
 
 /**
  * 获取配置值
@@ -14,6 +14,25 @@ export const getConfig = async <T = any>(key: string): Promise<T | null> => {
     return await getConfigValue<T>(key);
   } catch (error) {
     console.error(`获取配置[${key}]失败:`, error);
+    throw error;
+  }
+};
+
+/**
+ * 批量获取配置值
+ * @param {string[]} keys - 配置键名数组
+ * @returns {Promise<Record<string, T | null>>} 返回配置值映射对象
+ *
+ * @example
+ * const configs = await getConfigs<any>(['theme', 'settings', 'userConfig']);
+ * console.log(configs.theme); // 主题配置
+ * console.log(configs.settings); // 设置配置
+ */
+export const getConfigs = async <T = any>(keys: string[]): Promise<Record<string, T | null>> => {
+  try {
+    return await getConfigValuesBatch<T>(keys);
+  } catch (error) {
+    console.error(`批量获取配置[${keys.join(', ')}]失败:`, error);
     throw error;
   }
 };

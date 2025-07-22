@@ -443,9 +443,15 @@ function applyThemeVariables(variables: Record<string, string>): void {
 
 /**
  * 获取当前主题配置
+ * @param passedConfig 可选的主题配置，如果提供则使用，否则从数据库获取
  */
-export async function getCurrentThemeConfig(): Promise<ThemeConfig> {
+export async function getCurrentThemeConfig(passedConfig?: ThemeConfig): Promise<ThemeConfig> {
   try {
+    // 优先使用传入的配置，避免重复数据库查询
+    if (passedConfig) {
+      return passedConfig;
+    }
+    
     const config = await getConfig<ThemeConfig>("themeConfig");
     return config || DEFAULT_THEME_CONFIG;
   } catch (error) {
@@ -481,15 +487,20 @@ export async function saveThemeConfig(config: ThemeConfig): Promise<void> {
 
 /**
  * 应用主题
+ * @param themeId 主题ID
+ * @param customColors 自定义颜色
+ * @param skipSave 是否跳过保存
+ * @param passedConfig 可选的主题配置，如果提供则使用，否则从数据库获取
  */
 export async function applyTheme(
   themeId?: string,
   customColors?: ThemeColors,
   skipSave = false,
+  passedConfig?: ThemeConfig,
 ): Promise<ThemeApplyResult> {
   try {
     let colors: ThemeColors;
-    let config = await getCurrentThemeConfig();
+    let config = await getCurrentThemeConfig(passedConfig);
 
     if (customColors) {
       colors = customColors;
@@ -592,25 +603,27 @@ export async function toggleThemeMode(): Promise<ThemeApplyResult> {
 
 /**
  * 初始化主题系统
+ * @param themeConfig 可选的主题配置，如果提供则使用，否则从数据库获取
  */
-export async function initTheme(): Promise<void> {
+export async function initTheme(themeConfig?: ThemeConfig): Promise<void> {
   if (isUpdatingTheme) return;
 
   try {
     isUpdatingTheme = true;
-    const config = await getCurrentThemeConfig();
+    const config = themeConfig || await getCurrentThemeConfig();
 
     if (config.customColors) {
-      await applyTheme(undefined, config.customColors, true);
+      await applyTheme(undefined, config.customColors, true, config);
     } else if (config.currentThemeId) {
-      await applyTheme(config.currentThemeId, undefined, true);
+      await applyTheme(config.currentThemeId, undefined, true, config);
     } else {
-      await applyTheme("default-light", undefined, true);
+      await applyTheme("default-light", undefined, true, config);
     }
   } catch (error) {
     await ErrorHandler.handleError(error, "主题初始化");
 
     try {
+      // 降级时使用默认配置，不传递config避免循环
       await applyTheme("default-light", undefined, true);
     } catch (fallbackError) {
       await ErrorHandler.handleError(fallbackError, "默认主题降级失败");
