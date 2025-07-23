@@ -16,46 +16,46 @@
       position="center">
       <div class="dialog-wrapper">
         <div class="modal-content">
-        <img
-          v-if="formData.logo"
-          class="image"
-          :src="convertFileSrc(formData.logo)"
-          @click="selectLocalImage" />
-        <i v-else class="pi pi-image image" @click="selectLocalImage"></i>
-        <div class="input-container">
-          <div class="input-wrapper">
-            <label class="input-label">网站名称</label>
-            <InputText
-              v-model="formData.title"
-              class="input"
-              placeholder="请输入网站名称" />
+          <img
+            v-if="formData.logo"
+            class="image"
+            :src="convertFileSrc(formData.logo)"
+            @click="selectLocalImage" />
+          <i v-else class="pi pi-image image" @click="selectLocalImage"></i>
+          <div class="input-container">
+            <div class="input-wrapper">
+              <label class="input-label">网站名称</label>
+              <InputText
+                v-model="formData.title"
+                class="input"
+                placeholder="请输入网站名称" />
+            </div>
+            <div class="input-wrapper">
+              <label class="input-label">网站地址</label>
+              <InputText
+                v-model="formData.url"
+                class="input"
+                placeholder="请输入网站地址" />
+            </div>
+            <transition name="icon">
+              <Button
+                v-if="urlRegex.test(formData.url)"
+                class="get-icon-btn"
+                @click="getIcon"
+                text
+                size="small">
+                获取图标
+              </Button>
+            </transition>
           </div>
-          <div class="input-wrapper">
-            <label class="input-label">网站地址</label>
-            <InputText
-              v-model="formData.url"
-              class="input"
-              placeholder="请输入网站地址" />
-          </div>
-          <transition name="icon">
+          <div class="modal-footer">
             <Button
-              v-if="urlRegex.test(formData.url)"
-              class="get-icon-btn"
-              @click="getIcon"
-              text
-              size="small">
-              获取图标
-            </Button>
-          </transition>
+              class="confirm-button"
+              @click="handleConfirm"
+              label="确定"
+              severity="info" />
+          </div>
         </div>
-        <div class="modal-footer">
-          <Button
-            class="confirm-button"
-            @click="handleConfirm"
-            label="确定"
-            severity="info" />
-        </div>
-      </div>
       </div>
     </Dialog>
   </div>

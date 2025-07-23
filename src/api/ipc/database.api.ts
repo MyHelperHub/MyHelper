@@ -31,7 +31,9 @@ export async function ipcGetConfigValue<T = any>(
 export async function ipcGetConfigValuesBatch<T = any>(
   keys: string[],
 ): Promise<Record<string, T | null>> {
-  return await invokeApi<Record<string, T | null>>("get_config_values_batch", { keys });
+  return await invokeApi<Record<string, T | null>>("get_config_values_batch", {
+    keys,
+  });
 }
 
 /**
@@ -68,7 +70,9 @@ export async function ipcSetPluginConfigValue(
  * @param windowId 窗口ID，可选
  * @returns 插件配置列表
  */
-export async function ipcGetPluginConfigValue(windowId?: string): Promise<any[]> {
+export async function ipcGetPluginConfigValue(
+  windowId?: string,
+): Promise<any[]> {
   return await invokeApi<any[]>("get_plugin_config_value", { windowId });
 }
 
@@ -76,6 +80,8 @@ export async function ipcGetPluginConfigValue(windowId?: string): Promise<any[]>
  * 删除插件配置值
  * @param windowId 窗口ID，可选
  */
-export async function ipcDeletePluginConfigValue(windowId?: string): Promise<void> {
+export async function ipcDeletePluginConfigValue(
+  windowId?: string,
+): Promise<void> {
   await invokeApi<void>("delete_plugin_config_value", { windowId });
 }

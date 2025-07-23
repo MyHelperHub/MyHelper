@@ -1,4 +1,9 @@
-import { getConfigValue, setConfigValue, deleteConfigValue, getConfigValuesBatch } from "./database";
+import {
+  getConfigValue,
+  setConfigValue,
+  deleteConfigValue,
+  getConfigValuesBatch,
+} from "./database";
 
 /**
  * 获取配置值
@@ -28,11 +33,13 @@ export const getConfig = async <T = any>(key: string): Promise<T | null> => {
  * console.log(configs.theme); // 主题配置
  * console.log(configs.settings); // 设置配置
  */
-export const getConfigs = async <T = any>(keys: string[]): Promise<Record<string, T | null>> => {
+export const getConfigs = async <T = any>(
+  keys: string[],
+): Promise<Record<string, T | null>> => {
   try {
     return await getConfigValuesBatch<T>(keys);
   } catch (error) {
-    console.error(`批量获取配置[${keys.join(', ')}]失败:`, error);
+    console.error(`批量获取配置[${keys.join(", ")}]失败:`, error);
     throw error;
   }
 };

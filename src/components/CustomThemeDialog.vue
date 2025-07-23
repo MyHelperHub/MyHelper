@@ -117,9 +117,7 @@
               <div class="color-item">
                 <label>主要文字</label>
                 <div class="color-picker-container">
-                  <ColorPicker
-                    v-model="localConfig.colors.text"
-                    format="hex" />
+                  <ColorPicker v-model="localConfig.colors.text" format="hex" />
                   <InputText
                     v-model="localConfig.colors.text"
                     class="color-input"
@@ -357,14 +355,14 @@ const isVisible = computed({
 const getColorFromCSSVar = (varName: string): string => {
   const root = document.documentElement;
   const value = getComputedStyle(root).getPropertyValue(varName).trim();
-  
-  if (value.startsWith('rgb')) {
+
+  if (value.startsWith("rgb")) {
     return colorUtils.rgbToHex(value);
   }
-  if (value.startsWith('#')) {
+  if (value.startsWith("#")) {
     return value;
   }
-  return '';
+  return "";
 };
 
 /**
@@ -378,25 +376,36 @@ const getCurrentThemeColors = (): CustomThemeConfig => {
     card: 0.85,
   };
 
-  const bgAlpha = getComputedStyle(document.documentElement).getPropertyValue('--theme-transparency-background').trim();
-  const bgSecondaryAlpha = getComputedStyle(document.documentElement).getPropertyValue('--theme-transparency-backgroundSecondary').trim();
-  const cardAlpha = getComputedStyle(document.documentElement).getPropertyValue('--theme-transparency-card').trim();
+  const bgAlpha = getComputedStyle(document.documentElement)
+    .getPropertyValue("--theme-transparency-background")
+    .trim();
+  const bgSecondaryAlpha = getComputedStyle(document.documentElement)
+    .getPropertyValue("--theme-transparency-backgroundSecondary")
+    .trim();
+  const cardAlpha = getComputedStyle(document.documentElement)
+    .getPropertyValue("--theme-transparency-card")
+    .trim();
 
   return {
     transparency: {
-      background: bgAlpha ? parseFloat(bgAlpha) : defaultTransparency.background,
-      backgroundSecondary: bgSecondaryAlpha ? parseFloat(bgSecondaryAlpha) : defaultTransparency.backgroundSecondary,
+      background: bgAlpha
+        ? parseFloat(bgAlpha)
+        : defaultTransparency.background,
+      backgroundSecondary: bgSecondaryAlpha
+        ? parseFloat(bgSecondaryAlpha)
+        : defaultTransparency.backgroundSecondary,
       card: cardAlpha ? parseFloat(cardAlpha) : defaultTransparency.card,
     },
     colors: {
-      primary: getColorFromCSSVar('--theme-primary') || "#4f6df5",
-      background: getColorFromCSSVar('--theme-background') || "#ffffff",
-      backgroundSecondary: getColorFromCSSVar('--theme-background-secondary') || "#f8fafc",
-      text: getColorFromCSSVar('--theme-text') || "#1e293b",
-      textSecondary: getColorFromCSSVar('--theme-text-secondary') || "#475569",
-      success: getColorFromCSSVar('--theme-success') || "#10b981",
-      warning: getColorFromCSSVar('--theme-warning') || "#f59e0b",
-      error: getColorFromCSSVar('--theme-error') || "#ef4444",
+      primary: getColorFromCSSVar("--theme-primary") || "#4f6df5",
+      background: getColorFromCSSVar("--theme-background") || "#ffffff",
+      backgroundSecondary:
+        getColorFromCSSVar("--theme-background-secondary") || "#f8fafc",
+      text: getColorFromCSSVar("--theme-text") || "#1e293b",
+      textSecondary: getColorFromCSSVar("--theme-text-secondary") || "#475569",
+      success: getColorFromCSSVar("--theme-success") || "#10b981",
+      warning: getColorFromCSSVar("--theme-warning") || "#f59e0b",
+      error: getColorFromCSSVar("--theme-error") || "#ef4444",
     },
   };
 };
@@ -414,12 +423,12 @@ const originalConfig = ref<CustomThemeConfig>(getCurrentThemeColors());
  */
 const toRgba = (hexOrRgb: string, alpha: number) => {
   if (!hexOrRgb) return `rgba(255, 255, 255, ${alpha})`;
-  
+
   let rgbStr = hexOrRgb;
-  if (hexOrRgb.startsWith('#')) {
+  if (hexOrRgb.startsWith("#")) {
     rgbStr = colorUtils.hexToRgb(hexOrRgb);
   }
-  
+
   if (rgbStr && rgbStr.startsWith("rgb(")) {
     return rgbStr.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
   }

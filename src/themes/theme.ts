@@ -396,8 +396,10 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
 
   // 透明度变量
   const transparency = colors.transparency || DEFAULT_TRANSPARENCY.custom;
-  variables["--theme-transparency-background"] = transparency.background.toString();
-  variables["--theme-transparency-background-secondary"] = transparency.backgroundSecondary.toString();
+  variables["--theme-transparency-background"] =
+    transparency.background.toString();
+  variables["--theme-transparency-background-secondary"] =
+    transparency.backgroundSecondary.toString();
   variables["--theme-transparency-card"] = transparency.card.toString();
 
   // 渐变变量
@@ -408,9 +410,11 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
       .join(", ");
 
     if (type === "linear") {
-      variables["--theme-gradient"] = `linear-gradient(${angle || 45}deg, ${gradientStops})`;
+      variables["--theme-gradient"] =
+        `linear-gradient(${angle || 45}deg, ${gradientStops})`;
     } else if (type === "radial") {
-      variables["--theme-gradient"] = `radial-gradient(circle, ${gradientStops})`;
+      variables["--theme-gradient"] =
+        `radial-gradient(circle, ${gradientStops})`;
     }
   }
 
@@ -445,13 +449,15 @@ function applyThemeVariables(variables: Record<string, string>): void {
  * 获取当前主题配置
  * @param passedConfig 可选的主题配置，如果提供则使用，否则从数据库获取
  */
-export async function getCurrentThemeConfig(passedConfig?: ThemeConfig): Promise<ThemeConfig> {
+export async function getCurrentThemeConfig(
+  passedConfig?: ThemeConfig,
+): Promise<ThemeConfig> {
   try {
     // 优先使用传入的配置，避免重复数据库查询
     if (passedConfig) {
       return passedConfig;
     }
-    
+
     const config = await getConfig<ThemeConfig>("themeConfig");
     return config || DEFAULT_THEME_CONFIG;
   } catch (error) {
@@ -610,7 +616,7 @@ export async function initTheme(themeConfig?: ThemeConfig): Promise<void> {
 
   try {
     isUpdatingTheme = true;
-    const config = themeConfig || await getCurrentThemeConfig();
+    const config = themeConfig || (await getCurrentThemeConfig());
 
     if (config.customColors) {
       await applyTheme(undefined, config.customColors, true, config);

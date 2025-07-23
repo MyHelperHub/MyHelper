@@ -33,13 +33,19 @@ class AppInitManager {
 
   /**
    * 预初始化主题系统
+   * 分阶段初始化的第一步，在Vue应用创建前执行，用于提前设置主题避免闪烁
+   * @param themeConfig 可选的主题配置，如果不提供则从数据库获取
    */
-  async preInitTheme(): Promise<void> {
+  async preInitTheme(themeConfig?: any): Promise<void> {
     if (this.isThemeReady) return;
 
     try {
-      const themeConfig = await getConfig("themeConfig");
-      this.themeConfig = themeConfig;
+      // 如果没有传入themeConfig，则单独获取
+      if (!themeConfig) {
+        this.themeConfig = await getConfig("themeConfig");
+      } else {
+        this.themeConfig = themeConfig;
+      }
 
       if (this.themeConfig) {
         await initTheme(this.themeConfig);
@@ -54,6 +60,7 @@ class AppInitManager {
 
   /**
    * 完成主题系统初始化
+   * 分阶段初始化的第二步，在Vue应用挂载后执行，用于完成主题系统的完整初始化
    */
   async completeThemeInit(): Promise<void> {
     try {
@@ -70,12 +77,18 @@ class AppInitManager {
     if (Window.getCurrent().label !== "main") return;
 
     try {
-      await this.preInitTheme();
-
-      // 批量获取剩余配置
-      const configs = await getConfigs(["settingConfig", "userConfig"]);
+      // 批量获取所有配置，包括themeConfig
+      const configs = await getConfigs([
+        "themeConfig",
+        "settingConfig",
+        "userConfig",
+      ]);
+      const themeConfig = configs.themeConfig;
       const settingConfig = configs.settingConfig || {};
       const userConfig = configs.userConfig;
+
+      // 预初始化主题系统，传入已获取的themeConfig
+      await this.preInitTheme(themeConfig);
 
       // 初始化设置系统
       await initSetting(settingConfig);

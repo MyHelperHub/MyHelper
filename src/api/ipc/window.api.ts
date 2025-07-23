@@ -7,8 +7,12 @@ import { WindowOperation } from "@/interface/enum";
  * @param options 窗口配置选项
  * @returns 创建是否成功
  */
-export const ipcCreateNewWindow = async (options: WindowConfig): Promise<boolean> => {
-  const response = await safeInvokeApi<void>("create_new_window", { ...options });
+export const ipcCreateNewWindow = async (
+  options: WindowConfig,
+): Promise<boolean> => {
+  const response = await safeInvokeApi<void>("create_new_window", {
+    ...options,
+  });
   return response.code === 0; // 成功返回 true，失败返回 false
 };
 
@@ -29,6 +33,9 @@ export const ipcWindowControl = async (
  * @param width 窗口宽度
  * @param height 窗口高度
  */
-export const ipcSetWindowSize = async (width: number, height: number): Promise<void> => {
+export const ipcSetWindowSize = async (
+  width: number,
+  height: number,
+): Promise<void> => {
   await invokeApi<void>("set_window_size", { width, height });
 };

@@ -14,15 +14,19 @@ import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
 import { ErrorHandler } from "./utils/errorHandler";
-import { preInitTheme, completeThemeInit, initMainWindow } from "./utils/appInit";
+import {
+  preInitTheme,
+  completeThemeInit,
+  initMainWindow,
+} from "./utils/appInit";
 
 // 预初始化主题
 await preInitTheme();
 
 if (Window.getCurrent().label === "main") {
   ipcSetWindowSize(65, 65);
-  initMainWindow().catch(error => 
-    ErrorHandler.handleError(error, "主窗口初始化失败")
+  initMainWindow().catch((error) =>
+    ErrorHandler.handleError(error, "主窗口初始化失败"),
   );
 }
 
@@ -57,8 +61,8 @@ app.use(ConfirmationService);
 app.use(ToastService);
 
 // 完成主题系统初始化
-completeThemeInit().catch(error => 
-  ErrorHandler.handleError(error, "主题系统初始化失败")
+completeThemeInit().catch((error) =>
+  ErrorHandler.handleError(error, "主题系统初始化失败"),
 );
 
 app.mount("#app");

@@ -21,7 +21,6 @@
           class="theme-list-card clipboard-item"
           @click="pasteTo(item)"
           @contextmenu.prevent="(e) => handleClipboardContextMenu(e, item)">
-          
           <!-- 简单图标 -->
           <div class="item-icon">
             <i class="pi pi-copy"></i>
@@ -89,11 +88,11 @@ const pasteTo = async (item: QuickInputItem) => {
 
 .clipboard-list {
   flex: 1;
-  
+
   .clipboard-item {
     width: 100%;
     margin-bottom: 6px;
-    
+
     .item-icon {
       width: 16px;
       height: 16px;
@@ -122,8 +121,7 @@ const pasteTo = async (item: QuickInputItem) => {
         letter-spacing: 0.2px;
       }
     }
-    
-    
+
     &:hover .item-icon {
       color: var(--theme-primary);
     }

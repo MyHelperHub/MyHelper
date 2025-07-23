@@ -13,7 +13,9 @@ export async function getConfigValue<T = any>(key: string): Promise<T | null> {
   return await ipcGetConfigValue<T>(key);
 }
 
-export async function getConfigValuesBatch<T = any>(keys: string[]): Promise<Record<string, T | null>> {
+export async function getConfigValuesBatch<T = any>(
+  keys: string[],
+): Promise<Record<string, T | null>> {
   return await ipcGetConfigValuesBatch<T>(keys);
 }
 

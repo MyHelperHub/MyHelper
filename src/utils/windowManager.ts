@@ -1,4 +1,8 @@
-import { ipcWindowControl, ipcCreateNewWindow, ipcSetWindowSize } from "@/api/ipc/window.api";
+import {
+  ipcWindowControl,
+  ipcCreateNewWindow,
+  ipcSetWindowSize,
+} from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { WindowConfig } from "@/interface/window";
 import { Ref, ref } from "vue";

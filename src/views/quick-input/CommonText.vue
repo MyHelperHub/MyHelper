@@ -24,7 +24,6 @@
           class="theme-list-card quick-input-item"
           @click="pasteTo(item)"
           @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-          
           <!-- 简单图标 -->
           <div class="item-icon">
             <i class="pi pi-file"></i>
@@ -47,7 +46,7 @@
         </div>
       </template>
     </VirtualList>
-    
+
     <!-- 固定在右下角的添加按钮 -->
     <div class="floating-add-button" @click="addItem">
       <div class="fab-icon">
@@ -152,14 +151,13 @@ const pasteTo = (item: QuickInputItem) => {
   gap: 8px;
 }
 
-
 .text-list {
   flex: 1;
-  
+
   .quick-input-item {
     width: 100%;
     margin-bottom: 6px;
-    
+
     .item-icon {
       width: 16px;
       height: 16px;
@@ -212,7 +210,7 @@ const pasteTo = (item: QuickInputItem) => {
         }
       }
     }
-    
+
     &:hover .item-icon {
       color: var(--theme-primary);
     }
@@ -232,7 +230,7 @@ const pasteTo = (item: QuickInputItem) => {
     var(--theme-primary) 0%,
     var(--theme-primary-light) 100%
   );
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(var(--theme-primary-rgb), 0.3),
     0 2px 8px rgba(var(--theme-text-rgb), 0.1);
   cursor: pointer;
@@ -241,28 +239,28 @@ const pasteTo = (item: QuickInputItem) => {
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   z-index: 10;
-  
+
   .fab-icon {
     color: white;
     font-size: 16px;
     font-weight: bold;
     transition: all 0.3s ease;
   }
-  
+
   &:hover {
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 
+    box-shadow:
       0 6px 20px rgba(var(--theme-primary-rgb), 0.4),
       0 4px 12px rgba(var(--theme-text-rgb), 0.15);
-    
+
     .fab-icon {
       transform: rotate(90deg);
     }
   }
-  
+
   &:active {
     transform: translateY(0) scale(0.95);
-    box-shadow: 
+    box-shadow:
       0 2px 8px rgba(var(--theme-primary-rgb), 0.3),
       0 1px 4px rgba(var(--theme-text-rgb), 0.1);
   }

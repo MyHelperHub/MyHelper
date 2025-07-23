@@ -27,7 +27,10 @@
           @click="handleClick(item)">
           <div class="app-item">
             <i class="icon">
-              <img :src="item.data.icon" :alt="item.data.title" loading="lazy" />
+              <img
+                :src="item.data.icon"
+                :alt="item.data.title"
+                loading="lazy" />
             </i>
           </div>
         </div>

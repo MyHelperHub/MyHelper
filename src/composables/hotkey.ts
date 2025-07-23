@@ -3,7 +3,10 @@ import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Logger } from "../utils/logger.ts";
 import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api.ts";
 import { emit } from "../utils/eventBus.ts";
-import { isMainMenuVisible, handleMainWindowToggle } from "../utils/windowManager.ts";
+import {
+  isMainMenuVisible,
+  handleMainWindowToggle,
+} from "../utils/windowManager.ts";
 
 // 快捷键常量
 export const HotkeyActions = {

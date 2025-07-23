@@ -6,7 +6,10 @@ import { setHotkeyEnabled } from "@/composables/hotkey.ts";
 import { registerTask } from "./startupManager";
 import { AppConfig } from "@/interface/database";
 import { getConfig } from "@/utils/config";
-import { setAutoStartEnabled, syncAutoStartState } from "@/composables/autosStart.ts";
+import {
+  setAutoStartEnabled,
+  syncAutoStartState,
+} from "@/composables/autosStart.ts";
 
 // 模块级缓存变量，存储初始化时的配置
 let cachedSettingConfig: AppConfig["settingConfig"] | null = null;
@@ -15,7 +18,9 @@ let cachedSettingConfig: AppConfig["settingConfig"] | null = null;
  * 获取最新设置配置
  * 优先使用传入的配置，然后是缓存的初始配置，最后才从数据库获取
  */
-const getLatestConfig = async (passedConfig?: AppConfig["settingConfig"]): Promise<AppConfig["settingConfig"]> => {
+const getLatestConfig = async (
+  passedConfig?: AppConfig["settingConfig"],
+): Promise<AppConfig["settingConfig"]> => {
   // 优先使用传入的配置（避免重复数据库查询）
   if (passedConfig) {
     return passedConfig;
