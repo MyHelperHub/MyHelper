@@ -20,6 +20,8 @@ export interface WindowConfig {
   position?: [number, number];
   alwaysOnTop?: boolean;
   resizable?: boolean;
+  transparent?: boolean;
+  skipTaskbar?: boolean;
   icon?: string;
   loading?: boolean;
 }

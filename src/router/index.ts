@@ -33,6 +33,11 @@ const baseRoutes = [
     path: "/develop",
     component: () => import("@/views/plugin-market/Develop.vue"),
   },
+  {
+    name: "Pet",
+    path: "/pet",
+    component: () => import("@/desktop-pet/components/PetWindow.vue"),
+  },
 ];
 
 // mhPlugin.json中读取windowId创建插件路由  后续此处可改用api地址获取pluginConfig

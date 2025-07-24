@@ -1,0 +1,55 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "mark_free_t04.moc3",
+		"Textures": [
+			"mark_free_t04.2048/texture_00.png"
+		],
+		"Physics": "mark_free_t04.physics3.json",
+		"DisplayInfo": "mark_free_t04.cdi3.json",
+		"Motions": {
+			"Idle": [
+				{
+					"File": "motion/mark_m01.motion3.json"
+				}
+			],
+			"Tap": [
+				{
+					"File": "motion/mark_m03.motion3.json"
+				},
+				{
+					"File": "motion/mark_m04.motion3.json"
+				},
+				{
+					"File": "motion/mark_m06.motion3.json"
+				}
+			],
+			"FlickDown": [
+				{
+					"File": "motion/mark_m02.motion3.json"
+				}
+			],
+			"FlickUp": [
+				{
+					"File": "motion/mark_m05.motion3.json"
+				}
+			]
+		}
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeLOpen",
+				"ParamEyeROpen"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	],
+	"HitAreas": []
+}

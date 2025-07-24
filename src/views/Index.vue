@@ -5,10 +5,11 @@
       v-if="!isShowMenu"
       class="brand absolute left-3 top-3 z-2"
       data-tauri-drag-region>
-      <img
-        class="logo h-60px w-60px rounded-full cursor-pointer z-1 select-none"
-        :src="avatarLogo"
-        @click="showMenu" />
+      <!-- 宠物内嵌组件替换logo -->
+      <PetInline 
+        :logo-src="avatarLogo"
+        :on-logo-click="showMenu"
+      />
     </div>
 
     <!-- 大窗模式：显示完整界面 -->
@@ -68,6 +69,7 @@ import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { checkLogoPath } from "@/utils/user";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
+import PetInline from "@/desktop-pet/components/PetInline.vue";
 
 // 使用全局状态
 const isShowMenu = isMainMenuVisible;

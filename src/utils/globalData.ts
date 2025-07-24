@@ -16,6 +16,7 @@ class GlobalData {
     "userInfo",
     "theme",
     "settings",
+    "petState",
   ]);
 
   /**

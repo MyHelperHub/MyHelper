@@ -1,0 +1,187 @@
+{
+	"Version": 3,
+	"Parameters": [
+		{
+			"Id": "ParamAngleX",
+			"GroupId": "",
+			"Name": "角度 X"
+		},
+		{
+			"Id": "ParamAngleY",
+			"GroupId": "",
+			"Name": "角度 Y"
+		},
+		{
+			"Id": "ParamAngleZ",
+			"GroupId": "",
+			"Name": "角度 Z"
+		},
+		{
+			"Id": "ParamEyeLOpen",
+			"GroupId": "",
+			"Name": "左眼 开闭"
+		},
+		{
+			"Id": "ParamEyeROpen",
+			"GroupId": "",
+			"Name": "右眼 开闭"
+		},
+		{
+			"Id": "ParamEyeBallX",
+			"GroupId": "",
+			"Name": "眼珠 X"
+		},
+		{
+			"Id": "ParamEyeBallY",
+			"GroupId": "",
+			"Name": "眼珠 Y"
+		},
+		{
+			"Id": "ParamBrowLY",
+			"GroupId": "",
+			"Name": "左眉 上下"
+		},
+		{
+			"Id": "ParamBrowRY",
+			"GroupId": "",
+			"Name": "右眉 上下"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"GroupId": "",
+			"Name": "嘴 开闭"
+		},
+		{
+			"Id": "ParamArmL",
+			"GroupId": "",
+			"Name": "左手臂"
+		},
+		{
+			"Id": "ParamArmR",
+			"GroupId": "",
+			"Name": "右手臂"
+		},
+		{
+			"Id": "ParamLeftLeg",
+			"GroupId": "",
+			"Name": "左腿"
+		},
+		{
+			"Id": "ParamRightLeg",
+			"GroupId": "",
+			"Name": "右腿"
+		},
+		{
+			"Id": "ParamBodyAngleX",
+			"GroupId": "",
+			"Name": "身体的旋转 X"
+		},
+		{
+			"Id": "ParamBodyAngleY",
+			"GroupId": "",
+			"Name": "身体的旋转 Y"
+		},
+		{
+			"Id": "ParamBodyAngleZ",
+			"GroupId": "",
+			"Name": "身体的旋转 Z"
+		},
+		{
+			"Id": "ParamBreath",
+			"GroupId": "",
+			"Name": "呼吸"
+		},
+		{
+			"Id": "ParamHairFront",
+			"GroupId": "",
+			"Name": "头发摇动 前"
+		},
+		{
+			"Id": "ParamHairSide",
+			"GroupId": "",
+			"Name": "头发摇动 侧"
+		},
+		{
+			"Id": "ParamHairBack",
+			"GroupId": "",
+			"Name": "头发摇动 后"
+		}
+	],
+	"ParameterGroups": [],
+	"Parts": [
+		{
+			"Id": "PartHead",
+			"Name": "头"
+		},
+		{
+			"Id": "PartBody",
+			"Name": "身体"
+		},
+		{
+			"Id": "PartArmL",
+			"Name": "左手臂"
+		},
+		{
+			"Id": "PartArmR",
+			"Name": "右手臂"
+		},
+		{
+			"Id": "PartHairBack",
+			"Name": "后发"
+		},
+		{
+			"Id": "Part",
+			"Name": "Core"
+		},
+		{
+			"Id": "PartHairFront",
+			"Name": "前发"
+		},
+		{
+			"Id": "PartEyeL",
+			"Name": "左眼"
+		},
+		{
+			"Id": "PartEyeR",
+			"Name": "右眼"
+		},
+		{
+			"Id": "PartHairSide",
+			"Name": "侧发"
+		},
+		{
+			"Id": "PartMouth",
+			"Name": "嘴"
+		},
+		{
+			"Id": "PartFace",
+			"Name": "脸"
+		},
+		{
+			"Id": "PartEyeBallL",
+			"Name": "左眼珠"
+		},
+		{
+			"Id": "PartEyeWhiteL",
+			"Name": "左眼白"
+		},
+		{
+			"Id": "PartEyeBallR",
+			"Name": "右眼珠"
+		},
+		{
+			"Id": "PartEyeWhiteR",
+			"Name": "右眼白"
+		},
+		{
+			"Id": "PartOral",
+			"Name": "口腔"
+		}
+	],
+	"CombinedParameters": [
+		[
+			"ParamEyeBallX",
+			"ParamEyeBallY"
+		]
+	]
+}

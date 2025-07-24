@@ -6,6 +6,7 @@ export const NewWindowEnum = {
   My: "my",
   Setting: "setting",
   PluginMarket: "pluginMarket",
+  Pet: "pet",
   MhPlugin: pluginConfig.windowId,
 } as const;
 
@@ -37,6 +38,16 @@ export const WINDOW_CONFIG: Record<
     url: "#/plugin-market",
     size: [1300, 700],
     loading: true,
+  },
+  [NewWindowEnum.Pet]: {
+    windowId: NewWindowEnum.Pet,
+    title: "桌面宠物",
+    url: "#/pet",
+    size: [300, 400],
+    resizable: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
   },
   [NewWindowEnum.MhPlugin]: {
     windowId: NewWindowEnum.MhPlugin,

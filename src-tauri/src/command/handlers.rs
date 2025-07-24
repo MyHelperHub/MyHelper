@@ -38,6 +38,9 @@ macro_rules! generate_app_handlers {
             mh_get_self_config,
             mh_set_self_config,
             mh_delete_self_config,
+            // 桌面宠物
+            detect_animation_models,
+            detect_model_type,
             // 状态和数据
             set_global_data,
             get_global_data,
