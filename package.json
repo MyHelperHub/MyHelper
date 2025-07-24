@@ -14,7 +14,8 @@
     "tauri build": "tauri build",
     "build:prod": "vue-tsc --noEmit && vite build --mode production",
     "tauri build:prod": "tauri build --mode production",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@primeuix/themes": "^1.0.3",
