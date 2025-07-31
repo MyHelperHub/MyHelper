@@ -33,23 +33,16 @@
       },
       "assetProtocol": {
         "enable": true,
-        "scope": [
-          "$APPDATA/**"
-        ]
+        "scope": {
+          "allow": ["$APPDATA/**", "assets/**", "$RESOURCE/**"]
+        }
       }
     }
   },
   "bundle": {
     "active": true,
     "createUpdaterArtifacts": true,
-    "targets": [
-      "nsis",
-      "dmg",
-      "app",
-      "appimage",
-      "deb",
-      "rpm"
-    ],
+    "targets": ["nsis", "dmg", "app", "appimage", "deb", "rpm"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -61,13 +54,12 @@
     "windows": {
       "digestAlgorithm": "sha256",
       "nsis": {
-        "languages": [
-          "SimpChinese"
-        ],
+        "languages": ["SimpChinese"],
         "installMode": "both",
         "installerIcon": "icons/icon.ico"
       }
     },
+    "resources": ["assets/models"],
     "linux": {
       "deb": {
         "depends": [],
@@ -81,9 +73,7 @@
   },
   "plugins": {
     "updater": {
-      "endpoints": [
-        "https://myhelper.ialtone.xyz/update.json"
-      ],
+      "endpoints": ["https://myhelper.ialtone.xyz/update.json"],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEEzNzMwOUYyNzQ3QzU2MTgKUldRWVZueDA4Z2x6bzVkd0NQNDJpZFZLOHVYdXJGTEFZM3lCdktZNlBoMldWL3p1enRLVEp3M0YK"
     }
   }

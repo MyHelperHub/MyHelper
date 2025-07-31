@@ -30,6 +30,15 @@
     "shell:allow-open",
     "global-shortcut:default",
     "autostart:allow-is-enabled",
-    "autostart:default"
+    "autostart:default",
+    "fs:default",
+    "fs:read-all",
+    "fs:write-all",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        "**/*"
+      ]
+    }
   ]
 }

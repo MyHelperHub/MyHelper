@@ -28,6 +28,7 @@ reqwest = { version = "0.12.15", features = ["native-tls-vendored"] }
 tauri = { version = "2.7.0", features = [ "macos-private-api", "protocol-asset", "tray-icon", "image-png", "devtools"] }
 tauri-plugin-dialog = "2.3.1"
 tauri-plugin-shell = "2.3.0"
+tauri-plugin-fs = "2.4.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 simd-json = "0.15.0"
@@ -85,14 +86,10 @@ gio = "0.20.9"
 
 
 [profile.dev]
-opt-level = 1          # 基本优化，显著提升性能
-debug = true           # 保留调试信息便于开发
-strip = false          # 保留调试符号
-lto = false           # 开发阶段不需要LTO
-
-# 优化依赖项编译，提升整体性能
-[profile.dev.package."*"]
-opt-level = 3          # 依赖项全优化
+opt-level = 0 #没有优化
+debug = 0 #没有调试信息
+strip = true #删除符号或调试信息
+lto = false #禁用代码优化
 
 [workspace]
 members = [

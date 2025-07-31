@@ -43,6 +43,9 @@
     <Fieldset legend="账号管理" class="account-section">
       <Login />
     </Fieldset>
+    <Fieldset legend="我的宠物" class="pet-section">
+      <PetList />
+    </Fieldset>
   </div>
 </template>
 
@@ -61,6 +64,7 @@ import { emit } from "@tauri-apps/api/event";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
+import PetList from "./Pet/PetList.vue";
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态
@@ -199,6 +203,23 @@ const handleClose = () => {
   .cropper-container {
     width: 200px;
     height: 150px;
+  }
+
+  .account-section {
+    margin: 15px 0;
+  }
+
+  .pet-section {
+    margin: 15px 0;
+
+    :deep(.p-fieldset) {
+      min-height: 200px;
+    }
+
+    :deep(.p-fieldset-content) {
+      padding: 10px !important;
+      min-height: 150px;
+    }
   }
 
   // 特殊的文件上传样式覆盖
