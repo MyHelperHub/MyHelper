@@ -16,6 +16,8 @@ class GlobalData {
     "userInfo",
     "theme",
     "settings",
+    "selectedPetModel", // 当前选中的宠物模型
+    "petModelCache", // 宠物模型缓存
   ]);
 
   /**

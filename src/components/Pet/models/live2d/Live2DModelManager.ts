@@ -9,7 +9,7 @@ import {
 import type { ModelConfig, ModelInfo, PetModelManager } from "@/interface/pet";
 import { Logger } from "@/utils/logger";
 
-/** 全局 PIXI Application 管理器，单例模式管理多个画布的应用实例 */
+/** 全局 PIXI Application 管理器，简化版本避免过度复杂化 */
 class GlobalAppManager {
   private static instance: GlobalAppManager | null = null;
   private apps: Map<HTMLCanvasElement, Application> = new Map();
@@ -30,9 +30,9 @@ class GlobalAppManager {
         backgroundAlpha: 0,
         resolution: devicePixelRatio,
         resizeTo: canvas,
-        // 添加这些配置来避免着色器问题
-        antialias: false,
-        powerPreference: "high-performance",
+        // 基本配置，避免过度优化导致问题
+        antialias: true,
+        powerPreference: "default",
       });
       this.apps.set(canvas, app);
     }
@@ -44,7 +44,7 @@ class GlobalAppManager {
     const app = this.apps.get(canvas);
     if (app) {
       try {
-        app.destroy();
+        app.destroy(true);
       } catch (error) {
         // 静默处理销毁错误
       }
@@ -63,8 +63,6 @@ export class Live2DModelManager implements PetModelManager {
 
   /** 初始化PIXI应用实例 */
   private initApp(canvas: HTMLCanvasElement) {
-    if (this.canvas === canvas && this.app) return;
-
     this.canvas = canvas;
     this.app = this.appManager.getApp(canvas);
   }
@@ -281,8 +279,8 @@ export class Live2DModelManager implements PetModelManager {
       this.model = null;
     }
 
-    // 重置缩放比例到默认值
-    this.modelScale = 0.8;
+    // 不销毁PIXI应用实例，只清理模型
+    // 让应用实例继续存在以便重用
   }
 
   /** 检查模型是否有效且未被销毁 */

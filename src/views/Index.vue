@@ -1,13 +1,16 @@
 <template>
   <div class="app-container w-full h-full overflow-hidden">
-    <!-- 小窗模式logo - 固定位置 -->
+    <!-- 头像显示 - 根据窗口状态自动调整 -->
     <div
-      v-if="!isShowMenu"
-      class="brand absolute left-3 top-3 z-2"
+      class="avatar-container"
+      :class="{ 
+        'small-mode': !isShowMenu, 
+        'large-mode': isShowMenu 
+      }"
       data-tauri-drag-region>
-      <img
-        class="logo h-60px w-60px rounded-full cursor-pointer z-1 select-none"
-        :src="avatarLogo"
+      <AvatarDisplay
+        :default-logo="avatarLogo"
+        :logo-class="!isShowMenu ? 'logo h-60px w-60px rounded-full cursor-pointer z-1 select-none' : 'avatar-logo'"
         @click="showMenu" />
     </div>
 
@@ -16,9 +19,10 @@
       <div v-if="isShowMenu" class="main-panel">
         <!-- 头部区域 -->
         <div class="header-section">
-          <!-- Logo和标题 -->
+          <!-- 标题区域 - 宠物已经在全局容器中 -->
           <div class="header-left">
-            <img class="avatar-logo" :src="avatarLogo" @click="showMenu" />
+            <!-- 占位div，保持布局 -->
+            <div class="pet-placeholder"></div>
             <div class="app-title">
               <span class="title-text">MyHelper</span>
               <span class="subtitle-text">智能助手</span>
@@ -68,6 +72,7 @@ import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { checkLogoPath } from "@/utils/user";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
+import AvatarDisplay from "@/components/common/AvatarDisplay.vue";
 
 // 使用全局状态
 const isShowMenu = isMainMenuVisible;
@@ -129,13 +134,25 @@ const showMenu = async () => {
   overflow: hidden;
 }
 
-// 小窗模式样式 - 固定定位
-.brand {
+// 头像容器样式
+.avatar-container {
   position: absolute;
-  left: 3px;
-  top: 3px;
   z-index: 2;
-  animation: logo-appear 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+
+  // 小窗模式定位
+  &.small-mode {
+    left: 3px;
+    top: 3px;
+    animation: logo-appear 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  // 大窗模式定位
+  &.large-mode {
+    left: 16px;
+    top: 20px;
+    animation: logo-slide-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
 
   .logo {
     height: 60px;
@@ -253,21 +270,10 @@ const showMenu = async () => {
     align-items: center;
     gap: 10px;
 
-    .avatar-logo {
+    .pet-placeholder {
       width: 32px;
       height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
-      animation: logo-slide-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-      border: 1px solid rgba(var(--theme-primary-rgb), 0.15);
-
-      &:hover {
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.3);
-        border-color: rgba(var(--theme-primary-rgb), 0.3);
-      }
+      // 占位符，实际的宠物显示在全局容器中
     }
 
     .app-title {

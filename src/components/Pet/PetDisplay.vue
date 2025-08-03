@@ -70,7 +70,7 @@ const loadModel = async () => {
     const info = await modelManager.load(canvasRef.value, props.modelConfig);
 
     if (info) {
-      modelInfo.value = { ...info, name: props.modelConfig.name };
+      modelInfo.value = info;
       await nextTick();
       modelManager.resize(canvasRef.value);
       emit("loaded", info);
@@ -96,7 +96,6 @@ const setupCanvas = () => {
   }
 
   const canvas = canvasRef.value;
-  const container = canvas.parentElement;
 
   // 设置画布的实际尺寸和显示尺寸
   canvas.width = props.width;

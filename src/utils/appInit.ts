@@ -13,6 +13,7 @@ import {
   handleSettingChange,
   runStartupTasks,
 } from "../views/setting/utils/startupManager";
+import { petManager } from "./petManager";
 
 /**
  * 应用初始化管理器
@@ -120,6 +121,9 @@ class AppInitManager {
       });
 
       await this.initUserState(userConfig);
+
+      // 初始化宠物管理器
+      await this.initPetManager();
     } catch (error) {
       await ErrorHandler.handleError(error, "主窗口初始化失败");
     }
@@ -139,6 +143,18 @@ class AppInitManager {
       } as User);
     } else {
       await GlobalData.set("userInfo", userConfig as User);
+    }
+  }
+
+  /**
+   * 初始化宠物管理器
+   */
+  private async initPetManager(): Promise<void> {
+    try {
+      await petManager.init();
+      console.log("宠物管理器初始化完成");
+    } catch (error) {
+      await ErrorHandler.handleError(error, "宠物管理器初始化失败");
     }
   }
 

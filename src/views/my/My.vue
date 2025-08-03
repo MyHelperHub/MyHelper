@@ -70,6 +70,8 @@ import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
 import { PetList } from "@/components/Pet";
+import { petManager } from "@/utils/petManager";
+import type { ModelConfig, ModelInfo } from "@/interface/pet";
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态
@@ -123,12 +125,23 @@ const handleClose = () => {
 };
 
 // Pet相关事件处理函数
-const onModelChanged = (modelConfig: any) => {
-  console.log("My: 模型切换", modelConfig);
+const onModelChanged = async (modelConfig: ModelConfig | null) => {
+  console.log("My: 模型切换", modelConfig?.name || "无");
+  
+  try {
+    // 更新全局选中的宠物模型
+    await petManager.setSelectedModel(modelConfig);
+    console.log("My: 全局宠物模型已更新");
+  } catch (error) {
+    console.error("My: 更新全局宠物模型失败", error);
+  }
 };
 
-const onModelLoaded = (modelInfo: any) => {
+const onModelLoaded = (modelInfo: ModelInfo) => {
   console.log("My: 模型加载完成", modelInfo);
+  
+  // 模型加载完成后，宠物管理器会自动缓存模型信息
+  // 主页的宠物显示会自动更新
 };
 
 const onModelError = (error: string) => {

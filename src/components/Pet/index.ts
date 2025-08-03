@@ -8,6 +8,7 @@ export { default as Pet } from "./Pet.vue";
 export { default as PetDisplay } from "./PetDisplay.vue";
 export { default as PetSelector } from "./PetSelector.vue";
 export { default as PetList } from "./PetList.vue";
+export { default as PetMainDisplay } from "./PetMainDisplay.vue";
 
 /** 模型工厂和类导出 */
 export * from "./models/PetModelFactory";
