@@ -1,7 +1,7 @@
 <template>
   <div class="plugin-develop">
     <i class="pi pi-times close close-button" @click="handleClose"></i>
-    
+
     <!-- 左侧边栏 -->
     <DevelopSidebar
       :active-menu="activeMenu"
@@ -14,7 +14,11 @@
         icon="pi pi-hammer"
         label="插件调试"
         text
-        @click="() => { ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]); }"
+        @click="
+          () => {
+            ipcCreateNewWindow(WINDOW_CONFIG[NewWindowEnum.MhPlugin]);
+          }
+        "
         class="debug-link" />
     </div>
 
@@ -191,11 +195,11 @@ import { PluginStatus, PluginCategory } from "@/interface/plugin.d";
 import { showLoading, hideLoading } from "@/composables/loading.ts";
 import GlobalData from "@/utils/globalData";
 import Paginator from "primevue/paginator";
-import { 
+import {
   MenuKey,
-  STATUS_MAP, 
-  STATUS_SEVERITY_MAP, 
-  MENU_TITLES 
+  STATUS_MAP,
+  STATUS_SEVERITY_MAP,
+  MENU_TITLES,
 } from "@/interface/pluginMarket.d";
 import type {
   DeveloperPlugin,
@@ -318,7 +322,8 @@ const loadData = async () => {
           historyResponse.Code === ResponseCodeEnum.SUCCESS &&
           historyResponse.Data
         ) {
-          uploadHistory.value = historyResponse.Data as unknown as DeveloperPlugin[];
+          uploadHistory.value =
+            historyResponse.Data as unknown as DeveloperPlugin[];
           totalRecords.value = historyResponse.Page.TotalRecords;
         }
         break;
@@ -879,7 +884,8 @@ const removeScreenshot = (index: number) => {
 /** 处理表格行点击 */
 const onRowClick = (event: { data: DeveloperPlugin }) => {
   selectedPlugin.value = event.data;
-  if (activeMenu.value === 1) { // MenuKey.UploadHistory
+  if (activeMenu.value === 1) {
+    // MenuKey.UploadHistory
     // 上传记录的详情展示
     showDetailDialog.value = true;
   } else {

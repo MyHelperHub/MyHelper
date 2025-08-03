@@ -30,8 +30,6 @@ export const handleWindowToggle = async (
         });
         isOpen.value = false;
       } catch (err) {
-        // 如果关闭失败，说明窗口可能已经不存在
-        // 这种情况下重置状态并创建新窗口
         isOpen.value = false;
         const res = await ipcCreateNewWindow(config);
         isOpen.value = Boolean(res);
@@ -42,7 +40,6 @@ export const handleWindowToggle = async (
       isOpen.value = Boolean(res);
     }
   } catch (error) {
-    // 确保状态与实际窗口状态同步
     isOpen.value = false;
   }
 };
@@ -61,7 +58,6 @@ export const handleMainWindowToggle = async () => {
     width = 65;
     height = 65;
     isMainMenuVisible.value = false;
-    // 等待动画完成后再调整窗口大小
     await delay(220).then(() => {
       ipcSetWindowSize(width, height);
     });

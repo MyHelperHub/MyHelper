@@ -13,11 +13,9 @@ const eventBus = ref(new Map<string, Function[]>());
  * @param callback - 当该事件被触发时调用的回调函数。
  */
 export function on(event: string, callback: Function) {
-  // 如果该事件名称不存在于事件总线中，先初始化为一个空数组
   if (!eventBus.value.has(event)) {
     eventBus.value.set(event, []);
   }
-  // 将回调函数添加到该事件的回调函数数组中
   eventBus.value.get(event)?.push(callback);
 }
 
@@ -29,7 +27,6 @@ export function on(event: string, callback: Function) {
 export function update(event: string, callback: Function) {
   const listeners = eventBus.value.get(event);
   if (listeners) {
-    // 过滤掉与传入的 callback 不同的监听器，从而移除目标回调
     eventBus.value.set(
       event,
       listeners.filter((listener) => listener !== callback),
@@ -42,7 +39,6 @@ export function update(event: string, callback: Function) {
  * @param event - 事件名称。
  */
 export function off(event: string) {
-  // 直接删除该事件名称对应的回调函数数组
   eventBus.value.delete(event);
 }
 
@@ -54,7 +50,6 @@ export function off(event: string) {
 export function emit(event: string, payload?: any) {
   const listeners = eventBus.value.get(event);
   if (listeners) {
-    // 遍历所有该事件的监听器，并依次执行回调函数
     listeners.forEach((listener) => listener(payload));
   }
 }
@@ -65,10 +60,8 @@ export function emit(event: string, payload?: any) {
  */
 export function clear(event?: string) {
   if (event) {
-    // 清除指定事件的监听器
     eventBus.value.delete(event);
   } else {
-    // 清除所有事件和监听器
     eventBus.value.clear();
   }
 }

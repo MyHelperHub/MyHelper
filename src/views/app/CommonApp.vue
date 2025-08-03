@@ -85,7 +85,6 @@ const init = async () => {
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
-  // 通过事件总线传递方法
   on("edit-appItem", openEditAppItem);
   on("delete-appItem", deleteAppItem);
 };
@@ -117,27 +116,21 @@ const addAppItem = async () => {
   })) as string;
 
   const formattedFilePath = filePath.replace(/\\/g, "/");
-  // 设置应用路径
   newItem.src = formattedFilePath;
 
-  // 获取文件名
   let fileName = formattedFilePath.substring(
     formattedFilePath.lastIndexOf("/") + 1,
   );
 
-  // 去除 .exe 后缀 (如果存在)
   if (fileName.toLowerCase().endsWith(".exe")) {
     fileName = fileName.slice(0, -4);
   }
 
-  // 设置应用标题
   newItem.title = fileName;
 
   try {
-    // 获取应用图标
     newItem.logo = (await ipcGetAppIcon(filePath)) as string;
 
-    // 更新 dataList 并保存
     dataList.value.push(newItem);
     await setConfig("appConfig", { dataList: dataList.value });
   } catch (error) {
@@ -150,9 +143,7 @@ const openEditAppItem = (item: AppItem) => {
 };
 
 const deleteAppItem = async (id: number) => {
-  // 找到要删除的元素索引
   const index = dataList.value.findIndex((item) => item.id === id);
-  // 如果找到了，则删除该元素
   if (index !== -1) {
     //暂存logo文件名
     const filePath = dataList.value[index].logo;
@@ -160,7 +151,6 @@ const deleteAppItem = async (id: number) => {
       filePath.lastIndexOf("\\") + 1,
     );
     dataList.value.splice(index, 1);
-    // 将数据存储到本地配置中
     try {
       await setConfig("appConfig", { dataList: dataList.value });
       ipcDeleteIcon(fileName, 1).catch((err) => {
@@ -174,10 +164,8 @@ const deleteAppItem = async (id: number) => {
 };
 
 const editAppItem = async (updatedItem: AppItem) => {
-  // 找到要更新的网站的索引
   const index = dataList.value.findIndex((item) => item.id === updatedItem.id);
   if (index !== -1) {
-    // 使用新的数据更新 dataList 中的对应项
     dataList.value[index] = updatedItem;
 
     // 更新本地配置
@@ -209,6 +197,7 @@ defineExpose({ visible });
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     line-height: 1.2;
     max-height: calc(1.2em * 3);

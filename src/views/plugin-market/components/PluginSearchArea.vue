@@ -38,10 +38,10 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:keyword', value: string): void;
-  (e: 'search'): void;
-  (e: 'clear-search'): void;
-  (e: 'show-installed'): void;
+  (e: "update:keyword", value: string): void;
+  (e: "search"): void;
+  (e: "clear-search"): void;
+  (e: "show-installed"): void;
 }
 
 defineProps<Props>();

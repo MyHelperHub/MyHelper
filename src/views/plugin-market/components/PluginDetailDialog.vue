@@ -24,7 +24,9 @@
                 :cancel="false"
                 readonly />
             </div>
-            <span class="downloads">{{ formatNumber(selectedPlugin.Downloads) }}次下载</span>
+            <span class="downloads"
+              >{{ formatNumber(selectedPlugin.Downloads) }}次下载</span
+            >
           </div>
           <div class="stats" v-else>
             <div class="rating-wrapper">
@@ -46,7 +48,12 @@
                 }" />
               <span
                 class="rating-hint"
-                v-if="!selectedPluginIsRated && userData?.Token && installedPluginIds.includes(selectedPlugin?.WindowId || '') && selectedPlugin.Id !== -1">
+                v-if="
+                  !selectedPluginIsRated &&
+                  userData?.Token &&
+                  installedPluginIds.includes(selectedPlugin?.WindowId || '') &&
+                  selectedPlugin.Id !== -1
+                ">
                 点击星星进行评分
               </span>
               <span class="rating-hint" v-else-if="selectedPluginIsRated">
@@ -110,7 +117,9 @@
                 <template v-if="isPluginInstalled">
                   {{ installedVersion }}
                   <template v-if="hasUpdate">
-                    <span class="latest-version">(最新版本: {{ selectedPlugin?.Version }})</span>
+                    <span class="latest-version"
+                      >(最新版本: {{ selectedPlugin?.Version }})</span
+                    >
                   </template>
                 </template>
                 <template v-else>
@@ -123,23 +132,33 @@
             <i class="pi pi-clock"></i>
             <div class="info-content">
               <span class="label">创建时间</span>
-              <span class="value">{{ formatDate(selectedPlugin.CreateTime, true) }}</span>
+              <span class="value">{{
+                formatDate(selectedPlugin.CreateTime, true)
+              }}</span>
             </div>
           </div>
           <div class="info-item">
             <i class="pi pi-refresh"></i>
             <div class="info-content">
               <span class="label">更新时间</span>
-              <span class="value">{{ formatDate(selectedPlugin.UpdateTime, true) }}</span>
+              <span class="value">{{
+                formatDate(selectedPlugin.UpdateTime, true)
+              }}</span>
             </div>
           </div>
           <div
             class="info-item"
-            v-if="isPluginInstalled && selectedPlugin.installTime && formatDate(selectedPlugin.installTime, true)">
+            v-if="
+              isPluginInstalled &&
+              selectedPlugin.installTime &&
+              formatDate(selectedPlugin.installTime, true)
+            ">
             <i class="pi pi-download"></i>
             <div class="info-content">
               <span class="label">安装时间</span>
-              <span class="value">{{ formatDate(selectedPlugin.installTime, true) }}</span>
+              <span class="value">{{
+                formatDate(selectedPlugin.installTime, true)
+              }}</span>
             </div>
           </div>
         </div>
@@ -182,7 +201,11 @@ import Tag from "primevue/tag";
 import Carousel from "primevue/carousel";
 import Button from "primevue/button";
 import type { Plugin } from "@/interface/plugin.d";
-import { formatNumber, formatDate, checkPluginUpdate } from "@/utils/pluginUtils";
+import {
+  formatNumber,
+  formatDate,
+  checkPluginUpdate,
+} from "@/utils/pluginUtils";
 
 interface Props {
   visible: boolean;
@@ -196,10 +219,10 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:visible', value: boolean): void;
-  (e: 'close'): void;
-  (e: 'download', plugin: Plugin | null, isUpdate: boolean): void;
-  (e: 'rating-change', event: { value: number }): void;
+  (e: "update:visible", value: boolean): void;
+  (e: "close"): void;
+  (e: "download", plugin: Plugin | null, isUpdate: boolean): void;
+  (e: "rating-change", event: { value: number }): void;
 }
 
 const props = defineProps<Props>();
@@ -213,19 +236,26 @@ const isPluginInstalled = computed(() => {
 
 // 计算属性：已安装版本
 const installedVersion = computed(() => {
-  if (!props.selectedPlugin) return '';
+  if (!props.selectedPlugin) return "";
   const installedPlugin = props.installedPlugins.find(
-    p => p.WindowId === props.selectedPlugin?.WindowId
+    (p) => p.WindowId === props.selectedPlugin?.WindowId,
   );
-  return installedPlugin?.Version || '';
+  return installedPlugin?.Version || "";
 });
 
 // 计算属性：是否有更新
 const hasUpdateComputed = computed(() => {
-  if (!isPluginInstalled.value || !installedVersion.value || !props.selectedPlugin?.Version) {
+  if (
+    !isPluginInstalled.value ||
+    !installedVersion.value ||
+    !props.selectedPlugin?.Version
+  ) {
     return false;
   }
-  return checkPluginUpdate(installedVersion.value, props.selectedPlugin.Version);
+  return checkPluginUpdate(
+    installedVersion.value,
+    props.selectedPlugin.Version,
+  );
 });
 </script>
 

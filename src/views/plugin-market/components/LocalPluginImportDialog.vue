@@ -12,7 +12,11 @@
         <div class="file-details">
           <div class="file-name">{{ localPluginFile.name }}</div>
           <div class="file-size text-xs text-gray-500">
-            {{ localPluginFile.size > 0 ? formatFileSize(localPluginFile.size) : "大小未知" }}
+            {{
+              localPluginFile.size > 0
+                ? formatFileSize(localPluginFile.size)
+                : "大小未知"
+            }}
           </div>
         </div>
       </div>
@@ -20,7 +24,9 @@
       <h3 class="text-lg font-semibold mt-4 mb-3">基本信息</h3>
 
       <div class="form-group mt-3">
-        <label for="pluginWindowId" class="block mb-2">插件ID (唯一标识符)</label>
+        <label for="pluginWindowId" class="block mb-2"
+          >插件ID (唯一标识符)</label
+        >
         <div class="info-text-display">
           {{ localPluginInfo.windowId || "-" }}
         </div>
@@ -80,14 +86,22 @@
       <div class="form-group mt-3">
         <label for="pluginSize" class="block mb-2">窗口大小</label>
         <div class="info-text-display">
-          {{ localPluginInfo.size ? `${localPluginInfo.size[0]} × ${localPluginInfo.size[1]}` : "-" }}
+          {{
+            localPluginInfo.size
+              ? `${localPluginInfo.size[0]} × ${localPluginInfo.size[1]}`
+              : "-"
+          }}
         </div>
       </div>
 
       <div class="form-group mt-3">
         <label for="pluginPosition" class="block mb-2">窗口位置</label>
         <div class="info-text-display">
-          {{ localPluginInfo.position ? `X:${localPluginInfo.position[0]}, Y:${localPluginInfo.position[1]}` : "-" }}
+          {{
+            localPluginInfo.position
+              ? `X:${localPluginInfo.position[0]}, Y:${localPluginInfo.position[1]}`
+              : "-"
+          }}
         </div>
       </div>
 
@@ -127,10 +141,7 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <Button
-          label="取消"
-          class="p-button-text"
-          @click="$emit('close')" />
+        <Button label="取消" class="p-button-text" @click="$emit('close')" />
         <Button
           label="导入"
           icon="pi pi-check"
@@ -147,7 +158,10 @@ import { computed } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
-import type { LocalPluginFile, LocalPluginInfo } from "@/interface/pluginMarket.d";
+import type {
+  LocalPluginFile,
+  LocalPluginInfo,
+} from "@/interface/pluginMarket.d";
 
 interface Props {
   visible: boolean;
@@ -156,10 +170,10 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:visible', value: boolean): void;
-  (e: 'close'): void;
-  (e: 'import'): void;
-  (e: 'open-file-selector'): void;
+  (e: "update:visible", value: boolean): void;
+  (e: "close"): void;
+  (e: "import"): void;
+  (e: "open-file-selector"): void;
 }
 
 const props = defineProps<Props>();

@@ -32,7 +32,9 @@
                 height="32" />
               <div class="plugin-basic-info">
                 <span class="name">{{ slotProps.data.Name }}</span>
-                <span class="description">{{ slotProps.data.Description }}</span>
+                <span class="description">{{
+                  slotProps.data.Description
+                }}</span>
               </div>
             </div>
           </template>
@@ -102,7 +104,13 @@
                     ? '点击禁用插件'
                     : '点击启用插件'
                 "
-                @click="$emit('toggle-plugin', slotProps.data, !slotProps.data.config?.isEnabled)"
+                @click="
+                  $emit(
+                    'toggle-plugin',
+                    slotProps.data,
+                    !slotProps.data.config?.isEnabled,
+                  )
+                "
                 class="action-button" />
               <Button
                 icon="pi pi-trash"
@@ -127,10 +135,7 @@ import Column from "primevue/column";
 import Image from "primevue/image";
 import Tag from "primevue/tag";
 import type { Plugin, PluginDetail } from "@/interface/plugin.d";
-import { 
-  formatDate, 
-  checkPluginUpdate
-} from "@/utils/pluginUtils";
+import { formatDate, checkPluginUpdate } from "@/utils/pluginUtils";
 
 interface Props {
   visible: boolean;
@@ -139,12 +144,12 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:visible', value: boolean): void;
-  (e: 'open-import-dialog'): void;
-  (e: 'show-plugin-detail', plugin: Plugin): void;
-  (e: 'download-plugin', plugin: Plugin, isUpdate: boolean): void;
-  (e: 'toggle-plugin', plugin: Plugin, enable: boolean): void;
-  (e: 'uninstall-plugin', plugin: Plugin, event: Event): void;
+  (e: "update:visible", value: boolean): void;
+  (e: "open-import-dialog"): void;
+  (e: "show-plugin-detail", plugin: Plugin): void;
+  (e: "download-plugin", plugin: Plugin, isUpdate: boolean): void;
+  (e: "toggle-plugin", plugin: Plugin, enable: boolean): void;
+  (e: "uninstall-plugin", plugin: Plugin, event: Event): void;
 }
 
 const props = defineProps<Props>();
@@ -152,8 +157,12 @@ defineEmits<Emits>();
 
 // 检查插件是否有更新
 const hasUpdate = (plugin: Plugin): boolean => {
-  const marketPlugin = props.plugins.find(p => p.Plugin.WindowId === plugin.WindowId);
-  return marketPlugin ? checkPluginUpdate(plugin.Version, marketPlugin.Plugin.Version) : false;
+  const marketPlugin = props.plugins.find(
+    (p) => p.Plugin.WindowId === plugin.WindowId,
+  );
+  return marketPlugin
+    ? checkPluginUpdate(plugin.Version, marketPlugin.Plugin.Version)
+    : false;
 };
 </script>
 

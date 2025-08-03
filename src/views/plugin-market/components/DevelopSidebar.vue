@@ -31,8 +31,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'go-back'): void;
-  (e: 'menu-click', menuKey: MenuKey): void;
+  (e: "go-back"): void;
+  (e: "menu-click", menuKey: MenuKey): void;
 }
 
 defineProps<Props>();

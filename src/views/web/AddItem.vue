@@ -162,9 +162,8 @@ const handleConfirm = async () => {
     showMessage("请选择图标!");
     return;
   }
-  // 检查 URL 是否以 http:// 或 https:// 开头
   if (!/^https?:\/\//i.test(formData.value.url)) {
-    formData.value.url = `http://${formData.value.url}`; // 默认添加 http://
+    formData.value.url = `http://${formData.value.url}`;
   }
   // formData.value.id为-1时为新增
   if (formData.value.id === -1) {

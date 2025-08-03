@@ -30,7 +30,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'select-category', category: string): void;
+  (e: "select-category", category: string): void;
 }
 
 defineProps<Props>();

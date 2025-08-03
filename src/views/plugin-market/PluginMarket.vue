@@ -2,7 +2,7 @@
   <div class="plugin-market">
     <ConfirmPopup />
     <i class="pi pi-times close close-button" @click="handleClose"></i>
-    
+
     <!-- 顶部搜索区域 -->
     <PluginSearchArea
       v-model:keyword="state.keyword"
@@ -781,7 +781,9 @@ const openFileSelector = async () => {
 const analyzePluginPackage = async (filePath: string) => {
   try {
     showLoading();
-    const result = (await ipcAnalyzePluginPackage(filePath)) as PluginAnalysisResult;
+    const result = (await ipcAnalyzePluginPackage(
+      filePath,
+    )) as PluginAnalysisResult;
 
     if (!result || !result.success) {
       throw new Error(result?.message || "解析插件包失败");

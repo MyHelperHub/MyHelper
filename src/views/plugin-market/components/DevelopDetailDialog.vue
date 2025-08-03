@@ -152,7 +152,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:visible', value: boolean): void;
+  (e: "update:visible", value: boolean): void;
 }
 
 defineProps<Props>();

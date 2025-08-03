@@ -88,41 +88,33 @@ const activeInputRef = ref<HTMLInputElement | null>(null);
 // 临时按键值
 const tempKey = ref("");
 
-// 更新快捷键设置
 const updateHotkey = (path: string, value: any) => {
   emit("change", path, value);
 };
 
-// 处理输入框点击
 const handleInputClick = (key: string) => {
   if (!props.modelValue[key]?.enabled) return;
 
-  // 如果已经在录制其他键，先取消
   if (recording.value && activeKey.value !== key) {
     cancelRecording();
   }
 
-  // 如果点击的是当前正在录制的键，则取消录制
   if (recording.value && activeKey.value === key) {
     cancelRecording();
     return;
   }
 
-  // 开始录制新键
   recording.value = true;
   activeKey.value = key;
-  // 设置临时键为当前已有的值，而不是清空
   tempKey.value = props.modelValue[key]?.key || "";
 };
 
-// 取消录制
 const cancelRecording = () => {
   recording.value = false;
   activeKey.value = null;
   tempKey.value = "";
 };
 
-// 清空快捷键
 const clearHotkey = (key: string) => {
   if (!props.modelValue[key]?.enabled) return;
 
@@ -135,7 +127,6 @@ const clearHotkey = (key: string) => {
   showMessage(`已清空快捷键`, 1500, 1);
 };
 
-// 捕获快捷键
 const captureHotkey = async (event: KeyboardEvent) => {
   if (
     !recording.value ||
@@ -150,13 +141,11 @@ const captureHotkey = async (event: KeyboardEvent) => {
   let modifiers = [];
   const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
-  // 使用标准完整名称，以匹配Tauri内部表示
   if (event.metaKey) modifiers.push(isMac ? "command" : "meta");
   if (event.ctrlKey) modifiers.push("control");
   if (event.altKey) modifiers.push(isMac ? "option" : "alt");
   if (event.shiftKey) modifiers.push("shift");
 
-  // 处理单独修饰键
   if (!event.key || ["Control", "Alt", "Shift", "Meta"].includes(event.key)) {
     tempKey.value = modifiers.length > 0 ? `${modifiers.join("+")}+` : "";
     return;
@@ -164,9 +153,8 @@ const captureHotkey = async (event: KeyboardEvent) => {
 
   const keyName = event.key === " " ? "space" : event.key.toLowerCase();
 
-  // 确保至少有一个修饰键
   if (modifiers.length === 0) {
-    tempKey.value = ""; // 清空临时显示
+    tempKey.value = "";
     showMessage(
       `请使用组合键（${isMac ? "Command/Option/Ctrl" : "Ctrl/Alt/Shift"} + 其他键）`,
       1500,
@@ -177,10 +165,8 @@ const captureHotkey = async (event: KeyboardEvent) => {
 
   const hotkey = `${modifiers.join("+")}+${keyName}`;
 
-  // 更新临时显示
   tempKey.value = hotkey;
 
-  // 更新模型
   const updatedModel = JSON.parse(JSON.stringify(props.modelValue));
   updatedModel[activeKey.value].key = hotkey;
 

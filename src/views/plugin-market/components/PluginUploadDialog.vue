@@ -31,7 +31,11 @@
                 @click="$emit('trigger-file-input')">
                 <i class="pi pi-cloud-upload text-4xl text-primary mb-4"></i>
                 <p class="text-lg mb-2">
-                  {{ isEditMode ? "点击或拖拽更新插件代码(可选)" : "点击或拖拽上传插件包" }}
+                  {{
+                    isEditMode
+                      ? "点击或拖拽更新插件代码(可选)"
+                      : "点击或拖拽上传插件包"
+                  }}
                 </p>
                 <small v-if="isEditMode" class="text-red-400">
                   若不更新插件代码，请勿上传<br />
@@ -44,8 +48,12 @@
               <div class="flex items-center p-4 bg-white rounded-lg">
                 <i class="pi pi-file-zip text-2xl text-primary mr-4"></i>
                 <div class="flex-1">
-                  <span class="block font-medium">{{ pluginForm.File.name }}</span>
-                  <span class="text-sm text-gray-500">{{ formatFileSize(pluginForm.File.size) }}</span>
+                  <span class="block font-medium">{{
+                    pluginForm.File.name
+                  }}</span>
+                  <span class="text-sm text-gray-500">{{
+                    formatFileSize(pluginForm.File.size)
+                  }}</span>
                 </div>
                 <Button
                   icon="pi pi-times"
@@ -94,8 +102,12 @@
                   class="w-full"
                   :class="{ 'p-invalid': errors.Name }"
                   placeholder="请输入插件名称"
-                  @update:model-value="$emit('update:form', { field: 'Name', value: $event })" />
-                <small class="text-red-500" v-if="errors.Name">{{ errors.Name }}</small>
+                  @update:model-value="
+                    $emit('update:form', { field: 'Name', value: $event })
+                  " />
+                <small class="text-red-500" v-if="errors.Name">{{
+                  errors.Name
+                }}</small>
               </div>
               <div>
                 <label class="block mb-2">
@@ -106,8 +118,12 @@
                   class="w-full"
                   :class="{ 'p-invalid': errors.Version }"
                   placeholder="输入版本号: 1.0.0"
-                  @update:model-value="$emit('update:form', { field: 'Version', value: $event })" />
-                <small class="text-red-500" v-if="errors.Version">{{ errors.Version }}</small>
+                  @update:model-value="
+                    $emit('update:form', { field: 'Version', value: $event })
+                  " />
+                <small class="text-red-500" v-if="errors.Version">{{
+                  errors.Version
+                }}</small>
               </div>
               <div>
                 <label class="block mb-2">
@@ -120,7 +136,9 @@
                   optionValue="value"
                   class="w-full"
                   placeholder="选择插件分类"
-                  @update:model-value="$emit('update:form', { field: 'Category', value: $event })" />
+                  @update:model-value="
+                    $emit('update:form', { field: 'Category', value: $event })
+                  " />
               </div>
             </div>
           </div>
@@ -136,8 +154,12 @@
               :class="{ 'p-invalid': errors.Description }"
               rows="3"
               placeholder="请输入插件描述"
-              @update:model-value="$emit('update:form', { field: 'Description', value: $event })" />
-            <small class="text-red-500" v-if="errors.Description">{{ errors.Description }}</small>
+              @update:model-value="
+                $emit('update:form', { field: 'Description', value: $event })
+              " />
+            <small class="text-red-500" v-if="errors.Description">{{
+              errors.Description
+            }}</small>
           </div>
 
           <div>
@@ -148,7 +170,9 @@
               placeholder="输入标签后按回车"
               :max="5"
               :allowDuplicate="false"
-              @update:model-value="$emit('update:form', { field: 'Tags', value: $event })" />
+              @update:model-value="
+                $emit('update:form', { field: 'Tags', value: $event })
+              " />
             <small class="text-gray-500">最多添加5个标签</small>
           </div>
         </div>
@@ -170,8 +194,12 @@
                 :class="{ 'p-invalid': errors.WindowId }"
                 placeholder="请输入窗口ID"
                 :disabled="isEditMode"
-                @update:model-value="$emit('update:form', { field: 'WindowId', value: $event })" />
-              <small class="text-red-500" v-if="errors.WindowId">{{ errors.WindowId }}</small>
+                @update:model-value="
+                  $emit('update:form', { field: 'WindowId', value: $event })
+                " />
+              <small class="text-red-500" v-if="errors.WindowId">{{
+                errors.WindowId
+              }}</small>
             </div>
             <div>
               <label class="block mb-2">
@@ -182,8 +210,12 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.Title }"
                 placeholder="请输入窗口标题"
-                @update:model-value="$emit('update:form', { field: 'Title', value: $event })" />
-              <small class="text-red-500" v-if="errors.Title">{{ errors.Title }}</small>
+                @update:model-value="
+                  $emit('update:form', { field: 'Title', value: $event })
+                " />
+              <small class="text-red-500" v-if="errors.Title">{{
+                errors.Title
+              }}</small>
             </div>
           </div>
 
@@ -199,7 +231,12 @@
                 :min="200"
                 :max="2000"
                 placeholder="窗口宽度(px)"
-                @update:model-value="$emit('update:form', { field: 'Size', value: [$event, pluginForm.Size[1]] })" />
+                @update:model-value="
+                  $emit('update:form', {
+                    field: 'Size',
+                    value: [$event, pluginForm.Size[1]],
+                  })
+                " />
             </div>
             <div>
               <label class="block mb-2">
@@ -211,7 +248,12 @@
                 :min="200"
                 :max="2000"
                 placeholder="窗口高度(px)"
-                @update:model-value="$emit('update:form', { field: 'Size', value: [pluginForm.Size[0], $event] })" />
+                @update:model-value="
+                  $emit('update:form', {
+                    field: 'Size',
+                    value: [pluginForm.Size[0], $event],
+                  })
+                " />
             </div>
           </div>
 
@@ -228,8 +270,15 @@
                 :model-value="pluginForm.Position?.[0] ?? -1"
                 class="w-full"
                 placeholder="水平位置(逻辑像素)"
-                @update:model-value="$emit('update:form', { field: 'Position', value: [$event ?? -1, pluginForm.Position?.[1] ?? -1] })" />
-              <small class="text-red-500" v-if="errors.Position">{{ errors.Position }}</small>
+                @update:model-value="
+                  $emit('update:form', {
+                    field: 'Position',
+                    value: [$event ?? -1, pluginForm.Position?.[1] ?? -1],
+                  })
+                " />
+              <small class="text-red-500" v-if="errors.Position">{{
+                errors.Position
+              }}</small>
             </div>
             <div>
               <label class="block mb-2">
@@ -242,24 +291,33 @@
                 :model-value="pluginForm.Position?.[1] ?? -1"
                 class="w-full"
                 placeholder="垂直位置(逻辑像素)"
-                @update:model-value="$emit('update:form', { field: 'Position', value: [pluginForm.Position?.[0] ?? -1, $event ?? -1] })" />
+                @update:model-value="
+                  $emit('update:form', {
+                    field: 'Position',
+                    value: [pluginForm.Position?.[0] ?? -1, $event ?? -1],
+                  })
+                " />
             </div>
           </div>
 
           <!-- 窗口属性 -->
           <div class="flex gap-6">
             <div class="flex items-center">
-              <Checkbox 
-                :model-value="pluginForm.AlwaysOnTop" 
-                :binary="true" 
-                @update:model-value="$emit('update:form', { field: 'AlwaysOnTop', value: $event })" />
+              <Checkbox
+                :model-value="pluginForm.AlwaysOnTop"
+                :binary="true"
+                @update:model-value="
+                  $emit('update:form', { field: 'AlwaysOnTop', value: $event })
+                " />
               <label class="ml-2">窗口置顶</label>
             </div>
             <div class="flex items-center">
-              <Checkbox 
-                :model-value="pluginForm.Resizable" 
-                :binary="true" 
-                @update:model-value="$emit('update:form', { field: 'Resizable', value: $event })" />
+              <Checkbox
+                :model-value="pluginForm.Resizable"
+                :binary="true"
+                @update:model-value="
+                  $emit('update:form', { field: 'Resizable', value: $event })
+                " />
               <label class="ml-2">允许调整大小</label>
             </div>
           </div>
@@ -335,7 +393,11 @@ import Checkbox from "primevue/checkbox";
 import InputChips from "primevue/inputchips";
 import Dropdown from "primevue/dropdown";
 import Image from "primevue/image";
-import type { PluginFormData, PluginFormErrors, CategoryOption } from "@/interface/pluginMarket.d";
+import type {
+  PluginFormData,
+  PluginFormErrors,
+  CategoryOption,
+} from "@/interface/pluginMarket.d";
 import { formatFileSize } from "@/utils/pluginUtils";
 
 interface Props {
@@ -347,20 +409,20 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:visible', value: boolean): void;
-  (e: 'close'): void;
-  (e: 'submit'): void;
-  (e: 'file-drop', event: DragEvent): void;
-  (e: 'file-select', event: Event): void;
-  (e: 'icon-select', event: Event): void;
-  (e: 'screenshot-select', event: Event): void;
-  (e: 'screenshot-drop', event: DragEvent): void;
-  (e: 'trigger-file-input'): void;
-  (e: 'trigger-icon-input'): void;
-  (e: 'trigger-screenshot-input'): void;
-  (e: 'remove-file'): void;
-  (e: 'remove-screenshot', index: number): void;
-  (e: 'update:form', data: { field: string; value: any }): void;
+  (e: "update:visible", value: boolean): void;
+  (e: "close"): void;
+  (e: "submit"): void;
+  (e: "file-drop", event: DragEvent): void;
+  (e: "file-select", event: Event): void;
+  (e: "icon-select", event: Event): void;
+  (e: "screenshot-select", event: Event): void;
+  (e: "screenshot-drop", event: DragEvent): void;
+  (e: "trigger-file-input"): void;
+  (e: "trigger-icon-input"): void;
+  (e: "trigger-screenshot-input"): void;
+  (e: "remove-file"): void;
+  (e: "remove-screenshot", index: number): void;
+  (e: "update:form", data: { field: string; value: any }): void;
 }
 
 defineProps<Props>();

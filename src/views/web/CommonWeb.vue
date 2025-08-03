@@ -87,7 +87,6 @@ const init = async () => {
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
-  // 通过事件总线传递方法
   on("edit-webItem", openEditWebItem);
   on("delete-webItem", deleteWebItem);
 };
@@ -100,9 +99,8 @@ const openEditWebItem = async (item: WebItem) => {
 
 /** 跳转到指定链接 */
 const navigateTo = (url: string) => {
-  // 检查 URL 是否以 http:// 或 https:// 开头
   if (!/^https?:\/\//i.test(url)) {
-    url = `http://${url}`; // 默认添加 http://
+    url = `http://${url}`;
   }
   ipcOpen(url)
     .then(() => {
@@ -115,10 +113,8 @@ const navigateTo = (url: string) => {
 
 /** 添加网站时触发事件 */
 const addWebItem = async (item: WebItem) => {
-  // 使用 Date.now() 生成唯一 ID
   item.id = Date.now();
   dataList.value.push(item);
-  // 将数据存储到本地配置中
   try {
     await setConfig("webConfig", { dataList: dataList.value });
   } catch (error) {
@@ -129,11 +125,9 @@ const addWebItem = async (item: WebItem) => {
 
 /** 编辑网站 */
 const editWebItem = async (updatedItem: WebItem) => {
-  // 找到要更新的网站的索引
   const index = dataList.value.findIndex((item) => item.id === updatedItem.id);
 
   if (index !== -1) {
-    // 使用新的数据更新 dataList 中的对应项
     dataList.value[index] = updatedItem;
 
     // 更新本地配置
@@ -150,9 +144,7 @@ const editWebItem = async (updatedItem: WebItem) => {
 
 /** 删除某个网站 */
 const deleteWebItem = async (id: number) => {
-  // 找到要删除的元素索引
   const index = dataList.value.findIndex((item) => item.id === id);
-  // 如果找到了，则删除该元素
   if (index !== -1) {
     //暂存logo文件名
     const filePath = dataList.value[index].logo;
@@ -161,7 +153,6 @@ const deleteWebItem = async (id: number) => {
     );
 
     dataList.value.splice(index, 1);
-    // 将数据存储到本地配置中
     try {
       await setConfig("webConfig", { dataList: dataList.value });
       ipcDeleteIcon(fileName, 0).catch((err) => {

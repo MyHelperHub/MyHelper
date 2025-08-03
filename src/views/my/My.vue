@@ -44,7 +44,12 @@
       <Login />
     </Fieldset>
     <Fieldset legend="我的宠物" class="pet-section">
-      <PetList />
+      <PetList
+        :display-width="150"
+        :display-height="150"
+        @model-changed="onModelChanged"
+        @model-loaded="onModelLoaded"
+        @model-error="onModelError" />
     </Fieldset>
   </div>
 </template>
@@ -64,7 +69,7 @@ import { emit } from "@tauri-apps/api/event";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
-import PetList from "./Pet/PetList.vue";
+import { PetList } from "@/components/Pet";
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态
@@ -115,6 +120,19 @@ const cancelCrop = () => {
 
 const handleClose = () => {
   ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.My });
+};
+
+// Pet相关事件处理函数
+const onModelChanged = (modelConfig: any) => {
+  console.log("My: 模型切换", modelConfig);
+};
+
+const onModelLoaded = (modelInfo: any) => {
+  console.log("My: 模型加载完成", modelInfo);
+};
+
+const onModelError = (error: string) => {
+  console.error("My: 模型加载失败", error);
 };
 </script>
 
@@ -213,12 +231,12 @@ const handleClose = () => {
     margin: 15px 0;
 
     :deep(.p-fieldset) {
-      min-height: 200px;
+      min-height: 300px;
     }
 
     :deep(.p-fieldset-content) {
-      padding: 10px !important;
-      min-height: 150px;
+      padding: 8px !important;
+      min-height: 250px;
     }
   }
 

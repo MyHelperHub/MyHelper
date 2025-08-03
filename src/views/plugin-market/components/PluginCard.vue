@@ -1,7 +1,5 @@
 <template>
-  <Card
-    class="plugin-card"
-    @click="$emit('click', pluginDetail)">
+  <Card class="plugin-card" @click="$emit('click', pluginDetail)">
     <template #header>
       <div class="card-header">
         <Image
@@ -77,11 +75,7 @@
             size="small"
             disabled />
         </template>
-        <Button
-          v-else
-          icon="pi pi-download"
-          label="下载"
-          size="small" />
+        <Button v-else icon="pi pi-download" label="下载" size="small" />
       </div>
     </template>
   </Card>
@@ -103,11 +97,11 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'click', pluginDetail: PluginDetail): void;
+  (e: "click", pluginDetail: PluginDetail): void;
 }
 
 // 常量定义
-const DEFAULT_IMAGE = 'https://placeholder.co/64';
+const DEFAULT_IMAGE = "https://placeholder.co/64";
 
 const props = defineProps<Props>();
 defineEmits<Emits>();
@@ -115,10 +109,13 @@ defineEmits<Emits>();
 // 检查插件是否有更新
 const hasUpdate = (): boolean => {
   const installedPlugin = props.installedPlugins.find(
-    p => p.WindowId === props.pluginDetail.Plugin.WindowId
+    (p) => p.WindowId === props.pluginDetail.Plugin.WindowId,
   );
-  return installedPlugin 
-    ? checkPluginUpdate(installedPlugin.Version, props.pluginDetail.Plugin.Version)
+  return installedPlugin
+    ? checkPluginUpdate(
+        installedPlugin.Version,
+        props.pluginDetail.Plugin.Version,
+      )
     : false;
 };
 

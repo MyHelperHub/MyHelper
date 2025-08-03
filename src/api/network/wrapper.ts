@@ -97,7 +97,6 @@ const handleTokenRefresh = async (response: AxiosResponse) => {
     const newToken = await refreshTokenRequest();
     processQueue(null, newToken);
 
-    // 更新原始请求的token
     originalRequest.headers[tokenManager.getHeaderName()] = newToken;
 
     return instance(originalRequest);
@@ -117,14 +116,12 @@ instance.interceptors.response.use(
   async (response) => {
     const { Code, Message } = response.data;
 
-    // 检查未登录错误
     if (Code === ResponseCodeEnum.Unauthorized) {
       showMessage("暂未登录或登录已过期", 3000, 2);
       await tokenManager.clearToken();
       return Promise.reject(new Error(Message));
     }
 
-    // 检查token过期，直接处理刷新逻辑
     if (Code === ResponseCodeEnum.TOKEN_EXPIRED) {
       return handleTokenRefresh(response);
     }
@@ -134,12 +131,10 @@ instance.interceptors.response.use(
   async (error) => {
     const errorCode = error.response?.data?.Code;
 
-    // 检查是否为token过期错误（HTTP错误状态码的情况）
     if (errorCode === ResponseCodeEnum.TOKEN_EXPIRED) {
       return handleTokenRefresh(error.response);
     }
 
-    // 其他错误处理
     if (errorCode === ResponseCodeEnum.Unauthorized) {
       await tokenManager.clearToken();
       showMessage("暂未登录或登录已过期", 3000, 2);
@@ -201,12 +196,10 @@ export const updateToken = async (token: string | null) => {
   }
 };
 
-// 获取当前token
 export const getToken = async () => {
   return await tokenManager.getToken();
 };
 
-// 检查token是否存在
 export const hasToken = async () => {
   return await tokenManager.hasToken();
 };

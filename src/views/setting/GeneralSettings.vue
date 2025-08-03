@@ -134,12 +134,10 @@ init();
  * @param value 设置项的值
  */
 const handleChange = async (key: string, value: any) => {
-  // 通知主进程更新设置
   tauriEmit("update:setting", {
     key,
     value,
   });
-  // 更新数据库配置
   await setConfig("settingConfig", settingData.value);
 };
 /** 快捷键设置变更处理函数(小按钮) */
