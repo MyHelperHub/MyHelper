@@ -67,7 +67,7 @@ import {
 import { ThemeMode } from "@/interface/theme.d";
 import type { ThemeConfig, ThemeColors } from "@/interface/theme.d";
 import { showMessage } from "@/composables/message.ts";
-import CustomThemeDialog from "@/components/CustomThemeDialog.vue";
+import CustomThemeDialog from "./components/CustomThemeDialog.vue";
 
 const currentConfig = ref<ThemeConfig>({
   mode: ThemeMode.Light,

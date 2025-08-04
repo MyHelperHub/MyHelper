@@ -3,14 +3,19 @@
     <!-- 头像显示 - 根据窗口状态自动调整 -->
     <div
       class="avatar-container"
-      :class="{ 
-        'small-mode': !isShowMenu, 
-        'large-mode': isShowMenu 
+      :class="{
+        'small-mode': !isShowMenu,
+        'large-mode': isShowMenu,
       }"
       data-tauri-drag-region>
       <AvatarDisplay
         :default-logo="avatarLogo"
-        :logo-class="!isShowMenu ? 'logo h-60px w-60px rounded-full cursor-pointer z-1 select-none' : 'avatar-logo'"
+        :logo-class="
+          !isShowMenu
+            ? 'logo h-60px w-60px rounded-full cursor-pointer z-1 select-none'
+            : 'avatar-logo'
+        "
+        :is-show-menu="isShowMenu"
         @click="showMenu" />
     </div>
 
@@ -72,7 +77,7 @@ import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
 import { checkLogoPath } from "@/utils/user";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";
-import AvatarDisplay from "@/components/common/AvatarDisplay.vue";
+import AvatarDisplay from "@/components/AvatarDisplay.vue";
 
 // 使用全局状态
 const isShowMenu = isMainMenuVisible;

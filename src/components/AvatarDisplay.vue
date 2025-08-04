@@ -1,13 +1,12 @@
 <template>
-  <div 
-    class="avatar-display" 
-    :class="{ 
-      'small-mode': isSmallMode, 
+  <div
+    class="avatar-display"
+    :class="{
+      'small-mode': isSmallMode,
       'large-mode': !isSmallMode,
-      'has-pet': !!selectedModel 
+      'has-pet': !!selectedModel,
     }"
     @click="handleClick">
-    
     <!-- 宠物显示区域 - 始终存在 -->
     <div v-if="selectedModel" class="pet-container">
       <PetDisplay
@@ -17,7 +16,7 @@
         :height="displaySize.height"
         @loaded="onModelLoaded"
         @error="onModelError" />
-      
+
       <!-- 小窗模式下的交互提示 -->
       <div v-if="isSmallMode" class="interaction-hint">
         <div class="click-ripple" :class="{ active: showRipple }"></div>
@@ -27,8 +26,13 @@
     <!-- 无宠物时显示默认logo -->
     <div v-else class="default-logo">
       <img
-        :src="defaultLogo"
-        :class="logoClass" />
+        :src="props.defaultLogo"
+        :class="
+          props.logoClass ||
+          (isSmallMode
+            ? 'logo h-60px w-60px rounded-full cursor-pointer z-1 select-none'
+            : 'avatar-logo')
+        " />
     </div>
 
     <!-- 加载状态 -->
@@ -48,17 +52,18 @@ import { ref, computed, watch, onMounted, nextTick } from "vue";
 import type { ModelInfo } from "@/interface/pet";
 import { PetDisplay } from "@/components/Pet";
 import { petManager } from "@/utils/petManager";
-import { isMainMenuVisible } from "@/utils/windowManager";
 import { Logger } from "@/utils/logger";
 
 interface Props {
   defaultLogo?: string;
   logoClass?: string;
+  isShowMenu?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   defaultLogo: "/logo.png",
   logoClass: "",
+  isShowMenu: false,
 });
 
 const emit = defineEmits<{
@@ -78,8 +83,8 @@ const showRipple = ref(false);
 // 获取选中的宠物模型（响应式）
 const selectedModel = petManager.getSelectedModelRef();
 
-// 监听窗口状态变化
-const isSmallMode = computed(() => !isMainMenuVisible.value);
+/** 窗口状态变化 */
+const isSmallMode = computed(() => !props.isShowMenu);
 
 // 固定显示尺寸 - 保持模型大小不变，确保完整显示
 const displaySize = computed(() => {
@@ -117,14 +122,14 @@ const retryLoad = () => {
 const handleClick = () => {
   // 发出点击事件，让父组件处理窗口切换
   emit("click");
-  
+
   if (isSmallMode.value && selectedModel.value) {
     // 小窗模式下点击宠物显示涟漪效果
     showRipple.value = true;
     setTimeout(() => {
       showRipple.value = false;
     }, 600);
-    
+
     // 播放随机动作
     if (petDisplayRef.value) {
       playRandomInteraction();
@@ -135,11 +140,11 @@ const handleClick = () => {
 // 播放随机交互
 const playRandomInteraction = () => {
   if (!petDisplayRef.value) return;
-  
+
   // 随机选择播放动作或表情
   const actions = ["motion", "expression"];
   const randomAction = actions[Math.floor(Math.random() * actions.length)];
-  
+
   if (randomAction === "motion") {
     petDisplayRef.value.playMotion("idle", 0);
   } else {
@@ -150,12 +155,12 @@ const playRandomInteraction = () => {
 // 模型加载完成
 const onModelLoaded = (modelInfo: ModelInfo) => {
   Logger.info("AvatarDisplay: 模型加载完成", selectedModel.value?.name);
-  
+
   // 缓存模型信息
   if (selectedModel.value) {
     petManager.cacheModelInfo(selectedModel.value, modelInfo);
   }
-  
+
   emit("loaded", modelInfo);
 };
 
@@ -166,20 +171,24 @@ const onModelError = (errorMsg: string) => {
 };
 
 // 监听选中模型变化
-watch(selectedModel, async (newModel) => {
-  if (newModel) {
-    await nextTick();
-    await loadPetModel();
-  } else {
-    error.value = null;
-  }
-}, { immediate: false });
+watch(
+  selectedModel,
+  async (newModel) => {
+    if (newModel) {
+      await nextTick();
+      await loadPetModel();
+    } else {
+      error.value = null;
+    }
+  },
+  { immediate: false },
+);
 
 // 组件挂载
 onMounted(async () => {
   // 初始化宠物管理器
   await petManager.init();
-  
+
   // 如果有选中的模型，加载它
   if (selectedModel.value) {
     await nextTick();
@@ -307,8 +316,12 @@ defineExpose({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 错误状态 */
