@@ -10,11 +10,6 @@
       data-tauri-drag-region>
       <AvatarDisplay
         :default-logo="avatarLogo"
-        :logo-class="
-          !isShowMenu
-            ? 'logo h-60px w-60px rounded-full cursor-pointer z-1 select-none'
-            : 'avatar-logo'
-        "
         :is-show-menu="isShowMenu"
         @click="showMenu" />
     </div>
@@ -145,62 +140,14 @@ const showMenu = async () => {
   z-index: 2;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 
-  // 小窗模式定位
   &.small-mode {
-    left: 3px;
-    top: 3px;
-    animation: logo-appear 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    left: 2px;
+    top: 2px;
   }
 
-  // 大窗模式定位
   &.large-mode {
-    left: 16px;
-    top: 20px;
-    animation: logo-slide-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  .logo {
-    height: 60px;
-    width: 60px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 1;
-    user-select: none;
-    -webkit-user-drag: none;
-    transition: transform 0.2s ease;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-}
-
-@keyframes logo-appear {
-  0% {
-    opacity: 0;
-    transform: scale(0.88);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes logo-slide-in {
-  0% {
-    opacity: 0;
-    transform: translate(-4px, -8px) scale(1.875);
-  }
-  60% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
+    left: 14px;
+    top: 12px;
   }
 }
 

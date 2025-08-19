@@ -7,7 +7,6 @@
       'has-pet': !!selectedModel,
     }"
     @click="handleClick">
-    <!-- 宠物显示区域 - 始终存在 -->
     <div v-if="selectedModel" class="pet-container">
       <PetDisplay
         ref="petDisplayRef"
@@ -17,30 +16,21 @@
         @loaded="onModelLoaded"
         @error="onModelError" />
 
-      <!-- 小窗模式下的交互提示 -->
       <div v-if="isSmallMode" class="interaction-hint">
         <div class="click-ripple" :class="{ active: showRipple }"></div>
       </div>
     </div>
 
-    <!-- 无宠物时显示默认logo -->
     <div v-else class="default-logo">
       <img
         :src="props.defaultLogo"
-        :class="
-          props.logoClass ||
-          (isSmallMode
-            ? 'logo h-60px w-60px rounded-full cursor-pointer z-1 select-none'
-            : 'avatar-logo')
-        " />
+        class="logo-image" />
     </div>
 
-    <!-- 加载状态 -->
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
 
-    <!-- 错误状态 -->
     <div v-if="error" class="error-overlay" @click.stop="retryLoad">
       <i class="pi pi-refresh"></i>
     </div>
@@ -56,13 +46,11 @@ import { Logger } from "@/utils/logger";
 
 interface Props {
   defaultLogo?: string;
-  logoClass?: string;
   isShowMenu?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   defaultLogo: "/logo.png",
-  logoClass: "",
   isShowMenu: false,
 });
 
@@ -72,27 +60,17 @@ const emit = defineEmits<{
   error: [error: string];
 }>();
 
-// 组件引用
 const petDisplayRef = ref<InstanceType<typeof PetDisplay>>();
-
-// 状态
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showRipple = ref(false);
-
-// 获取选中的宠物模型（响应式）
 const selectedModel = petManager.getSelectedModelRef();
-
-/** 窗口状态变化 */
 const isSmallMode = computed(() => !props.isShowMenu);
-
-// 固定显示尺寸 - 保持模型大小不变，确保完整显示
 const displaySize = computed(() => {
-  // 使用固定的60px尺寸，确保模型在小窗模式下完整显示
-  return { width: 60, height: 60 };
+  const size = isSmallMode.value ? 60 : 40;
+  return { width: size, height: size };
 });
 
-// 加载宠物模型
 const loadPetModel = async () => {
   if (!selectedModel.value || !petDisplayRef.value) return;
 
@@ -112,36 +90,29 @@ const loadPetModel = async () => {
   }
 };
 
-// 重试加载
 const retryLoad = () => {
   error.value = null;
   loadPetModel();
 };
 
-// 处理点击事件
 const handleClick = () => {
-  // 发出点击事件，让父组件处理窗口切换
   emit("click");
 
   if (isSmallMode.value && selectedModel.value) {
-    // 小窗模式下点击宠物显示涟漪效果
     showRipple.value = true;
     setTimeout(() => {
       showRipple.value = false;
     }, 600);
 
-    // 播放随机动作
     if (petDisplayRef.value) {
       playRandomInteraction();
     }
   }
 };
 
-// 播放随机交互
 const playRandomInteraction = () => {
   if (!petDisplayRef.value) return;
 
-  // 随机选择播放动作或表情
   const actions = ["motion", "expression"];
   const randomAction = actions[Math.floor(Math.random() * actions.length)];
 
@@ -152,11 +123,9 @@ const playRandomInteraction = () => {
   }
 };
 
-// 模型加载完成
 const onModelLoaded = (modelInfo: ModelInfo) => {
   Logger.info("AvatarDisplay: 模型加载完成", selectedModel.value?.name);
 
-  // 缓存模型信息
   if (selectedModel.value) {
     petManager.cacheModelInfo(selectedModel.value, modelInfo);
   }
@@ -164,13 +133,11 @@ const onModelLoaded = (modelInfo: ModelInfo) => {
   emit("loaded", modelInfo);
 };
 
-// 模型加载错误
 const onModelError = (errorMsg: string) => {
   error.value = errorMsg;
   emit("error", errorMsg);
 };
 
-// 监听选中模型变化
 watch(
   selectedModel,
   async (newModel) => {
@@ -184,19 +151,15 @@ watch(
   { immediate: false },
 );
 
-// 组件挂载
 onMounted(async () => {
-  // 初始化宠物管理器
   await petManager.init();
 
-  // 如果有选中的模型，加载它
   if (selectedModel.value) {
     await nextTick();
     await loadPetModel();
   }
 });
 
-// 暴露方法给父组件
 defineExpose({
   loadPetModel,
   retryLoad,
@@ -211,35 +174,30 @@ defineExpose({
   display: inline-block;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  overflow: hidden;
+  overflow: visible;
   border-radius: 50%;
 }
 
-/* 小窗模式 - 显示完整区域 */
 .small-mode {
   width: 60px;
   height: 60px;
 }
 
-/* 大窗模式 - 裁剪到中心区域 */
 .large-mode {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
 }
 
-/* 宠物容器始终保持固定尺寸和绝对定位 */
 .pet-container,
 .default-logo {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.default-logo img {
+.logo-image {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -249,15 +207,14 @@ defineExpose({
   object-fit: cover;
 }
 
-.avatar-display:hover .default-logo img {
+.avatar-display:hover .logo-image {
   transform: scale(1.05);
 }
 
-.avatar-display:active .default-logo img {
+.avatar-display:active .logo-image {
   transform: scale(0.95);
 }
 
-/* 小窗模式特殊样式 */
 .small-mode .interaction-hint {
   position: absolute;
   top: 0;
@@ -281,23 +238,60 @@ defineExpose({
 }
 
 .click-ripple.active {
-  width: 120%;
-  height: 120%;
+  width: 110%;
+  height: 110%;
   opacity: 0;
 }
 
-/* 大窗模式的特殊样式 */
+.small-mode:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(var(--theme-primary-rgb), 0.2);
+}
+
+.small-mode:active {
+  transform: scale(0.98);
+}
+
 .large-mode {
-  box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
-  border: 1px solid rgba(var(--theme-primary-rgb), 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(var(--theme-background-rgb), 0.6);
+  border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+  box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.1);
+  position: relative;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--theme-background-rgb), 0.8),
+      rgba(var(--theme-background-secondary-rgb), 0.6)
+    );
+    border-radius: 50%;
+    z-index: -1;
+    transition: all 0.2s ease;
+  }
 }
 
 .large-mode:hover {
-  box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.3);
-  border-color: rgba(var(--theme-primary-rgb), 0.3);
+  box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.15);
+  border-color: rgba(var(--theme-primary-rgb), 0.4);
+  transform: scale(1.02);
+  
+  &::before {
+    background: linear-gradient(
+      135deg,
+      rgba(var(--theme-background-rgb), 0.9),
+      rgba(var(--theme-primary-rgb), 0.1)
+    );
+  }
 }
 
-/* 加载状态 */
 .loading-overlay {
   position: absolute;
   top: 50%;
@@ -324,7 +318,6 @@ defineExpose({
   }
 }
 
-/* 错误状态 */
 .error-overlay {
   position: absolute;
   top: 50%;
