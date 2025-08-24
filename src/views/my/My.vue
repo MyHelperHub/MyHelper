@@ -44,22 +44,30 @@
       <Login />
     </Fieldset>
     <Fieldset legend="我的宠物" class="pet-section">
+      <div class="pet-settings">
+        <div class="setting-item">
+          <label for="enable-avatar-switch">启用宠物作为头像：</label>
+          <InputSwitch
+            id="enable-avatar-switch"
+            v-model="enableAsAvatar" />
+        </div>
+      </div>
       <PetList
         :display-width="150"
         :display-height="150"
         @model-changed="onModelChanged"
-        @model-loaded="onModelLoaded"
         @model-error="onModelError" />
     </Fieldset>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import Fieldset from "primevue/fieldset";
 import FileUpload from "primevue/fileupload";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
+import InputSwitch from "primevue/inputswitch";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { ipcSetLogo } from "@/api/ipc/launch.api";
@@ -70,18 +78,28 @@ import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
 import { PetList } from "@/components/Pet";
-import { petManager } from "@/utils/petManager";
-import type { ModelConfig, ModelInfo } from "@/interface/pet";
+import { petManager } from "@/components/Pet/petManager";
+import type { ModelConfig } from "@/interface/pet";
 
 const avatarLogo = ref<string | undefined>();
 const showCropperModal = ref(false); // 控制裁剪框的显示状态
 const cropper = ref();
 const cropperImage = ref();
 
-const init = () => {
-  checkLogoPath().then((path) => {
-    avatarLogo.value = path;
-  });
+// 直接使用 petManager 的响应式引用
+const preferences = petManager.getPreferencesRef();
+const enableAsAvatar = computed({
+  get: () => preferences.value.enableAsAvatar,
+  set: petManager.setEnableAsAvatar
+});
+
+// 简化初始化 - 并行执行
+const init = async () => {
+  const [logoPath] = await Promise.all([
+    checkLogoPath(),
+    petManager.init()
+  ]);
+  avatarLogo.value = logoPath;
 };
 init();
 // 选择图片后
@@ -124,29 +142,11 @@ const handleClose = () => {
   ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.My });
 };
 
-// Pet相关事件处理函数
-const onModelChanged = async (modelConfig: ModelConfig | null) => {
-  console.log("My: 模型切换", modelConfig?.name || "无");
-  
-  try {
-    // 更新全局选中的宠物模型
-    await petManager.setSelectedModel(modelConfig);
-    console.log("My: 全局宠物模型已更新");
-  } catch (error) {
-    console.error("My: 更新全局宠物模型失败", error);
-  }
-};
+// Pet相关事件处理 - 简化处理函数
+const onModelChanged = (modelConfig: ModelConfig | null) => 
+  petManager.setSelectedModel(modelConfig).catch(console.error);
 
-const onModelLoaded = (modelInfo: ModelInfo) => {
-  console.log("My: 模型加载完成", modelInfo);
-  
-  // 模型加载完成后，宠物管理器会自动缓存模型信息
-  // 主页的宠物显示会自动更新
-};
-
-const onModelError = (error: string) => {
-  console.error("My: 模型加载失败", error);
-};
+const onModelError = (error: string) => console.error("模型加载失败:", error);
 </script>
 
 <style lang="less">
@@ -159,6 +159,12 @@ const onModelError = (error: string) => {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  // 隐藏滚动条
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .close-button {
     position: absolute;
@@ -242,6 +248,26 @@ const onModelError = (error: string) => {
 
   .pet-section {
     margin: 15px 0;
+
+    .pet-settings {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid var(--theme-border);
+      border-radius: 6px;
+      background-color: var(--theme-surface);
+
+      .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        label {
+          font-size: 14px;
+          color: var(--theme-text);
+          margin: 0;
+        }
+      }
+    }
 
     :deep(.p-fieldset) {
       min-height: 300px;

@@ -4,16 +4,10 @@ export interface LogEntry {
   level: "info" | "warn" | "error";
   message: string;
   timestamp: string;
-  details?: any;
+  details?: string;
 }
 
 export class Logger {
-  private static formatError(error: any): string {
-    if (error instanceof Error) {
-      return `${error.name}: ${error.message}\nStack: ${error.stack}`;
-    }
-    return JSON.stringify(error, null, 2);
-  }
 
   private static async writeLog(entry: LogEntry): Promise<void> {
     try {
@@ -23,7 +17,7 @@ export class Logger {
     }
   }
 
-  static async info(message: string, details?: any): Promise<void> {
+  static async info(message: string, details?: string): Promise<void> {
     const entry: LogEntry = {
       level: "info",
       message,
@@ -33,7 +27,7 @@ export class Logger {
     await this.writeLog(entry);
   }
 
-  static async warn(message: string, details?: any): Promise<void> {
+  static async warn(message: string, details?: string): Promise<void> {
     const entry: LogEntry = {
       level: "warn",
       message,
@@ -43,12 +37,12 @@ export class Logger {
     await this.writeLog(entry);
   }
 
-  static async error(message: string, error?: any): Promise<void> {
+  static async error(message: string, error?: string): Promise<void> {
     const entry: LogEntry = {
       level: "error",
       message,
       timestamp: new Date().toISOString(),
-      details: error ? this.formatError(error) : undefined,
+      details: error,
     };
     await this.writeLog(entry);
   }

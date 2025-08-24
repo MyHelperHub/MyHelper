@@ -25,6 +25,10 @@ macro_rules! generate_app_handlers {
             set_plugin_config_value,
             get_plugin_config_value,
             delete_plugin_config_value,
+            // 宠物配置管理
+            set_pet_config,
+            get_pet_config,
+            delete_pet_config,
             // 剪贴板和快捷输入
             start_clipboard_listener,
             stop_clipboard_listener,

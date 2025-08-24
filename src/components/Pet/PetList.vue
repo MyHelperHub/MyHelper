@@ -16,7 +16,8 @@
       <PetSelector
         ref="petSelectorRef"
         v-model="selectedModelIndex"
-        @model-selected="onModelSelected" />
+        @model-selected="onModelSelected"
+        @models-loaded="onModelsLoaded" />
     </div>
 
     <!-- 控制面板 -->
@@ -60,10 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, nextTick, onMounted } from "vue";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import PetDisplay from "./PetDisplay.vue";
 import PetSelector from "./PetSelector.vue";
+import { petManager } from "./petManager";
 
 interface Props {
   displayWidth?: number;
@@ -90,14 +92,8 @@ const selectedModelIndex = ref<number | null>(null);
 const modelInfo = ref<ModelInfo | null>(null);
 const modelScale = ref(0.8);
 
-// 计算属性
-const selectedModel = computed<ModelConfig | null>(() => {
-  if (petSelectorRef.value && selectedModelIndex.value !== null) {
-    const models = petSelectorRef.value.models();
-    return models[selectedModelIndex.value] || null;
-  }
-  return null;
-});
+// 计算属性 - 直接使用全局选中模型，简化逻辑
+const selectedModel = petManager.getSelectedModelRef();
 
 const displaySize = computed(() => ({
   width: props.displayWidth,
@@ -114,26 +110,26 @@ const hasExpressions = computed(() => {
   return modelInfo.value.expressions.length > 0;
 });
 
-// 事件处理
-const onModelSelected = (model: ModelConfig) => {
-  console.log("PetList: 选择模型", model.name);
-  emit("model-changed", model);
+// 事件处理 - 简化为单行箭头函数
+const onModelSelected = (model: ModelConfig) => emit("model-changed", model);
+
+// 模型列表加载完成 - 优化同步逻辑
+const onModelsLoaded = (models: ModelConfig[]) => {
+  const current = petManager.getSelectedModel();
+  if (current) {
+    const index = models.findIndex(
+      (m) => m.name === current.name && m.path === current.path,
+    );
+    selectedModelIndex.value = index !== -1 ? index : null;
+  }
 };
 
 const onModelLoaded = (info: ModelInfo) => {
-  console.log("PetList: 模型加载完成", info);
   modelInfo.value = info;
 
-  // 重要：新模型加载后，等待一帧再同步缩放值，确保模型完全初始化
   nextTick(() => {
     if (petDisplayRef.value) {
       const currentScale = petDisplayRef.value.getModelScale();
-      console.log("PetList: 同步缩放值", {
-        ui: modelScale.value,
-        model: currentScale,
-      });
-
-      // 如果UI缩放值与模型缩放值不同，以模型为准（新模型的默认缩放）
       if (Math.abs(modelScale.value - currentScale) > 0.01) {
         modelScale.value = currentScale;
       }
@@ -144,71 +140,48 @@ const onModelLoaded = (info: ModelInfo) => {
 };
 
 const onModelError = (error: string) => {
-  console.error("PetList: 模型加载失败", error);
   modelInfo.value = null;
   emit("model-error", error);
 };
 
-const onScaleChange = () => {
-  if (petDisplayRef.value) {
-    console.log("PetList: 用户调整缩放", modelScale.value);
-    petDisplayRef.value.setModelScale(modelScale.value);
-  }
-};
+const onScaleChange = () =>
+  petDisplayRef.value?.setModelScale(modelScale.value);
 
-// 播放随机动作
+// 播放随机动作 - 简化逻辑
 const playRandomMotion = () => {
   if (!petDisplayRef.value || !modelInfo.value?.motions) return;
 
-  const motionGroups = Object.keys(modelInfo.value.motions);
-  if (motionGroups.length === 0) return;
+  const groups = Object.keys(modelInfo.value.motions);
+  if (!groups.length) return;
 
-  const randomGroup =
-    motionGroups[Math.floor(Math.random() * motionGroups.length)];
+  const randomGroup = groups[Math.floor(Math.random() * groups.length)];
   const motions = modelInfo.value.motions[randomGroup];
 
-  if (motions && motions.length > 0) {
-    const randomIndex = Math.floor(Math.random() * motions.length);
-    petDisplayRef.value.playMotion(randomGroup, randomIndex);
-    console.log(`PetList: 播放动作 ${randomGroup}[${randomIndex}]`);
+  if (motions?.length) {
+    petDisplayRef.value.playMotion(
+      randomGroup,
+      Math.floor(Math.random() * motions.length),
+    );
   }
 };
 
-// 播放随机表情
+// 播放随机表情 - 简化逻辑
 const playRandomExpression = () => {
-  if (!petDisplayRef.value || !modelInfo.value?.expressions) return;
+  const expressions = modelInfo.value?.expressions;
+  if (!petDisplayRef.value || !expressions?.length) return;
 
-  const expressions = modelInfo.value.expressions;
-  if (expressions.length === 0) return;
-
-  const randomIndex = Math.floor(Math.random() * expressions.length);
-  petDisplayRef.value.playExpression(randomIndex);
-  console.log(`PetList: 播放表情 ${randomIndex}`);
+  petDisplayRef.value.playExpression(
+    Math.floor(Math.random() * expressions.length),
+  );
 };
 
-// 刷新模型列表
-const refreshModels = () => {
-  if (petSelectorRef.value) {
-    petSelectorRef.value.refreshModels();
-  }
-};
+// 其他方法 - 使用可选链简化
+const refreshModels = () => petSelectorRef.value?.refreshModels();
+const getCurrentModelInfo = () => modelInfo.value;
+const reloadCurrentModel = () => petDisplayRef.value?.retryLoad();
 
-// 获取当前模型信息
-const getCurrentModelInfo = () => {
-  return modelInfo.value;
-};
-
-// 重新加载当前模型
-const reloadCurrentModel = () => {
-  if (petDisplayRef.value) {
-    petDisplayRef.value.retryLoad();
-  }
-};
-
-// 监听选中模型变化
-watch(selectedModel, (newModel) => {
-  emit("model-changed", newModel);
-});
+// 初始化
+onMounted(() => petManager.init());
 
 // 暴露给父组件的方法
 defineExpose({

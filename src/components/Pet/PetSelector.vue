@@ -54,6 +54,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   "update:modelValue": [value: number | null];
   "model-selected": [model: ModelConfig, index: number];
+  "models-loaded": [models: ModelConfig[]];
 }>();
 
 // 状态
@@ -78,6 +79,9 @@ const loadModels = async () => {
     const availableModels = await modelFactory.getAvailableModels();
     models.value = availableModels;
 
+    // 触发模型列表加载完成事件
+    emit("models-loaded", availableModels);
+
     // 如果当前选中的索引超出范围，重置选择
     if (
       selectedIndex.value !== null &&
@@ -89,6 +93,7 @@ const loadModels = async () => {
   } catch (error) {
     console.error("加载模型列表失败:", error);
     models.value = [];
+    emit("models-loaded", []);
   } finally {
     isLoading.value = false;
   }

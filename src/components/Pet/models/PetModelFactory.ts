@@ -45,7 +45,7 @@ export class PetModelFactory {
         const models = await source.getAvailableModels();
         allModels.push(...models);
       } catch (error) {
-        Logger.error(`获取模型源 ${sourceType} 失败`, error);
+        Logger.error(`获取模型源 ${sourceType} 失败`, String(error));
       }
     }
 
@@ -61,7 +61,7 @@ export class PetModelFactory {
         const config = await source.getModelConfig(modelId);
         if (config) return config;
       } catch (error) {
-        Logger.error("获取模型配置失败", error);
+        Logger.error("获取模型配置失败", String(error));
       }
     }
     return null;

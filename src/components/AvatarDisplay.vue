@@ -4,10 +4,10 @@
     :class="{
       'small-mode': isSmallMode,
       'large-mode': !isSmallMode,
-      'has-pet': !!selectedModel,
+      'has-pet': shouldShowPet,
     }"
     @click="handleClick">
-    <div v-if="selectedModel" class="pet-container">
+    <div v-if="shouldShowPet" class="pet-container">
       <PetDisplay
         ref="petDisplayRef"
         :model-config="selectedModel"
@@ -22,9 +22,7 @@
     </div>
 
     <div v-else class="default-logo">
-      <img
-        :src="props.defaultLogo"
-        class="logo-image" />
+      <img :src="props.defaultLogo" class="logo-image" />
     </div>
 
     <div v-if="isLoading" class="loading-overlay">
@@ -41,7 +39,7 @@
 import { ref, computed, watch, onMounted, nextTick } from "vue";
 import type { ModelInfo } from "@/interface/pet";
 import { PetDisplay } from "@/components/Pet";
-import { petManager } from "@/utils/petManager";
+import { petManager } from "@/components/Pet/petManager";
 import { Logger } from "@/utils/logger";
 
 interface Props {
@@ -65,14 +63,26 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showRipple = ref(false);
 const selectedModel = petManager.getSelectedModelRef();
+const preferences = petManager.getPreferencesRef();
 const isSmallMode = computed(() => !props.isShowMenu);
+
+// 计算是否应该显示宠物：既要有选中的模型，又要开关开启
+const shouldShowPet = computed(() => {
+  return !!selectedModel.value && preferences.value.enableAsAvatar;
+});
+
 const displaySize = computed(() => {
   const size = isSmallMode.value ? 60 : 40;
   return { width: size, height: size };
 });
 
 const loadPetModel = async () => {
-  if (!selectedModel.value || !petDisplayRef.value) return;
+  if (
+    !selectedModel.value ||
+    !petDisplayRef.value ||
+    !preferences.value.enableAsAvatar
+  )
+    return;
 
   isLoading.value = true;
   error.value = null;
@@ -98,7 +108,7 @@ const retryLoad = () => {
 const handleClick = () => {
   emit("click");
 
-  if (isSmallMode.value && selectedModel.value) {
+  if (isSmallMode.value && shouldShowPet.value) {
     showRipple.value = true;
     setTimeout(() => {
       showRipple.value = false;
@@ -139,9 +149,9 @@ const onModelError = (errorMsg: string) => {
 };
 
 watch(
-  selectedModel,
-  async (newModel) => {
-    if (newModel) {
+  [selectedModel, () => preferences.value.enableAsAvatar],
+  async ([newModel, enableAsAvatar]) => {
+    if (newModel && enableAsAvatar) {
       await nextTick();
       await loadPetModel();
     } else {
@@ -154,7 +164,7 @@ watch(
 onMounted(async () => {
   await petManager.init();
 
-  if (selectedModel.value) {
+  if (selectedModel.value && preferences.value.enableAsAvatar) {
     await nextTick();
     await loadPetModel();
   }
@@ -245,7 +255,7 @@ defineExpose({
 
 .small-mode:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 16px rgba(var(--theme-primary-rgb), 0.2);
+  /* box-shadow: 0 4px 16px rgba(var(--theme-primary-rgb), 0.2); */
 }
 
 .small-mode:active {
@@ -259,7 +269,7 @@ defineExpose({
   border: 1px solid rgba(var(--theme-border-rgb), 0.3);
   box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.1);
   position: relative;
-  
+
   &::before {
     content: "";
     position: absolute;
@@ -282,7 +292,7 @@ defineExpose({
   box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.15);
   border-color: rgba(var(--theme-primary-rgb), 0.4);
   transform: scale(1.02);
-  
+
   &::before {
     background: linear-gradient(
       135deg,

@@ -10,7 +10,7 @@
         :height="displaySize.height"
         @loaded="onModelLoaded"
         @error="onModelError" />
-      
+
       <!-- 小窗模式下的交互提示 -->
       <div v-if="isSmallMode" class="interaction-hint">
         <div class="click-ripple" :class="{ active: showRipple }"></div>
@@ -19,9 +19,7 @@
 
     <!-- 无宠物时显示默认logo -->
     <div v-else class="default-logo" @click="handleClick">
-      <img
-        :src="defaultLogo"
-        :class="logoClass" />
+      <img :src="defaultLogo" :class="logoClass" />
     </div>
 
     <!-- 加载状态 -->
@@ -40,7 +38,7 @@
 import { ref, computed, watch, onMounted, nextTick } from "vue";
 import type { ModelInfo } from "@/interface/pet";
 import PetDisplay from "./PetDisplay.vue";
-import { petManager } from "@/utils/petManager";
+import { petManager } from "@/components/Pet/petManager";
 import { Logger } from "@/utils/logger";
 
 interface Props {
@@ -82,7 +80,10 @@ const displaySize = computed(() => {
     return { width: props.width, height: props.height };
   } else {
     // 大窗模式稍小一些
-    return { width: Math.round(props.width * 0.8), height: Math.round(props.height * 0.8) };
+    return {
+      width: Math.round(props.width * 0.8),
+      height: Math.round(props.height * 0.8),
+    };
   }
 });
 
@@ -95,11 +96,10 @@ const loadPetModel = async () => {
 
   try {
     Logger.info("PetMainDisplay: 开始加载宠物模型", selectedModel.value.name);
-    
+
     // 直接让PetDisplay组件处理加载，不使用共享的管理器缓存
     // 这样可以避免WebGL上下文冲突
     await petDisplayRef.value.loadModel();
-    
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "加载宠物模型失败";
     error.value = errorMsg;
@@ -120,14 +120,14 @@ const retryLoad = () => {
 const handleClick = () => {
   // 确保事件能够正常传播
   emit("click");
-  
+
   if (props.isSmallMode && selectedModel.value) {
     // 小窗模式下点击宠物显示涟漪效果
     showRipple.value = true;
     setTimeout(() => {
       showRipple.value = false;
     }, 600);
-    
+
     // 播放随机动作
     if (petDisplayRef.value) {
       playRandomInteraction();
@@ -138,11 +138,11 @@ const handleClick = () => {
 // 播放随机交互
 const playRandomInteraction = () => {
   if (!petDisplayRef.value) return;
-  
+
   // 随机选择播放动作或表情
   const actions = ["motion", "expression"];
   const randomAction = actions[Math.floor(Math.random() * actions.length)];
-  
+
   if (randomAction === "motion") {
     petDisplayRef.value.playMotion("idle", 0);
   } else {
@@ -153,12 +153,12 @@ const playRandomInteraction = () => {
 // 模型加载完成
 const onModelLoaded = (modelInfo: ModelInfo) => {
   Logger.info("PetMainDisplay: 模型加载完成", selectedModel.value?.name);
-  
+
   // 缓存模型信息
   if (selectedModel.value) {
     petManager.cacheModelInfo(selectedModel.value, modelInfo);
   }
-  
+
   emit("loaded", modelInfo);
 };
 
@@ -169,29 +169,36 @@ const onModelError = (errorMsg: string) => {
 };
 
 // 监听选中模型变化
-watch(selectedModel, async (newModel) => {
-  if (newModel) {
-    await nextTick();
-    await loadPetModel();
-  } else {
-    error.value = null;
-  }
-}, { immediate: false });
+watch(
+  selectedModel,
+  async (newModel) => {
+    if (newModel) {
+      await nextTick();
+      await loadPetModel();
+    } else {
+      error.value = null;
+    }
+  },
+  { immediate: false },
+);
 
 // 监听窗口模式变化，确保模型正确显示
-watch(() => props.isSmallMode, async () => {
-  if (selectedModel.value && petDisplayRef.value) {
-    await nextTick();
-    // 调整模型大小以适应新的显示模式
-    petDisplayRef.value.resize();
-  }
-});
+watch(
+  () => props.isSmallMode,
+  async () => {
+    if (selectedModel.value && petDisplayRef.value) {
+      await nextTick();
+      // 调整模型大小以适应新的显示模式
+      petDisplayRef.value.resize();
+    }
+  },
+);
 
 // 组件挂载
 onMounted(async () => {
   // 初始化宠物管理器
   await petManager.init();
-  
+
   // 如果有选中的模型，加载它
   if (selectedModel.value) {
     await nextTick();
@@ -289,8 +296,12 @@ defineExpose({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 错误状态 */

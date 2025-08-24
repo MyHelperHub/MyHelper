@@ -154,7 +154,7 @@ const initHotkeyListener = async (): Promise<void> => {
     );
     console.log("快捷键监听器初始化成功");
   } catch (error) {
-    Logger.error("初始化快捷键监听器失败:", error);
+    Logger.error("初始化快捷键监听器失败:", String(error));
   }
 };
 
@@ -189,8 +189,8 @@ export const setHotkeyEnabled = async (
 
     return true;
   } catch (error) {
-    console.error("设置热键状态失败:", error);
-    Logger.error("设置热键状态失败:", error);
+    console.error("设置热键状态失败:", String(error));
+    Logger.error("设置热键状态失败:", String(error));
     return false;
   }
 };

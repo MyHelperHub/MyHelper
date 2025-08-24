@@ -79,7 +79,7 @@ export class Live2DModelManager implements PetModelManager {
 
       return configFile ? configFile.name : null;
     } catch (error) {
-      Logger.warn("无法读取模型目录", { modelPath, error });
+      Logger.warn("无法读取模型目录", `Path: ${modelPath}, Error: ${error}`);
       return null;
     }
   }
@@ -137,7 +137,7 @@ export class Live2DModelManager implements PetModelManager {
 
       return result;
     } catch (error) {
-      Logger.error(`加载Live2D模型失败: ${config.name}`, error);
+      Logger.error(`加载Live2D模型失败: ${config.name}`, String(error));
       throw error;
     }
   }
@@ -158,7 +158,7 @@ export class Live2DModelManager implements PetModelManager {
           const actualFilePath = await resolveResource(resourcePath);
           filePathMap.set(file, convertFileSrc(actualFilePath));
         } catch (error) {
-          Logger.error(`无法解析资源文件: ${file}`, error);
+          Logger.error(`无法解析资源文件: ${file}`, String(error));
         }
       }
     }
@@ -227,7 +227,7 @@ export class Live2DModelManager implements PetModelManager {
       this.model.x = canvas.width / 2;
       this.model.y = canvas.height / 2;
     } catch (error) {
-      Logger.error("设置模型变换失败", error);
+      Logger.error("设置模型变换失败", String(error));
     }
   }
 

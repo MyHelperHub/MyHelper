@@ -85,3 +85,36 @@ export async function ipcDeletePluginConfigValue(
 ): Promise<void> {
   await invokeApi<void>("delete_plugin_config_value", { windowId });
 }
+
+// === 宠物配置相关 API ===
+
+/**
+ * 设置宠物配置
+ * @param configType 配置类型 ('selected_model' | 'preferences')
+ * @param configData 配置数据
+ */
+export async function ipcSetPetConfig(
+  configType: string,
+  configData: any,
+): Promise<void> {
+  await invokeApi<void>("set_pet_config", { configType, configData });
+}
+
+/**
+ * 获取宠物配置
+ * @param configType 配置类型 ('selected_model' | 'preferences')
+ * @returns 配置数据，如果不存在返回 null
+ */
+export async function ipcGetPetConfig<T = any>(
+  configType: string,
+): Promise<T | null> {
+  return await invokeApi<T | null>("get_pet_config", { configType });
+}
+
+/**
+ * 删除宠物配置
+ * @param configType 配置类型
+ */
+export async function ipcDeletePetConfig(configType: string): Promise<void> {
+  await invokeApi<void>("delete_pet_config", { configType });
+}

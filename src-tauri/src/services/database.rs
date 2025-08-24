@@ -56,6 +56,16 @@ pub fn init_database() -> Result<()> {
             )",
             [],
         )?;
+
+        // 创建宠物配置表
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS pet_config (
+                config_type TEXT PRIMARY KEY,
+                config_data TEXT NOT NULL,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )",
+            [],
+        )?;
     }
 
     DB_POOL.get_or_init(|| pool);

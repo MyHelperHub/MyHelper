@@ -50,7 +50,7 @@ class GlobalData {
       await ipcSetGlobalData(key, value);
       return value;
     } catch (error) {
-      Logger.error("设置全局数据失败:", error);
+      Logger.error("设置全局数据失败:", String(error));
       throw error;
     }
   }
@@ -84,7 +84,7 @@ class GlobalData {
 
       return value;
     } catch (error) {
-      Logger.error("获取全局数据失败:", error);
+      Logger.error("获取全局数据失败:", String(error));
       throw error;
     }
   }
@@ -101,7 +101,7 @@ class GlobalData {
       // 从持久化存储中删除
       await ipcDeleteGlobalData(key);
     } catch (error) {
-      Logger.error("删除全局数据失败:", error);
+      Logger.error("删除全局数据失败:", String(error) );
       throw error;
     }
   }

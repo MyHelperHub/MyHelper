@@ -13,7 +13,7 @@ import {
   handleSettingChange,
   runStartupTasks,
 } from "../views/setting/utils/startupManager";
-import { petManager } from "./petManager";
+import { petManager } from "../components/Pet/petManager";
 
 /**
  * 应用初始化管理器
