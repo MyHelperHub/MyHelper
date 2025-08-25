@@ -29,10 +29,12 @@ const emit = defineEmits<{
   error: [error: string];
 }>();
 
+/** 处理模型加载完成事件 */
 const onModelLoaded = (modelInfo: ModelInfo) => {
   emit("loaded", modelInfo);
 };
 
+/** 处理模型加载错误事件 */
 const onError = (error: string) => {
   emit("error", error);
 };

@@ -98,3 +98,4 @@ MyHelper uses different event naming conventions:
 - **Window System**: Main window is initially hidden and positioned at 65x65px
 - **Hot Reload**: Vite dev server runs on port 1420, plugin dev on 1421
 - **Build Process**: Frontend builds to `dist/`, Tauri handles final packaging
+- **annotation**: When writing comments, functions and variables should be commented on in a single-line document. Unnecessary comments do not need to be added

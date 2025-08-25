@@ -1,9 +1,6 @@
 import type { ModelConfig, PetModelSource } from "@/interface/pet";
 
-/**
- * 基于本地资源的模型源实现
- * 管理存储在应用资源目录中的Live2D模型配置
- */
+/** 基于本地资源的模型源实现 - 管理存储在应用资源目录中的Live2D模型配置 */
 export class AssetsModelSource implements PetModelSource {
   private models: ModelConfig[] = [];
 
@@ -37,7 +34,6 @@ export class AssetsModelSource implements PetModelSource {
   }
 }
 
-/** 预定义的资源模型配置列表，采用硬编码方式确保高性能 */
 export const DEFAULT_ASSETS_MODELS: ModelConfig[] = [
   {
     name: "Simple模型",

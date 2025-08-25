@@ -83,16 +83,14 @@ const emit = defineEmits<{
   "model-error": [error: string];
 }>();
 
-// 组件引用
 const petDisplayRef = ref<InstanceType<typeof PetDisplay>>();
 const petSelectorRef = ref<InstanceType<typeof PetSelector>>();
 
-// 状态
 const selectedModelIndex = ref<number | null>(null);
 const modelInfo = ref<ModelInfo | null>(null);
 const modelScale = ref(0.8);
 
-// 计算属性 - 直接使用全局选中模型，简化逻辑
+/** 直接使用全局选中模型，简化逻辑 */
 const selectedModel = petManager.getSelectedModelRef();
 
 const displaySize = computed(() => ({
@@ -110,10 +108,10 @@ const hasExpressions = computed(() => {
   return modelInfo.value.expressions.length > 0;
 });
 
-// 事件处理 - 简化为单行箭头函数
+/** 简化为单行箭头函数 */
 const onModelSelected = (model: ModelConfig) => emit("model-changed", model);
 
-// 模型列表加载完成 - 优化同步逻辑
+/** 模型列表加载完成 - 优化同步逻辑 */
 const onModelsLoaded = (models: ModelConfig[]) => {
   const current = petManager.getSelectedModel();
   if (current) {
@@ -147,7 +145,7 @@ const onModelError = (error: string) => {
 const onScaleChange = () =>
   petDisplayRef.value?.setModelScale(modelScale.value);
 
-// 播放随机动作 - 简化逻辑
+/** 播放随机动作 - 简化逻辑 */
 const playRandomMotion = () => {
   if (!petDisplayRef.value || !modelInfo.value?.motions) return;
 
@@ -165,7 +163,7 @@ const playRandomMotion = () => {
   }
 };
 
-// 播放随机表情 - 简化逻辑
+/** 播放随机表情 - 简化逻辑 */
 const playRandomExpression = () => {
   const expressions = modelInfo.value?.expressions;
   if (!petDisplayRef.value || !expressions?.length) return;
@@ -175,15 +173,13 @@ const playRandomExpression = () => {
   );
 };
 
-// 其他方法 - 使用可选链简化
+/** 其他方法 */
 const refreshModels = () => petSelectorRef.value?.refreshModels();
 const getCurrentModelInfo = () => modelInfo.value;
 const reloadCurrentModel = () => petDisplayRef.value?.retryLoad();
 
-// 初始化
 onMounted(() => petManager.init());
 
-// 暴露给父组件的方法
 defineExpose({
   refreshModels,
   getCurrentModelInfo,
@@ -214,7 +210,6 @@ defineExpose({
   width: 100%;
 }
 
-/* 控制面板 */
 .control-panel {
   background: var(--theme-background-secondary, #f8f9fa);
   border-radius: 6px;
@@ -249,7 +244,6 @@ defineExpose({
   border: 1px solid var(--theme-border, #e9ecef);
 }
 
-/* 操作按钮 */
 .action-buttons {
   display: flex;
   gap: 6px;
@@ -282,7 +276,6 @@ defineExpose({
   transform: none;
 }
 
-/* 缩放控制 */
 .scale-control {
   text-align: center;
 }

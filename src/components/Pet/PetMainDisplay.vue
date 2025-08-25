@@ -63,23 +63,20 @@ const emit = defineEmits<{
   error: [error: string];
 }>();
 
-// 组件引用
 const petDisplayRef = ref<InstanceType<typeof PetDisplay>>();
 
-// 状态
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showRipple = ref(false);
 
-// 获取选中的宠物模型（响应式）
+/** 获取选中的宠物模型（响应式） */
 const selectedModel = petManager.getSelectedModelRef();
 
-// 计算显示尺寸
+/** 计算显示尺寸 */
 const displaySize = computed(() => {
   if (props.isSmallMode) {
     return { width: props.width, height: props.height };
   } else {
-    // 大窗模式稍小一些
     return {
       width: Math.round(props.width * 0.8),
       height: Math.round(props.height * 0.8),
@@ -87,7 +84,7 @@ const displaySize = computed(() => {
   }
 });
 
-// 加载宠物模型
+/** 加载宠物模型 */
 const loadPetModel = async () => {
   if (!selectedModel.value || !petDisplayRef.value) return;
 
@@ -97,8 +94,6 @@ const loadPetModel = async () => {
   try {
     Logger.info("PetMainDisplay: 开始加载宠物模型", selectedModel.value.name);
 
-    // 直接让PetDisplay组件处理加载，不使用共享的管理器缓存
-    // 这样可以避免WebGL上下文冲突
     await petDisplayRef.value.loadModel();
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "加载宠物模型失败";
@@ -110,36 +105,32 @@ const loadPetModel = async () => {
   }
 };
 
-// 重试加载
+/** 重试加载 */
 const retryLoad = () => {
   error.value = null;
   loadPetModel();
 };
 
-// 处理点击事件
+/** 处理点击事件 */
 const handleClick = () => {
-  // 确保事件能够正常传播
   emit("click");
 
   if (props.isSmallMode && selectedModel.value) {
-    // 小窗模式下点击宠物显示涟漪效果
     showRipple.value = true;
     setTimeout(() => {
       showRipple.value = false;
     }, 600);
 
-    // 播放随机动作
     if (petDisplayRef.value) {
       playRandomInteraction();
     }
   }
 };
 
-// 播放随机交互
+/** 播放随机交互 */
 const playRandomInteraction = () => {
   if (!petDisplayRef.value) return;
 
-  // 随机选择播放动作或表情
   const actions = ["motion", "expression"];
   const randomAction = actions[Math.floor(Math.random() * actions.length)];
 
@@ -150,11 +141,10 @@ const playRandomInteraction = () => {
   }
 };
 
-// 模型加载完成
+/** 模型加载完成 */
 const onModelLoaded = (modelInfo: ModelInfo) => {
   Logger.info("PetMainDisplay: 模型加载完成", selectedModel.value?.name);
 
-  // 缓存模型信息
   if (selectedModel.value) {
     petManager.cacheModelInfo(selectedModel.value, modelInfo);
   }
@@ -162,13 +152,12 @@ const onModelLoaded = (modelInfo: ModelInfo) => {
   emit("loaded", modelInfo);
 };
 
-// 模型加载错误
+/** 模型加载错误 */
 const onModelError = (errorMsg: string) => {
   error.value = errorMsg;
   emit("error", errorMsg);
 };
 
-// 监听选中模型变化
 watch(
   selectedModel,
   async (newModel) => {
@@ -182,31 +171,25 @@ watch(
   { immediate: false },
 );
 
-// 监听窗口模式变化，确保模型正确显示
 watch(
   () => props.isSmallMode,
   async () => {
     if (selectedModel.value && petDisplayRef.value) {
       await nextTick();
-      // 调整模型大小以适应新的显示模式
       petDisplayRef.value.resize();
     }
   },
 );
 
-// 组件挂载
 onMounted(async () => {
-  // 初始化宠物管理器
   await petManager.init();
 
-  // 如果有选中的模型，加载它
   if (selectedModel.value) {
     await nextTick();
     await loadPetModel();
   }
 });
 
-// 暴露方法给父组件
 defineExpose({
   loadPetModel,
   retryLoad,
@@ -248,7 +231,6 @@ defineExpose({
   transform: scale(0.95);
 }
 
-/* 小窗模式特殊样式 */
 .small-mode .interaction-hint {
   position: absolute;
   top: 0;
@@ -277,7 +259,6 @@ defineExpose({
   opacity: 0;
 }
 
-/* 加载状态 */
 .loading-overlay {
   position: absolute;
   top: 50%;
@@ -304,7 +285,6 @@ defineExpose({
   }
 }
 
-/* 错误状态 */
 .error-overlay {
   position: absolute;
   top: 50%;

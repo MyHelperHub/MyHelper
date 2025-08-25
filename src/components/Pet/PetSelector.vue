@@ -57,32 +57,27 @@ const emit = defineEmits<{
   "models-loaded": [models: ModelConfig[]];
 }>();
 
-// 状态
 const models = ref<ModelConfig[]>([]);
 const selectedIndex = ref<number | null>(props.modelValue || null);
 const isLoading = ref(false);
 
-// 模型工厂
 const modelFactory = PetModelFactory.getInstance();
 
-// 初始化模型源
+/** 初始化模型源 */
 const initModelSources = () => {
-  // 注册默认的资源模型源
   const assetsSource = new AssetsModelSource(DEFAULT_ASSETS_MODELS);
   modelFactory.registerModelSource("assets", assetsSource);
 };
 
-// 加载模型列表
+/** 加载模型列表 */
 const loadModels = async () => {
   isLoading.value = true;
   try {
     const availableModels = await modelFactory.getAvailableModels();
     models.value = availableModels;
 
-    // 触发模型列表加载完成事件
     emit("models-loaded", availableModels);
 
-    // 如果当前选中的索引超出范围，重置选择
     if (
       selectedIndex.value !== null &&
       selectedIndex.value >= models.value.length
@@ -99,12 +94,12 @@ const loadModels = async () => {
   }
 };
 
-// 刷新模型列表
+/** 刷新模型列表 */
 const refreshModels = () => {
   loadModels();
 };
 
-// 选择模型
+/** 选择模型 */
 const selectModel = (index: number) => {
   if (index < 0 || index >= models.value.length) return;
 
@@ -115,18 +110,18 @@ const selectModel = (index: number) => {
   emit("model-selected", selectedModel, index);
 };
 
-// 获取模型名称首字母
+/** 获取模型名称首字母 */
 const getModelInitial = (name: string): string => {
   return name.charAt(0).toUpperCase();
 };
 
-// 获取简短路径
+/** 获取简短路径 */
 const getShortPath = (path: string): string => {
   const parts = path.split("/");
   return parts.length > 2 ? `.../${parts.slice(-2).join("/")}` : path;
 };
 
-// 获取当前选中的模型
+/** 获取当前选中的模型 */
 const getSelectedModel = (): ModelConfig | null => {
   if (
     selectedIndex.value === null ||
@@ -137,13 +132,11 @@ const getSelectedModel = (): ModelConfig | null => {
   return models.value[selectedIndex.value];
 };
 
-// 组件挂载
 onMounted(() => {
   initModelSources();
   loadModels();
 });
 
-// 暴露给父组件的方法
 defineExpose({
   refreshModels,
   getSelectedModel,
@@ -181,7 +174,6 @@ defineExpose({
   border-radius: 8px;
 }
 
-/* 加载状态 */
 .loading-state {
   text-align: center;
   padding: 12px;
@@ -207,7 +199,6 @@ defineExpose({
   }
 }
 
-/* 空状态 */
 .empty-state {
   text-align: center;
   padding: 12px;
@@ -231,7 +222,6 @@ defineExpose({
   background: var(--theme-primary-hover, #0056b3);
 }
 
-/* 模型网格 */
 .model-grid {
   display: flex;
   flex-direction: column;

@@ -38,17 +38,15 @@ const emit = defineEmits<{
   error: [error: string];
 }>();
 
-// 状态
 const canvasRef = ref<HTMLCanvasElement>();
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const modelInfo = ref<ModelInfo | null>(null);
 
-// 模型管理器
 let modelManager: PetModelManager | null = null;
 const modelFactory = PetModelFactory.getInstance();
 
-// 加载模型
+/** 加载模型 */
 const loadModel = async () => {
   if (!canvasRef.value || !props.modelConfig) return;
 
@@ -56,7 +54,6 @@ const loadModel = async () => {
   error.value = null;
 
   try {
-    // 销毁旧模型，但不销毁应用
     if (modelManager) {
       modelManager.destroy();
       modelManager = null;
@@ -65,7 +62,6 @@ const loadModel = async () => {
     setupCanvas();
     await nextTick();
 
-    // 创建新管理器并加载
     modelManager = modelFactory.createModelManager("live2d");
     const info = await modelManager.load(canvasRef.value, props.modelConfig);
 
@@ -84,12 +80,12 @@ const loadModel = async () => {
   }
 };
 
-// 重试加载
+/** 重试加载 */
 const retryLoad = () => {
   loadModel();
 };
 
-// 设置画布
+/** 设置画布 */
 const setupCanvas = () => {
   if (!canvasRef.value) {
     return;
@@ -97,13 +93,11 @@ const setupCanvas = () => {
 
   const canvas = canvasRef.value;
 
-  // 设置画布的实际尺寸和显示尺寸
   canvas.width = props.width;
   canvas.height = props.height;
   canvas.style.width = `${props.width}px`;
   canvas.style.height = `${props.height}px`;
 
-  // 确保像素比正确
   const dpr = window.devicePixelRatio || 1;
   if (dpr !== 1) {
     canvas.width = props.width * dpr;
@@ -113,7 +107,7 @@ const setupCanvas = () => {
   }
 };
 
-// 调整大小
+/** 调整大小 */
 const resize = () => {
   if (!modelManager || !canvasRef.value) return;
 
@@ -121,32 +115,31 @@ const resize = () => {
   modelManager.resize(canvasRef.value);
 };
 
-// 播放动作
+/** 播放动作 */
 const playMotion = (group: string, index: number) => {
   return modelManager?.playMotion(group, index);
 };
 
-// 播放表情
+/** 播放表情 */
 const playExpression = (index: number) => {
   return modelManager?.playExpression(index);
 };
 
-// 设置模型缩放
+/** 设置模型缩放 */
 const setModelScale = (scale: number) => {
   modelManager?.setModelScale(scale);
 };
 
-// 获取模型缩放
+/** 获取模型缩放 */
 const getModelScale = () => {
   return modelManager?.getModelScale() || 1;
 };
 
-// 检查模型是否有效
+/** 检查模型是否有效 */
 const isModelValid = () => {
   return modelManager?.isModelValid() || false;
 };
 
-// 监听模型配置变化
 watch(
   () => props.modelConfig,
   async (newConfig) => {
@@ -156,29 +149,22 @@ watch(
   },
 );
 
-// 监听尺寸变化
 watch([() => props.width, () => props.height], () => {
   resize();
 });
 
-// 组件挂载
 onMounted(async () => {
-  // 等待DOM完全渲染
   await nextTick();
 
-  // 确保画布存在且有正确尺寸
   if (canvasRef.value) {
-    // 如果有模型配置，立即加载
     if (props.modelConfig) {
       await loadModel();
-    } else {
     }
   } else {
     console.error("PetDisplay: 画布元素不存在");
   }
 });
 
-// 组件卸载
 onUnmounted(() => {
   if (modelManager) {
     modelManager.destroy();
@@ -186,7 +172,6 @@ onUnmounted(() => {
   }
 });
 
-// 暴露给父组件的方法
 defineExpose({
   loadModel,
   retryLoad,
@@ -213,7 +198,6 @@ defineExpose({
   display: block;
 }
 
-/* 加载状态 */
 .loading-overlay {
   position: absolute;
   top: 50%;
@@ -243,7 +227,6 @@ defineExpose({
   }
 }
 
-/* 错误状态 */
 .error-overlay {
   position: absolute;
   top: 50%;

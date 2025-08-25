@@ -7,19 +7,13 @@ import type {
 import { Logger } from "@/utils/logger";
 import { Live2DModelManager } from "./live2d/Live2DModelManager";
 
-/**
- * 宠物模型工厂类（单例模式）
- * 负责管理不同类型的模型源和创建对应的模型管理器
- * 采用工厂模式支持多种模型类型扩展
- */
+/** 宠物模型工厂类（单例模式） - 负责管理不同类型的模型源和创建对应的模型管理器，采用工厂模式支持多种模型类型扩展 */
 export class PetModelFactory {
   private static instance: PetModelFactory;
   /** 注册的模型源映射表，支持多种来源 */
   private modelSources: Map<string, PetModelSource> = new Map();
 
-  /**
-   * 获取工厂单例实例
-   */
+  /** 获取工厂单例实例 */
   static getInstance(): PetModelFactory {
     if (!PetModelFactory.instance) {
       PetModelFactory.instance = new PetModelFactory();
@@ -27,16 +21,12 @@ export class PetModelFactory {
     return PetModelFactory.instance;
   }
 
-  /**
-   * 注册一个模型源
-   */
+  /** 注册一个模型源 */
   registerModelSource(sourceType: string, source: PetModelSource): void {
     this.modelSources.set(sourceType, source);
   }
 
-  /**
-   * 获取所有已注册模型源的可用模型
-   */
+  /** 获取所有已注册模型源的可用模型 */
   async getAvailableModels(): Promise<ModelConfig[]> {
     const allModels: ModelConfig[] = [];
 
@@ -52,9 +42,7 @@ export class PetModelFactory {
     return allModels;
   }
 
-  /**
-   * 从所有模型源中查找指定ID的模型配置
-   */
+  /** 从所有模型源中查找指定ID的模型配置 */
   async getModelConfig(modelId: string): Promise<ModelConfig | null> {
     for (const [, source] of this.modelSources) {
       try {
@@ -67,9 +55,7 @@ export class PetModelFactory {
     return null;
   }
 
-  /**
-   * 创建指定类型的模型管理器
-   */
+  /** 创建指定类型的模型管理器 */
   createModelManager(type: ModelType = "live2d"): PetModelManager {
     switch (type) {
       case "live2d":

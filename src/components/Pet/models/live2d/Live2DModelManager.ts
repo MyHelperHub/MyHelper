@@ -30,8 +30,6 @@ class GlobalAppManager {
         backgroundAlpha: 0,
         resolution: devicePixelRatio,
         resizeTo: canvas,
-        // 基本配置，避免过度优化导致问题
-        antialias: true,
         powerPreference: "default",
       });
       this.apps.set(canvas, app);
@@ -46,8 +44,6 @@ class GlobalAppManager {
       try {
         app.destroy(true);
       } catch (error) {
-        // 静默处理销毁错误
-      }
       this.apps.delete(canvas);
     }
   }
@@ -208,7 +204,6 @@ export class Live2DModelManager implements PetModelManager {
     }
 
     try {
-      // 重要：先重置模型的变换属性
       this.model.scale.set(1);
       this.model.x = 0;
       this.model.y = 0;
@@ -216,13 +211,9 @@ export class Live2DModelManager implements PetModelManager {
 
       const { width, height } = this.model;
 
-      // 计算合适的缩放比例，确保模型完全显示在画布内
-      const scaleX = canvas.width / width;
-      const scaleY = canvas.height / height;
-      const baseScale = Math.min(scaleX, scaleY) * 0.9; // 留一点边距
+      const baseScale = Math.min(scaleX, scaleY) * 0.9;
       const finalScale = baseScale * this.modelScale;
 
-      // 应用变换
       this.model.scale.set(finalScale);
       this.model.x = canvas.width / 2;
       this.model.y = canvas.height / 2;
@@ -264,18 +255,10 @@ export class Live2DModelManager implements PetModelManager {
   destroy() {
     if (this.model) {
       try {
-        // 先从舞台移除模型
-        if (this.app?.stage && this.model.parent) {
           this.app.stage.removeChild(this.model);
-        }
 
-        // 销毁模型，静默处理WebGL错误
-        if (!this.model.destroyed) {
           this.model.destroy();
-        }
       } catch (error) {
-        // 静默忽略WebGL销毁错误
-      }
       this.model = null;
     }
 
