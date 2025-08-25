@@ -20,14 +20,10 @@ export interface ModelInfo {
 
 /** 宠物偏好设置接口 */
 export interface PetPreferences {
-  /** 是否启用宠物模型作为头像 */
-  enableAsAvatar: boolean;
+  /** 是否启用宠物系统 */
+  isEnabledPet: boolean;
   /** 默认缩放比例 */
   defaultScale: number;
-  /** 最近使用的模型列表 */
-  lastUsedModels: string[];
-  /** 自动加载上次选择的模型 */
-  autoLoad: boolean;
 }
 
 /** 模型状态枚举 */

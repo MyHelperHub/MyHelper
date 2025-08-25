@@ -87,24 +87,17 @@ const retryLoad = () => {
 
 /** 设置画布 */
 const setupCanvas = () => {
-  if (!canvasRef.value) {
-    return;
-  }
+  if (!canvasRef.value) return;
 
   const canvas = canvasRef.value;
+  const width = props.width || 160;
+  const height = props.height || 160;
 
-  canvas.width = props.width;
-  canvas.height = props.height;
-  canvas.style.width = `${props.width}px`;
-  canvas.style.height = `${props.height}px`;
-
-  const dpr = window.devicePixelRatio || 1;
-  if (dpr !== 1) {
-    canvas.width = props.width * dpr;
-    canvas.height = props.height * dpr;
-    canvas.style.width = `${props.width}px`;
-    canvas.style.height = `${props.height}px`;
-  }
+  // 直接设置画布尺寸，不考虑设备像素比的复杂处理
+  canvas.width = width;
+  canvas.height = height;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
 };
 
 /** 调整大小 */
@@ -190,7 +183,7 @@ defineExpose({
   position: relative;
   display: inline-block;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  /* background: rgba(0, 0, 0, 0.05); */
   overflow: hidden;
 }
 

@@ -66,9 +66,9 @@ const selectedModel = petManager.getSelectedModelRef();
 const preferences = petManager.getPreferencesRef();
 const isSmallMode = computed(() => !props.isShowMenu);
 
-// 计算是否应该显示宠物：既要有选中的模型，又要开关开启
+// 计算是否应该显示宠物：需要启用宠物系统且有选中的模型
 const shouldShowPet = computed(() => {
-  return !!selectedModel.value && preferences.value.enableAsAvatar;
+  return preferences.value.isEnabledPet && !!selectedModel.value;
 });
 
 const displaySize = computed(() => {
@@ -78,9 +78,9 @@ const displaySize = computed(() => {
 
 const loadPetModel = async () => {
   if (
+    !preferences.value.isEnabledPet ||
     !selectedModel.value ||
-    !petDisplayRef.value ||
-    !preferences.value.enableAsAvatar
+    !petDisplayRef.value
   )
     return;
 
@@ -149,9 +149,9 @@ const onModelError = (errorMsg: string) => {
 };
 
 watch(
-  [selectedModel, () => preferences.value.enableAsAvatar],
-  async ([newModel, enableAsAvatar]) => {
-    if (newModel && enableAsAvatar) {
+  [selectedModel, () => preferences.value.isEnabledPet],
+  async ([newModel, isEnabledPet]) => {
+    if (newModel && isEnabledPet) {
       await nextTick();
       await loadPetModel();
     } else {
@@ -164,7 +164,7 @@ watch(
 onMounted(async () => {
   await petManager.init();
 
-  if (selectedModel.value && preferences.value.enableAsAvatar) {
+  if (selectedModel.value && preferences.value.isEnabledPet) {
     await nextTick();
     await loadPetModel();
   }

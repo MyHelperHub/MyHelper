@@ -43,31 +43,15 @@
     <Fieldset legend="账号管理" class="account-section">
       <Login />
     </Fieldset>
-    <Fieldset legend="我的宠物" class="pet-section">
-      <div class="pet-settings">
-        <div class="setting-item">
-          <label for="enable-avatar-switch">启用宠物作为头像：</label>
-          <InputSwitch
-            id="enable-avatar-switch"
-            v-model="enableAsAvatar" />
-        </div>
-      </div>
-      <PetList
-        :display-width="150"
-        :display-height="150"
-        @model-changed="onModelChanged"
-        @model-error="onModelError" />
-    </Fieldset>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import Fieldset from "primevue/fieldset";
 import FileUpload from "primevue/fileupload";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
-import InputSwitch from "primevue/inputswitch";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { ipcSetLogo } from "@/api/ipc/launch.api";
@@ -77,28 +61,14 @@ import { emit } from "@tauri-apps/api/event";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
-import { PetList } from "@/components/Pet";
-import { petManager } from "@/components/Pet/petManager";
-import type { ModelConfig } from "@/interface/pet";
 
 const avatarLogo = ref<string | undefined>();
-const showCropperModal = ref(false); // 控制裁剪框的显示状态
+const showCropperModal = ref(false);
 const cropper = ref();
 const cropperImage = ref();
 
-// 直接使用 petManager 的响应式引用
-const preferences = petManager.getPreferencesRef();
-const enableAsAvatar = computed({
-  get: () => preferences.value.enableAsAvatar,
-  set: petManager.setEnableAsAvatar
-});
-
-// 简化初始化 - 并行执行
 const init = async () => {
-  const [logoPath] = await Promise.all([
-    checkLogoPath(),
-    petManager.init()
-  ]);
+  const logoPath = await checkLogoPath();
   avatarLogo.value = logoPath;
 };
 init();
@@ -141,12 +111,6 @@ const cancelCrop = () => {
 const handleClose = () => {
   ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.My });
 };
-
-// Pet相关事件处理 - 简化处理函数
-const onModelChanged = (modelConfig: ModelConfig | null) => 
-  petManager.setSelectedModel(modelConfig).catch(console.error);
-
-const onModelError = (error: string) => console.error("模型加载失败:", error);
 </script>
 
 <style lang="less">
@@ -244,39 +208,6 @@ const onModelError = (error: string) => console.error("模型加载失败:", err
 
   .account-section {
     margin: 15px 0;
-  }
-
-  .pet-section {
-    margin: 15px 0;
-
-    .pet-settings {
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid var(--theme-border);
-      border-radius: 6px;
-      background-color: var(--theme-surface);
-
-      .setting-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        label {
-          font-size: 14px;
-          color: var(--theme-text);
-          margin: 0;
-        }
-      }
-    }
-
-    :deep(.p-fieldset) {
-      min-height: 300px;
-    }
-
-    :deep(.p-fieldset-content) {
-      padding: 8px !important;
-      min-height: 250px;
-    }
   }
 
   // 特殊的文件上传样式覆盖

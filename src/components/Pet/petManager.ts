@@ -1,5 +1,10 @@
 import { shallowRef } from "vue";
-import type { ModelConfig, ModelInfo, PetModelManager, PetPreferences } from "@/interface/pet";
+import type {
+  ModelConfig,
+  ModelInfo,
+  PetModelManager,
+  PetPreferences,
+} from "@/interface/pet";
 import { PetModelFactory } from "@/components/Pet/models/PetModelFactory";
 import { ipcGetPetConfig, ipcSetPetConfig } from "@/api/ipc/database.api";
 import { Logger } from "../../utils/logger";
@@ -12,10 +17,8 @@ class PetManager {
   private selectedModel = shallowRef<ModelConfig | null>(null);
 
   private preferences = shallowRef<PetPreferences>({
-    enableAsAvatar: false,
+    isEnabledPet: false,
     defaultScale: 1.0,
-    lastUsedModels: [],
-    autoLoad: true,
   });
 
   private modelInfoCache = new Map<string, ModelInfo>();
@@ -42,10 +45,17 @@ class PetManager {
         Logger.info("PetManager: 从数据库恢复选中的宠物模型", savedModel.name);
       }
 
-      const savedPreferences = await ipcGetPetConfig<PetPreferences>("preferences");
+      const savedPreferences =
+        await ipcGetPetConfig<PetPreferences>("preferences");
       if (savedPreferences) {
-        this.preferences.value = { ...this.preferences.value, ...savedPreferences };
-        Logger.info("PetManager: 从数据库恢复偏好设置", JSON.stringify(savedPreferences));
+        this.preferences.value = {
+          ...this.preferences.value,
+          ...savedPreferences,
+        };
+        Logger.info(
+          "PetManager: 从数据库恢复偏好设置",
+          JSON.stringify(savedPreferences),
+        );
       }
 
       Logger.info("PetManager: 模型信息缓存将根据需要从文件读取");
@@ -82,17 +92,14 @@ class PetManager {
     try {
       this.preferences.value = { ...this.preferences.value, ...newPreferences };
       await ipcSetPetConfig("preferences", this.preferences.value);
-      Logger.info("PetManager: 设置偏好配置到数据库", JSON.stringify(newPreferences));
+      Logger.info(
+        "PetManager: 设置偏好配置到数据库",
+        JSON.stringify(newPreferences),
+      );
     } catch (error) {
       Logger.error("PetManager: 设置偏好配置失败", String(error));
     }
   }
-
-  /** 设置是否启用宠物作为头像 - 简化为箭头函数 */
-  setEnableAsAvatar = (enabled: boolean) => this.setPreferences({ enableAsAvatar: enabled });
-
-  /** 获取是否启用宠物作为头像 - 简化为箭头函数 */
-  isEnabledAsAvatar = () => this.preferences.value.enableAsAvatar;
 
   /** 设置选中的宠物模型 - 优化错误处理和日志 */
   async setSelectedModel(model: ModelConfig | null) {
@@ -106,10 +113,15 @@ class PetManager {
   }
 
   /** 获取或创建模型管理器 - 简化逻辑 */
-  async getModelManager(modelConfig: ModelConfig): Promise<PetModelManager | null> {
+  async getModelManager(
+    modelConfig: ModelConfig,
+  ): Promise<PetModelManager | null> {
     try {
       const manager = this.modelFactory.createModelManager("live2d");
-      Logger.info("PetManager: 创建新的模型管理器", JSON.stringify(modelConfig));
+      Logger.info(
+        "PetManager: 创建新的模型管理器",
+        JSON.stringify(modelConfig),
+      );
       return manager;
     } catch (error) {
       Logger.error("PetManager: 创建模型管理器失败", String(error));

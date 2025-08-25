@@ -29,7 +29,8 @@ class GlobalAppManager {
         autoStart: true,
         backgroundAlpha: 0,
         resolution: devicePixelRatio,
-        resizeTo: canvas,
+        width: canvas.width,
+        height: canvas.height,
         powerPreference: "default",
       });
       this.apps.set(canvas, app);
@@ -43,8 +44,8 @@ class GlobalAppManager {
     if (app) {
       try {
         app.destroy(true);
-      } catch (error) {
-      this.apps.delete(canvas);
+        this.apps.delete(canvas);
+      } catch (error) {}
     }
   }
 }
@@ -125,6 +126,8 @@ export class Live2DModelManager implements PetModelManager {
       }
 
       const result = {
+        name: config.name,
+        path: config.path,
         width: this.model.width,
         height: this.model.height,
         motions: modelSettings.motions || {},
@@ -199,9 +202,7 @@ export class Live2DModelManager implements PetModelManager {
 
   /** 设置模型的位置、缩放和锚点变换 */
   private setupModelTransform(canvas: HTMLCanvasElement) {
-    if (!this.model) {
-      return;
-    }
+    if (!this.model) return;
 
     try {
       this.model.scale.set(1);
@@ -211,8 +212,15 @@ export class Live2DModelManager implements PetModelManager {
 
       const { width, height } = this.model;
 
-      const baseScale = Math.min(scaleX, scaleY) * 0.9;
-      const finalScale = baseScale * this.modelScale;
+      // 确保画布和模型尺寸有效
+      if (canvas.width <= 0 || canvas.height <= 0 || width <= 0 || height <= 0) {
+        return;
+      }
+
+      // 简单直接的缩放：让模型适配画布
+      const scaleX = canvas.width / width;
+      const scaleY = canvas.height / height;
+      const finalScale = Math.min(scaleX, scaleY) * this.modelScale;
 
       this.model.scale.set(finalScale);
       this.model.x = canvas.width / 2;
@@ -238,6 +246,8 @@ export class Live2DModelManager implements PetModelManager {
   /** 调整模型以适应画布尺寸变化 */
   resize(canvas: HTMLCanvasElement) {
     if (!this.model || !canvas) return;
+    
+    // 只重新计算模型变换，不销毁PIXI应用
     this.setupModelTransform(canvas);
   }
 
@@ -255,10 +265,16 @@ export class Live2DModelManager implements PetModelManager {
   destroy() {
     if (this.model) {
       try {
+        if (this.app?.stage && this.model.parent) {
           this.app.stage.removeChild(this.model);
+        }
 
+        if (!this.model.destroyed) {
           this.model.destroy();
+        }
       } catch (error) {
+        // 静默忽略WebGL销毁错误
+      }
       this.model = null;
     }
 

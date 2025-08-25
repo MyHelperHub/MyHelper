@@ -8,6 +8,7 @@
       <div class="content-container" data-tauri-drag-region>
         <GeneralSettings v-show="activeMenu === SettingMenuItemEnum.General" />
         <ThemeSettings v-show="activeMenu === SettingMenuItemEnum.Theme" />
+        <PetSettings v-show="activeMenu === SettingMenuItemEnum.Pet" />
         <AboutSettings v-show="activeMenu === SettingMenuItemEnum.About" />
       </div>
     </div>
@@ -23,6 +24,7 @@ import { initSetting } from "./utils/settingRegistry";
 import GeneralSettings from "@/views/setting/GeneralSettings.vue";
 import AboutSettings from "@/views/setting/AboutSettings.vue";
 import ThemeSettings from "@/views/setting/ThemeSettings.vue";
+import PetSettings from "@/views/setting/PetSettings.vue";
 import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
@@ -40,6 +42,12 @@ const menuItems = ref([
     class: "font-bold",
     icon: "pi pi-palette",
     command: () => (activeMenu.value = SettingMenuItemEnum.Theme),
+  },
+  {
+    label: "宠物设置",
+    class: "font-bold",
+    icon: "pi pi-heart",
+    command: () => (activeMenu.value = SettingMenuItemEnum.Pet),
   },
   {
     label: "关于",
