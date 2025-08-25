@@ -14,9 +14,7 @@
             <p>在桌面显示Live2D宠物角色</p>
           </div>
           <div class="setting-control">
-            <ToggleSwitch 
-              v-model="petEnabled" 
-              @update:modelValue="onPetEnabledChange" />
+            <ToggleSwitch v-model="petEnabled" />
           </div>
         </div>
       </div>
@@ -27,7 +25,7 @@
           <h3>选择宠物</h3>
           <p>从可用模型中选择您喜欢的宠物</p>
         </div>
-        
+
         <div class="pet-selection-area">
           <div class="pet-preview-section">
             <div class="preview-container">
@@ -39,7 +37,7 @@
                 @loaded="onPreviewLoaded"
                 @error="onPreviewError" />
             </div>
-            
+
             <div v-if="previewModel" class="model-info">
               <h4>{{ previewModel.name }}</h4>
               <div class="model-stats">
@@ -50,17 +48,17 @@
                   表情: {{ (previewModelInfo.expressions || []).length }}
                 </span>
               </div>
-              
+
               <div class="preview-controls">
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   outlined
                   @click="playRandomMotion"
                   :disabled="!hasMotions">
                   随机动作
                 </Button>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   outlined
                   @click="playRandomExpression"
                   :disabled="!hasExpressions">
@@ -79,49 +77,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 宠物行为设置 -->
-      <div v-if="petEnabled && selectedModel" class="setting-section">
-        <div class="section-header">
-          <h3>显示设置</h3>
-          <p>调整宠物的显示方式和行为</p>
-        </div>
-
-        <div class="setting-grid">
-          <div class="setting-item">
-            <div class="setting-label">
-              <label>显示大小</label>
-              <p>调整宠物在桌面上的显示尺寸</p>
-            </div>
-            <div class="setting-control">
-              <div class="scale-control">
-                <Slider 
-                  v-model="modelScale" 
-                  :min="0.5" 
-                  :max="2.0" 
-                  :step="0.1"
-                  @change="onScaleChange" />
-                <span class="scale-value">{{ Math.round(modelScale * 100) }}%</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- 操作按钮 -->
-      <div v-if="petEnabled" class="setting-section">
-        <div class="action-buttons">
-          <Button @click="refreshModels" outlined>
-            <i class="pi pi-refresh"></i>
-            刷新模型列表
-          </Button>
-          <Button @click="resetSettings" severity="secondary" outlined>
-            <i class="pi pi-undo"></i>
-            重置设置
-          </Button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -130,7 +85,6 @@
 import { ref, computed, onMounted, nextTick } from "vue";
 import Button from "primevue/button";
 import ToggleSwitch from "primevue/toggleswitch";
-import Slider from "primevue/slider";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import { PetDisplay, PetSelector } from "@/components/Pet";
 import { petManager } from "@/components/Pet/petManager";
@@ -149,15 +103,14 @@ const preferences = petManager.getPreferencesRef();
 /** 宠物是否启用 */
 const petEnabled = computed({
   get: () => preferences.value.isEnabledPet,
-  set: (enabled: boolean) => petManager.setPreferences({ isEnabledPet: enabled })
+  set: async (enabled: boolean) => {
+    await petManager.setPreferences({ isEnabledPet: enabled });
+    if (enabled && petSelectorRef.value) {
+      await nextTick();
+      petSelectorRef.value.refreshModels();
+    }
+  },
 });
-
-/** 模型缩放比例 */
-const modelScale = computed({
-  get: () => preferences.value.defaultScale || 1.0,
-  set: (scale: number) => petManager.setPreferences({ defaultScale: scale })
-});
-
 
 const hasMotions = computed(() => {
   if (!previewModelInfo.value?.motions) return false;
@@ -169,16 +122,10 @@ const hasExpressions = computed(() => {
   return previewModelInfo.value.expressions.length > 0;
 });
 
-/** 宠物启用状态变化 */
-const onPetEnabledChange = (enabled: boolean) => {
-  Logger.info("PetSettings: 宠物启用状态变更", enabled.toString());
-};
-
 /** 模型选择事件 */
 const onModelSelected = async (model: ModelConfig) => {
   previewModel.value = model;
   await petManager.setSelectedModel(model);
-  Logger.info("PetSettings: 选择新宠物模型", model.name);
 };
 
 /** 模型列表加载完成 */
@@ -196,12 +143,6 @@ const onModelsLoaded = (models: ModelConfig[]) => {
 /** 预览模型加载完成 */
 const onPreviewLoaded = (modelInfo: ModelInfo) => {
   previewModelInfo.value = modelInfo;
-  
-  nextTick(() => {
-    if (previewDisplayRef.value) {
-      previewDisplayRef.value.setModelScale(modelScale.value);
-    }
-  });
 };
 
 /** 预览模型加载错误 */
@@ -238,36 +179,12 @@ const playRandomExpression = () => {
   );
 };
 
-/** 缩放变化 */
-const onScaleChange = () => {
-  if (previewDisplayRef.value) {
-    previewDisplayRef.value.setModelScale(modelScale.value);
-  }
-};
-
-/** 刷新模型列表 */
-const refreshModels = () => {
-  petSelectorRef.value?.refreshModels();
-};
-
-/** 重置所有设置 */
-const resetSettings = async () => {
-  await petManager.setPreferences({
-    isEnabledPet: false,
-    defaultScale: 1.0,
-  });
-  
-  if (previewDisplayRef.value) {
-    previewDisplayRef.value.setModelScale(1.0);
-  }
-};
-
 onMounted(async () => {
   await petManager.init();
-  
+
   if (selectedModel.value) {
     previewModel.value = selectedModel.value;
-    
+
     await nextTick();
     if (previewDisplayRef.value) {
       await previewDisplayRef.value.loadModel();
@@ -368,12 +285,6 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 
-.setting-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .pet-selection-area {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -438,49 +349,20 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
-.scale-control {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 200px;
-}
-
-.scale-value {
-  font-size: 13px;
-  color: var(--text-color-secondary);
-  min-width: 40px;
-  text-align: right;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
 @media (max-width: 768px) {
   .pet-settings {
     padding: 16px;
   }
-  
+
   .pet-selection-area {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .setting-item {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-  }
-  
-  .scale-control {
-    min-width: auto;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
   }
 }
 </style>

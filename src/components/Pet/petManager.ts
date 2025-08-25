@@ -39,12 +39,6 @@ class PetManager {
     if (this.isInitialized) return;
 
     try {
-      const savedModel = await ipcGetPetConfig<ModelConfig>("selected_model");
-      if (savedModel) {
-        this.selectedModel.value = savedModel;
-        Logger.info("PetManager: 从数据库恢复选中的宠物模型", savedModel.name);
-      }
-
       const savedPreferences =
         await ipcGetPetConfig<PetPreferences>("preferences");
       if (savedPreferences) {
@@ -52,16 +46,19 @@ class PetManager {
           ...this.preferences.value,
           ...savedPreferences,
         };
-        Logger.info(
-          "PetManager: 从数据库恢复偏好设置",
-          JSON.stringify(savedPreferences),
-        );
       }
 
-      Logger.info("PetManager: 模型信息缓存将根据需要从文件读取");
+      if (!this.preferences.value.isEnabledPet) {
+        this.isInitialized = true;
+        return;
+      }
+
+      const savedModel = await ipcGetPetConfig<ModelConfig>("selected_model");
+      if (savedModel) {
+        this.selectedModel.value = savedModel;
+      }
 
       this.isInitialized = true;
-      Logger.info("PetManager: 初始化完成");
     } catch (error) {
       Logger.error("PetManager: 初始化失败", String(error));
     }
@@ -90,14 +87,31 @@ class PetManager {
   /** 设置偏好设置 - 优化错误处理 */
   async setPreferences(newPreferences: Partial<PetPreferences>) {
     try {
+      const wasEnabled = this.preferences.value.isEnabledPet;
       this.preferences.value = { ...this.preferences.value, ...newPreferences };
       await ipcSetPetConfig("preferences", this.preferences.value);
-      Logger.info(
-        "PetManager: 设置偏好配置到数据库",
-        JSON.stringify(newPreferences),
-      );
+
+      const isNowEnabled = this.preferences.value.isEnabledPet;
+      if (!wasEnabled && isNowEnabled) {
+        await this.reinitialize();
+      }
     } catch (error) {
       Logger.error("PetManager: 设置偏好配置失败", String(error));
+      throw error;
+    }
+  }
+
+  /** 重新初始化宠物管理器 */
+  private async reinitialize() {
+    if (!this.preferences.value.isEnabledPet) return;
+
+    try {
+      const savedModel = await ipcGetPetConfig<ModelConfig>("selected_model");
+      if (savedModel) {
+        this.selectedModel.value = savedModel;
+      }
+    } catch (error) {
+      Logger.error("PetManager: 重新初始化失败", String(error));
     }
   }
 
@@ -106,22 +120,15 @@ class PetManager {
     try {
       this.selectedModel.value = model;
       await ipcSetPetConfig("selected_model", model);
-      Logger.info("PetManager: 设置选中模型", JSON.stringify(model));
     } catch (error) {
       Logger.error("PetManager: 设置选中模型失败", String(error));
     }
   }
 
   /** 获取或创建模型管理器 - 简化逻辑 */
-  async getModelManager(
-    modelConfig: ModelConfig,
-  ): Promise<PetModelManager | null> {
+  async getModelManager(): Promise<PetModelManager | null> {
     try {
       const manager = this.modelFactory.createModelManager("live2d");
-      Logger.info(
-        "PetManager: 创建新的模型管理器",
-        JSON.stringify(modelConfig),
-      );
       return manager;
     } catch (error) {
       Logger.error("PetManager: 创建模型管理器失败", String(error));
@@ -133,7 +140,6 @@ class PetManager {
   cacheModelInfo = (modelConfig: ModelConfig, modelInfo: ModelInfo) => {
     const cacheKey = `${modelConfig.name}_${modelConfig.path}`;
     this.modelInfoCache.set(cacheKey, modelInfo);
-    Logger.info("PetManager: 缓存模型信息到内存", modelConfig.name);
   };
 
   /** 获取缓存的模型信息 - 简化为箭头函数 */
@@ -146,13 +152,11 @@ class PetManager {
   clearModelCache = (modelConfig: ModelConfig) => {
     const cacheKey = `${modelConfig.name}_${modelConfig.path}`;
     this.modelInfoCache.delete(cacheKey);
-    Logger.info("PetManager: 清理模型缓存", modelConfig.name);
   };
 
   /** 清理所有缓存 - 简化为箭头函数 */
   clearAllCache = () => {
     this.modelInfoCache.clear();
-    Logger.info("PetManager: 清理内存缓存完成");
   };
 
   /** 获取缓存统计信息 - 简化为箭头函数 */
