@@ -17,20 +17,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import type { ModelConfig, ModelInfo, PetModelManager } from "@/interface/pet";
 import { PetModelFactory } from "./models/PetModelFactory";
+import { petManager } from "./petManager";
+import { Logger } from "@/utils/logger";
 
 interface Props {
-  modelConfig?: ModelConfig | null;
   width?: number;
   height?: number;
+  modelConfig?: ModelConfig | null; // 保留 props 但设为可选
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelConfig: null,
   width: 120,
   height: 120,
+  modelConfig: null,
 });
 
 const emit = defineEmits<{
@@ -43,12 +45,20 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 const modelInfo = ref<ModelInfo | null>(null);
 
+// 获取当前模型配置：优先使用 props，否则使用全局状态
+const selectedModel = petManager.getSelectedModelRef();
+const preferences = petManager.getPreferencesRef();
+
+const currentModel = computed(() => {
+  return props.modelConfig || selectedModel.value;
+});
+
 let modelManager: PetModelManager | null = null;
 const modelFactory = PetModelFactory.getInstance();
 
-/** 加载模型 */
 const loadModel = async () => {
-  if (!canvasRef.value || !props.modelConfig) return;
+  if (!canvasRef.value || !currentModel.value) return;
+  if (!preferences.value?.isEnabledPet && !props.modelConfig) return;
 
   isLoading.value = true;
   error.value = null;
@@ -63,18 +73,20 @@ const loadModel = async () => {
     await nextTick();
 
     modelManager = modelFactory.createModelManager("live2d");
-    const info = await modelManager.load(canvasRef.value, props.modelConfig);
+    const info = await modelManager.load(canvasRef.value, currentModel.value);
 
     if (info) {
       modelInfo.value = info;
       await nextTick();
       modelManager.resize(canvasRef.value);
       emit("loaded", info);
+      Logger.info("PetDisplay: 模型加载成功", currentModel.value.name);
     }
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "加载模型失败";
     error.value = errorMsg;
     emit("error", errorMsg);
+    Logger.error("PetDisplay: 模型加载失败", errorMsg);
   } finally {
     isLoading.value = false;
   }
@@ -133,13 +145,15 @@ const isModelValid = () => {
   return modelManager?.isModelValid() || false;
 };
 
+// 监听模型变化
 watch(
-  () => props.modelConfig,
-  async (newConfig) => {
-    if (newConfig) {
+  currentModel,
+  async (newModel) => {
+    if (newModel) {
       await loadModel();
     }
   },
+  { immediate: false }
 );
 
 watch([() => props.width, () => props.height], () => {
@@ -148,13 +162,10 @@ watch([() => props.width, () => props.height], () => {
 
 onMounted(async () => {
   await nextTick();
+  await petManager.init();
 
-  if (canvasRef.value) {
-    if (props.modelConfig) {
-      await loadModel();
-    }
-  } else {
-    console.error("PetDisplay: 画布元素不存在");
+  if (canvasRef.value && currentModel.value) {
+    await loadModel();
   }
 });
 

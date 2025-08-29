@@ -10,7 +10,6 @@
     <div v-if="shouldShowPet" class="pet-container">
       <PetDisplay
         ref="petDisplayRef"
-        :model-config="selectedModel"
         :width="displaySize.width"
         :height="displaySize.height"
         @loaded="onModelLoaded"
@@ -29,16 +28,16 @@
       <div class="loading-spinner"></div>
     </div>
 
-    <div v-if="error" class="error-overlay" @click.stop="retryLoad">
+    <div v-if="error" class="error-overlay" @click.stop="() => error = null">
       <i class="pi pi-refresh"></i>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted } from "vue";
 import type { ModelInfo } from "@/interface/pet";
-import { PetDisplay } from "@/components/Pet";
+import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import { petManager } from "@/components/Pet/petManager";
 import { Logger } from "@/utils/logger";
 
@@ -76,34 +75,6 @@ const displaySize = computed(() => {
   return { width: size, height: size };
 });
 
-const loadPetModel = async () => {
-  if (
-    !preferences.value.isEnabledPet ||
-    !selectedModel.value ||
-    !petDisplayRef.value
-  )
-    return;
-
-  isLoading.value = true;
-  error.value = null;
-
-  try {
-    Logger.info("AvatarDisplay: 开始加载宠物模型", selectedModel.value.name);
-    await petDisplayRef.value.loadModel();
-  } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : "加载宠物模型失败";
-    error.value = errorMsg;
-    emit("error", errorMsg);
-    Logger.error("AvatarDisplay: 加载失败", errorMsg);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const retryLoad = () => {
-  error.value = null;
-  loadPetModel();
-};
 
 const handleClick = () => {
   emit("click");
@@ -148,32 +119,11 @@ const onModelError = (errorMsg: string) => {
   emit("error", errorMsg);
 };
 
-watch(
-  [selectedModel, () => preferences.value.isEnabledPet],
-  async ([newModel, isEnabledPet]) => {
-    if (newModel && isEnabledPet) {
-      await nextTick();
-      await loadPetModel();
-    } else {
-      error.value = null;
-    }
-  },
-  { immediate: false },
-);
-
 onMounted(async () => {
   await petManager.init();
-
-  if (selectedModel.value && preferences.value.isEnabledPet) {
-    await nextTick();
-    await loadPetModel();
-  }
 });
 
 defineExpose({
-  loadPetModel,
-  retryLoad,
-  playRandomInteraction,
   getSelectedModel: () => selectedModel.value,
 });
 </script>

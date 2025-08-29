@@ -86,7 +86,8 @@ import { ref, computed, onMounted, nextTick } from "vue";
 import Button from "primevue/button";
 import ToggleSwitch from "primevue/toggleswitch";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
-import { PetDisplay, PetSelector } from "@/components/Pet";
+import PetDisplay from "@/components/Pet/PetDisplay.vue";
+import PetSelector from "@/components/Pet/PetSelector.vue";
 import { petManager } from "@/components/Pet/petManager";
 import { Logger } from "@/utils/logger";
 
