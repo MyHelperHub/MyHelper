@@ -38,7 +38,7 @@
 import { ref, computed, onMounted } from "vue";
 import type { ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
-import { petManager } from "@/components/Pet/petManager";
+import { createPetManager } from "@/components/Pet/petManager";
 import { Logger } from "@/utils/logger";
 
 interface Props {
@@ -61,6 +61,8 @@ const petDisplayRef = ref<InstanceType<typeof PetDisplay>>();
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showRipple = ref(false);
+
+const petManager = createPetManager();
 const selectedModel = petManager.getSelectedModelRef();
 const preferences = petManager.getPreferencesRef();
 const isSmallMode = computed(() => !props.isShowMenu);
@@ -81,36 +83,23 @@ const handleClick = () => {
 
   if (isSmallMode.value && shouldShowPet.value) {
     showRipple.value = true;
-    setTimeout(() => {
-      showRipple.value = false;
-    }, 600);
+    setTimeout(() => (showRipple.value = false), 600);
 
     if (petDisplayRef.value) {
-      playRandomInteraction();
+      const actions = ["motion", "expression"];
+      const randomAction = actions[Math.floor(Math.random() * actions.length)];
+      if (randomAction === "motion") {
+        petDisplayRef.value.playMotion("idle", 0);
+      } else {
+        petDisplayRef.value.playExpression(0);
+      }
     }
   }
 };
 
-const playRandomInteraction = () => {
-  if (!petDisplayRef.value) return;
-
-  const actions = ["motion", "expression"];
-  const randomAction = actions[Math.floor(Math.random() * actions.length)];
-
-  if (randomAction === "motion") {
-    petDisplayRef.value.playMotion("idle", 0);
-  } else {
-    petDisplayRef.value.playExpression(0);
-  }
-};
 
 const onModelLoaded = (modelInfo: ModelInfo) => {
   Logger.info("AvatarDisplay: 模型加载完成", selectedModel.value?.name);
-
-  if (selectedModel.value) {
-    petManager.cacheModelInfo(selectedModel.value, modelInfo);
-  }
-
   emit("loaded", modelInfo);
 };
 
@@ -119,8 +108,8 @@ const onModelError = (errorMsg: string) => {
   emit("error", errorMsg);
 };
 
-onMounted(async () => {
-  await petManager.init();
+onMounted(() => {
+  petManager.init();
 });
 
 defineExpose({

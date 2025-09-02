@@ -88,7 +88,7 @@ import ToggleSwitch from "primevue/toggleswitch";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import PetSelector from "@/components/Pet/PetSelector.vue";
-import { petManager } from "@/components/Pet/petManager";
+import { createPetManager } from "@/components/Pet/petManager";
 import { Logger } from "@/utils/logger";
 
 const previewDisplayRef = ref<InstanceType<typeof PetDisplay>>();
@@ -96,19 +96,19 @@ const petSelectorRef = ref<InstanceType<typeof PetSelector>>();
 
 const selectedModelIndex = ref<number | null>(null);
 const previewModelInfo = ref<ModelInfo | null>(null);
-const previewModel = ref<ModelConfig | null>(null); // 本地预览模型状态
+const previewModel = ref<ModelConfig | null>(null);
 
-const selectedModel = petManager.getSelectedModelRef(); // 数据库中的选中模型
+const petManager = createPetManager();
+const selectedModel = petManager.getSelectedModelRef();
 const preferences = petManager.getPreferencesRef();
 
-/** 宠物是否启用 */
 const petEnabled = computed({
   get: () => preferences.value.isEnabledPet,
   set: async (enabled: boolean) => {
     await petManager.setPreferences({ isEnabledPet: enabled });
     if (enabled && petSelectorRef.value) {
       await nextTick();
-      petSelectorRef.value.refreshModels();
+      petSelectorRef.value.refreshModels?.();
     }
   },
 });
@@ -123,22 +123,20 @@ const hasExpressions = computed(() => {
   return previewModelInfo.value.expressions.length > 0;
 });
 
-/** 模型选择事件 */
 const onModelSelected = async (model: ModelConfig) => {
   previewModel.value = model;
   await petManager.setSelectedModel(model);
 };
 
-/** 模型列表加载完成 */
 const onModelsLoaded = (models: ModelConfig[]) => {
   const current = selectedModel.value;
-  if (current) {
-    const index = models.findIndex(
-      (m) => m.name === current.name && m.path === current.path,
-    );
-    selectedModelIndex.value = index !== -1 ? index : null;
-    previewModel.value = current;
-  }
+  if (!current) return;
+  
+  const index = models.findIndex(
+    (m) => m.name === current.name && m.path === current.path
+  );
+  selectedModelIndex.value = index !== -1 ? index : null;
+  previewModel.value = current;
 };
 
 /** 预览模型加载完成 */
@@ -185,11 +183,8 @@ onMounted(async () => {
 
   if (selectedModel.value) {
     previewModel.value = selectedModel.value;
-
     await nextTick();
-    if (previewDisplayRef.value) {
-      await previewDisplayRef.value.loadModel();
-    }
+    await previewDisplayRef.value?.loadModel?.();
   }
 });
 </script>

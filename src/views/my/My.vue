@@ -57,7 +57,7 @@ import { WindowOperation } from "@/interface/enum";
 import { ipcSetLogo } from "@/api/ipc/launch.api";
 import { VueCropper } from "vue-cropper";
 import "vue-cropper/dist/index.css";
-import { emit } from "@tauri-apps/api/event";
+import { emit as tauriEmit } from "@tauri-apps/api/event";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
@@ -97,7 +97,7 @@ const confirmCrop = () => {
       avatarLogo.value = data;
       cropperImage.value = "";
       showCropperModal.value = false; // 隐藏裁剪框
-      emit("update:logo");
+      tauriEmit("update:logo");
     }
   });
 };

@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import type { ModelConfig } from "@/composables/useLive2D";
-import { PetModelFactory } from "./models/PetModelFactory";
+import { createPetModelFactory } from "./models/PetModelFactory";
 import {
   AssetsModelSource,
   DEFAULT_ASSETS_MODELS,
@@ -61,7 +61,7 @@ const models = ref<ModelConfig[]>([]);
 const selectedIndex = ref<number | null>(props.modelValue || null);
 const isLoading = ref(false);
 
-const modelFactory = PetModelFactory.getInstance();
+const modelFactory = createPetModelFactory();
 
 /** 初始化模型源 */
 const initModelSources = () => {

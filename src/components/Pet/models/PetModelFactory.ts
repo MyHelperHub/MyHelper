@@ -7,19 +7,10 @@ import type {
 import { Logger } from "@/utils/logger";
 import { Live2DModelManager } from "./live2d/Live2DModelManager";
 
-/** 宠物模型工厂类（单例模式） - 负责管理不同类型的模型源和创建对应的模型管理器，采用工厂模式支持多种模型类型扩展 */
+/** 宠物模型工厂类 - 负责管理不同类型的模型源和创建对应的模型管理器，采用工厂模式支持多种模型类型扩展 */
 export class PetModelFactory {
-  private static instance: PetModelFactory;
   /** 注册的模型源映射表，支持多种来源 */
-  private modelSources: Map<string, PetModelSource> = new Map();
-
-  /** 获取工厂单例实例 */
-  static getInstance(): PetModelFactory {
-    if (!PetModelFactory.instance) {
-      PetModelFactory.instance = new PetModelFactory();
-    }
-    return PetModelFactory.instance;
-  }
+  private readonly modelSources = new Map<string, PetModelSource>();
 
   /** 注册一个模型源 */
   registerModelSource(sourceType: string, source: PetModelSource): void {
@@ -28,31 +19,40 @@ export class PetModelFactory {
 
   /** 获取所有已注册模型源的可用模型 */
   async getAvailableModels(): Promise<ModelConfig[]> {
-    const allModels: ModelConfig[] = [];
-
-    for (const [sourceType, source] of this.modelSources) {
-      try {
-        const models = await source.getAvailableModels();
-        allModels.push(...models);
-      } catch (error) {
-        Logger.error(`获取模型源 ${sourceType} 失败`, String(error));
-      }
+    if (this.modelSources.size === 0) {
+      return [];
     }
 
-    return allModels;
+    const modelPromises = Array.from(this.modelSources.entries()).map(
+      async ([sourceType, source]) => {
+        try {
+          return await source.getAvailableModels();
+        } catch (error) {
+          Logger.error(`获取模型源 ${sourceType} 失败`, String(error));
+          return [];
+        }
+      }
+    );
+
+    const modelArrays = await Promise.all(modelPromises);
+    return modelArrays.flat();
   }
 
   /** 从所有模型源中查找指定ID的模型配置 */
   async getModelConfig(modelId: string): Promise<ModelConfig | null> {
-    for (const [, source] of this.modelSources) {
-      try {
-        const config = await source.getModelConfig(modelId);
-        if (config) return config;
-      } catch (error) {
-        Logger.error("获取模型配置失败", String(error));
+    const configPromises = Array.from(this.modelSources.values()).map(
+      async (source) => {
+        try {
+          return await source.getModelConfig(modelId);
+        } catch (error) {
+          Logger.error("获取模型配置失败", String(error));
+          return null;
+        }
       }
-    }
-    return null;
+    );
+
+    const configs = await Promise.all(configPromises);
+    return configs.find(config => config !== null) || null;
   }
 
   /** 创建指定类型的模型管理器 */
@@ -65,3 +65,6 @@ export class PetModelFactory {
     }
   }
 }
+
+/** 创建宠物模型工厂实例 */
+export const createPetModelFactory = () => new PetModelFactory();

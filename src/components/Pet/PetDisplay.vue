@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import type { ModelConfig, ModelInfo, PetModelManager } from "@/interface/pet";
-import { PetModelFactory } from "./models/PetModelFactory";
+import { createPetModelFactory } from "./models/PetModelFactory";
 import { petManager } from "./petManager";
 import { Logger } from "@/utils/logger";
 
@@ -54,7 +54,7 @@ const currentModel = computed(() => {
 });
 
 let modelManager: PetModelManager | null = null;
-const modelFactory = PetModelFactory.getInstance();
+const modelFactory = createPetModelFactory();
 
 const loadModel = async () => {
   if (!canvasRef.value || !currentModel.value) return;
@@ -72,7 +72,11 @@ const loadModel = async () => {
     setupCanvas();
     await nextTick();
 
-    modelManager = modelFactory.createModelManager("live2d");
+    const manager = modelFactory.createModelManager("live2d");
+    if (!manager) {
+      throw new Error("创建模型管理器失败");
+    }
+    modelManager = manager;
     const info = await modelManager.load(canvasRef.value, currentModel.value);
 
     if (info) {
