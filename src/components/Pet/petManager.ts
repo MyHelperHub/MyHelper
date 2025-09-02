@@ -1,4 +1,5 @@
 import { ref, shallowRef } from "vue";
+import { emit as tauriEmit } from "@tauri-apps/api/event";
 import type {
   ModelConfig,
   ModelType,
@@ -94,6 +95,14 @@ class PetManager {
       }
       
       await Promise.all(tasks);
+      
+      // 发送宠物偏好设置更改事件
+      await tauriEmit("pet:preferences-changed", updatedPreferences);
+      
+      if (newPreferences.isEnabledPet !== undefined) {
+        await tauriEmit("pet:enabled-changed", { enabled: newPreferences.isEnabledPet });
+      }
+      
     } catch (error) {
       // 回滚状态
       this.preferences.value = { ...this.preferences.value };
@@ -110,6 +119,10 @@ class PetManager {
     try {
       this.selectedModel.value = model;
       await ipcSetPetConfig("selected_model", model);
+      
+      // 发送模型更改事件
+      await tauriEmit("pet:model-changed", { model });
+      
     } catch (error) {
       // 回滚状态
       this.selectedModel.value = previousModel;
