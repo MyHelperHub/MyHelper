@@ -17,22 +17,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
-import type { ModelConfig, ModelInfo, PetModelManager } from "@/interface/pet";
-import { createPetModelFactory } from "./models/PetModelFactory";
-import { petManager } from "./petManager";
+import { ref, onMounted, onUnmounted, nextTick, watch } from "vue";
+import type { ModelConfig, ModelInfo } from "@/interface/pet";
+import { SimpleLive2DManager } from "./SimpleLive2DManager";
 import { Logger } from "@/utils/logger";
 
 interface Props {
   width?: number;
   height?: number;
-  modelConfig?: ModelConfig | null; // 保留 props 但设为可选
+  modelConfig: ModelConfig | null; 
 }
 
 const props = withDefaults(defineProps<Props>(), {
   width: 120,
   height: 120,
-  modelConfig: null,
 });
 
 const emit = defineEmits<{
@@ -45,46 +43,34 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 const modelInfo = ref<ModelInfo | null>(null);
 
-// 获取当前模型配置：优先使用 props，否则使用全局状态
-const selectedModel = petManager.getSelectedModelRef();
-const preferences = petManager.getPreferencesRef();
-
-const currentModel = computed(() => {
-  return props.modelConfig || selectedModel.value;
-});
-
-let modelManager: PetModelManager | null = null;
-const modelFactory = createPetModelFactory();
+// 使用简化的Live2D管理器
+let modelManager: SimpleLive2DManager | null = null;
 
 const loadModel = async () => {
-  if (!canvasRef.value || !currentModel.value) return;
-  if (!preferences.value?.isEnabledPet && !props.modelConfig) return;
+  if (!canvasRef.value || !props.modelConfig) return;
 
   isLoading.value = true;
   error.value = null;
 
   try {
+    // 销毁旧模型但保留管理器实例
     if (modelManager) {
-      modelManager.destroy();
-      modelManager = null;
+      modelManager.destroyModel();
+    } else {
+      modelManager = new SimpleLive2DManager();
     }
 
     setupCanvas();
     await nextTick();
 
-    const manager = modelFactory.createModelManager("live2d");
-    if (!manager) {
-      throw new Error("创建模型管理器失败");
-    }
-    modelManager = manager;
-    const info = await modelManager.load(canvasRef.value, currentModel.value);
+    const info = await modelManager.load(canvasRef.value, props.modelConfig);
 
     if (info) {
       modelInfo.value = info;
       await nextTick();
       modelManager.resize(canvasRef.value);
       emit("loaded", info);
-      Logger.info("PetDisplay: 模型加载成功", currentModel.value.name);
+      Logger.info("PetDisplay: 模型加载成功", props.modelConfig.name);
     }
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "加载模型失败";
@@ -149,9 +135,9 @@ const isModelValid = () => {
   return modelManager?.isModelValid() || false;
 };
 
-// 监听模型变化
+// 监听props.modelConfig变化
 watch(
-  currentModel,
+  () => props.modelConfig,
   async (newModel) => {
     if (newModel) {
       await loadModel();
@@ -166,15 +152,14 @@ watch([() => props.width, () => props.height], () => {
 
 onMounted(async () => {
   await nextTick();
-  await petManager.init();
-
-  if (canvasRef.value && currentModel.value) {
+  if (canvasRef.value && props.modelConfig) {
     await loadModel();
   }
 });
 
 onUnmounted(() => {
   if (modelManager) {
+    // 完全销毁管理器实例
     modelManager.destroy();
     modelManager = null;
   }

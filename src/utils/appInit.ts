@@ -13,7 +13,7 @@ import {
   handleSettingChange,
   runStartupTasks,
 } from "../views/setting/utils/startupManager";
-import { petManager } from "../components/Pet/petManager";
+import { PetGlobalManager } from "../components/Pet/PetGlobalManager";
 
 /**
  * 应用初始化管理器
@@ -151,7 +151,7 @@ class AppInitManager {
    */
   private async initPetManager(): Promise<void> {
     try {
-      await petManager.init();
+      await PetGlobalManager.init();
       console.log("宠物管理器初始化完成");
     } catch (error) {
       await ErrorHandler.handleError(error, "宠物管理器初始化失败");

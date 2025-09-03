@@ -1,6 +1,6 @@
 /**
- * Pet组件系统类型定义
- * 包含模型配置、状态和管理器接口
+ * Pet组件系统类型定义（GlobalData架构版本）
+ * 基于GlobalData实现跨webview状态同步的简化版本
  */
 
 /** 模型配置接口 */
@@ -26,20 +26,13 @@ export interface PetPreferences {
   defaultScale: number;
 }
 
-/** 模型状态枚举 */
-export type ModelStatus = "loading" | "loaded" | "error" | "idle";
-
-/** 模型类型枚举 */
-export type ModelType = "live2d" | "spine" | "vrm";
-
-/** 宠物模型管理器接口 */
-export interface PetModelManager {
+/** 简化的Live2D模型管理器接口 */
+export interface SimpleLive2DManagerInterface {
   /** 加载模型到指定画布 */
-  load(
-    canvas: HTMLCanvasElement,
-    config: ModelConfig,
-  ): Promise<ModelInfo | null>;
-  /** 销毁当前模型并清理资源 */
+  load(canvas: HTMLCanvasElement, config: ModelConfig): Promise<ModelInfo | null>;
+  /** 销毁当前模型但保留PIXI Application */
+  destroyModel(): void;
+  /** 完全销毁管理器，包括PIXI Application */
   destroy(): void;
   /** 播放指定分组的动作 */
   playMotion(group: string, index: number): any;
@@ -55,14 +48,23 @@ export interface PetModelManager {
   isModelValid(): boolean;
 }
 
-/** 宠物模型源接口 */
+// 向后兼容的类型别名（逐步迁移时使用）
+/** @deprecated 使用 SimpleLive2DManagerInterface 代替 */
+export type PetModelManager = SimpleLive2DManagerInterface;
+
+/** @deprecated 不再需要模型类型枚举，统一使用Live2D */
+export type ModelType = "live2d";
+
+/** @deprecated 不再需要模型状态枚举，状态由组件内部管理 */
+export type ModelStatus = "loading" | "loaded" | "error" | "idle";
+
+/** @deprecated 工厂模式已移除，不再需要此接口 */
 export interface PetModelSource {
-  /** 获取所有可用的模型配置列表 */
   getAvailableModels(): Promise<ModelConfig[]>;
-  /** 根据模型ID获取特定的模型配置 */
   getModelConfig(modelId: string): Promise<ModelConfig | null>;
 }
 
+// 保留的动作和表情接口（Live2D模型配置使用）
 /** 动作配置接口 */
 export interface Motion {
   File: string;

@@ -12,6 +12,7 @@
         ref="petDisplayRef"
         :width="displaySize.width"
         :height="displaySize.height"
+        :model-config="selectedModel"
         @loaded="onModelLoaded"
         @error="onModelError" />
 
@@ -35,11 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { listen } from "@tauri-apps/api/event";
-import type { ModelInfo, ModelConfig, PetPreferences } from "@/interface/pet";
+import { ref, computed, onMounted } from "vue";
+import type { ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
-import { createPetManager } from "@/components/Pet/petManager";
+import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
 import { Logger } from "@/utils/logger";
 
 interface Props {
@@ -63,15 +63,10 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 const showRipple = ref(false);
 
-const petManager = createPetManager();
-const selectedModel = petManager.getSelectedModelRef();
-const preferences = petManager.getPreferencesRef();
+// 使用全局宠物状态管理器
+const selectedModel = PetGlobalManager.createSelectedModelRef();
+const preferences = PetGlobalManager.createPreferencesRef();
 const isSmallMode = computed(() => !props.isShowMenu);
-
-// 监听事件的取消函数
-let unlistenModelChanged: (() => void) | null = null;
-let unlistenEnabledChanged: (() => void) | null = null;
-let unlistenPreferencesChanged: (() => void) | null = null;
 
 // 计算是否应该显示宠物：需要启用宠物系统且有选中的模型
 const shouldShowPet = computed(() => {
@@ -112,66 +107,9 @@ const onModelError = (errorMsg: string) => {
   emit("error", errorMsg);
 };
 
-// 设置Tauri事件监听器
-const setupEventListeners = async () => {
-  try {
-    // 监听模型更改事件
-    unlistenModelChanged = await listen<{ model: ModelConfig | null }>(
-      "pet:model-changed",
-      (event) => {
-        const { model } = event.payload;
-        selectedModel.value = model;
-
-        if (model && petDisplayRef.value) {
-          petDisplayRef.value.loadModel();
-        }
-
-        Logger.info("AvatarDisplay: 收到模型更改事件", model?.name || "null");
-      },
-    );
-
-    // 监听宠物启用状态更改事件
-    unlistenEnabledChanged = await listen<{ enabled: boolean }>(
-      "pet:enabled-changed",
-      (event) => {
-        const { enabled } = event.payload;
-        preferences.value.isEnabledPet = enabled;
-
-        Logger.info("AvatarDisplay: 收到宠物启用状态更改事件", String(enabled));
-      },
-    );
-
-    // 监听偏好设置更改事件
-    unlistenPreferencesChanged = await listen<PetPreferences>(
-      "pet:preferences-changed",
-      (event) => {
-        preferences.value = { ...preferences.value, ...event.payload };
-
-        Logger.info(
-          "AvatarDisplay: 收到偏好设置更改事件",
-          JSON.stringify(event.payload),
-        );
-      },
-    );
-  } catch (error) {
-    Logger.error("AvatarDisplay: 设置事件监听器失败", String(error));
-  }
-};
-
-// 清理事件监听器
-const cleanupEventListeners = () => {
-  unlistenModelChanged?.();
-  unlistenEnabledChanged?.();
-  unlistenPreferencesChanged?.();
-};
-
 onMounted(async () => {
-  await petManager.init();
-  await setupEventListeners();
-});
-
-onUnmounted(() => {
-  cleanupEventListeners();
+  await PetGlobalManager.init();
+  Logger.info("AvatarDisplay: 初始化完成");
 });
 
 defineExpose({

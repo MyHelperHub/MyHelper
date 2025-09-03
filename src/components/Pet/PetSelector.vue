@@ -38,12 +38,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import type { ModelConfig } from "@/composables/useLive2D";
-import { createPetModelFactory } from "./models/PetModelFactory";
-import {
-  AssetsModelSource,
-  DEFAULT_ASSETS_MODELS,
-} from "./models/live2d/AssetsModelSource";
+import type { ModelConfig } from "@/interface/pet";
+import { PetGlobalManager } from "./PetGlobalManager";
 
 interface Props {
   modelValue?: number | null;
@@ -61,21 +57,17 @@ const models = ref<ModelConfig[]>([]);
 const selectedIndex = ref<number | null>(props.modelValue || null);
 const isLoading = ref(false);
 
-const modelFactory = createPetModelFactory();
-
-/** 初始化模型源 */
-const initModelSources = () => {
-  const assetsSource = new AssetsModelSource(DEFAULT_ASSETS_MODELS);
-  modelFactory.registerModelSource("assets", assetsSource);
-};
-
 /** 加载模型列表 */
 const loadModels = async () => {
   isLoading.value = true;
   try {
-    const availableModels = await modelFactory.getAvailableModels();
+    // 首先尝试从缓存获取，如果没有则刷新缓存
+    let availableModels = await PetGlobalManager.getModelCache();
+    if (availableModels.length === 0) {
+      availableModels = await PetGlobalManager.refreshModelCache();
+    }
+    
     models.value = availableModels;
-
     emit("models-loaded", availableModels);
 
     if (
@@ -95,8 +87,18 @@ const loadModels = async () => {
 };
 
 /** 刷新模型列表 */
-const refreshModels = () => {
-  loadModels();
+const refreshModels = async () => {
+  isLoading.value = true;
+  try {
+    // 强制刷新缓存
+    const availableModels = await PetGlobalManager.refreshModelCache();
+    models.value = availableModels;
+    emit("models-loaded", availableModels);
+  } catch (error) {
+    console.error("刷新模型列表失败:", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 /** 选择模型 */
@@ -133,7 +135,6 @@ const getSelectedModel = (): ModelConfig | null => {
 };
 
 onMounted(() => {
-  initModelSources();
   loadModels();
 });
 

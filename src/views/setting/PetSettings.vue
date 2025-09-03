@@ -88,7 +88,7 @@ import ToggleSwitch from "primevue/toggleswitch";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import PetSelector from "@/components/Pet/PetSelector.vue";
-import { createPetManager } from "@/components/Pet/petManager";
+import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
 import { Logger } from "@/utils/logger";
 
 const previewDisplayRef = ref<InstanceType<typeof PetDisplay>>();
@@ -98,14 +98,14 @@ const selectedModelIndex = ref<number | null>(null);
 const previewModelInfo = ref<ModelInfo | null>(null);
 const previewModel = ref<ModelConfig | null>(null);
 
-const petManager = createPetManager();
-const selectedModel = petManager.getSelectedModelRef();
-const preferences = petManager.getPreferencesRef();
+// 使用全局宠物状态管理器
+const selectedModel = PetGlobalManager.createSelectedModelRef();
+const preferences = PetGlobalManager.createPreferencesRef();
 
 const petEnabled = computed({
   get: () => preferences.value.isEnabledPet,
   set: async (enabled: boolean) => {
-    await petManager.setPreferences({ isEnabledPet: enabled });
+    await PetGlobalManager.updatePreferences({ isEnabledPet: enabled });
     if (enabled && petSelectorRef.value) {
       await nextTick();
       petSelectorRef.value.refreshModels?.();
@@ -125,15 +125,15 @@ const hasExpressions = computed(() => {
 
 const onModelSelected = async (model: ModelConfig) => {
   previewModel.value = model;
-  await petManager.setSelectedModel(model);
+  await PetGlobalManager.setSelectedModel(model);
 };
 
 const onModelsLoaded = (models: ModelConfig[]) => {
   const current = selectedModel.value;
   if (!current) return;
-  
+
   const index = models.findIndex(
-    (m) => m.name === current.name && m.path === current.path
+    (m) => m.name === current.name && m.path === current.path,
   );
   selectedModelIndex.value = index !== -1 ? index : null;
   previewModel.value = current;
@@ -179,7 +179,7 @@ const playRandomExpression = () => {
 };
 
 onMounted(async () => {
-  await petManager.init();
+  await PetGlobalManager.init();
 
   if (selectedModel.value) {
     previewModel.value = selectedModel.value;
