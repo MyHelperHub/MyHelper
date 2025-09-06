@@ -152,7 +152,6 @@ class AppInitManager {
   private async initPetManager(): Promise<void> {
     try {
       await PetGlobalManager.init();
-      console.log("宠物管理器初始化完成");
     } catch (error) {
       await ErrorHandler.handleError(error, "宠物管理器初始化失败");
     }

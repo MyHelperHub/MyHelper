@@ -11,7 +11,7 @@
     <!-- 错误提示 -->
     <div v-if="error" class="error-overlay">
       <p>{{ error }}</p>
-      <button @click="retryLoad" class="retry-btn">重试</button>
+      <button @click="loadModel" class="retry-btn">重试</button>
     </div>
   </div>
 </template>
@@ -70,7 +70,6 @@ const loadModel = async () => {
       await nextTick();
       modelManager.resize(canvasRef.value);
       emit("loaded", info);
-      Logger.info("PetDisplay: 模型加载成功", props.modelConfig.name);
     }
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "加载模型失败";
@@ -80,11 +79,6 @@ const loadModel = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-/** 重试加载 */
-const retryLoad = () => {
-  loadModel();
 };
 
 /** 设置画布 */
@@ -100,14 +94,6 @@ const setupCanvas = () => {
   canvas.height = height;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
-};
-
-/** 调整大小 */
-const resize = () => {
-  if (!modelManager || !canvasRef.value) return;
-
-  setupCanvas();
-  modelManager.resize(canvasRef.value);
 };
 
 /** 播放动作 */
@@ -130,11 +116,6 @@ const getModelScale = () => {
   return modelManager?.getModelScale() || 1;
 };
 
-/** 检查模型是否有效 */
-const isModelValid = () => {
-  return modelManager?.isModelValid() || false;
-};
-
 // 监听props.modelConfig变化
 watch(
   () => props.modelConfig,
@@ -147,7 +128,9 @@ watch(
 );
 
 watch([() => props.width, () => props.height], () => {
-  resize();
+  if (!modelManager || !canvasRef.value) return;
+  setupCanvas();
+  modelManager.resize(canvasRef.value);
 });
 
 onMounted(async () => {
@@ -167,14 +150,10 @@ onUnmounted(() => {
 
 defineExpose({
   loadModel,
-  retryLoad,
   playMotion,
   playExpression,
   setModelScale,
   getModelScale,
-  isModelValid,
-  resize,
-  modelInfo: () => modelInfo.value,
 });
 </script>
 

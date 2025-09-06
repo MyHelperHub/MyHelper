@@ -2,7 +2,6 @@ use crate::services::database::get_db_pool;
 use crate::utils::error::AppError;
 use crate::utils::response::{ApiResponse, ApiStatusCode};
 use serde_json::Value;
-use simd_json;
 
 #[permission_macro::permission("main", "setting","my")]
 #[tauri::command]
@@ -77,25 +76,14 @@ pub fn get_pet_config(config_type: &str) -> Result<ApiResponse<Option<Value>>, A
             }
         };
 
-        // 使用simd-json加速解析
-        let mut json_bytes = json_str.into_bytes();
-        let value = match simd_json::serde::from_slice::<Value>(&mut json_bytes) {
-            Ok(v) => v,
-            Err(_) => {
-                // 回退到标准serde_json
-                match serde_json::from_slice(&json_bytes) {
-                    Ok(v) => v,
-                    Err(e) => {
-                        return Ok(ApiResponse::error(
-                            ApiStatusCode::ErrDatabase,
-                            format!("解析宠物配置失败: {}", e),
-                        ))
-                    }
-                }
-            }
-        };
-
-        Ok(ApiResponse::success(Some(value)))
+        // 直接使用serde_json解析，对于小数据不需要simd优化
+        match serde_json::from_str::<Value>(&json_str) {
+            Ok(v) => Ok(ApiResponse::success(Some(v))),
+            Err(e) => Ok(ApiResponse::error(
+                ApiStatusCode::ErrDatabase,
+                format!("解析宠物配置失败: {}", e),
+            ))
+        }
     } else {
         Ok(ApiResponse::success(None))
     }

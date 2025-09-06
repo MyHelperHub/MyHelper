@@ -65,6 +65,18 @@
                   随机表情
                 </Button>
               </div>
+
+              <div class="scale-control">
+                <label>模型缩放</label>
+                <div class="scale-slider">
+                  <Slider
+                    v-model="modelScale"
+                    :min="0.1"
+                    :max="2"
+                    :step="0.1" />
+                  <span class="scale-value">{{ modelScale.toFixed(1) }}x</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -82,9 +94,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import Button from "primevue/button";
 import ToggleSwitch from "primevue/toggleswitch";
+import Slider from "primevue/slider";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import PetSelector from "@/components/Pet/PetSelector.vue";
@@ -97,6 +110,7 @@ const petSelectorRef = ref<InstanceType<typeof PetSelector>>();
 const selectedModelIndex = ref<number | null>(null);
 const previewModelInfo = ref<ModelInfo | null>(null);
 const previewModel = ref<ModelConfig | null>(null);
+const modelScale = ref<number>(1.0);
 
 // 使用全局宠物状态管理器
 const selectedModel = PetGlobalManager.createSelectedModelRef();
@@ -126,6 +140,11 @@ const hasExpressions = computed(() => {
 const onModelSelected = async (model: ModelConfig) => {
   previewModel.value = model;
   await PetGlobalManager.setSelectedModel(model);
+  // 重置缩放
+  modelScale.value = preferences.value.defaultScale || 1.0;
+  if (previewDisplayRef.value) {
+    previewDisplayRef.value.setModelScale(modelScale.value);
+  }
 };
 
 const onModelsLoaded = (models: ModelConfig[]) => {
@@ -142,6 +161,11 @@ const onModelsLoaded = (models: ModelConfig[]) => {
 /** 预览模型加载完成 */
 const onPreviewLoaded = (modelInfo: ModelInfo) => {
   previewModelInfo.value = modelInfo;
+  // 加载完成后应用缩放
+  modelScale.value = preferences.value.defaultScale || 1.0;
+  if (previewDisplayRef.value) {
+    previewDisplayRef.value.setModelScale(modelScale.value);
+  }
 };
 
 /** 预览模型加载错误 */
@@ -178,13 +202,32 @@ const playRandomExpression = () => {
   );
 };
 
+/** 缩放变化处理 */
+const onScaleChange = async (value: number) => {
+  if (previewDisplayRef.value) {
+    previewDisplayRef.value.setModelScale(value);
+    // 保存到全局偏好设置
+    await PetGlobalManager.updatePreferences({ defaultScale: value });
+  }
+};
+
+// 监听缩放值变化
+watch(modelScale, (newScale) => {
+  onScaleChange(newScale);
+});
+
 onMounted(async () => {
   await PetGlobalManager.init();
 
-  if (selectedModel.value) {
-    previewModel.value = selectedModel.value;
-    await nextTick();
-    await previewDisplayRef.value?.loadModel?.();
+  await nextTick();
+  
+  // 如果有已选中的模型，需要手动调用 onModelsLoaded 来同步选中状态
+  if (selectedModel.value && petSelectorRef.value) {
+    const models = petSelectorRef.value.models();
+    if (models.length > 0) {
+      // 手动触发模型加载事件来同步选中状态
+      onModelsLoaded(models);
+    }
   }
 });
 </script>
@@ -338,6 +381,38 @@ onMounted(async () => {
   display: flex;
   gap: 8px;
   justify-content: center;
+  margin-bottom: 12px;
+}
+
+.scale-control {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.scale-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text-color-secondary);
+  text-align: center;
+}
+
+.scale-slider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scale-slider .p-slider {
+  flex: 1;
+}
+
+.scale-value {
+  font-size: 13px;
+  color: var(--text-color);
+  font-weight: 500;
+  min-width: 35px;
 }
 
 .model-selector-section {

@@ -61,7 +61,6 @@ export class PetGlobalManager {
       await GlobalData.set(GLOBAL_KEYS.PET_MODEL_CACHE, []);
 
       this.isInitialized = true;
-      Logger.info("PetGlobalManager: 初始化完成");
     } catch (error) {
       Logger.error("PetGlobalManager: 初始化失败", String(error));
       throw error;
@@ -86,10 +85,6 @@ export class PetGlobalManager {
       TAURI_EVENTS.MODEL_CHANGED,
       (event) => {
         modelRef.value = event.payload.model;
-        Logger.info(
-          "PetGlobalManager: 收到模型变化事件",
-          event.payload.model?.name || "null",
-        );
       },
     ).catch((error) => {
       Logger.error("PetGlobalManager: 监听模型变化事件失败", String(error));
@@ -115,10 +110,6 @@ export class PetGlobalManager {
     // 监听Tauri事件更新
     listen<PetPreferences>(TAURI_EVENTS.PREFERENCES_CHANGED, (event) => {
       preferencesRef.value = { ...preferencesRef.value, ...event.payload };
-      Logger.info(
-        "PetGlobalManager: 收到偏好设置变化事件",
-        JSON.stringify(event.payload),
-      );
     }).catch((error) => {
       Logger.error("PetGlobalManager: 监听偏好设置变化事件失败", String(error));
     });
@@ -139,11 +130,6 @@ export class PetGlobalManager {
 
       // 3. 发送Tauri事件通知所有webview
       await tauriEmit(TAURI_EVENTS.MODEL_CHANGED, { model });
-
-      Logger.info(
-        "PetGlobalManager: 设置选中模型并发送事件",
-        model?.name || "null",
-      );
     } catch (error) {
       Logger.error("PetGlobalManager: 设置选中模型失败", String(error));
       throw error;
@@ -170,11 +156,6 @@ export class PetGlobalManager {
 
       // 3. 发送Tauri事件通知所有webview
       await tauriEmit(TAURI_EVENTS.PREFERENCES_CHANGED, updates);
-
-      Logger.info(
-        "PetGlobalManager: 更新偏好设置并发送事件",
-        JSON.stringify(updates),
-      );
     } catch (error) {
       Logger.error("PetGlobalManager: 更新偏好设置失败", String(error));
       throw error;
@@ -261,11 +242,6 @@ export class PetGlobalManager {
 
       // 更新缓存
       await GlobalData.set(GLOBAL_KEYS.PET_MODEL_CACHE, models);
-
-      Logger.info(
-        "PetGlobalManager: 刷新模型缓存完成",
-        `找到 ${models.length} 个模型`,
-      );
       return models;
     } catch (error) {
       Logger.error("PetGlobalManager: 刷新模型缓存失败", String(error));

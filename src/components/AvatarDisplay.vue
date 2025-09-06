@@ -36,11 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import type { ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
-import { Logger } from "@/utils/logger";
 
 interface Props {
   defaultLogo?: string;
@@ -98,8 +97,11 @@ const handleClick = () => {
 };
 
 const onModelLoaded = (modelInfo: ModelInfo) => {
-  Logger.info("AvatarDisplay: 模型加载完成", selectedModel.value?.name);
   emit("loaded", modelInfo);
+  // 模型加载完成后应用缩放
+  if (petDisplayRef.value && preferences.value.defaultScale) {
+    petDisplayRef.value.setModelScale(preferences.value.defaultScale);
+  }
 };
 
 const onModelError = (errorMsg: string) => {
@@ -107,9 +109,15 @@ const onModelError = (errorMsg: string) => {
   emit("error", errorMsg);
 };
 
+// 监听缩放设置变化
+watch(() => preferences.value.defaultScale, (newScale) => {
+  if (petDisplayRef.value && newScale) {
+    petDisplayRef.value.setModelScale(newScale);
+  }
+});
+
 onMounted(async () => {
   await PetGlobalManager.init();
-  Logger.info("AvatarDisplay: 初始化完成");
 });
 
 defineExpose({

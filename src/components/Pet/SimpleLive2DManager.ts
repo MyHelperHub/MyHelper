@@ -6,7 +6,7 @@ import {
   Live2DModel,
   Cubism4ModelSettings,
 } from "pixi-live2d-display-lipsyncpatch";
-import type { ModelConfig, ModelInfo } from "@/interface/pet";
+import type { ModelConfig, ModelInfo, Motion, Expression } from "@/interface/pet";
 import { Logger } from "@/utils/logger";
 
 /**
@@ -37,7 +37,6 @@ export class SimpleLive2DManager {
         powerPreference: "default",
       });
       this.apps.set(canvas, app);
-      Logger.info("SimpleLive2DManager: 创建新的PIXI Application");
     }
     return this.apps.get(canvas)!;
   }
@@ -49,11 +48,22 @@ export class SimpleLive2DManager {
     const app = this.apps.get(canvas);
     if (app) {
       try {
-        app.destroy(true);
+        while (app.stage.children.length > 0) {
+          const child = app.stage.children[0];
+          app.stage.removeChild(child);
+        }
+        
+        app.destroy(false, {
+          children: true,
+          texture: false,
+          baseTexture: false
+        });
         this.apps.delete(canvas);
-        Logger.info("SimpleLive2DManager: 销毁PIXI Application");
       } catch (error) {
-        Logger.warn("SimpleLive2DManager: 销毁PIXI Application时出现警告", String(error));
+        if (process.env.NODE_ENV === 'development') {
+          console.warn("PIXI Application destroy warning:", error);
+        }
+        this.apps.delete(canvas);
       }
     }
   }
@@ -96,17 +106,24 @@ export class SimpleLive2DManager {
     const filePathMap = new Map<string, string>();
     const allFiles = this.collectResourceFiles(modelJSON);
 
-    for (const file of allFiles) {
+    const filePromises = allFiles.map(async (file) => {
       if (file) {
         try {
           const resourcePath = `${modelPath}/${file}`;
           const actualFilePath = await resolveResource(resourcePath);
-          filePathMap.set(file, convertFileSrc(actualFilePath));
+          const convertedPath = convertFileSrc(actualFilePath);
+          filePathMap.set(file, convertedPath);
+          return { file, path: convertedPath };
         } catch (error) {
-          Logger.error(`SimpleLive2DManager: 无法解析资源文件: ${file}`, String(error));
+          const fallbackPath = convertFileSrc(`${modelPath}/${file}`);
+          filePathMap.set(file, fallbackPath);
+          return { file, path: fallbackPath };
         }
       }
-    }
+      return null;
+    });
+
+    await Promise.all(filePromises);
 
     modelSettings.replaceFiles((file) => {
       return filePathMap.get(file) || convertFileSrc(`${modelPath}/${file}`);
@@ -117,35 +134,34 @@ export class SimpleLive2DManager {
    * 收集模型JSON配置中引用的所有资源文件路径
    */
   private collectResourceFiles(modelJSON: any): string[] {
-    const files: string[] = [];
     const refs = modelJSON.FileReferences;
+    if (!refs) return [];
 
-    if (!refs) return files;
-
+    const files: string[] = [];
+    
     if (refs.Moc) files.push(refs.Moc);
     if (refs.DisplayInfo) files.push(refs.DisplayInfo);
     if (refs.Textures) files.push(...refs.Textures);
+    if (refs.Physics) files.push(refs.Physics);
+    if (refs.Pose) files.push(refs.Pose);
+    if (refs.UserData) files.push(refs.UserData);
 
     if (refs.Expressions) {
-      files.push(
-        ...refs.Expressions.map((exp: any) => exp.File).filter(Boolean),
-      );
+      refs.Expressions.forEach((exp: any) => exp.File && files.push(exp.File));
     }
 
     if (refs.Motions) {
       Object.values(refs.Motions).forEach((motionGroup: any) => {
         if (Array.isArray(motionGroup)) {
-          files.push(
-            ...motionGroup.map((motion: any) => motion.File).filter(Boolean),
-          );
-          files.push(
-            ...motionGroup.map((motion: any) => motion.Sound).filter(Boolean),
-          );
+          motionGroup.forEach((motion: any) => {
+            if (motion.File) files.push(motion.File);
+            if (motion.Sound) files.push(motion.Sound);
+          });
         }
       });
     }
 
-    return files.filter(Boolean);
+    return files;
   }
 
   /**
@@ -232,11 +248,10 @@ export class SimpleLive2DManager {
       const result: ModelInfo = {
         width: this.model.width,
         height: this.model.height,
-        motions: modelSettings.motions || {},
-        expressions: modelSettings.expressions || [],
+        motions: (modelSettings.motions || {}) as Record<string, Motion[]>,
+        expressions: (modelSettings.expressions || []) as Expression[],
       };
 
-      Logger.info("SimpleLive2DManager: 模型加载成功", config.name);
       return result;
     } catch (error) {
       Logger.error(`SimpleLive2DManager: 加载Live2D模型失败: ${config.name}`, String(error));
@@ -297,13 +312,17 @@ export class SimpleLive2DManager {
           this.app.stage.removeChild(this.model);
         }
 
-        // 销毁模型对象
         if (!this.model.destroyed && typeof this.model.destroy === 'function') {
-          this.model.destroy();
+          this.model.destroy({
+            children: true,
+            texture: false,
+            baseTexture: false
+          });
         }
       } catch (error) {
-        // 静默处理销毁错误
-        Logger.warn("SimpleLive2DManager: 销毁模型时出现警告", String(error));
+        if (process.env.NODE_ENV === 'development') {
+          console.warn("Live2D model destroy warning:", error);
+        }
       }
       this.model = null;
     }
@@ -320,12 +339,5 @@ export class SimpleLive2DManager {
       this.canvas = null;
     }
     this.app = null;
-  }
-
-  /**
-   * 检查模型是否有效且未被销毁
-   */
-  isModelValid(): boolean {
-    return this.model && !this.model.destroyed;
   }
 }

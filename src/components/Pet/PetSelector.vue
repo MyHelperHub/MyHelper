@@ -70,6 +70,19 @@ const loadModels = async () => {
     models.value = availableModels;
     emit("models-loaded", availableModels);
 
+    // 加载完成后，同步全局选中的模型
+    const currentSelectedModel = await PetGlobalManager.getSelectedModel();
+    if (currentSelectedModel) {
+      const index = availableModels.findIndex(
+        (m) => m.name === currentSelectedModel.name && m.path === currentSelectedModel.path
+      );
+      if (index !== -1) {
+        selectedIndex.value = index;
+        emit("update:modelValue", index);
+      }
+    }
+
+    // 确保选中索引有效
     if (
       selectedIndex.value !== null &&
       selectedIndex.value >= models.value.length
