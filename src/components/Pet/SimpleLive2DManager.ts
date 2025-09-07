@@ -68,6 +68,24 @@ export class SimpleLive2DManager {
     }
   }
 
+  static cleanupInactiveApps(): void {
+    const canvasesToRemove: HTMLCanvasElement[] = [];
+    
+    for (const [canvas] of this.apps) {
+      if (!canvas.isConnected) {
+        canvasesToRemove.push(canvas);
+      }
+    }
+    
+    canvasesToRemove.forEach(canvas => {
+      this.destroyApp(canvas);
+    });
+  }
+
+  static getActiveAppCount(): number {
+    return this.apps.size;
+  }
+
   /**
    * 初始化PIXI应用实例
    */
@@ -328,9 +346,6 @@ export class SimpleLive2DManager {
     }
   }
 
-  /**
-   * 完全销毁管理器，包括PIXI Application（组件卸载时调用）
-   */
   destroy(): void {
     this.destroyModel();
     
@@ -339,5 +354,7 @@ export class SimpleLive2DManager {
       this.canvas = null;
     }
     this.app = null;
+    
+    SimpleLive2DManager.cleanupInactiveApps();
   }
 }

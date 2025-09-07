@@ -45,9 +45,28 @@ const modelInfo = ref<ModelInfo | null>(null);
 
 // 使用简化的Live2D管理器
 let modelManager: SimpleLive2DManager | null = null;
+let loadingPromise: Promise<void> | null = null;
 
 const loadModel = async () => {
   if (!canvasRef.value || !props.modelConfig) return;
+
+  if (loadingPromise) {
+    await loadingPromise.catch(() => {});
+  }
+
+  loadingPromise = performModelLoad();
+  
+  try {
+    await loadingPromise;
+  } finally {
+    loadingPromise = null;
+  }
+};
+
+const performModelLoad = async (): Promise<void> => {
+  if (!canvasRef.value || !props.modelConfig) {
+    throw new Error("Canvas或模型配置不可用");
+  }
 
   isLoading.value = true;
   error.value = null;
@@ -76,6 +95,7 @@ const loadModel = async () => {
     error.value = errorMsg;
     emit("error", errorMsg);
     Logger.error("PetDisplay: 模型加载失败", errorMsg);
+    throw err; // 重新抛出错误以便上层处理
   } finally {
     isLoading.value = false;
   }
@@ -141,6 +161,11 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  // 取消正在进行的加载
+  if (loadingPromise) {
+    loadingPromise = null;
+  }
+  
   if (modelManager) {
     // 完全销毁管理器实例
     modelManager.destroy();
