@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import Menu from "primevue/menu";
-import { ref, computed, reactive, onMounted } from "vue";
+import { ref, computed, reactive, onMounted, markRaw } from "vue";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { initSetting } from "./utils/settingRegistry";
@@ -58,7 +58,7 @@ const loadComponent = async (menuType: SettingMenuItemEnum) => {
   if (!componentMap[menuType]) {
     try {
       const componentModule = await componentLoaders[menuType]();
-      componentMap[menuType] = componentModule.default;
+      componentMap[menuType] = markRaw(componentModule.default);
 
       // 添加到 KeepAlive 的 include 列表
       const componentName = componentNames[menuType];

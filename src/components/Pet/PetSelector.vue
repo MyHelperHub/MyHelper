@@ -1,5 +1,6 @@
 <template>
   <div class="pet-selector">
+    <ConfirmDialog></ConfirmDialog>
     <div class="selector-header">
       <h4>选择宠物</h4>
       <span v-if="models.length" class="model-count"
@@ -24,7 +25,9 @@
         class="model-item"
         :class="{ selected: selectedIndex === index }"
         @click="selectModel(index)">
-        <div class="model-preview" :class="{ 'user-model': model.source === 1 }">
+        <div
+          class="model-preview"
+          :class="{ 'user-model': model.source === 1 }">
           {{ getModelInitial(model.name) }}
           <div v-if="model.source === 0" class="builtin-indicator">
             <i class="pi pi-star-fill"></i>
@@ -37,10 +40,14 @@
           <div class="model-name">
             {{ model.name }}
             <span v-if="model.source === 0" class="builtin-badge">内置</span>
-            <span v-if="model.version" class="version-badge">{{ formatVersion(model.version) }}</span>
+            <span v-if="model.version" class="version-badge">{{
+              formatVersion(model.version)
+            }}</span>
           </div>
           <div class="model-path">{{ getShortPath(model.path) }}</div>
-          <div v-if="model.source === 1 && (model.size || model.importTime)" class="model-extra-info">
+          <div
+            v-if="model.source === 1 && (model.size || model.importTime)"
+            class="model-extra-info">
             <span v-if="model.size" class="info-item">
               <i class="pi pi-database"></i>
               {{ formatFileSize(model.size) }}
@@ -53,7 +60,7 @@
         </div>
         <div v-if="model.source === 1" class="model-actions">
           <button
-            @click.stop="deleteUserModel(model, index)"
+            @click.stop="deleteUserModel(model)"
             class="delete-btn"
             :disabled="isDeletingModel"
             title="删除模型">
@@ -67,6 +74,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useConfirm } from "primevue/useconfirm";
+import ConfirmDialog from "primevue/confirmdialog";
 import type { ModelConfig } from "@/interface/pet";
 import { PetGlobalManager } from "./PetGlobalManager";
 import { Logger } from "@/utils/logger";
@@ -87,6 +96,7 @@ const models = ref<ModelConfig[]>([]);
 const selectedIndex = ref<number | null>(props.modelValue || null);
 const isLoading = ref(false);
 const isDeletingModel = ref(false);
+const confirm = useConfirm();
 
 /** 加载模型列表 */
 const loadModels = async () => {
@@ -97,7 +107,7 @@ const loadModels = async () => {
     if (availableModels.length === 0) {
       availableModels = await PetGlobalManager.refreshModelCache();
     }
-    
+
     models.value = availableModels;
     emit("models-loaded", availableModels);
 
@@ -105,7 +115,9 @@ const loadModels = async () => {
     const currentSelectedModel = await PetGlobalManager.getSelectedModel();
     if (currentSelectedModel) {
       const index = availableModels.findIndex(
-        (m) => m.name === currentSelectedModel.name && m.path === currentSelectedModel.path
+        (m) =>
+          m.name === currentSelectedModel.name &&
+          m.path === currentSelectedModel.path,
       );
       if (index !== -1) {
         selectedIndex.value = index;
@@ -157,39 +169,58 @@ const selectModel = (index: number) => {
 };
 
 /** 删除用户模型 */
-const deleteUserModel = async (model: ModelConfig, index: number) => {
+const deleteUserModel = async (model: ModelConfig) => {
   if (model.source !== 1) {
     Logger.warn("PetSelector: 尝试删除非用户模型", model.name);
     return;
   }
 
-  const confirmDelete = confirm(`确定要删除模型 "${model.name}" 吗？此操作不可撤销。`);
-  if (!confirmDelete) return;
+  confirm.require({
+    message: `确定要删除模型 "${model.name}" 吗？此操作不可撤销。`,
+    header: "删除确认",
+    icon: "pi pi-exclamation-triangle",
+    rejectProps: {
+      label: "取消",
+      severity: "secondary",
+      outlined: true,
+    },
+    acceptProps: {
+      label: "删除",
+      severity: "danger",
+    },
+    accept: async () => {
+      isDeletingModel.value = true;
+      try {
+        await PetGlobalManager.deleteUserModel(model.name);
 
-  isDeletingModel.value = true;
-  try {
-    await PetGlobalManager.deleteUserModel(model.name);
-    
-    // 如果删除的是当前选中的模型，清除选中状态
-    if (selectedIndex.value === index) {
-      selectedIndex.value = null;
-      emit("update:modelValue", null);
-    } else if (selectedIndex.value !== null && selectedIndex.value > index) {
-      // 如果选中的是后面的模型，需要调整索引
-      selectedIndex.value--;
-      emit("update:modelValue", selectedIndex.value);
-    }
+        // 刷新模型列表
+        await refreshModels();
 
-    // 刷新模型列表
-    await refreshModels();
-    
-    Logger.info("PetSelector: 模型删除成功", model.name);
-  } catch (error) {
-    Logger.error("PetSelector: 删除模型失败", `模型: ${model.name}, 错误: ${error}`);
-    alert(`删除模型失败: ${error}`);
-  } finally {
-    isDeletingModel.value = false;
-  }
+        // 删除后选择第一个模型
+        if (models.value.length > 0) {
+          selectedIndex.value = 0;
+          emit("update:modelValue", 0);
+          emit("model-selected", models.value[0], 0);
+        } else {
+          selectedIndex.value = null;
+          emit("update:modelValue", null);
+        }
+
+        Logger.info("PetSelector: 模型删除成功", model.name);
+      } catch (error) {
+        Logger.error(
+          "PetSelector: 删除模型失败",
+          `模型: ${model.name}, 错误: ${error}`,
+        );
+        alert(`删除模型失败: ${error}`);
+      } finally {
+        isDeletingModel.value = false;
+      }
+    },
+    reject: () => {
+      return;
+    },
+  });
 };
 
 /** 获取模型名称首字母 */
@@ -206,18 +237,22 @@ const getShortPath = (path: string): string => {
 /** 格式化版本信息 */
 const formatVersion = (version: string): string => {
   switch (version) {
-    case '2.1': return 'v2.1';
-    case '3.x': return 'v3.x';
-    case '4.x': return 'v4.x';
-    default: return version;
+    case "2.1":
+      return "v2.1";
+    case "3.x":
+      return "v3.x";
+    case "4.x":
+      return "v4.x";
+    default:
+      return version;
   }
 };
 
 /** 格式化文件大小 */
 const formatFileSize = (bytes: number): string => {
-  if (!bytes || bytes === 0) return '未知';
+  if (!bytes || bytes === 0) return "未知";
   const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + sizes[i];
 };
@@ -226,16 +261,16 @@ const formatFileSize = (bytes: number): string => {
 const formatImportTime = (importTime: string): string => {
   try {
     const date = new Date(importTime);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   } catch (error) {
-    return '未知时间';
+    return "未知时间";
   }
 };
 

@@ -600,63 +600,8 @@
   box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1) !important;
 }
 
-/* 对话框样式 */
-.p-dialog {
-  background: transparent !important;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: var(--theme-shadow-lg) !important;
-  color: var(--theme-text) !important;
-}
-
-.p-dialog .p-dialog-header {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
-  border-bottom: 1px solid var(--theme-border) !important;
-  border-top-left-radius: 12px !important;
-  border-top-right-radius: 12px !important;
-  color: var(--theme-text) !important;
-}
-
-.p-dialog .p-dialog-title {
-  color: var(--theme-text) !important;
-  font-weight: 600 !important;
-}
-
 .p-dialog .p-dialog-content {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
   overflow: hidden !important;
-  border-radius: 12px !important;
-}
-
-/* 当对话框有header时，content的上边框圆角应该为0 */
-.p-dialog:has(.p-dialog-header) .p-dialog-content {
-  border-top: none !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-.p-dialog .p-dialog-footer {
-  background: var(--theme-background-card) !important;
-  border-top: 1px solid var(--theme-border) !important;
-  border-bottom-left-radius: 12px !important;
-  border-bottom-right-radius: 12px !important;
-}
-
-.p-dialog .p-dialog-header-close {
-  color: var(--theme-text-secondary) !important;
-}
-
-.p-dialog .p-dialog-header-close:hover {
-  color: var(--theme-primary) !important;
-  background: rgba(var(--theme-primary-rgb), 0.1) !important;
-}
-
-/* 遮罩层样式 */
-.p-dialog-mask {
-  background: rgba(var(--theme-text-rgb), 0.5) !important;
 }
 
 /* Fieldset 样式 */
@@ -828,20 +773,6 @@
 /* 抽屉遮罩层 */
 .p-drawer-mask {
   background: rgba(var(--theme-text-rgb), 0.5) !important;
-}
-
-/* 小弹窗样式优化 - 移除滚动条 */
-.p-dialog[style*="width: 240px"] .p-dialog-content,
-.p-dialog[style*="width: 220px"] .p-dialog-content {
-  overflow: hidden !important;
-  max-height: none !important;
-  height: auto !important;
-  padding: 0 !important;
-}
-
-.p-dialog[style*="width: 240px"],
-.p-dialog[style*="width: 220px"] {
-  overflow: visible !important;
 }
 
 /* 减少动画模式支持 */
