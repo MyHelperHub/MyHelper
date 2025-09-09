@@ -6,10 +6,9 @@
         <Menu :model="menuItems" @menuitem-click="handleMenuClick" />
       </div>
       <div class="content-container" data-tauri-drag-region>
-        <GeneralSettings v-show="activeMenu === SettingMenuItemEnum.General" />
-        <ThemeSettings v-show="activeMenu === SettingMenuItemEnum.Theme" />
-        <PetSettings v-show="activeMenu === SettingMenuItemEnum.Pet" />
-        <AboutSettings v-show="activeMenu === SettingMenuItemEnum.About" />
+        <KeepAlive :include="loadedComponents">
+          <component :is="currentComponent" :key="activeMenu" />
+        </KeepAlive>
       </div>
     </div>
   </div>
@@ -17,45 +16,104 @@
 
 <script setup lang="ts">
 import Menu from "primevue/menu";
-import { ref } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { initSetting } from "./utils/settingRegistry";
-import GeneralSettings from "@/views/setting/GeneralSettings.vue";
-import AboutSettings from "@/views/setting/AboutSettings.vue";
-import ThemeSettings from "@/views/setting/ThemeSettings.vue";
-import PetSettings from "@/views/setting/PetSettings.vue";
 import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
-const activeMenu = ref(SettingMenuItemEnum.General);
+const activeMenu = ref<SettingMenuItemEnum | null>(null);
+const loadedComponents = ref<string[]>([]);
+
+// 使用 reactive 存储已加载的组件
+const componentMap = reactive<Record<string, any>>({});
+
+// 组件加载映射
+const componentLoaders = {
+  [SettingMenuItemEnum.General]: () =>
+    import("@/views/setting/GeneralSettings.vue"),
+  [SettingMenuItemEnum.Theme]: () =>
+    import("@/views/setting/ThemeSettings.vue"),
+  [SettingMenuItemEnum.Pet]: () => import("@/views/setting/PetSettings.vue"),
+  [SettingMenuItemEnum.About]: () =>
+    import("@/views/setting/AboutSettings.vue"),
+};
+
+// 组件名称映射，用于 KeepAlive 的 include
+const componentNames = {
+  [SettingMenuItemEnum.General]: "GeneralSettings",
+  [SettingMenuItemEnum.Theme]: "ThemeSettings",
+  [SettingMenuItemEnum.Pet]: "PetSettings",
+  [SettingMenuItemEnum.About]: "AboutSettings",
+};
+
+// 当前组件
+const currentComponent = computed(() => {
+  return activeMenu.value ? componentMap[activeMenu.value] || null : null;
+});
+
+// 加载组件的函数
+const loadComponent = async (menuType: SettingMenuItemEnum) => {
+  if (!componentMap[menuType]) {
+    try {
+      const componentModule = await componentLoaders[menuType]();
+      componentMap[menuType] = componentModule.default;
+
+      // 添加到 KeepAlive 的 include 列表
+      const componentName = componentNames[menuType];
+      if (!loadedComponents.value.includes(componentName)) {
+        loadedComponents.value.push(componentName);
+      }
+    } catch (error) {
+      console.error(`Failed to load component for ${menuType}:`, error);
+    }
+  }
+};
 
 const menuItems = ref([
   {
     label: "常用设置",
     class: "font-bold",
     icon: "pi pi-cog",
-    command: () => (activeMenu.value = SettingMenuItemEnum.General),
+    command: async () => {
+      await loadComponent(SettingMenuItemEnum.General);
+      activeMenu.value = SettingMenuItemEnum.General;
+    },
   },
   {
     label: "主题设置",
     class: "font-bold",
     icon: "pi pi-palette",
-    command: () => (activeMenu.value = SettingMenuItemEnum.Theme),
+    command: async () => {
+      await loadComponent(SettingMenuItemEnum.Theme);
+      activeMenu.value = SettingMenuItemEnum.Theme;
+    },
   },
   {
     label: "宠物设置",
     class: "font-bold",
     icon: "pi pi-heart",
-    command: () => (activeMenu.value = SettingMenuItemEnum.Pet),
+    command: async () => {
+      await loadComponent(SettingMenuItemEnum.Pet);
+      activeMenu.value = SettingMenuItemEnum.Pet;
+    },
   },
   {
     label: "关于",
     class: "font-bold",
     icon: "pi pi-info-circle",
-    command: () => (activeMenu.value = SettingMenuItemEnum.About),
+    command: async () => {
+      await loadComponent(SettingMenuItemEnum.About);
+      activeMenu.value = SettingMenuItemEnum.About;
+    },
   },
 ]);
+
+onMounted(async () => {
+  await loadComponent(SettingMenuItemEnum.General);
+  activeMenu.value = SettingMenuItemEnum.General;
+});
 
 initSetting();
 

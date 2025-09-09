@@ -29,6 +29,10 @@ macro_rules! generate_app_handlers {
             set_pet_config,
             get_pet_config,
             delete_pet_config,
+            // Live2D 模型导入管理
+            import_live2d_model,
+            get_all_live2d_models,
+            delete_user_live2d_model,
             // 剪贴板和快捷输入
             start_clipboard_listener,
             stop_clipboard_listener,

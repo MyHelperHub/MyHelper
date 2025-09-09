@@ -192,9 +192,15 @@ export class PetGlobalManager {
               const modelDir = `${modelsPath}/${entry.name}`;
               const modelFiles = await readDir(modelDir);
 
-              // 先检查根目录是否有.model3.json文件
+              // 检查支持的模型文件类型：Cubism 2.1, 3.x, 4.x
+              const supportedModelFiles = [
+                ".model.json", // Cubism 2.1
+                ".model3.json", // Cubism 3.x
+                ".model4.json", // Cubism 4.x
+              ];
+
               let hasModelFile = modelFiles.some((file) =>
-                file.name.endsWith(".model3.json"),
+                supportedModelFiles.some((ext) => file.name.endsWith(ext)),
               );
               let modelPath = `assets/models/live2d/${entry.name}`;
 
@@ -208,7 +214,9 @@ export class PetGlobalManager {
                     const runtimePath = `${modelDir}/runtime`;
                     const runtimeFiles = await readDir(runtimePath);
                     hasModelFile = runtimeFiles.some((file) =>
-                      file.name.endsWith(".model3.json"),
+                      supportedModelFiles.some((ext) =>
+                        file.name.endsWith(ext),
+                      ),
                     );
                     if (hasModelFile) {
                       modelPath = `assets/models/live2d/${entry.name}/runtime`;
@@ -226,6 +234,7 @@ export class PetGlobalManager {
                 models.push({
                   name: entry.name,
                   path: modelPath,
+                  source: 0, // 预置模型
                 });
               }
             } catch (error) {
@@ -238,6 +247,17 @@ export class PetGlobalManager {
         }
       } catch (error) {
         Logger.warn("PetGlobalManager: 读取模型目录失败", String(error));
+      }
+
+      // 获取用户导入的模型
+      try {
+        const { ipcGetAllLive2DModels } = await import("@/api/ipc/pet.api");
+        const allModels = await ipcGetAllLive2DModels() as ModelConfig[];
+        // 只添加用户导入的模型（source: 1）
+        const userModels = allModels.filter((model: ModelConfig) => model.source === 1);
+        models.push(...userModels);
+      } catch (error) {
+        Logger.warn("PetGlobalManager: 获取用户模型失败", String(error));
       }
 
       // 更新缓存
@@ -271,6 +291,67 @@ export class PetGlobalManager {
     } catch (error) {
       Logger.error("PetGlobalManager: 获取偏好设置失败", String(error));
       return DEFAULT_PREFERENCES;
+    }
+  }
+
+  /**
+   * 导入 Live2D 模型
+   */
+  static async importModel(
+    filePath: string,
+    modelName?: string,
+  ): Promise<string> {
+    try {
+      const { ipcImportLive2DModel } = await import("@/api/ipc/pet.api");
+      const result = await ipcImportLive2DModel(filePath, modelName) as string;
+
+      // 导入成功后刷新模型缓存
+      await this.refreshModelCache();
+
+      return result;
+    } catch (error) {
+      console.error("PetGlobalManager.importModel 完整错误对象:", error);
+      const errorStr = error instanceof Error ? error.message : JSON.stringify(error, null, 2);
+      Logger.error("PetGlobalManager: 导入模型失败", `错误类型: ${typeof error}, 错误内容: ${errorStr}`);
+      throw error;
+    }
+  }
+
+  /**
+   * 删除用户导入的模型
+   */
+  static async deleteUserModel(modelName: string): Promise<void> {
+    try {
+      const { ipcDeleteUserLive2DModel } = await import("@/api/ipc/pet.api");
+      await ipcDeleteUserLive2DModel(modelName);
+
+      // 删除成功后刷新模型缓存
+      await this.refreshModelCache();
+
+      // 如果删除的是当前选中的模型，则清除选中状态
+      const currentModel = await this.getSelectedModel();
+      if (
+        currentModel &&
+        currentModel.name === modelName &&
+        currentModel.source === 1
+      ) {
+        await this.setSelectedModel(null);
+      }
+    } catch (error) {
+      Logger.error("PetGlobalManager: 删除用户模型失败", String(error));
+      throw error;
+    }
+  }
+
+  /**
+   * 获取所有模型（包含预置和用户导入）
+   */
+  static async getAllModels(): Promise<ModelConfig[]> {
+    try {
+      return await this.refreshModelCache();
+    } catch (error) {
+      Logger.error("PetGlobalManager: 获取所有模型失败", String(error));
+      return [];
     }
   }
 }

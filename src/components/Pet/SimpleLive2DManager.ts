@@ -1,5 +1,5 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { resolveResource } from "@tauri-apps/api/path";
+import { resolveResource, appDataDir } from "@tauri-apps/api/path";
 import { readTextFile, readDir } from "@tauri-apps/plugin-fs";
 import { Application, Ticker } from "pixi.js";
 import {
@@ -95,20 +95,74 @@ export class SimpleLive2DManager {
   }
 
   /**
-   * 自动查找模型配置文件
+   * 获取实际的配置文件路径（支持子目录）
    */
-  private async findModelConfig(modelPath: string): Promise<string | null> {
-    try {
-      const actualPath = await resolveResource(modelPath);
-      const files = await readDir(actualPath);
+  private async getActualConfigPath(config: ModelConfig, configFileName: string): Promise<string> {
+    if (config.source === 0) {
+      // 预置模型
+      const resourcePath = `${config.path}/${configFileName}`;
+      return await resolveResource(resourcePath);
+    } else {
+      // 用户模型: configFileName 可能包含子目录，如 "runtime/hibiki.model3.json"
+      const appDataPath = await appDataDir();
+      return `${appDataPath}/${config.path}/${configFileName}`;
+    }
+  }
 
+  /**
+   * 查找模型配置文件（支持多版本）
+   */
+  private async findModelConfig(config: ModelConfig): Promise<string | null> {
+    try {
+      let actualPath: string;
+      
+      if (config.source === 0) {
+        // 预置模型
+        actualPath = await resolveResource(config.path);
+      } else {
+        // 用户模型: config.path = "Models/Live2D/modelname"  
+        const appDataPath = await appDataDir();
+        // appDataDir() 返回 AppData/Roaming/myhelper，与后端 get_myhelper_path() 一致
+        actualPath = `${appDataPath}/${config.path}`;
+      }
+
+      // 递归查找配置文件
+      return await this.findConfigFileRecursive(actualPath);
+    } catch (error) {
+      Logger.warn("SimpleLive2DManager: 无法读取模型目录", 
+        `Path: ${config.path}, Source: ${config.source}, Error: ${error}`);
+      return null;
+    }
+  }
+
+  private async findConfigFileRecursive(dirPath: string): Promise<string | null> {
+    try {
+      const files = await readDir(dirPath);
+      const supportedExtensions = [".model.json", ".model3.json", ".model4.json"];
+      
+      // 先在当前目录查找配置文件
       const configFile = files.find(
-        (file) => file.name.endsWith(".model3.json") && file.isFile,
+        (file) => supportedExtensions.some(ext => file.name.endsWith(ext)) && file.isFile,
       );
 
-      return configFile ? configFile.name : null;
+      if (configFile) {
+        return configFile.name;
+      }
+
+      // 如果当前目录没有，递归查找子目录
+      for (const file of files) {
+        if (file.isDirectory) {
+          const subDirPath = `${dirPath}/${file.name}`;
+          const result = await this.findConfigFileRecursive(subDirPath);
+          if (result) {
+            // 返回相对于原始目录的路径
+            return `${file.name}/${result}`;
+          }
+        }
+      }
+
+      return null;
     } catch (error) {
-      Logger.warn("SimpleLive2DManager: 无法读取模型目录", `Path: ${modelPath}, Error: ${error}`);
       return null;
     }
   }
@@ -118,8 +172,9 @@ export class SimpleLive2DManager {
    */
   private async preprocessResourcePaths(
     modelSettings: Cubism4ModelSettings,
-    modelPath: string,
+    config: ModelConfig,
     modelJSON: any,
+    modelBaseDir: string,
   ): Promise<void> {
     const filePathMap = new Map<string, string>();
     const allFiles = this.collectResourceFiles(modelJSON);
@@ -127,13 +182,24 @@ export class SimpleLive2DManager {
     const filePromises = allFiles.map(async (file) => {
       if (file) {
         try {
-          const resourcePath = `${modelPath}/${file}`;
-          const actualFilePath = await resolveResource(resourcePath);
-          const convertedPath = convertFileSrc(actualFilePath);
+          let convertedPath: string;
+          if (config.source === 0) {
+            // 预置模型
+            const resourcePath = `${modelBaseDir}/${file}`;
+            const actualFilePath = await resolveResource(resourcePath);
+            convertedPath = convertFileSrc(actualFilePath);
+          } else {
+            // 用户模型
+            const fullPath = `${modelBaseDir}/${file}`;
+            convertedPath = convertFileSrc(fullPath);
+          }
+          
           filePathMap.set(file, convertedPath);
           return { file, path: convertedPath };
         } catch (error) {
-          const fallbackPath = convertFileSrc(`${modelPath}/${file}`);
+          Logger.warn(`SimpleLive2DManager: 文件路径转换失败: ${file}`, String(error));
+          // 提供一个后备路径
+          const fallbackPath = convertFileSrc(`${modelBaseDir}/${file}`);
           filePathMap.set(file, fallbackPath);
           return { file, path: fallbackPath };
         }
@@ -144,7 +210,7 @@ export class SimpleLive2DManager {
     await Promise.all(filePromises);
 
     modelSettings.replaceFiles((file) => {
-      return filePathMap.get(file) || convertFileSrc(`${modelPath}/${file}`);
+      return filePathMap.get(file) || convertFileSrc(`${modelBaseDir}/${file}`);
     });
   }
 
@@ -225,22 +291,45 @@ export class SimpleLive2DManager {
     this.destroyModel(); // 只销毁模型，保留Application
 
     try {
+      // 使用新的 findModelConfig 方法，支持用户模型
       const configFileName =
-        config.configFile || (await this.findModelConfig(config.path));
+        config.configFile || (await this.findModelConfig(config));
       if (!configFileName) {
         throw new Error("未找到模型配置文件");
       }
 
-      const configPath = `${config.path}/${configFileName}`;
-      const actualConfigPath = await resolveResource(configPath);
+      // 获取配置文件路径和基础目录
+      const actualConfigPath = await this.getActualConfigPath(config, configFileName);
       const modelJSON = JSON.parse(await readTextFile(actualConfigPath));
+
+      // 确定模型的基础目录（配置文件所在目录）
+      let modelBaseDir: string;
+      if (config.source === 0) {
+        // 预置模型
+        if (configFileName.includes('/')) {
+          const configDir = configFileName.substring(0, configFileName.lastIndexOf('/'));
+          modelBaseDir = `${config.path}/${configDir}`;
+        } else {
+          modelBaseDir = config.path;
+        }
+      } else {
+        // 用户模型
+        const appDataPath = await appDataDir();
+        if (configFileName.includes('/')) {
+          const configDir = configFileName.substring(0, configFileName.lastIndexOf('/'));
+          modelBaseDir = `${appDataPath}/${config.path}/${configDir}`;
+        } else {
+          modelBaseDir = `${appDataPath}/${config.path}`;
+        }
+      }
 
       const modelSettings = new Cubism4ModelSettings({
         ...modelJSON,
         url: convertFileSrc(actualConfigPath),
       });
 
-      await this.preprocessResourcePaths(modelSettings, config.path, modelJSON);
+      // 使用更新的预处理方法，传入正确的基础目录
+      await this.preprocessResourcePaths(modelSettings, config, modelJSON, modelBaseDir);
 
       this.model = await Live2DModel.from(modelSettings, {
         ticker: Ticker.shared,

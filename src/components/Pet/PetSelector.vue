@@ -24,12 +24,41 @@
         class="model-item"
         :class="{ selected: selectedIndex === index }"
         @click="selectModel(index)">
-        <div class="model-preview">
+        <div class="model-preview" :class="{ 'user-model': model.source === 1 }">
           {{ getModelInitial(model.name) }}
+          <div v-if="model.source === 0" class="builtin-indicator">
+            <i class="pi pi-star-fill"></i>
+          </div>
+          <div v-else class="user-indicator">
+            <i class="pi pi-user"></i>
+          </div>
         </div>
         <div class="model-info">
-          <div class="model-name">{{ model.name }}</div>
+          <div class="model-name">
+            {{ model.name }}
+            <span v-if="model.source === 0" class="builtin-badge">内置</span>
+            <span v-if="model.version" class="version-badge">{{ formatVersion(model.version) }}</span>
+          </div>
           <div class="model-path">{{ getShortPath(model.path) }}</div>
+          <div v-if="model.source === 1 && (model.size || model.importTime)" class="model-extra-info">
+            <span v-if="model.size" class="info-item">
+              <i class="pi pi-database"></i>
+              {{ formatFileSize(model.size) }}
+            </span>
+            <span v-if="model.importTime" class="info-item">
+              <i class="pi pi-calendar"></i>
+              {{ formatImportTime(model.importTime) }}
+            </span>
+          </div>
+        </div>
+        <div v-if="model.source === 1" class="model-actions">
+          <button
+            @click.stop="deleteUserModel(model, index)"
+            class="delete-btn"
+            :disabled="isDeletingModel"
+            title="删除模型">
+            <i class="pi pi-trash"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -40,6 +69,7 @@
 import { ref, onMounted } from "vue";
 import type { ModelConfig } from "@/interface/pet";
 import { PetGlobalManager } from "./PetGlobalManager";
+import { Logger } from "@/utils/logger";
 
 interface Props {
   modelValue?: number | null;
@@ -56,6 +86,7 @@ const emit = defineEmits<{
 const models = ref<ModelConfig[]>([]);
 const selectedIndex = ref<number | null>(props.modelValue || null);
 const isLoading = ref(false);
+const isDeletingModel = ref(false);
 
 /** 加载模型列表 */
 const loadModels = async () => {
@@ -91,7 +122,7 @@ const loadModels = async () => {
       emit("update:modelValue", null);
     }
   } catch (error) {
-    console.error("加载模型列表失败:", error);
+    Logger.error("PetSelector: 加载模型列表失败", String(error));
     models.value = [];
     emit("models-loaded", []);
   } finally {
@@ -108,7 +139,7 @@ const refreshModels = async () => {
     models.value = availableModels;
     emit("models-loaded", availableModels);
   } catch (error) {
-    console.error("刷新模型列表失败:", error);
+    Logger.error("PetSelector: 刷新模型列表失败", String(error));
   } finally {
     isLoading.value = false;
   }
@@ -125,6 +156,42 @@ const selectModel = (index: number) => {
   emit("model-selected", selectedModel, index);
 };
 
+/** 删除用户模型 */
+const deleteUserModel = async (model: ModelConfig, index: number) => {
+  if (model.source !== 1) {
+    Logger.warn("PetSelector: 尝试删除非用户模型", model.name);
+    return;
+  }
+
+  const confirmDelete = confirm(`确定要删除模型 "${model.name}" 吗？此操作不可撤销。`);
+  if (!confirmDelete) return;
+
+  isDeletingModel.value = true;
+  try {
+    await PetGlobalManager.deleteUserModel(model.name);
+    
+    // 如果删除的是当前选中的模型，清除选中状态
+    if (selectedIndex.value === index) {
+      selectedIndex.value = null;
+      emit("update:modelValue", null);
+    } else if (selectedIndex.value !== null && selectedIndex.value > index) {
+      // 如果选中的是后面的模型，需要调整索引
+      selectedIndex.value--;
+      emit("update:modelValue", selectedIndex.value);
+    }
+
+    // 刷新模型列表
+    await refreshModels();
+    
+    Logger.info("PetSelector: 模型删除成功", model.name);
+  } catch (error) {
+    Logger.error("PetSelector: 删除模型失败", `模型: ${model.name}, 错误: ${error}`);
+    alert(`删除模型失败: ${error}`);
+  } finally {
+    isDeletingModel.value = false;
+  }
+};
+
 /** 获取模型名称首字母 */
 const getModelInitial = (name: string): string => {
   return name.charAt(0).toUpperCase();
@@ -134,6 +201,42 @@ const getModelInitial = (name: string): string => {
 const getShortPath = (path: string): string => {
   const parts = path.split("/");
   return parts.length > 2 ? `.../${parts.slice(-2).join("/")}` : path;
+};
+
+/** 格式化版本信息 */
+const formatVersion = (version: string): string => {
+  switch (version) {
+    case '2.1': return 'v2.1';
+    case '3.x': return 'v3.x';
+    case '4.x': return 'v4.x';
+    default: return version;
+  }
+};
+
+/** 格式化文件大小 */
+const formatFileSize = (bytes: number): string => {
+  if (!bytes || bytes === 0) return '未知';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + sizes[i];
+};
+
+/** 格式化导入时间 */
+const formatImportTime = (importTime: string): string => {
+  try {
+    const date = new Date(importTime);
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  } catch (error) {
+    return '未知时间';
+  }
 };
 
 /** 获取当前选中的模型 */
@@ -281,6 +384,35 @@ defineExpose({
   font-weight: bold;
   font-size: 10px;
   flex-shrink: 0;
+  position: relative;
+}
+
+.model-preview.user-model {
+  background: linear-gradient(45deg, #28a745, #20692f);
+}
+
+.builtin-indicator,
+.user-indicator {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6px;
+  border: 1px solid var(--theme-border, #e9ecef);
+}
+
+.builtin-indicator {
+  color: #ffc107;
+}
+
+.user-indicator {
+  color: #6c757d;
 }
 
 .model-info {
@@ -295,6 +427,27 @@ defineExpose({
   word-break: break-word;
   font-size: 10px;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.builtin-badge {
+  font-size: 7px;
+  padding: 1px 3px;
+  background: #ffc107;
+  color: #000;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.version-badge {
+  font-size: 7px;
+  padding: 1px 3px;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .model-path {
@@ -302,5 +455,61 @@ defineExpose({
   color: var(--theme-text-secondary, #666);
   word-break: break-all;
   line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.model-extra-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 7px;
+  color: var(--theme-text-secondary, #666);
+  background: var(--theme-background-secondary, #f8f9fa);
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
+.info-item i {
+  font-size: 6px;
+  opacity: 0.7;
+}
+
+.model-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

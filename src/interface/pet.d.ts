@@ -8,6 +8,10 @@ export interface ModelConfig {
   name: string;
   path: string;
   configFile?: string;
+  source: 0 | 1;          // 0: 预置模型, 1: 用户导入模型
+  version?: '2.1' | '3.x' | '4.x';
+  importTime?: string;     // 导入时间（仅用户模型）
+  size?: number;          // 文件大小
 }
 
 /** 模型信息接口 */

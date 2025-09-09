@@ -22,8 +22,18 @@
       <!-- 宠物选择区域 -->
       <div class="setting-section">
         <div class="section-header">
-          <h3>选择宠物</h3>
-          <p>从可用模型中选择您喜欢的宠物</p>
+          <div class="section-title">
+            <h3>选择宠物</h3>
+            <p>从可用模型中选择您喜欢的宠物</p>
+          </div>
+          <div class="section-actions">
+            <Button
+              icon="pi pi-upload"
+              label="导入模型"
+              size="small"
+              outlined
+              @click="showImportDialog = true" />
+          </div>
         </div>
 
         <div class="pet-selection-area">
@@ -90,6 +100,12 @@
         </div>
       </div>
     </div>
+
+    <!-- 模型导入对话框 -->
+    <ModelImportDialog
+      v-model:visible="showImportDialog"
+      @import-success="onImportSuccess"
+      @import-error="onImportError" />
   </div>
 </template>
 
@@ -101,6 +117,7 @@ import Slider from "primevue/slider";
 import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import PetSelector from "@/components/Pet/PetSelector.vue";
+import ModelImportDialog from "@/components/Pet/ModelImportDialog.vue";
 import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
 import { Logger } from "@/utils/logger";
 
@@ -111,6 +128,9 @@ const selectedModelIndex = ref<number | null>(null);
 const previewModelInfo = ref<ModelInfo | null>(null);
 const previewModel = ref<ModelConfig | null>(null);
 const modelScale = ref<number>(1.0);
+
+// 导入对话框状态
+const showImportDialog = ref(false);
 
 // 使用全局宠物状态管理器
 const selectedModel = PetGlobalManager.createSelectedModelRef();
@@ -136,6 +156,24 @@ const hasExpressions = computed(() => {
   if (!previewModelInfo.value?.expressions) return false;
   return previewModelInfo.value.expressions.length > 0;
 });
+
+// 导入对话框事件处理
+const onImportSuccess = async (modelName: string) => {
+  Logger.info("PetSettings: 模型导入成功", modelName);
+  
+  // 刷新模型列表
+  if (petSelectorRef.value) {
+    await petSelectorRef.value.refreshModels();
+  }
+  
+  // 可以在这里添加成功提示
+  showImportDialog.value = false;
+};
+
+const onImportError = (error: string) => {
+  Logger.error("PetSettings: 模型导入失败", error);
+  // 错误信息已经在对话框中显示，这里可以添加额外的错误处理
+};
 
 const onModelSelected = async (model: ModelConfig) => {
   previewModel.value = model;
@@ -435,5 +473,21 @@ onMounted(async () => {
     align-items: stretch;
     gap: 12px;
   }
+}
+
+/* 导入按钮布局样式 */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  flex: 1;
+}
+
+.section-actions {
+  flex-shrink: 0;
 }
 </style>
