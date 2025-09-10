@@ -3,7 +3,7 @@
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <div class="layout-container">
       <div class="menu-container">
-        <Menu :model="menuItems" @menuitem-click="handleMenuClick" />
+        <Menu :model="menuItems" />
       </div>
       <div class="content-container" data-tauri-drag-region>
         <KeepAlive :include="loadedComponents">
@@ -71,11 +71,11 @@ const loadComponent = async (menuType: SettingMenuItemEnum) => {
   }
 };
 
-const menuItems = ref([
+const menuItems = computed(() => [
   {
     label: "常用设置",
-    class: "font-bold",
     icon: "pi pi-cog",
+    class: activeMenu.value === SettingMenuItemEnum.General ? "p-focus" : "",
     command: async () => {
       await loadComponent(SettingMenuItemEnum.General);
       activeMenu.value = SettingMenuItemEnum.General;
@@ -83,17 +83,17 @@ const menuItems = ref([
   },
   {
     label: "主题设置",
-    class: "font-bold",
-    icon: "pi pi-palette",
+    icon: "pi pi-palette", 
+    class: activeMenu.value === SettingMenuItemEnum.Theme ? "p-focus" : "",
     command: async () => {
       await loadComponent(SettingMenuItemEnum.Theme);
       activeMenu.value = SettingMenuItemEnum.Theme;
     },
   },
   {
-    label: "宠物设置",
-    class: "font-bold",
+    label: "宠物设置", 
     icon: "pi pi-heart",
+    class: activeMenu.value === SettingMenuItemEnum.Pet ? "p-focus" : "",
     command: async () => {
       await loadComponent(SettingMenuItemEnum.Pet);
       activeMenu.value = SettingMenuItemEnum.Pet;
@@ -101,8 +101,8 @@ const menuItems = ref([
   },
   {
     label: "关于",
-    class: "font-bold",
     icon: "pi pi-info-circle",
+    class: activeMenu.value === SettingMenuItemEnum.About ? "p-focus" : "",
     command: async () => {
       await loadComponent(SettingMenuItemEnum.About);
       activeMenu.value = SettingMenuItemEnum.About;
@@ -119,10 +119,6 @@ initSetting();
 
 const handleClose = () => {
   ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.Setting });
-};
-
-const handleMenuClick = (event: any) => {
-  event.item.command();
 };
 </script>
 
@@ -165,56 +161,8 @@ const handleMenuClick = (event: any) => {
         width: 100%;
         border: none;
         min-width: 80%;
-        background: var(--theme-background-secondary);
         border-radius: 0;
         box-shadow: none;
-
-        .p-menuitem-link {
-          color: var(--theme-text);
-          padding: 12px 16px;
-          background: transparent;
-
-          &:hover {
-            background: rgba(var(--theme-primary-rgb), 0.1) !important;
-            color: var(--theme-primary);
-          }
-
-          &:focus,
-          &.p-focus,
-          &[data-p-focused="true"] {
-            background: rgba(var(--theme-primary-rgb), 0.15) !important;
-            color: var(--theme-primary);
-
-            .p-menuitem-icon {
-              color: var(--theme-primary);
-            }
-
-            .p-menu-item-label {
-              color: var(--theme-primary);
-            }
-          }
-
-          .p-menuitem-icon {
-            color: var(--theme-text-secondary);
-            margin-right: 8px;
-          }
-
-          &:hover .p-menuitem-icon {
-            color: var(--theme-primary);
-          }
-
-          .p-menuitem-text {
-            color: inherit;
-          }
-
-          .p-menu-item-label {
-            color: var(--theme-text);
-          }
-
-          &:hover .p-menu-item-label {
-            color: var(--theme-primary);
-          }
-        }
       }
     }
 

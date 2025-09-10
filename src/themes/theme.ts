@@ -378,6 +378,31 @@ export const presetThemes: PresetTheme[] = [
 ];
 
 /**
+ * 智能判断主题是否为暗色
+ * @param colors 主题颜色配置
+ * @param mode 主题模式
+ * @returns 是否为暗色主题
+ */
+function isThemeDark(colors: ThemeColors, mode: ThemeMode): boolean {
+  // 如果明确是 dark 模式，直接返回 true
+  if (mode === ThemeMode.Dark) return true;
+  
+  // 如果明确是 light 模式，直接返回 false
+  if (mode === ThemeMode.Light) return false;
+  
+  // 对于 custom 模式，根据背景色亮度自动判断
+  const rgb = colors.background.rgb.match(/\d+/g);
+  if (!rgb) return false;
+  
+  const [r, g, b] = rgb.map(Number);
+  // 使用相对亮度公式判断
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  // 亮度小于0.5认为是暗色主题
+  return luminance < 0.5;
+}
+
+/**
  * 生成CSS变量
  */
 function generateCSSVariables(colors: ThemeColors): Record<string, string> {
@@ -542,15 +567,18 @@ export async function applyTheme(
     const variables = generateCSSVariables(colors);
     applyThemeVariables(variables);
 
+    // 判断是否为暗色主题
+    const isDark = isThemeDark(colors, config.mode);
+
     // 应用 PrimeVue 主题
     try {
-      applyPrimeVueTheme(colors, config.mode);
+      applyPrimeVueTheme(colors, isDark ? "dark" : "light");
     } catch (primeVueError) {
       // PrimeVue 主题应用失败不应该阻止整个主题系统
       console.warn("PrimeVue 主题应用失败:", primeVueError);
     }
 
-    const isDark = config.mode === ThemeMode.Dark;
+    // 设置主题属性（这里会被 PrimeVue 函数重复设置，但保持兼容性）
     document.documentElement.setAttribute(
       "data-theme",
       isDark ? "dark" : "light",

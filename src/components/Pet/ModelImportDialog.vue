@@ -414,7 +414,7 @@ const resetDialog = () => {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 .import-container {
   display: flex;
   flex-direction: column;

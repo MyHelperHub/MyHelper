@@ -1,35 +1,9 @@
-/* 主题和表面调色板 */
+/* PrimeVue 基础配置 */
 :root {
-  --p-primary-50: var(--p-surface-50);
-  --p-primary-100: var(--p-surface-100);
-  --p-primary-200: var(--p-surface-200);
-  --p-primary-300: var(--p-surface-300);
-  --p-primary-400: var(--p-surface-400);
-  --p-primary-500: var(--p-surface-500);
-  --p-primary-600: var(--p-surface-600);
-  --p-primary-700: var(--p-surface-700);
-  --p-primary-800: var(--p-surface-800);
-  --p-primary-900: var(--p-surface-900);
-  --p-primary-950: var(--p-surface-950);
-
-  /* 表面颜色保持不变 */
-  --p-surface-0: #ffffff;
-  --p-surface-50: #f8fafc;
-  --p-surface-100: #f1f5f9;
-  --p-surface-200: #e2e8f0;
-  --p-surface-300: #cbd5e1;
-  --p-surface-400: #94a3b8;
-  --p-surface-500: #64748b;
-  --p-surface-600: #475569;
-  --p-surface-700: #334155;
-  --p-surface-800: #1e293b;
-  --p-surface-900: #0f172a;
-  --p-surface-950: #020617;
-
   --p-content-border-radius: 6px;
 }
 
-/* Light Mode */
+/* Light Mode - 仅基础配置，颜色由主题系统提供 */
 :root {
   --p-primary-color: var(--p-primary-500);
   --p-primary-contrast-color: var(--p-surface-0);
@@ -48,9 +22,9 @@
   --p-text-hover-muted-color: var(--p-surface-600);
 }
 
-/* Dark Mode */
-:root.dark {
-  /* 改为与 UnoCSS 暗色模式配置匹配 */
+/* Dark Mode - 仅基础配置，颜色由主题系统提供 */
+:root.dark,
+html[data-theme="dark"] {
   --p-primary-color: var(--p-primary-400);
   --p-primary-contrast-color: var(--p-surface-900);
   --p-primary-hover-color: var(--p-primary-300);
@@ -76,20 +50,20 @@
   --p-text-hover-muted-color: var(--p-surface-300);
 }
 
-/* 滚动条样式 */
+/* 滚动条样式 - 使用CSS变量 */
 ::-webkit-scrollbar {
   border-radius: 8px;
-  background-color: #cbe4de;
+  background-color: var(--p-surface-100);
   width: 5px;
   height: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: #2a816c;
+  background-color: var(--p-primary-color);
   cursor: pointer;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #1e6462;
+  background-color: var(--p-primary-hover-color);
 }

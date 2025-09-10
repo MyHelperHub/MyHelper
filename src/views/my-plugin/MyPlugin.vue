@@ -102,17 +102,6 @@ defineExpose({ openPopover });
 <style lang="less">
 @import "../../assets/css/variable.less";
 
-.p-drawer-header {
-  padding: 1rem 1rem 0.5rem 1rem !important;
-  border-bottom: 1px solid var(--theme-border) !important;
-  background: var(--theme-background-card) !important;
-}
-
-.p-drawer-content {
-  background: var(--theme-background-card) !important;
-  padding: 0 !important;
-}
-
 .header-content {
   display: flex;
   flex-direction: column;

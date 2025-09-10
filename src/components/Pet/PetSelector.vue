@@ -1,74 +1,101 @@
 <template>
   <div class="pet-selector">
     <ConfirmDialog></ConfirmDialog>
-    <div class="selector-header">
-      <h4>选择宠物</h4>
-      <span v-if="models.length" class="model-count"
-        >{{ models.length }} 个模型</span
-      >
-    </div>
+    
+    <DataView 
+      :value="models" 
+      :loading="isLoading"
+      layout="list"
+      class="model-dataview">
+      
+      <!-- 头部模板 -->
+      <template #header>
+        <div class="selector-header">
+          <h4>选择宠物</h4>
+          <span v-if="models.length" class="model-count">
+            {{ models.length }} 个模型
+          </span>
+        </div>
+      </template>
 
-    <div v-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>加载模型列表中...</p>
-    </div>
+      <!-- 空状态模板 -->
+      <template #empty>
+        <div class="empty-state">
+          <i class="pi pi-box empty-icon"></i>
+          <p>暂无可用模型</p>
+          <Button 
+            @click="refreshModels" 
+            label="刷新" 
+            icon="pi pi-refresh"
+            size="small" 
+            outlined />
+        </div>
+      </template>
 
-    <div v-else-if="models.length === 0" class="empty-state">
-      <p>暂无可用模型</p>
-      <button @click="refreshModels" class="refresh-btn">刷新</button>
-    </div>
-
-    <div v-else class="model-grid">
-      <div
-        v-for="(model, index) in models"
-        :key="model.name"
-        class="model-item"
-        :class="{ selected: selectedIndex === index }"
-        @click="selectModel(index)">
-        <div
-          class="model-preview"
-          :class="{ 'user-model': model.source === 1 }">
-          {{ getModelInitial(model.name) }}
-          <div v-if="model.source === 0" class="builtin-indicator">
-            <i class="pi pi-star-fill"></i>
+      <!-- 列表项模板 -->
+      <template #list="slotProps">
+        <div 
+          v-for="(model, index) in slotProps.items"
+          :key="index"
+          class="model-item"
+          :class="{ selected: selectedIndex === index }"
+          @click="selectModel(index)">
+          
+          <!-- 模型预览头像 -->
+          <div class="model-avatar-container">
+            <Avatar 
+              :label="getModelInitial(model.name)"
+              class="model-avatar"
+              :class="{ 'user-model': model.source === 1 }"
+              size="normal" />
+            <div class="avatar-badge">
+              <i v-if="model.source === 0" class="pi pi-star-fill builtin-badge"></i>
+              <i v-else class="pi pi-user user-badge"></i>
+            </div>
           </div>
-          <div v-else class="user-indicator">
-            <i class="pi pi-user"></i>
+
+          <!-- 模型信息 -->
+          <div class="model-info">
+            <div class="model-name">
+              {{ model.name }}
+              <Tag v-if="model.source === 0" value="内置" severity="warning" />
+              <Tag v-if="model.version" :value="formatVersion(model.version)" severity="info" />
+            </div>
+            
+            <div class="model-path">{{ getShortPath(model.path) }}</div>
+            
+            <div v-if="model.source === 1 && (model.size || model.importTime)" 
+                 class="model-extra-info">
+              <Chip v-if="model.size" class="info-chip">
+                <template #icon>
+                  <i class="pi pi-database"></i>
+                </template>
+                {{ formatFileSize(model.size) }}
+              </Chip>
+              <Chip v-if="model.importTime" class="info-chip">
+                <template #icon>
+                  <i class="pi pi-calendar"></i>
+                </template>
+                {{ formatImportTime(model.importTime) }}
+              </Chip>
+            </div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div v-if="model.source === 1" class="model-actions">
+            <Button 
+              @click.stop="deleteUserModel(model)"
+              icon="pi pi-trash"
+              severity="danger"
+              text
+              rounded
+              size="small"
+              :loading="isDeletingModel"
+              v-tooltip="'删除模型'" />
           </div>
         </div>
-        <div class="model-info">
-          <div class="model-name">
-            {{ model.name }}
-            <span v-if="model.source === 0" class="builtin-badge">内置</span>
-            <span v-if="model.version" class="version-badge">{{
-              formatVersion(model.version)
-            }}</span>
-          </div>
-          <div class="model-path">{{ getShortPath(model.path) }}</div>
-          <div
-            v-if="model.source === 1 && (model.size || model.importTime)"
-            class="model-extra-info">
-            <span v-if="model.size" class="info-item">
-              <i class="pi pi-database"></i>
-              {{ formatFileSize(model.size) }}
-            </span>
-            <span v-if="model.importTime" class="info-item">
-              <i class="pi pi-calendar"></i>
-              {{ formatImportTime(model.importTime) }}
-            </span>
-          </div>
-        </div>
-        <div v-if="model.source === 1" class="model-actions">
-          <button
-            @click.stop="deleteUserModel(model)"
-            class="delete-btn"
-            :disabled="isDeletingModel"
-            title="删除模型">
-            <i class="pi pi-trash"></i>
-          </button>
-        </div>
-      </div>
-    </div>
+      </template>
+    </DataView>
   </div>
 </template>
 
@@ -76,6 +103,11 @@
 import { ref, onMounted } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import ConfirmDialog from "primevue/confirmdialog";
+import DataView from "primevue/dataview";
+import Avatar from "primevue/avatar";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+import Chip from "primevue/chip";
 import type { ModelConfig } from "@/interface/pet";
 import { PetGlobalManager } from "./PetGlobalManager";
 import { Logger } from "@/utils/logger";
@@ -298,156 +330,131 @@ defineExpose({
 
 <style scoped>
 .pet-selector {
-  padding: 8px;
-  border-radius: 6px;
-  background: var(--theme-background-secondary, #f8f9fa);
-  border: 1px solid var(--theme-border, #e9ecef);
+  border-radius: 8px;
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-content-border-color);
+}
+
+:deep(.model-dataview) {
+  border: none;
+  background: transparent;
+}
+
+:deep(.model-dataview .p-dataview-header) {
+  border: none;
+  background: transparent;
+  padding: 12px 12px 8px 12px;
+}
+
+:deep(.model-dataview .p-dataview-content) {
+  border: none;
+  background: transparent;
+  padding: 0 8px 8px 8px;
 }
 
 .selector-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
 }
 
 .selector-header h4 {
   margin: 0;
-  font-size: 12px;
-  color: var(--theme-text, #333);
-  font-weight: 500;
+  font-size: 14px;
+  color: var(--p-text-color);
+  font-weight: 600;
 }
 
 .model-count {
-  font-size: 9px;
-  color: var(--theme-text-secondary, #666);
-  background: var(--theme-background, #fff);
-  padding: 1px 4px;
-  border-radius: 8px;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 12px;
-  color: var(--theme-text-secondary, #666);
-}
-
-.loading-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top: 2px solid var(--theme-primary, #007bff);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 6px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  font-size: 11px;
+  color: var(--p-text-muted-color);
+  background: var(--p-surface-100);
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-weight: 500;
 }
 
 .empty-state {
   text-align: center;
-  padding: 12px;
-  color: var(--theme-text-secondary, #666);
-  font-size: 11px;
+  padding: 24px;
+  color: var(--p-text-muted-color);
 }
 
-.refresh-btn {
-  margin-top: 4px;
-  padding: 4px 8px;
-  background: var(--theme-primary, #007bff);
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 9px;
-  transition: background 0.3s;
+.empty-icon {
+  font-size: 32px;
+  color: var(--p-surface-400);
+  margin-bottom: 12px;
 }
 
-.refresh-btn:hover {
-  background: var(--theme-primary-hover, #0056b3);
-}
-
-.model-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.empty-state p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
 }
 
 .model-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  border-radius: 4px;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid transparent;
-  background: var(--theme-background, #fff);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: var(--p-surface-0);
+  margin-bottom: 4px;
 }
 
 .model-item:hover {
-  background: var(--theme-background-hover, #f0f8ff);
-  transform: translateX(2px);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  background: var(--p-content-hover-background);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .model-item.selected {
-  border-color: var(--theme-primary, #007bff);
-  background: var(--theme-primary-light, rgba(0, 123, 255, 0.1));
+  border-color: var(--p-primary-color);
+  background: var(--p-highlight-background);
+  box-shadow: 0 0 0 1px var(--p-primary-color);
 }
 
-.model-preview {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: linear-gradient(
-    45deg,
-    var(--theme-primary, #007bff),
-    var(--theme-primary-dark, #0056b3)
-  );
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 10px;
-  flex-shrink: 0;
+.model-avatar-container {
   position: relative;
+  flex-shrink: 0;
 }
 
-.model-preview.user-model {
-  background: linear-gradient(45deg, #28a745, #20692f);
+:deep(.model-avatar) {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(45deg, var(--p-primary-color), var(--p-primary-600));
+  color: white;
 }
 
-.builtin-indicator,
-.user-indicator {
+:deep(.model-avatar.user-model) {
+  background: linear-gradient(45deg, var(--p-green-500), var(--p-green-600));
+}
+
+.avatar-badge {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: white;
+  background: var(--p-surface-0);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 6px;
-  border: 1px solid var(--theme-border, #e9ecef);
+  font-size: 8px;
+  border: 2px solid var(--p-content-border-color);
 }
 
-.builtin-indicator {
-  color: #ffc107;
+.builtin-badge {
+  color: var(--p-orange-500);
 }
 
-.user-indicator {
-  color: #6c757d;
+.user-badge {
+  color: var(--p-surface-500);
 }
 
 .model-info {
@@ -456,95 +463,69 @@ defineExpose({
 }
 
 .model-name {
-  font-weight: 500;
-  color: var(--theme-text, #333);
-  margin-bottom: 1px;
+  font-weight: 600;
+  color: var(--p-text-color);
+  margin-bottom: 4px;
   word-break: break-word;
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: 13px;
+  line-height: 1.3;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.builtin-badge {
-  font-size: 7px;
-  padding: 1px 3px;
-  background: #ffc107;
-  color: #000;
-  border-radius: 6px;
-  font-weight: 600;
-}
-
-.version-badge {
-  font-size: 7px;
-  padding: 1px 3px;
-  background: var(--primary-color);
-  color: white;
-  border-radius: 6px;
+:deep(.model-name .p-tag) {
+  font-size: 9px;
+  padding: 2px 6px;
   font-weight: 500;
 }
 
 .model-path {
-  font-size: 8px;
-  color: var(--theme-text-secondary, #666);
+  font-size: 11px;
+  color: var(--p-text-muted-color);
   word-break: break-all;
-  line-height: 1.1;
-  margin-bottom: 2px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+/* 选中状态下的路径文本颜色调整 */
+.model-item.selected .model-path {
+  color: var(--p-text-color);
+  opacity: 0.8;
 }
 
 .model-extra-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 2px;
+  gap: 4px;
 }
 
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 7px;
-  color: var(--theme-text-secondary, #666);
-  background: var(--theme-background-secondary, #f8f9fa);
-  padding: 1px 3px;
-  border-radius: 4px;
+:deep(.info-chip) {
+  font-size: 9px;
+  padding: 2px 6px;
+  background: var(--p-surface-100);
+  color: var(--p-text-muted-color);
 }
 
-.info-item i {
-  font-size: 6px;
-  opacity: 0.7;
+/* 选中状态下的信息芯片颜色调整 */
+.model-item.selected :deep(.info-chip) {
+  background: var(--p-surface-200);
+  color: var(--p-text-color);
+}
+
+:deep(.info-chip i) {
+  font-size: 8px;
+  margin-right: 3px;
+  opacity: 0.8;
 }
 
 .model-actions {
-  display: flex;
-  gap: 2px;
   flex-shrink: 0;
 }
 
-.delete-btn {
-  background: none;
-  border: none;
-  color: #dc3545;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 2px;
-  font-size: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  transition: all 0.2s;
-}
-
-.delete-btn:hover:not(:disabled) {
-  background: rgba(220, 53, 69, 0.1);
-  color: #dc3545;
-}
-
-.delete-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+:deep(.model-actions .p-button) {
+  width: 28px;
+  height: 28px;
 }
 </style>
