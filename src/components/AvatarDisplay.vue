@@ -110,11 +110,14 @@ const onModelError = (errorMsg: string) => {
 };
 
 // 监听缩放设置变化
-watch(() => preferences.value.defaultScale, (newScale) => {
-  if (petDisplayRef.value && newScale) {
-    petDisplayRef.value.setModelScale(newScale);
-  }
-});
+watch(
+  () => preferences.value.defaultScale,
+  (newScale) => {
+    if (petDisplayRef.value && newScale) {
+      petDisplayRef.value.setModelScale(newScale);
+    }
+  },
+);
 
 onMounted(async () => {
   await PetGlobalManager.init();

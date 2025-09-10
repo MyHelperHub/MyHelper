@@ -25,7 +25,7 @@ import { Logger } from "@/utils/logger";
 interface Props {
   width?: number;
   height?: number;
-  modelConfig: ModelConfig | null; 
+  modelConfig: ModelConfig | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -55,7 +55,7 @@ const loadModel = async () => {
   }
 
   loadingPromise = performModelLoad();
-  
+
   try {
     await loadingPromise;
   } finally {
@@ -144,7 +144,7 @@ watch(
       await loadModel();
     }
   },
-  { immediate: false }
+  { immediate: false },
 );
 
 watch([() => props.width, () => props.height], () => {
@@ -165,7 +165,7 @@ onUnmounted(() => {
   if (loadingPromise) {
     loadingPromise = null;
   }
-  
+
   if (modelManager) {
     // 完全销毁管理器实例
     modelManager.destroy();

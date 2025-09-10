@@ -329,7 +329,8 @@ const importModel = async () => {
   progressPercent.value = 0;
 
   try {
-    const filePath = (selectedFile.value as any).path || selectedFile.value.name;
+    const filePath =
+      (selectedFile.value as any).path || selectedFile.value.name;
     const finalModelName = modelName.value.trim() || undefined;
 
     progressMessage.value = "正在验证文件...";
@@ -338,7 +339,10 @@ const importModel = async () => {
     progressMessage.value = "正在导入模型文件...";
     progressPercent.value = 50;
 
-    const importedName = await PetGlobalManager.importModel(filePath, finalModelName);
+    const importedName = await PetGlobalManager.importModel(
+      filePath,
+      finalModelName,
+    );
 
     progressMessage.value = "正在刷新模型缓存...";
     progressPercent.value = 75;
@@ -362,7 +366,11 @@ const importModel = async () => {
       const errorStr = JSON.stringify(error, null, 2);
       if ("message" in error && error.message) {
         errorMessage = String(error.message);
-      } else if ("name" in error && error.name === "ApiError" && "code" in error) {
+      } else if (
+        "name" in error &&
+        error.name === "ApiError" &&
+        "code" in error
+      ) {
         const errorCode = typeof error.code === "number" ? error.code : 1000;
         const errorDesc = getErrorDescription(errorCode);
         errorMessage = `API错误 (${errorCode}): ${errorDesc}`;
@@ -374,7 +382,10 @@ const importModel = async () => {
     }
 
     importError.value = errorMessage;
-    Logger.error("ModelImportDialog: 模型导入失败", `错误信息: ${errorMessage}`);
+    Logger.error(
+      "ModelImportDialog: 模型导入失败",
+      `错误信息: ${errorMessage}`,
+    );
     emit("import-error", errorMessage);
     progressMessage.value = "";
     progressPercent.value = null;

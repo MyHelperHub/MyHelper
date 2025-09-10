@@ -252,9 +252,11 @@ export class PetGlobalManager {
       // 获取用户导入的模型
       try {
         const { ipcGetAllLive2DModels } = await import("@/api/ipc/pet.api");
-        const allModels = await ipcGetAllLive2DModels() as ModelConfig[];
+        const allModels = (await ipcGetAllLive2DModels()) as ModelConfig[];
         // 只添加用户导入的模型（source: 1）
-        const userModels = allModels.filter((model: ModelConfig) => model.source === 1);
+        const userModels = allModels.filter(
+          (model: ModelConfig) => model.source === 1,
+        );
         models.push(...userModels);
       } catch (error) {
         Logger.warn("PetGlobalManager: 获取用户模型失败", String(error));
@@ -303,7 +305,10 @@ export class PetGlobalManager {
   ): Promise<string> {
     try {
       const { ipcImportLive2DModel } = await import("@/api/ipc/pet.api");
-      const result = await ipcImportLive2DModel(filePath, modelName) as string;
+      const result = (await ipcImportLive2DModel(
+        filePath,
+        modelName,
+      )) as string;
 
       // 导入成功后刷新模型缓存
       await this.refreshModelCache();
@@ -311,8 +316,12 @@ export class PetGlobalManager {
       return result;
     } catch (error) {
       console.error("PetGlobalManager.importModel 完整错误对象:", error);
-      const errorStr = error instanceof Error ? error.message : JSON.stringify(error, null, 2);
-      Logger.error("PetGlobalManager: 导入模型失败", `错误类型: ${typeof error}, 错误内容: ${errorStr}`);
+      const errorStr =
+        error instanceof Error ? error.message : JSON.stringify(error, null, 2);
+      Logger.error(
+        "PetGlobalManager: 导入模型失败",
+        `错误类型: ${typeof error}, 错误内容: ${errorStr}`,
+      );
       throw error;
     }
   }

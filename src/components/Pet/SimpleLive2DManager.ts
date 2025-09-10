@@ -6,7 +6,12 @@ import {
   Live2DModel,
   Cubism4ModelSettings,
 } from "pixi-live2d-display-lipsyncpatch";
-import type { ModelConfig, ModelInfo, Motion, Expression } from "@/interface/pet";
+import type {
+  ModelConfig,
+  ModelInfo,
+  Motion,
+  Expression,
+} from "@/interface/pet";
 import { Logger } from "@/utils/logger";
 
 /**
@@ -16,7 +21,7 @@ import { Logger } from "@/utils/logger";
 export class SimpleLive2DManager {
   // 全局Application实例管理，确保每个canvas只有一个Application
   private static apps = new Map<HTMLCanvasElement, Application>();
-  
+
   private app: Application | null = null;
   private model: Live2DModel | null = null;
   private canvas: HTMLCanvasElement | null = null;
@@ -52,15 +57,15 @@ export class SimpleLive2DManager {
           const child = app.stage.children[0];
           app.stage.removeChild(child);
         }
-        
+
         app.destroy(false, {
           children: true,
           texture: false,
-          baseTexture: false
+          baseTexture: false,
         });
         this.apps.delete(canvas);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           console.warn("PIXI Application destroy warning:", error);
         }
         this.apps.delete(canvas);
@@ -70,14 +75,14 @@ export class SimpleLive2DManager {
 
   static cleanupInactiveApps(): void {
     const canvasesToRemove: HTMLCanvasElement[] = [];
-    
+
     for (const [canvas] of this.apps) {
       if (!canvas.isConnected) {
         canvasesToRemove.push(canvas);
       }
     }
-    
-    canvasesToRemove.forEach(canvas => {
+
+    canvasesToRemove.forEach((canvas) => {
       this.destroyApp(canvas);
     });
   }
@@ -97,7 +102,10 @@ export class SimpleLive2DManager {
   /**
    * 获取实际的配置文件路径（支持子目录）
    */
-  private async getActualConfigPath(config: ModelConfig, configFileName: string): Promise<string> {
+  private async getActualConfigPath(
+    config: ModelConfig,
+    configFileName: string,
+  ): Promise<string> {
     if (config.source === 0) {
       // 预置模型
       const resourcePath = `${config.path}/${configFileName}`;
@@ -115,12 +123,12 @@ export class SimpleLive2DManager {
   private async findModelConfig(config: ModelConfig): Promise<string | null> {
     try {
       let actualPath: string;
-      
+
       if (config.source === 0) {
         // 预置模型
         actualPath = await resolveResource(config.path);
       } else {
-        // 用户模型: config.path = "Models/Live2D/modelname"  
+        // 用户模型: config.path = "Models/Live2D/modelname"
         const appDataPath = await appDataDir();
         // appDataDir() 返回 AppData/Roaming/myhelper，与后端 get_myhelper_path() 一致
         actualPath = `${appDataPath}/${config.path}`;
@@ -129,20 +137,30 @@ export class SimpleLive2DManager {
       // 递归查找配置文件
       return await this.findConfigFileRecursive(actualPath);
     } catch (error) {
-      Logger.warn("SimpleLive2DManager: 无法读取模型目录", 
-        `Path: ${config.path}, Source: ${config.source}, Error: ${error}`);
+      Logger.warn(
+        "SimpleLive2DManager: 无法读取模型目录",
+        `Path: ${config.path}, Source: ${config.source}, Error: ${error}`,
+      );
       return null;
     }
   }
 
-  private async findConfigFileRecursive(dirPath: string): Promise<string | null> {
+  private async findConfigFileRecursive(
+    dirPath: string,
+  ): Promise<string | null> {
     try {
       const files = await readDir(dirPath);
-      const supportedExtensions = [".model.json", ".model3.json", ".model4.json"];
-      
+      const supportedExtensions = [
+        ".model.json",
+        ".model3.json",
+        ".model4.json",
+      ];
+
       // 先在当前目录查找配置文件
       const configFile = files.find(
-        (file) => supportedExtensions.some(ext => file.name.endsWith(ext)) && file.isFile,
+        (file) =>
+          supportedExtensions.some((ext) => file.name.endsWith(ext)) &&
+          file.isFile,
       );
 
       if (configFile) {
@@ -193,11 +211,14 @@ export class SimpleLive2DManager {
             const fullPath = `${modelBaseDir}/${file}`;
             convertedPath = convertFileSrc(fullPath);
           }
-          
+
           filePathMap.set(file, convertedPath);
           return { file, path: convertedPath };
         } catch (error) {
-          Logger.warn(`SimpleLive2DManager: 文件路径转换失败: ${file}`, String(error));
+          Logger.warn(
+            `SimpleLive2DManager: 文件路径转换失败: ${file}`,
+            String(error),
+          );
           // 提供一个后备路径
           const fallbackPath = convertFileSrc(`${modelBaseDir}/${file}`);
           filePathMap.set(file, fallbackPath);
@@ -222,7 +243,7 @@ export class SimpleLive2DManager {
     if (!refs) return [];
 
     const files: string[] = [];
-    
+
     if (refs.Moc) files.push(refs.Moc);
     if (refs.DisplayInfo) files.push(refs.DisplayInfo);
     if (refs.Textures) files.push(...refs.Textures);
@@ -263,7 +284,12 @@ export class SimpleLive2DManager {
       const { width, height } = this.model;
 
       // 确保画布和模型尺寸有效
-      if (canvas.width <= 0 || canvas.height <= 0 || width <= 0 || height <= 0) {
+      if (
+        canvas.width <= 0 ||
+        canvas.height <= 0 ||
+        width <= 0 ||
+        height <= 0
+      ) {
         return;
       }
 
@@ -299,15 +325,21 @@ export class SimpleLive2DManager {
       }
 
       // 获取配置文件路径和基础目录
-      const actualConfigPath = await this.getActualConfigPath(config, configFileName);
+      const actualConfigPath = await this.getActualConfigPath(
+        config,
+        configFileName,
+      );
       const modelJSON = JSON.parse(await readTextFile(actualConfigPath));
 
       // 确定模型的基础目录（配置文件所在目录）
       let modelBaseDir: string;
       if (config.source === 0) {
         // 预置模型
-        if (configFileName.includes('/')) {
-          const configDir = configFileName.substring(0, configFileName.lastIndexOf('/'));
+        if (configFileName.includes("/")) {
+          const configDir = configFileName.substring(
+            0,
+            configFileName.lastIndexOf("/"),
+          );
           modelBaseDir = `${config.path}/${configDir}`;
         } else {
           modelBaseDir = config.path;
@@ -315,8 +347,11 @@ export class SimpleLive2DManager {
       } else {
         // 用户模型
         const appDataPath = await appDataDir();
-        if (configFileName.includes('/')) {
-          const configDir = configFileName.substring(0, configFileName.lastIndexOf('/'));
+        if (configFileName.includes("/")) {
+          const configDir = configFileName.substring(
+            0,
+            configFileName.lastIndexOf("/"),
+          );
           modelBaseDir = `${appDataPath}/${config.path}/${configDir}`;
         } else {
           modelBaseDir = `${appDataPath}/${config.path}`;
@@ -329,7 +364,12 @@ export class SimpleLive2DManager {
       });
 
       // 使用更新的预处理方法，传入正确的基础目录
-      await this.preprocessResourcePaths(modelSettings, config, modelJSON, modelBaseDir);
+      await this.preprocessResourcePaths(
+        modelSettings,
+        config,
+        modelJSON,
+        modelBaseDir,
+      );
 
       this.model = await Live2DModel.from(modelSettings, {
         ticker: Ticker.shared,
@@ -361,7 +401,10 @@ export class SimpleLive2DManager {
 
       return result;
     } catch (error) {
-      Logger.error(`SimpleLive2DManager: 加载Live2D模型失败: ${config.name}`, String(error));
+      Logger.error(
+        `SimpleLive2DManager: 加载Live2D模型失败: ${config.name}`,
+        String(error),
+      );
       throw error;
     }
   }
@@ -371,7 +414,7 @@ export class SimpleLive2DManager {
    */
   resize(canvas: HTMLCanvasElement): void {
     if (!this.model || !canvas) return;
-    
+
     // 只重新计算模型变换
     this.setupModelTransform(canvas);
   }
@@ -419,15 +462,15 @@ export class SimpleLive2DManager {
           this.app.stage.removeChild(this.model);
         }
 
-        if (!this.model.destroyed && typeof this.model.destroy === 'function') {
+        if (!this.model.destroyed && typeof this.model.destroy === "function") {
           this.model.destroy({
             children: true,
             texture: false,
-            baseTexture: false
+            baseTexture: false,
           });
         }
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           console.warn("Live2D model destroy warning:", error);
         }
       }
@@ -437,13 +480,13 @@ export class SimpleLive2DManager {
 
   destroy(): void {
     this.destroyModel();
-    
+
     if (this.canvas) {
       SimpleLive2DManager.destroyApp(this.canvas);
       this.canvas = null;
     }
     this.app = null;
-    
+
     SimpleLive2DManager.cleanupInactiveApps();
   }
 }

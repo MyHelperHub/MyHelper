@@ -160,12 +160,12 @@ const hasExpressions = computed(() => {
 // 导入对话框事件处理
 const onImportSuccess = async (modelName: string) => {
   Logger.info("PetSettings: 模型导入成功", modelName);
-  
+
   // 刷新模型列表
   if (petSelectorRef.value) {
     await petSelectorRef.value.refreshModels();
   }
-  
+
   // 可以在这里添加成功提示
   showImportDialog.value = false;
 };
@@ -258,7 +258,7 @@ onMounted(async () => {
   await PetGlobalManager.init();
 
   await nextTick();
-  
+
   // 如果有已选中的模型，需要手动调用 onModelsLoaded 来同步选中状态
   if (selectedModel.value && petSelectorRef.value) {
     const models = petSelectorRef.value.models();

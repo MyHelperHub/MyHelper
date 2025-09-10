@@ -8,7 +8,6 @@ export interface LogEntry {
 }
 
 export class Logger {
-
   private static async writeLog(entry: LogEntry): Promise<void> {
     try {
       await invoke("write_log", { entry });
