@@ -3,7 +3,17 @@
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <div class="layout-container">
       <div class="menu-container">
-        <Menu :model="menuItems" />
+        <div class="custom-menu">
+          <div
+            v-for="config in menuConfigs"
+            :key="config.type"
+            class="menu-item"
+            :class="{ active: activeMenu === config.type }"
+            @click="handleMenuClick(config.type)">
+            <i :class="config.icon" class="menu-icon"></i>
+            <span class="menu-label">{{ config.label }}</span>
+          </div>
+        </div>
       </div>
       <div class="content-container" data-tauri-drag-region>
         <KeepAlive :include="loadedComponents">
@@ -15,7 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import Menu from "primevue/menu";
 import { ref, computed, reactive, onMounted, markRaw } from "vue";
 import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
@@ -23,47 +32,65 @@ import { initSetting } from "./utils/settingRegistry";
 import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
+interface MenuConfig {
+  type: SettingMenuItemEnum;
+  label: string;
+  icon: string;
+  componentName: string;
+  loader: () => Promise<any>;
+}
+
 const activeMenu = ref<SettingMenuItemEnum | null>(null);
 const loadedComponents = ref<string[]>([]);
-
-// 使用 reactive 存储已加载的组件
 const componentMap = reactive<Record<string, any>>({});
 
-// 组件加载映射
-const componentLoaders = {
-  [SettingMenuItemEnum.General]: () =>
-    import("@/views/setting/GeneralSettings.vue"),
-  [SettingMenuItemEnum.Theme]: () =>
-    import("@/views/setting/ThemeSettings.vue"),
-  [SettingMenuItemEnum.Pet]: () => import("@/views/setting/PetSettings.vue"),
-  [SettingMenuItemEnum.About]: () =>
-    import("@/views/setting/AboutSettings.vue"),
-};
+// 统一的菜单配置
+const menuConfigs: MenuConfig[] = [
+  {
+    type: SettingMenuItemEnum.General,
+    label: "常用设置",
+    icon: "pi pi-cog",
+    componentName: "GeneralSettings",
+    loader: () => import("@/views/setting/GeneralSettings.vue"),
+  },
+  {
+    type: SettingMenuItemEnum.Theme,
+    label: "主题设置",
+    icon: "pi pi-palette",
+    componentName: "ThemeSettings",
+    loader: () => import("@/views/setting/ThemeSettings.vue"),
+  },
+  {
+    type: SettingMenuItemEnum.Pet,
+    label: "宠物设置",
+    icon: "pi pi-heart",
+    componentName: "PetSettings",
+    loader: () => import("@/views/setting/PetSettings.vue"),
+  },
+  {
+    type: SettingMenuItemEnum.About,
+    label: "关于",
+    icon: "pi pi-info-circle",
+    componentName: "AboutSettings",
+    loader: () => import("@/views/setting/AboutSettings.vue"),
+  },
+];
 
-// 组件名称映射，用于 KeepAlive 的 include
-const componentNames = {
-  [SettingMenuItemEnum.General]: "GeneralSettings",
-  [SettingMenuItemEnum.Theme]: "ThemeSettings",
-  [SettingMenuItemEnum.Pet]: "PetSettings",
-  [SettingMenuItemEnum.About]: "AboutSettings",
-};
-
-// 当前组件
 const currentComponent = computed(() => {
   return activeMenu.value ? componentMap[activeMenu.value] || null : null;
 });
 
-// 加载组件的函数
 const loadComponent = async (menuType: SettingMenuItemEnum) => {
   if (!componentMap[menuType]) {
+    const config = menuConfigs.find((item) => item.type === menuType);
+    if (!config) return;
+
     try {
-      const componentModule = await componentLoaders[menuType]();
+      const componentModule = await config.loader();
       componentMap[menuType] = markRaw(componentModule.default);
 
-      // 添加到 KeepAlive 的 include 列表
-      const componentName = componentNames[menuType];
-      if (!loadedComponents.value.includes(componentName)) {
-        loadedComponents.value.push(componentName);
+      if (!loadedComponents.value.includes(config.componentName)) {
+        loadedComponents.value.push(config.componentName);
       }
     } catch (error) {
       console.error(`Failed to load component for ${menuType}:`, error);
@@ -71,44 +98,10 @@ const loadComponent = async (menuType: SettingMenuItemEnum) => {
   }
 };
 
-const menuItems = computed(() => [
-  {
-    label: "常用设置",
-    icon: "pi pi-cog",
-    class: activeMenu.value === SettingMenuItemEnum.General ? "p-focus" : "",
-    command: async () => {
-      await loadComponent(SettingMenuItemEnum.General);
-      activeMenu.value = SettingMenuItemEnum.General;
-    },
-  },
-  {
-    label: "主题设置",
-    icon: "pi pi-palette", 
-    class: activeMenu.value === SettingMenuItemEnum.Theme ? "p-focus" : "",
-    command: async () => {
-      await loadComponent(SettingMenuItemEnum.Theme);
-      activeMenu.value = SettingMenuItemEnum.Theme;
-    },
-  },
-  {
-    label: "宠物设置", 
-    icon: "pi pi-heart",
-    class: activeMenu.value === SettingMenuItemEnum.Pet ? "p-focus" : "",
-    command: async () => {
-      await loadComponent(SettingMenuItemEnum.Pet);
-      activeMenu.value = SettingMenuItemEnum.Pet;
-    },
-  },
-  {
-    label: "关于",
-    icon: "pi pi-info-circle",
-    class: activeMenu.value === SettingMenuItemEnum.About ? "p-focus" : "",
-    command: async () => {
-      await loadComponent(SettingMenuItemEnum.About);
-      activeMenu.value = SettingMenuItemEnum.About;
-    },
-  },
-]);
+const handleMenuClick = async (menuType: SettingMenuItemEnum) => {
+  await loadComponent(menuType);
+  activeMenu.value = menuType;
+};
 
 onMounted(async () => {
   await loadComponent(SettingMenuItemEnum.General);
@@ -156,13 +149,85 @@ const handleClose = () => {
       height: 100%;
       background: var(--theme-background-secondary);
 
-      .p-menu {
+      .custom-menu {
+        padding: 16px 0;
         height: 100%;
-        width: 100%;
-        border: none;
-        min-width: 80%;
-        border-radius: 0;
-        box-shadow: none;
+
+        .menu-item {
+          position: relative;
+          display: flex;
+          align-items: center;
+          padding: 10px 20px;
+          margin: 0 10px 8px 0px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          color: var(--theme-text-muted);
+          border-radius: 8px;
+          font-size: 14px;
+
+          &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 0;
+            background: var(--theme-primary);
+            border-radius: 0 2px 2px 0;
+            transform: translateY(-50%);
+            transition: height 0.3s ease;
+          }
+
+          &:hover {
+            background: var(--theme-background);
+            color: var(--theme-text);
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+            &::before {
+              height: 20px;
+            }
+
+            .menu-icon {
+              color: var(--theme-primary);
+              transform: scale(1.1);
+            }
+          }
+
+          &.active {
+            background: linear-gradient(
+              135deg,
+              var(--theme-primary),
+              var(--theme-primary-dark, var(--theme-primary))
+            );
+            color: white;
+            transform: translateX(6px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+            &::before {
+              height: 100%;
+              background: rgba(255, 255, 255, 0.3);
+            }
+
+            .menu-icon {
+              color: white;
+              transform: scale(1.1);
+            }
+          }
+
+          .menu-icon {
+            margin-right: 14px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            width: 20px;
+            text-align: center;
+          }
+
+          .menu-label {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+          }
+        }
       }
     }
 
@@ -173,15 +238,12 @@ const handleClose = () => {
       overflow-y: auto;
       overflow-x: hidden;
       height: 100%;
-    }
+      scrollbar-width: none;
+      -ms-overflow-style: none;
 
-    .content-container::-webkit-scrollbar {
-      display: none;
-    }
-
-    .content-container {
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 }

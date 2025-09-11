@@ -182,75 +182,74 @@ defineExpose({
 });
 </script>
 
-<style scoped>
+<style lang="less">
 .pet-display-container {
   position: relative;
   display: inline-block;
   border-radius: 8px;
-  /* background: rgba(0, 0, 0, 0.05); */
   overflow: hidden;
-}
 
-.pet-canvas {
-  display: block;
-}
-
-.loading-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  color: var(--theme-text);
-  z-index: 20;
-}
-
-.loading-spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  border-top: 3px solid var(--theme-primary, #007bff);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 8px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+  .pet-canvas {
+    display: block;
   }
-  100% {
-    transform: rotate(360deg);
+
+  .loading-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--p-text-color);
+    z-index: 20;
+
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-top: 3px solid var(--p-primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
   }
-}
 
-.error-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  color: #ff6b6b;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 12px;
-  border-radius: 6px;
-  z-index: 20;
-  font-size: 12px;
-}
+  .error-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--p-red-500);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 12px;
+    border-radius: 6px;
+    z-index: 20;
+    font-size: 12px;
 
-.retry-btn {
-  margin-top: 8px;
-  padding: 6px 12px;
-  background: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-  transition: background 0.3s;
-}
+    .retry-btn {
+      margin-top: 8px;
+      padding: 6px 12px;
+      background: var(--p-red-500);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: background 0.3s;
 
-.retry-btn:hover {
-  background: #ff5252;
+      &:hover {
+        background: var(--p-red-600);
+      }
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 }
 </style>

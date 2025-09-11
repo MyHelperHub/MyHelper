@@ -191,23 +191,12 @@ const showMenu = async () => {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
-  box-shadow: var(--theme-shadow-xl);
+  box-shadow: var(--p-shadow-8);
 
-  // 统一透明度样式（适用于所有模式）
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  background: linear-gradient(
-    145deg,
-    rgba(
-      var(--theme-background-rgb),
-      var(--theme-transparency-background, 0.9)
-    ),
-    rgba(
-      var(--theme-background-secondary-rgb),
-      var(--theme-transparency-background-secondary, 0.85)
-    )
-  );
-  border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 }
 
 .header-section {
@@ -215,7 +204,7 @@ const showMenu = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px 8px;
-  border-bottom: 1px solid rgba(var(--theme-border-light-rgb), 0.2);
+  // border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
   .header-left {
     display: flex;
@@ -240,8 +229,8 @@ const showMenu = async () => {
         color: var(--theme-text);
         background: linear-gradient(
           135deg,
-          var(--theme-primary),
-          var(--theme-primary-dark)
+          var(--p-primary-color),
+          var(--p-primary-600)
         );
         background-clip: text;
         -webkit-background-clip: text;
@@ -264,12 +253,12 @@ const showMenu = async () => {
     .action-btn {
       width: 28px;
       height: 28px;
-      border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+      border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
       border-radius: 50%;
-      background: rgba(var(--theme-background-rgb), 0.6);
+      background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      color: var(--theme-text-secondary) !important;
+      color: var(--theme-text-muted);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -285,11 +274,7 @@ const showMenu = async () => {
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(
-          135deg,
-          rgba(var(--theme-background-rgb), 0.8),
-          rgba(var(--theme-background-secondary-rgb), 0.6)
-        );
+        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
         border-radius: 50%;
         z-index: -1;
         transition: all 0.2s ease;
@@ -297,16 +282,12 @@ const showMenu = async () => {
 
       &:hover {
         transform: scale(1.1);
-        color: var(--theme-text) !important;
-        border-color: rgba(var(--theme-primary-rgb), 0.4);
-        box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.15);
+        color: var(--theme-text);
+        border-color: var(--p-primary-color);
+        box-shadow: 0 2px 8px var(--p-focus-ring-color);
 
         &::before {
-          background: linear-gradient(
-            135deg,
-            rgba(var(--theme-background-rgb), 0.9),
-            rgba(var(--theme-primary-rgb), 0.1)
-          );
+          background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
         }
       }
 
@@ -319,7 +300,7 @@ const showMenu = async () => {
 
 .search-section {
   padding: 8px 16px;
-  border-bottom: 1px solid rgba(var(--theme-border-light-rgb), 0.15);
+  border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   animation: section-fade-in 0.2s cubic-bezier(0.25, 1, 0.5, 1) 0.12s both;
 }
 

@@ -43,7 +43,7 @@ const handleClose = () => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .label-container {
   height: 100vh;
   width: 100vw;
@@ -69,7 +69,7 @@ const handleClose = () => {
       font-size: 18px;
       font-weight: bold;
       resize: none;
-      color: var(--theme-text-secondary);
+      color: var(--theme-text-muted);
 
       /* 隐藏滚动条的样式 */
       &::-webkit-scrollbar {

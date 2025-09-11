@@ -183,11 +183,8 @@ const editAppItem = async (updatedItem: AppItem) => {
 defineExpose({ visible });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .app-panel {
-  background: var(--theme-background-card) !important;
-  color: var(--theme-text) !important;
-
   .grid-3 {
     max-height: 175px;
   }
@@ -204,56 +201,28 @@ defineExpose({ visible });
   }
 
   .feature-card {
-    background: linear-gradient(
-      145deg,
-      rgba(var(--theme-background-rgb), 0.9),
-      rgba(var(--theme-error-rgb), 0.04)
-    ) !important;
+    background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
     &:hover {
-      background: linear-gradient(
-        145deg,
-        rgba(var(--theme-background-rgb), 0.95),
-        rgba(var(--theme-error-rgb), 0.06)
-      ) !important;
-      box-shadow:
-        0 8px 32px rgba(var(--theme-error-rgb), 0.15),
-        var(--theme-shadow-sm) !important;
-      border-color: rgba(var(--theme-error-rgb), 0.3) !important;
+      background: var(--p-content-hover-background);
+      box-shadow: var(--theme-shadow-md);
+      border-color: var(--p-primary-color);
     }
   }
 
   .add-card {
-    background: linear-gradient(
-      145deg,
-      rgba(var(--theme-error-rgb), 0.08),
-      rgba(var(--theme-error-rgb), 0.05)
-    ) !important;
-    border: 1px dashed rgba(var(--theme-error-rgb), 0.3) !important;
-
-    &::before {
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(var(--theme-error-rgb), 0.4),
-        transparent
-      ) !important;
-    }
+    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+    border: 1px dashed var(--p-primary-color);
 
     &:hover {
-      background: linear-gradient(
-        145deg,
-        rgba(var(--theme-error-rgb), 0.12),
-        rgba(var(--theme-error-rgb), 0.08)
-      ) !important;
-      border: 1px dashed rgba(var(--theme-error-rgb), 0.4) !important;
-      box-shadow:
-        0 8px 32px rgba(var(--theme-error-rgb), 0.2),
-        var(--theme-shadow-sm) !important;
+      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      border: 1px dashed var(--p-primary-600);
+      box-shadow: var(--theme-shadow-sm);
     }
 
     .icon-container {
-      color: var(--theme-error) !important;
+      color: var(--p-red-500);
     }
   }
 }

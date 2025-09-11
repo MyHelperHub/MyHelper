@@ -51,14 +51,14 @@ defineEmits<Emits>();
 
     .card-title {
       padding: 0 0.75rem;
-      color: var(--theme-text) !important;
+      color: var(--theme-text);
       font-weight: 600;
     }
 
     :deep(.p-listbox-list-container) {
       overflow: hidden;
       width: 100%;
-      max-height: unset !important;
+      max-height: unset;
     }
   }
 }

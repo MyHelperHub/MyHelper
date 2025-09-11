@@ -198,7 +198,7 @@ onUnmounted(() => {
 
     .action-icon {
       font-size: 10px;
-      color: var(--theme-text-muted) !important;
+      color: var(--theme-text-muted);
       transition: all 0.2s ease;
     }
   }

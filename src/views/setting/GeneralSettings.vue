@@ -1,7 +1,7 @@
 <template>
-  <div class="setting-section">
+  <div class="general-settings">
     <h3>常用设置</h3>
-    <div class="item">
+    <div class="setting-item">
       <h4>剪贴板监听</h4>
       <ToggleSwitch
         v-model="settingData.clipboardListening"
@@ -17,7 +17,7 @@
         </template>
       </ToggleSwitch>
     </div>
-    <div class="item">
+    <div class="setting-item">
       <h4>全局快捷键</h4>
       <ToggleSwitch
         v-model="settingData.hotkey.enabled"
@@ -34,7 +34,7 @@
     <!-- 使用快捷键设置组件 -->
     <HotkeySettings v-model="settingData.hotkey" @change="handleHotkeyChange" />
 
-    <div class="item">
+    <div class="setting-item">
       <h4>开机启动</h4>
       <ToggleSwitch
         v-model="settingData.autoStart"
@@ -49,9 +49,9 @@
       </ToggleSwitch>
     </div>
 
-    <div class="item">
+    <div class="setting-item">
       <h4>数据重置</h4>
-      <div class="item-right" @click="showDataResetModal = true">
+      <div class="item-action" @click="showDataResetModal = true">
         <i class="pi pi-angle-right"></i>
       </div>
     </div>
@@ -65,21 +65,21 @@
       appendTo="self"
       :closable="false">
       <ConfirmPopup></ConfirmPopup>
-      <div class="modal-content">
+      <div class="reset-modal-content">
         <Button
-          class="modal-button"
+          class="reset-button"
           label="常用网站重置"
           severity="info"
           variant="outlined"
           @click="handleDataReset(['webConfig'], $event)"></Button>
         <Button
-          class="modal-button"
+          class="reset-button"
           label="常用软件重置"
           severity="info"
           variant="outlined"
           @click="handleDataReset(['appConfig'], $event)"></Button>
         <Button
-          class="modal-button"
+          class="reset-button"
           label="全部重置"
           severity="info"
           variant="outlined"
@@ -179,48 +179,45 @@ const handleDataReset = async (
 };
 </script>
 
-<style lang="less" scoped>
-.setting-section {
+<style lang="less">
+.general-settings {
   color: var(--theme-text);
 
   h3 {
     margin-bottom: 20px;
     font-size: 1.2rem;
-    color: var(--theme-text) !important;
+    color: var(--theme-text);
   }
 
-  .item {
+  .setting-item {
     width: 100%;
     padding: 0 10px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    --p-toggleswitch-checked-background: var(--theme-primary);
-    color: var(--theme-text);
+    --p-toggleswitch-checked-background: var(--p-primary-color);
 
     &:hover {
-      background-color: rgba(var(--theme-primary-rgb), 0.04);
+      background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
       box-shadow: var(--theme-shadow-sm);
     }
 
-    .item-right {
+    .item-action {
       width: 50px;
       display: flex;
       justify-content: end;
       cursor: pointer;
     }
   }
-
-  // ToggleSwitch样式已在全局theme.less中配置
 }
 
-.modal-content {
+.reset-modal-content {
   display: flex;
   flex-direction: column;
   padding: 1rem;
 
-  .modal-button {
+  .reset-button {
     margin-bottom: 0.5rem;
   }
 }

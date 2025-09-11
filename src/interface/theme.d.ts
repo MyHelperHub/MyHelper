@@ -40,6 +40,7 @@ export interface TransparencyConfig {
   background: number; // 主背景透明度 0.1-1
   backgroundSecondary: number; // 次要背景透明度 0.1-1
   card: number; // 卡片透明度 0.1-1
+  border: number; // 边框透明度 0.1-1
 }
 
 /**

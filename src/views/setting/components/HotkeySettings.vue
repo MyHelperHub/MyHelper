@@ -187,126 +187,124 @@ const captureHotkey = async (event: KeyboardEvent) => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .hotkey-settings-container {
   margin-top: 10px;
-}
 
-.hotkey-settings {
-  margin-left: 0;
-  padding-left: 0;
-}
+  .hotkey-settings {
+    margin-left: 0;
+    padding-left: 0;
 
-.hotkey-section {
-  margin-bottom: 15px;
-}
+    .hotkey-section {
+      margin-bottom: 15px;
 
-.hotkey-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-radius: 8px;
+      .hotkey-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
 
-  &:hover {
-    background-color: rgba(var(--theme-text-rgb), 0.02);
+        &:hover {
+          background-color: rgba(var(--p-text-color-rgb), 0.02);
+        }
+
+        .hotkey-info {
+          display: flex;
+          align-items: center;
+          flex: 1;
+
+          h4 {
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: var(--theme-text-muted);
+            width: 140px;
+            margin: 0;
+          }
+        }
+
+        .mini-switch {
+          transform: scale(0.75);
+        }
+      }
+    }
   }
 
-  .hotkey-info {
-    display: flex;
-    align-items: center;
+  .hotkey-input-container {
+    position: relative;
     flex: 1;
+    margin: 0 10px;
 
-    h4 {
-      font-size: 0.9rem;
-      font-weight: normal;
-      color: var(--theme-text-secondary);
-      width: 140px;
-      margin: 0;
+    &.disabled {
+      opacity: 0.7;
+
+      .hotkey-input {
+        background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        color: var(--theme-text-muted);
+      }
+    }
+
+    &.recording .hotkey-input {
+      border-color: var(--p-primary-color);
+      box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
     }
   }
 
-  .mini-switch {
-    transform: scale(0.75);
-  }
-}
+  .hotkey-input {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+    color: var(--theme-text);
+    cursor: pointer;
+    text-align: center;
 
-.hotkey-input-container {
-  position: relative;
-  flex: 1;
-  margin: 0 10px;
+    &:focus {
+      outline: none;
+      border-color: var(--p-primary-color);
+      box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
+    }
 
-  &.disabled {
-    opacity: 0.7;
-
-    .hotkey-input {
-      background-color: var(--theme-background-secondary);
-      color: var(--theme-text-muted);
+    &:disabled {
+      cursor: not-allowed;
     }
   }
 
-  &.recording .hotkey-input {
-    border-color: var(--theme-primary);
-    box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
-  }
-}
-
-.hotkey-input {
-  width: 100%;
-  padding: 6px 12px;
-  border: 1px solid var(--theme-border);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  background-color: var(--theme-background-card);
-  color: var(--theme-text);
-  cursor: pointer;
-  text-align: center;
-
-  &:focus {
-    outline: none;
-    border-color: var(--theme-primary);
-    box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
+  .edit-icon,
+  .delete-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    cursor: pointer;
   }
 
-  &:disabled {
-    cursor: not-allowed;
-  }
-}
-
-.edit-icon,
-.delete-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.edit-icon {
-  color: var(--theme-primary);
-
-  &:hover {
-    color: var(--theme-primary-dark);
-  }
-}
-
-.delete-icon {
-  color: var(--theme-text-muted);
-
-  &:hover {
-    color: var(--theme-error);
-  }
-
-  &.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+  .edit-icon {
+    color: var(--p-primary-color);
 
     &:hover {
-      color: var(--theme-text-muted);
+      color: var(--p-primary-600);
+    }
+  }
+
+  .delete-icon {
+    color: var(--theme-text-muted);
+
+    &:hover {
+      color: var(--p-red-500);
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+
+      &:hover {
+        color: var(--theme-text-muted);
+      }
     }
   }
 }
-
-// ToggleSwitch样式已在全局theme.less中配置
 </style>

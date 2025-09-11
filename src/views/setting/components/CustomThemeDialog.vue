@@ -525,7 +525,7 @@ watch(isVisible, (newVal) => {
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .custom-theme-dialog {
   .dialog-content {
     max-height: 70vh;
@@ -537,32 +537,32 @@ watch(isVisible, (newVal) => {
     display: flex;
     gap: 20px;
     height: 100%;
-  }
 
-  .config-panel {
-    flex: 1;
-    max-height: 70vh;
-    overflow-y: auto;
-    padding-right: 8px;
+    .config-panel {
+      flex: 1;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 8px;
 
-    &::-webkit-scrollbar {
-      width: 6px;
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: var(--theme-border);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        border-radius: 3px;
+      }
     }
 
-    &::-webkit-scrollbar-track {
-      background: var(--theme-border-light);
-      border-radius: 3px;
+    .preview-panel {
+      flex: 1;
+      min-width: 300px;
     }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--theme-border);
-      border-radius: 3px;
-    }
-  }
-
-  .preview-panel {
-    flex: 1;
-    min-width: 300px;
   }
 
   .config-section {
@@ -578,7 +578,7 @@ watch(isVisible, (newVal) => {
       gap: 8px;
 
       i {
-        color: var(--theme-primary);
+        color: var(--p-primary-color);
         font-size: 14px;
       }
     }
@@ -598,7 +598,7 @@ watch(isVisible, (newVal) => {
       label {
         display: block;
         margin-bottom: 8px;
-        color: var(--theme-text-secondary);
+        color: var(--theme-text-muted);
         font-size: 13px;
         font-weight: 500;
       }
@@ -617,7 +617,7 @@ watch(isVisible, (newVal) => {
           text-align: center;
           font-size: 12px;
           color: var(--theme-text-muted);
-          background: var(--theme-background-secondary);
+          background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
           padding: 2px 6px;
           border-radius: 4px;
           font-weight: 500;
@@ -635,7 +635,7 @@ watch(isVisible, (newVal) => {
       label {
         display: block;
         margin-bottom: 8px;
-        color: var(--theme-text-secondary);
+        color: var(--theme-text-muted);
         font-size: 13px;
         font-weight: 500;
       }
@@ -714,12 +714,12 @@ watch(isVisible, (newVal) => {
             font-size: 11px;
 
             .label {
-              color: var(--theme-text-secondary);
+              color: var(--theme-text-muted);
             }
 
             .value {
               font-weight: 600;
-              background: rgba(var(--theme-primary-rgb), 0.1);
+              background: rgba(var(--p-primary-color-rgb), 0.1);
               padding: 1px 4px;
               border-radius: 3px;
             }
@@ -757,7 +757,7 @@ watch(isVisible, (newVal) => {
     gap: 8px;
     justify-content: flex-end;
     padding-top: 16px;
-    border-top: 1px solid var(--theme-border-light);
+    border-top: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     margin-top: 16px;
   }
 }

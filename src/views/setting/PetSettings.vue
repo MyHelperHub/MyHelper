@@ -270,224 +270,215 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
+<style lang="less">
 .pet-settings {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-}
 
-.settings-header {
-  margin-bottom: 32px;
-  text-align: center;
-}
+  .settings-header {
+    margin-bottom: 32px;
+    text-align: center;
 
-.settings-header h2 {
-  margin: 0 0 8px 0;
-  color: var(--text-color);
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.settings-description {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 14px;
-}
-
-.settings-content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.setting-section {
-  background: var(--surface-card);
-  border-radius: 8px;
-  padding: 20px;
-  border: 1px solid var(--surface-border);
-}
-
-.section-header {
-  margin-bottom: 16px;
-}
-
-.section-header h3 {
-  margin: 0 0 4px 0;
-  color: var(--text-color);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.section-header p {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 13px;
-}
-
-.setting-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.setting-label {
-  flex: 1;
-}
-
-.setting-label h3 {
-  margin: 0 0 4px 0;
-  color: var(--text-color);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.setting-label label {
-  display: block;
-  margin: 0 0 4px 0;
-  color: var(--text-color);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.setting-label p {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.setting-control {
-  flex-shrink: 0;
-}
-
-.pet-selection-area {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-.pet-preview-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.preview-container {
-  background: var(--surface-ground);
-  border: 2px solid var(--surface-border);
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 104px;
-  height: 104px;
-}
-
-.model-info {
-  text-align: center;
-  width: 100%;
-}
-
-.model-info h4 {
-  margin: 0 0 8px 0;
-  color: var(--text-color);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.model-stats {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.model-stats span {
-  padding: 4px 8px;
-  background: var(--surface-100);
-  border-radius: 12px;
-  font-size: 12px;
-  color: var(--text-color-secondary);
-}
-
-.preview-controls {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.scale-control {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--surface-border);
-}
-
-.scale-control label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: var(--text-color-secondary);
-  text-align: center;
-}
-
-.scale-slider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.scale-slider .p-slider {
-  flex: 1;
-}
-
-.scale-value {
-  font-size: 13px;
-  color: var(--text-color);
-  font-weight: 500;
-  min-width: 35px;
-}
-
-.model-selector-section {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-@media (max-width: 768px) {
-  .pet-settings {
-    padding: 16px;
+    h2 {
+      margin: 0 0 8px 0;
+      color: var(--theme-text);
+      font-size: 24px;
+      font-weight: 600;
+    }
   }
 
-  .pet-selection-area {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .settings-description {
+    margin: 0;
+    color: var(--theme-text-muted);
+    font-size: 14px;
   }
 
-  .setting-item {
+  .settings-content {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    gap: 24px;
+
+    .setting-section {
+      background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+
+        h3 {
+          margin: 0 0 4px 0;
+          color: var(--theme-text);
+          font-size: 16px;
+          font-weight: 500;
+        }
+
+        p {
+          margin: 0;
+          color: var(--theme-text-muted);
+          font-size: 13px;
+        }
+
+        .section-title {
+          flex: 1;
+        }
+
+        .section-actions {
+          flex-shrink: 0;
+        }
+      }
+
+      .setting-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+
+        .setting-label {
+          flex: 1;
+
+          h3 {
+            margin: 0 0 4px 0;
+            color: var(--theme-text);
+            font-size: 16px;
+            font-weight: 500;
+          }
+
+          label {
+            display: block;
+            margin: 0 0 4px 0;
+            color: var(--theme-text);
+            font-size: 14px;
+            font-weight: 500;
+          }
+
+          p {
+            margin: 0;
+            color: var(--theme-text-muted);
+            font-size: 13px;
+            line-height: 1.4;
+          }
+        }
+
+        .setting-control {
+          flex-shrink: 0;
+        }
+      }
+
+      .pet-selection-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
+
+        .pet-preview-section {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+
+          .preview-container {
+            background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+            border: 2px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 104px;
+            height: 104px;
+          }
+
+          .model-info {
+            text-align: center;
+            width: 100%;
+
+            h4 {
+              margin: 0 0 8px 0;
+              color: var(--theme-text);
+              font-size: 16px;
+              font-weight: 500;
+            }
+
+            .model-stats {
+              display: flex;
+              gap: 12px;
+              justify-content: center;
+              margin-bottom: 12px;
+
+              span {
+                padding: 4px 8px;
+                background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+                border-radius: 12px;
+                font-size: 12px;
+                color: var(--theme-text-muted);
+              }
+            }
+
+            .preview-controls {
+              display: flex;
+              gap: 8px;
+              justify-content: center;
+              margin-bottom: 12px;
+            }
+
+            .scale-control {
+              margin-top: 12px;
+              padding-top: 12px;
+              border-top: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+
+              label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 13px;
+                color: var(--theme-text-muted);
+                text-align: center;
+              }
+
+              .scale-slider {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                :deep(.p-slider) {
+                  flex: 1;
+                }
+
+                .scale-value {
+                  font-size: 13px;
+                  color: var(--theme-text);
+                  font-weight: 500;
+                  min-width: 35px;
+                }
+              }
+            }
+          }
+        }
+
+        .model-selector-section {
+          max-height: 400px;
+          overflow-y: auto;
+        }
+      }
+    }
   }
-}
 
-/* 导入按钮布局样式 */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
+  @media (max-width: 768px) {
+    padding: 16px;
 
-.section-title {
-  flex: 1;
-}
-
-.section-actions {
-  flex-shrink: 0;
+    .settings-content {
+      .setting-section {
+        .pet-selection-area {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+      }
+    }
+  }
 }
 </style>

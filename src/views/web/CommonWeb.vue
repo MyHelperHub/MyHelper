@@ -168,7 +168,7 @@ const deleteWebItem = async (id: number) => {
 defineExpose({ visible });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .web-panel {
   .card-title {
     max-width: 100%;

@@ -246,10 +246,10 @@ const getCategoryName = (category: number | undefined) => {
             width: 0.5rem;
             height: 0.5rem;
             border-radius: 50%;
-            background: var(--theme-border);
+            background: rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
             &.p-highlight {
-              background: var(--theme-primary);
+              background: var(--p-primary-color);
             }
           }
         }
@@ -261,6 +261,6 @@ const getCategoryName = (category: number | undefined) => {
 :deep(.carousel-image) {
   max-width: 90vw;
   max-height: 90vh;
-  object-fit: cover !important;
+  object-fit: cover;
 }
 </style>

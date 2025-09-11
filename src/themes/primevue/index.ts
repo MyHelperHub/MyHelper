@@ -7,7 +7,6 @@ import { colorUtils } from "../theme";
 
 /**
  * 将主题颜色应用到 PrimeVue --p-* 变量
- * 基于 PrimeVue 官方文档的最佳实践
  */
 export function applyPrimeVueTheme(colors: ThemeColors, mode: "light" | "dark"): void {
   const root = document.documentElement;
@@ -16,27 +15,24 @@ export function applyPrimeVueTheme(colors: ThemeColors, mode: "light" | "dark"):
   // 1. 设置主题模式属性 - 官方推荐方式
   root.setAttribute("data-theme", isDark ? "dark" : "light");
   
-  // 2. 设置暗色模式类 - 兼容现有配置
+  // 2. 设置暗色模式类 - 让PrimeVue自动处理暗色模式
   if (isDark) {
     root.classList.add("dark");
   } else {
     root.classList.remove("dark");
   }
 
-  // 3. 生成并应用主色调色板
+  // 3. 只映射我们自定义的主色调色板，其他交给PrimeVue
   const primaryPalette = generatePrimaryPalette(colors.primary.hex);
   Object.entries(primaryPalette).forEach(([key, value]) => {
     root.style.setProperty(`--p-primary-${key}`, value);
   });
 
-  // 4. 应用表面色系 (Surface colors)
-  applySurfaceColors(colors, isDark);
-
-  // 5. 应用语义化颜色 (Semantic colors)
+  // 4. 映射语义化颜色，但不覆盖PrimeVue的表面色和文本色
   applySemanticColors(colors);
 
-  // 6. 应用其他 PrimeVue 变量
-  applyAdditionalPrimeVueVars(colors, isDark);
+  // 5. 应用透明度系统 - 对接主题透明度配置
+  applyTransparencySystem(colors);
 }
 
 /**
@@ -64,35 +60,6 @@ function generatePrimaryPalette(baseColor: string): Record<string, string> {
   });
 
   return palette;
-}
-
-/**
- * 应用表面色系 (Surface/Background colors)
- */
-function applySurfaceColors(colors: ThemeColors, isDark: boolean): void {
-  const root = document.documentElement;
-  
-  // PrimeVue 表面色变量
-  root.style.setProperty('--p-surface-0', colors.background.hex);
-  root.style.setProperty('--p-surface-50', colors.backgroundSecondary.hex);
-  root.style.setProperty('--p-surface-100', colors.backgroundCard.hex);
-  root.style.setProperty('--p-surface-200', colors.borderLight.hex);
-  root.style.setProperty('--p-surface-300', colors.border.hex);
-  
-  // 文本颜色
-  root.style.setProperty('--p-text-color', colors.text.hex);
-  root.style.setProperty('--p-text-muted-color', colors.textMuted.hex);
-  root.style.setProperty('--p-text-secondary-color', colors.textSecondary.hex);
-  
-  // 内容相关
-  root.style.setProperty('--p-content-background', colors.backgroundCard.hex);
-  root.style.setProperty('--p-content-hover-background', 
-    isDark ? colorUtils.lighten(colors.backgroundCard.hex, 10) : colorUtils.darken(colors.backgroundCard.hex, 5)
-  );
-  
-  // 边框相关
-  root.style.setProperty('--p-content-border-color', colors.border.hex);
-  root.style.setProperty('--p-border-color', colors.border.hex);
 }
 
 /**
@@ -127,33 +94,28 @@ function applySemanticColors(colors: ThemeColors): void {
 }
 
 /**
- * 应用其他 PrimeVue 特定变量
+ * 应用透明度系统 - 对接主题透明度配置到PrimeVue表面色
  */
-function applyAdditionalPrimeVueVars(colors: ThemeColors, isDark: boolean): void {
+function applyTransparencySystem(_colors: ThemeColors): void {
   const root = document.documentElement;
   
-  // Overlay 相关
-  root.style.setProperty('--p-overlay-background', 
-    `rgba(${colors.text.rgb.replace(/rgb\(|\)/g, '')}, 0.4)`
-  );
+  // 这个函数现在主要用于PrimeVue特定的集成
+  // 所有的--theme-*变量已经由传统的generateCSSVariables函数生成
   
-  // Focus Ring
-  root.style.setProperty('--p-focus-ring-color', 
-    `rgba(${colors.primary.rgb.replace(/rgb\(|\)/g, '')}, 0.2)`
-  );
+  // 添加阴影变量（基于主题模式）
+  const isDark = document.documentElement.classList.contains('dark');
   
-  // Mask
-  root.style.setProperty('--p-mask-background', 
-    `rgba(${colors.text.rgb.replace(/rgb\(|\)/g, '')}, 0.4)`
-  );
-  
-  // Highlight
-  root.style.setProperty('--p-highlight-background', 
-    isDark ? colorUtils.lighten(colors.primary.hex, 20) : colorUtils.lighten(colors.primary.hex, 40)
-  );
-  root.style.setProperty('--p-highlight-color', 
-    isDark ? colors.background.hex : colors.text.hex
-  );
+  if (isDark) {
+    // 暗色主题阴影
+    root.style.setProperty('--theme-shadow-sm', '0 1px 2px 0 rgba(0, 0, 0, 0.3)');
+    root.style.setProperty('--theme-shadow-md', '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2)');
+    root.style.setProperty('--theme-shadow-lg', '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2)');
+  } else {
+    // 亮色主题阴影
+    root.style.setProperty('--theme-shadow-sm', '0 1px 2px 0 rgba(0, 0, 0, 0.05)');
+    root.style.setProperty('--theme-shadow-md', '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)');
+    root.style.setProperty('--theme-shadow-lg', '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)');
+  }
 }
 
 /**

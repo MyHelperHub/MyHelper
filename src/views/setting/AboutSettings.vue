@@ -222,7 +222,7 @@ const handleClick = (e: MouseEvent) => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .setting-section {
   h3 {
     margin-bottom: 20px;
@@ -235,13 +235,16 @@ const handleClick = (e: MouseEvent) => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     .logo {
       width: 100px;
       border-radius: 30px;
     }
+
     .button {
       margin-top: 20px;
     }
+
     .intro {
       width: 100%;
       display: flex;
@@ -251,26 +254,31 @@ const handleClick = (e: MouseEvent) => {
       gap: 6px;
       max-width: 400px;
       margin: 20px auto;
+
       .intro-item {
         display: flex;
         align-items: center;
         user-select: text;
+
         .intro-item-left {
           color: var(--theme-text);
           min-width: 80px;
         }
+
         .intro-item-right {
-          color: var(--theme-text-secondary);
+          color: var(--theme-text-muted);
           cursor: pointer;
         }
       }
     }
+
     .footer {
       position: fixed;
       bottom: 20px;
       margin-top: 20px;
       font-size: 0.8rem;
-      color: var(--theme-text-secondary);
+      color: var(--theme-text-muted);
+
       .footer-item {
         text-align: center;
         justify-content: center;
@@ -317,13 +325,13 @@ const handleClick = (e: MouseEvent) => {
     .progress-bar {
       width: 100%;
       height: 6px;
-      background-color: var(--theme-background-secondary);
+      background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
       border-radius: 3px;
       overflow: hidden;
 
       .progress-fill {
         height: 100%;
-        background-color: var(--theme-primary);
+        background-color: var(--p-primary-color);
         transition: width 0.3s ease;
       }
     }
@@ -332,7 +340,7 @@ const handleClick = (e: MouseEvent) => {
       display: block;
       text-align: center;
       font-size: 0.9rem;
-      color: var(--theme-text-secondary);
+      color: var(--theme-text-muted);
       margin-top: 0.5rem;
     }
   }

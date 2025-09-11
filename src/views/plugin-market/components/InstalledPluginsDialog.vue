@@ -169,7 +169,7 @@ const hasUpdate = (plugin: Plugin): boolean => {
 <style lang="less" scoped>
 .installed-plugins-dialog {
   :deep(.p-dialog) {
-    width: 80vw !important;
+    width: 80vw;
     max-width: 1200px;
   }
 
@@ -193,7 +193,7 @@ const hasUpdate = (plugin: Plugin): boolean => {
 
       &:hover {
         .name {
-          color: var(--primary-color);
+          color: var(--p-primary-color);
         }
       }
 
@@ -244,7 +244,7 @@ const hasUpdate = (plugin: Plugin): boolean => {
         padding: 0.5rem;
 
         &:hover {
-          background-color: var(--surface-100);
+          background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
         }
       }
     }

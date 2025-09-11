@@ -133,7 +133,7 @@ watch(
 );
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .virtual-list-container {
   overflow-y: auto;
   position: relative;
@@ -144,20 +144,20 @@ watch(
 
   /* Firefox */
   scrollbar-width: none;
-}
 
-.virtual-list-wrapper {
-  position: relative;
-  width: 100%;
-}
+  .virtual-list-wrapper {
+    position: relative;
+    width: 100%;
 
-.virtual-list-content {
-  position: relative;
-  width: 100%;
-}
+    .virtual-list-content {
+      position: relative;
+      width: 100%;
 
-.virtual-list-item {
-  width: 100%;
-  box-sizing: border-box;
+      .virtual-list-item {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+  }
 }
 </style>

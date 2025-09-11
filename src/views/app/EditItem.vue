@@ -169,40 +169,36 @@ defineExpose({
 }
 
 .dialog-wrapper {
-  background: var(--theme-background-card) !important;
-  margin: -1rem;
-  padding: 1rem;
+  padding: 0;
   overflow: hidden;
 }
 
 .modal-content {
-  background-color: var(--theme-background-card) !important;
   border-radius: 8px;
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding: 8px;
-  color: var(--theme-text) !important;
+  padding: 16px;
 
   .image {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border: 1px solid var(--theme-border) !important;
+    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     border-radius: 8px;
     width: 40px;
     height: 40px;
     margin: 4px;
     cursor: pointer;
     font-size: 24px;
-    color: var(--theme-text-muted) !important;
+    color: var(--theme-text-muted);
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: var(--theme-primary) !important;
-      color: var(--theme-primary) !important;
-      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.15);
+      border-color: var(--p-primary-color);
+      color: var(--p-primary-color);
+      box-shadow: 0 2px 8px var(--p-focus-ring-color);
     }
   }
 
@@ -222,7 +218,7 @@ defineExpose({
       .input-label {
         font-size: 12px;
         font-weight: 500;
-        color: var(--theme-text-secondary) !important;
+        color: var(--theme-text-muted);
       }
 
       .input {

@@ -24,9 +24,9 @@ let cachedStyleElement: HTMLStyleElement | null = null;
 let lastAppliedVariables: string = "";
 
 const DEFAULT_TRANSPARENCY = {
-  light: { background: 0.92, backgroundSecondary: 0.85, card: 0.9 },
-  dark: { background: 0.88, backgroundSecondary: 0.82, card: 0.85 },
-  custom: { background: 0.88, backgroundSecondary: 0.82, card: 0.85 },
+  light: { background: 0.92, backgroundSecondary: 0.85, card: 0.9, border: 0.3 },
+  dark: { background: 0.88, backgroundSecondary: 0.82, card: 0.85, border: 0.25 },
+  custom: { background: 0.88, backgroundSecondary: 0.82, card: 0.85, border: 0.3 },
 };
 
 export const colorUtils = {
@@ -148,7 +148,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
-      transparency: DEFAULT_TRANSPARENCY.light,
+      transparency: { ...DEFAULT_TRANSPARENCY.light, border: 0.3 },
     },
   },
   {
@@ -171,7 +171,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#2563eb"),
-      transparency: DEFAULT_TRANSPARENCY.dark,
+      transparency: { ...DEFAULT_TRANSPARENCY.dark, border: 0.25 },
     },
   },
   {
@@ -194,7 +194,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#0284c7"),
-      transparency: DEFAULT_TRANSPARENCY.custom,
+      transparency: { ...DEFAULT_TRANSPARENCY.custom, border: 0.3 },
       gradient: {
         type: "linear",
         angle: 135,
@@ -226,7 +226,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
-      transparency: DEFAULT_TRANSPARENCY.custom,
+      transparency: { ...DEFAULT_TRANSPARENCY.custom, border: 0.3 },
       gradient: {
         type: "linear",
         angle: 135,
@@ -257,7 +257,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#ff8c00"),
       error: colorUtils.createColorValue("#ff4757"),
       info: colorUtils.createColorValue("#74b9ff"),
-      transparency: { background: 0.85, backgroundSecondary: 0.78, card: 0.82 },
+      transparency: { background: 0.85, backgroundSecondary: 0.78, card: 0.82, border: 0.2 },
     },
   },
   {
@@ -280,7 +280,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#06b6d4"),
-      transparency: { background: 0.95, backgroundSecondary: 0.88, card: 0.92 },
+      transparency: { background: 0.95, backgroundSecondary: 0.88, card: 0.92, border: 0.35 },
     },
   },
   {
@@ -303,7 +303,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#eab308"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
-      transparency: { background: 0.93, backgroundSecondary: 0.86, card: 0.9 },
+      transparency: { background: 0.93, backgroundSecondary: 0.86, card: 0.9, border: 0.32 },
     },
   },
   {
@@ -326,7 +326,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#f43f5e"),
       info: colorUtils.createColorValue("#06b6d4"),
-      transparency: { background: 0.87, backgroundSecondary: 0.8, card: 0.84 },
+      transparency: { background: 0.87, backgroundSecondary: 0.8, card: 0.84, border: 0.22 },
     },
   },
   {
@@ -349,7 +349,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#0284c7"),
-      transparency: { background: 0.96, backgroundSecondary: 0.9, card: 0.94 },
+      transparency: { background: 0.96, backgroundSecondary: 0.9, card: 0.94, border: 0.4 },
     },
   },
   {
@@ -372,7 +372,7 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#ffaa00"),
       error: colorUtils.createColorValue("#ff0044"),
       info: colorUtils.createColorValue("#0088ff"),
-      transparency: { background: 0.82, backgroundSecondary: 0.75, card: 0.8 },
+      transparency: { background: 0.82, backgroundSecondary: 0.75, card: 0.8, border: 0.18 },
     },
   },
 ];
@@ -426,6 +426,7 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
   variables["--theme-transparency-background-secondary"] =
     transparency.backgroundSecondary.toString();
   variables["--theme-transparency-card"] = transparency.card.toString();
+  variables["--theme-transparency-border"] = transparency.border?.toString() || "0.3";
 
   // 渐变变量
   if (colors.gradient) {

@@ -128,7 +128,7 @@ defineExpose({
 });
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .avatar-display {
   position: relative;
   display: inline-block;
@@ -192,7 +192,8 @@ defineExpose({
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(var(--theme-primary-rgb), 0.3);
+  background: var(--p-primary-color);
+  opacity: 0.3;
   transform: translate(-50%, -50%);
   transition: all 0.6s ease-out;
 }
@@ -215,9 +216,9 @@ defineExpose({
 .large-mode {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(var(--theme-background-rgb), 0.6);
-  border: 1px solid rgba(var(--theme-border-rgb), 0.3);
-  box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.1);
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-content-border-color);
+  box-shadow: var(--theme-shadow-sm);
   position: relative;
 
   &::before {
@@ -227,11 +228,8 @@ defineExpose({
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(var(--theme-background-rgb), 0.8),
-      rgba(var(--theme-background-secondary-rgb), 0.6)
-    );
+    background: linear-gradient(135deg, transparent, var(--p-primary-color));
+    opacity: 0.1;
     border-radius: 50%;
     z-index: -1;
     transition: all 0.2s ease;
@@ -239,16 +237,13 @@ defineExpose({
 }
 
 .large-mode:hover {
-  box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.15);
-  border-color: rgba(var(--theme-primary-rgb), 0.4);
+  box-shadow: var(--theme-shadow-md);
+  border-color: var(--p-primary-color);
   transform: scale(1.02);
 
   &::before {
-    background: linear-gradient(
-      135deg,
-      rgba(var(--theme-background-rgb), 0.9),
-      rgba(var(--theme-primary-rgb), 0.1)
-    );
+    background: linear-gradient(135deg, var(--p-surface-0), var(--p-primary-color));
+    opacity: 0.2;
   }
 }
 
@@ -264,7 +259,7 @@ defineExpose({
   width: 20px;
   height: 20px;
   border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top: 2px solid var(--theme-primary, #007bff);
+  border-top: 2px solid var(--p-primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -285,7 +280,8 @@ defineExpose({
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background: rgba(255, 107, 107, 0.9);
+  background: var(--p-red-500);
+  opacity: 0.9;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -296,7 +292,7 @@ defineExpose({
 }
 
 .error-overlay:hover {
-  background: rgba(255, 107, 107, 1);
+  background: var(--p-red-600);
   transform: translate(-50%, -50%) scale(1.1);
 }
 

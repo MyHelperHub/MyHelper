@@ -34,7 +34,7 @@ const hideLoading = () => {
 defineExpose({ showLoading, hideLoading });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -52,10 +52,9 @@ defineExpose({ showLoading, hideLoading });
   .loading-spinner {
     width: 30px;
     height: 30px;
-    border: 2px solid var(--theme-primary);
+    border: 2px solid var(--p-primary-color);
     border-top-color: transparent;
     border-radius: 100%;
-
     animation: circle infinite 0.75s linear;
   }
 

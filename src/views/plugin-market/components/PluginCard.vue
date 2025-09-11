@@ -222,11 +222,11 @@ const safeGetTags = (): string[] => {
   }
 
   :deep(.p-card-body) {
-    padding-top: 0 !important;
+    padding-top: 0;
   }
 }
 
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {
-  color: var(--theme-warning);
+  color: var(--p-orange-500);
 }
 </style>

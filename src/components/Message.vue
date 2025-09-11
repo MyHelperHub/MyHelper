@@ -69,7 +69,7 @@ const hideMessage = () => {
 defineExpose({ showMessage, hideMessage });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .message-container {
   .message {
     width: max-content;
@@ -91,11 +91,13 @@ defineExpose({ showMessage, hideMessage });
     text-align: center;
 
     &.success {
-      background-color: rgba(27, 133, 27, 0.6); // 绿色
+      background-color: var(--p-green-500);
+      opacity: 0.9;
     }
 
     &.warning {
-      background-color: rgba(236, 35, 35, 0.6); // 红色
+      background-color: var(--p-red-500);
+      opacity: 0.9;
     }
   }
 
