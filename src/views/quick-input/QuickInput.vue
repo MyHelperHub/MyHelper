@@ -86,8 +86,8 @@ defineExpose({ visible });
   display: flex;
   padding: 8px;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+  border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
   .tab-btn {
     flex: 1;
@@ -114,7 +114,7 @@ defineExpose({ visible });
       align-items: center;
       justify-content: center;
       font-size: 10px;
-      color: white;
+      color: var(--theme-background);
       background: linear-gradient(
         135deg,
         var(--theme-text-muted),

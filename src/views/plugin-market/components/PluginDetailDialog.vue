@@ -259,7 +259,7 @@ const hasUpdateComputed = computed(() => {
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .plugin-detail-dialog {
   :deep(.p-dialog-content) {
     padding: 0 1.5rem 1.5rem 1.5rem;
@@ -456,7 +456,7 @@ const hasUpdateComputed = computed(() => {
 }
 
 :deep(.p-image-mask) {
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(var(--theme-background-card-rgb), 0.9);
 }
 
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {

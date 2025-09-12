@@ -179,5 +179,32 @@ defineExpose({ visible });
     line-height: 1.2;
     max-height: calc(1.2em * 3);
   }
+
+  .feature-card {
+    background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+
+    &:hover {
+      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      box-shadow: var(--theme-shadow-md);
+      border-color: var(--theme-primary);
+    }
+  }
+
+  .add-card {
+    background: rgba(var(--theme-primary-rgb), 0.08);
+    border: 1px dashed rgba(var(--theme-primary-rgb), var(--theme-transparency-border));
+
+    &:hover {
+      background: rgba(var(--theme-primary-rgb), 0.12);
+      border: 1px dashed rgba(var(--theme-primary-rgb), calc(var(--theme-transparency-border) * 1.5));
+      box-shadow: var(--theme-shadow-sm);
+    }
+
+    .icon-container {
+      color: var(--theme-primary);
+      background: rgba(var(--theme-background-rgb), var(--theme-transparency-background-secondary));
+    }
+  }
 }
 </style>

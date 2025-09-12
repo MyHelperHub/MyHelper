@@ -3,7 +3,7 @@
     :visible="visible"
     :header="isEditMode ? '编辑插件' : '上传插件'"
     :modal="true"
-    class="w-[700px]"
+    class="w-[700px] plugin-upload-dialog"
     @update:visible="$emit('update:visible', $event)"
     @hide="$emit('close')">
     <div class="p-6 p-t-0">
@@ -13,8 +13,8 @@
         <div class="space-y-4">
           <!-- 上传区域 -->
           <div
-            class="border-2 border-dashed border-gray-200 rounded-lg p-8 mb-6 bg-gray-50 transition-all duration-300"
-            :class="{ 'border-primary': isDragging }"
+            class="upload-area"
+            :class="{ dragging: isDragging }"
             @drop.prevent="$emit('file-drop', $event)"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false">
@@ -37,10 +37,10 @@
                       : "点击或拖拽上传插件包"
                   }}
                 </p>
-                <small v-if="isEditMode" class="text-red-400">
+                <small v-if="isEditMode" class="warning-text">
                   若不更新插件代码，请勿上传<br />
                 </small>
-                <small class="text-gray-500">支持 15MB 以内的 zip 文件</small>
+                <small class="hint-text">支持 15MB 以内的 zip 文件</small>
               </div>
             </template>
 
@@ -51,7 +51,7 @@
                   <span class="block font-medium">{{
                     pluginForm.File.name
                   }}</span>
-                  <span class="text-sm text-gray-500">{{
+                  <span class="text-sm hint-text">{{
                     formatFileSize(pluginForm.File.size)
                   }}</span>
                 </div>
@@ -68,13 +68,12 @@
             <!-- 插件图标 -->
             <div>
               <label class="block mb-2">插件图标</label>
-              <div
-                class="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
+              <div class="icon-upload-area">
                 <img
                   v-if="pluginForm.Icon"
                   :src="pluginForm.Icon"
                   class="w-full h-full object-cover" />
-                <i v-else class="pi pi-image text-3xl text-gray-400"></i>
+                <i v-else class="pi pi-image text-3xl icon-placeholder"></i>
                 <input
                   type="file"
                   ref="iconInput"
@@ -95,7 +94,7 @@
             <div class="space-y-4">
               <div>
                 <label class="block mb-2">
-                  插件名称 <span class="text-red-500">*</span>
+                  插件名称 <span class="required-mark">*</span>
                 </label>
                 <InputText
                   :model-value="pluginForm.Name"
@@ -105,13 +104,13 @@
                   @update:model-value="
                     $emit('update:form', { field: 'Name', value: $event })
                   " />
-                <small class="text-red-500" v-if="errors.Name">{{
+                <small class="required-mark" v-if="errors.Name">{{
                   errors.Name
                 }}</small>
               </div>
               <div>
                 <label class="block mb-2">
-                  版本号 <span class="text-red-500">*</span>
+                  版本号 <span class="required-mark">*</span>
                 </label>
                 <InputText
                   :model-value="pluginForm.Version"
@@ -121,13 +120,13 @@
                   @update:model-value="
                     $emit('update:form', { field: 'Version', value: $event })
                   " />
-                <small class="text-red-500" v-if="errors.Version">{{
+                <small class="required-mark" v-if="errors.Version">{{
                   errors.Version
                 }}</small>
               </div>
               <div>
                 <label class="block mb-2">
-                  插件分类 <span class="text-red-500">*</span>
+                  插件分类 <span class="required-mark">*</span>
                 </label>
                 <Dropdown
                   :model-value="pluginForm.Category"
@@ -146,7 +145,7 @@
           <!-- 描述和标签 -->
           <div>
             <label class="block mb-2">
-              插件描述 <span class="text-red-500">*</span>
+              插件描述 <span class="required-mark">*</span>
             </label>
             <Textarea
               :model-value="pluginForm.Description"
@@ -157,7 +156,7 @@
               @update:model-value="
                 $emit('update:form', { field: 'Description', value: $event })
               " />
-            <small class="text-red-500" v-if="errors.Description">{{
+            <small class="required-mark" v-if="errors.Description">{{
               errors.Description
             }}</small>
           </div>
@@ -173,7 +172,7 @@
               @update:model-value="
                 $emit('update:form', { field: 'Tags', value: $event })
               " />
-            <small class="text-gray-500">最多添加5个标签</small>
+            <small class="hint-text">最多添加5个标签</small>
           </div>
         </div>
       </div>
@@ -186,7 +185,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block mb-2">
-                窗口ID <span class="text-red-500">*</span>
+                窗口ID <span class="required-mark">*</span>
               </label>
               <InputText
                 :model-value="pluginForm.WindowId"
@@ -197,13 +196,13 @@
                 @update:model-value="
                   $emit('update:form', { field: 'WindowId', value: $event })
                 " />
-              <small class="text-red-500" v-if="errors.WindowId">{{
+              <small class="required-mark" v-if="errors.WindowId">{{
                 errors.WindowId
               }}</small>
             </div>
             <div>
               <label class="block mb-2">
-                窗口标题 <span class="text-red-500">*</span>
+                窗口标题 <span class="required-mark">*</span>
               </label>
               <InputText
                 :model-value="pluginForm.Title"
@@ -213,7 +212,7 @@
                 @update:model-value="
                   $emit('update:form', { field: 'Title', value: $event })
                 " />
-              <small class="text-red-500" v-if="errors.Title">{{
+              <small class="required-mark" v-if="errors.Title">{{
                 errors.Title
               }}</small>
             </div>
@@ -223,7 +222,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block mb-2">
-                窗口宽度 <span class="text-red-500">*</span>
+                窗口宽度 <span class="required-mark">*</span>
               </label>
               <InputNumber
                 :model-value="pluginForm.Size[0]"
@@ -240,7 +239,7 @@
             </div>
             <div>
               <label class="block mb-2">
-                窗口高度 <span class="text-red-500">*</span>
+                窗口高度 <span class="required-mark">*</span>
               </label>
               <InputNumber
                 :model-value="pluginForm.Size[1]"
@@ -261,9 +260,9 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block mb-2">
-                窗口位置X <span class="text-red-500">*</span>
+                窗口位置X <span class="required-mark">*</span>
                 <i
-                  class="pi pi-question-circle ml-1 text-gray-400 cursor-help"
+                  class="pi pi-question-circle ml-1 question-icon cursor-help"
                   v-tooltip.top="'默认值 -1 表示窗口水平居中'" />
               </label>
               <InputNumber
@@ -276,15 +275,15 @@
                     value: [$event ?? -1, pluginForm.Position?.[1] ?? -1],
                   })
                 " />
-              <small class="text-red-500" v-if="errors.Position">{{
+              <small class="required-mark" v-if="errors.Position">{{
                 errors.Position
               }}</small>
             </div>
             <div>
               <label class="block mb-2">
-                窗口位置Y <span class="text-red-500">*</span>
+                窗口位置Y <span class="required-mark">*</span>
                 <i
-                  class="pi pi-question-circle ml-1 text-gray-400 cursor-help"
+                  class="pi pi-question-circle ml-1 question-icon cursor-help"
                   v-tooltip.top="'默认值 -1 表示窗口垂直居中'" />
               </label>
               <InputNumber
@@ -362,7 +361,7 @@
               <div class="upload-content">
                 <i class="pi pi-plus text-xl mb-1"></i>
                 <p class="text-sm">上传截图</p>
-                <small class="text-xs text-gray-500">最多5张</small>
+                <small class="text-xs hint-text">最多5张</small>
               </div>
             </div>
           </div>
@@ -433,104 +432,160 @@ const isDragging = ref(false);
 const isDraggingScreenshot = ref(false);
 </script>
 
-<style lang="less" scoped>
-.screenshot-upload {
-  .screenshot-preview {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
+<style lang="less">
+.plugin-upload-dialog {
+  .upload-area {
+    border: 2px dashed var(--theme-border);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    background: var(--theme-background-secondary);
+    transition: all 0.3s ease;
 
-    .preview-item {
-      position: relative;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 1px solid var(--theme-border);
-      aspect-ratio: 16/9;
+    &.dragging {
+      border-color: var(--theme-primary);
+      background: rgba(
+        var(--theme-primary-rgb),
+        var(--theme-transparency-border)
+      );
+    }
+  }
 
-      .image-container {
-        width: 100%;
-        height: 100%;
+  .icon-upload-area {
+    position: relative;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px dashed var(--theme-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--theme-background-secondary);
 
-        :deep(.p-image) {
+    .icon-placeholder {
+      color: var(--theme-text-muted);
+    }
+  }
+
+  .warning-text {
+    color: var(--theme-warning);
+  }
+
+  .hint-text {
+    color: var(--theme-text-muted);
+  }
+
+  .required-mark {
+    color: var(--theme-danger);
+  }
+
+  .error-text {
+    color: var(--theme-danger);
+  }
+
+  .question-icon {
+    color: var(--theme-text-muted);
+  }
+
+  .screenshot-upload {
+    .screenshot-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+
+      .preview-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--theme-border);
+        aspect-ratio: 16/9;
+
+        .image-container {
           width: 100%;
           height: 100%;
-          display: block;
 
-          img {
+          :deep(.p-image) {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            display: block;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+        }
+
+        .delete-btn {
+          position: absolute;
+          top: 0.25rem;
+          right: 0.25rem;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          scale: 0.8;
+          z-index: 1;
+        }
+
+        &:hover .delete-btn {
+          opacity: 1;
+        }
+      }
+
+      .upload-button {
+        aspect-ratio: 16/9;
+        border: 2px dashed var(--theme-border);
+        border-radius: 6px;
+        background: var(--theme-background-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.dragging,
+        &:hover {
+          border-color: var(--theme-primary);
+          background: rgba(var(--theme-primary-rgb), 0.1);
+        }
+
+        .upload-content {
+          text-align: center;
+          color: var(--theme-text-muted);
+
+          i {
+            color: var(--theme-primary);
+            display: block;
+          }
+
+          p {
+            margin: 0;
+            color: var(--theme-text-muted);
+          }
+
+          small {
+            display: block;
+            margin-top: 2px;
           }
         }
       }
-
-      .delete-btn {
-        position: absolute;
-        top: 0.25rem;
-        right: 0.25rem;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        scale: 0.8;
-        z-index: 1;
-      }
-
-      &:hover .delete-btn {
-        opacity: 1;
-      }
-    }
-
-    .upload-button {
-      aspect-ratio: 16/9;
-      border: 2px dashed var(--theme-border);
-      border-radius: 6px;
-      background: var(--theme-background-secondary);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &.dragging,
-      &:hover {
-        border-color: var(--theme-primary);
-        background: rgba(var(--theme-primary-rgb), 0.1);
-      }
-
-      .upload-content {
-        text-align: center;
-        color: var(--theme-text-muted);
-
-        i {
-          color: var(--theme-primary);
-          display: block;
-        }
-
-        p {
-          margin: 0;
-          color: var(--theme-text-muted);
-        }
-
-        small {
-          display: block;
-          margin-top: 2px;
-        }
-      }
     }
   }
-}
 
-:deep(.p-dialog) {
-  .p-dialog-header,
-  .p-dialog-footer {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--theme-border);
-  }
+  :deep(.p-dialog) {
+    .p-dialog-header,
+    .p-dialog-footer {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--theme-border);
+    }
 
-  .p-dialog-content {
-    padding: 0;
-    overflow: auto;
-    max-height: calc(90vh - 120px);
+    .p-dialog-content {
+      padding: 0;
+      overflow: auto;
+      max-height: calc(90vh - 120px);
+    }
   }
 }
 </style>

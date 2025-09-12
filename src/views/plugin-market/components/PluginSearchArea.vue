@@ -48,9 +48,9 @@ defineProps<Props>();
 defineEmits<Emits>();
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .search-area {
-  background: rgba(var(--theme-background-rgb), 0.95);
+  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--theme-border);

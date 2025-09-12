@@ -86,7 +86,7 @@
           header="审核消息"
           style="width: 200px">
           <template #body="{ data }">
-            <span :class="{ 'text-red-500': data.Status === 2 }">
+            <span :class="{ 'error-text': data.Status === 2 }">
               {{ data.Message || "-" }}
             </span>
           </template>
@@ -906,8 +906,12 @@ onMounted(() => {
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .plugin-develop {
+  .error-text {
+    color: var(--theme-danger);
+  }
+
   display: flex;
   height: 100vh;
   background-color: var(--theme-background);

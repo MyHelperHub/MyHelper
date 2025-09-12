@@ -41,7 +41,7 @@ defineEmits<Emits>();
 const menuItems = MENU_ITEMS;
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .sidebar {
   width: 240px;
   background: var(--theme-background-card);
@@ -96,7 +96,7 @@ const menuItems = MENU_ITEMS;
 
       &:hover,
       &.active {
-        background: rgba(var(--theme-primary-rgb), 0.1);
+        background: rgba(var(--theme-primary-rgb), var(--theme-transparency-border));
         color: var(--theme-primary);
       }
 

@@ -125,7 +125,7 @@ const safeGetTags = (): string[] => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .plugin-card {
   height: 270px;
   cursor: pointer;
@@ -135,7 +135,7 @@ const safeGetTags = (): string[] => {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--theme-shadow-md);
   }
 
   .card-header {

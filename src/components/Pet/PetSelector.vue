@@ -405,7 +405,7 @@ defineExpose({
     &:hover {
       background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--theme-shadow-sm);
     }
 
     &.selected {
@@ -434,7 +434,7 @@ defineExpose({
         font-size: 16px;
         font-weight: 600;
         background: linear-gradient(45deg, var(--theme-primary), var(--theme-primary-dark));
-        color: white;
+        color: var(--theme-background);
 
         &.user-model {
           background: linear-gradient(45deg, var(--theme-success), var(--theme-success));

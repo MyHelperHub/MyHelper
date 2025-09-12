@@ -1075,7 +1075,7 @@ onMounted(() => {
 .MochiBox:hover .MochiContent,
 .MochiBox:active .MochiContent,
 .MochiBox:focus .MochiContent {
-  border-color: #5f3d1e;
+  border-color: var(--theme-primary);
 }
 
 .MochiBox .MochiContent {
@@ -1084,8 +1084,8 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   padding: 15px;
-  background: white;
-  border: 1px solid #f0e0d1;
+  background: var(--theme-background);
+  border: 1px solid var(--theme-border);
   border-radius: 20px;
   transition: border 0.5s ease;
 }

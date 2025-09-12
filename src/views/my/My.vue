@@ -184,7 +184,7 @@ const handleClose = () => {
         align-items: center;
         justify-content: center;
         background-color: rgba(var(--theme-primary-rgb), 0.8);
-        color: white;
+        color: var(--theme-background);
         font-size: 16px;
         opacity: 0;
         visibility: hidden;
@@ -220,7 +220,7 @@ const handleClose = () => {
     .p-fileupload-choose {
       background: transparent !important;
       border: none !important;
-      color: white !important;
+      color: var(--theme-background) !important;
       padding: 0 !important;
       width: 100% !important;
       height: 100% !important;
@@ -234,7 +234,7 @@ const handleClose = () => {
       }
 
       .p-button-label {
-        color: white !important;
+        color: var(--theme-background) !important;
         font-size: 12px !important;
       }
     }

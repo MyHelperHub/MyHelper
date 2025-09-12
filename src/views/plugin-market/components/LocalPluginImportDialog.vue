@@ -11,7 +11,7 @@
         <i class="pi pi-file-excel text-2xl mr-2"></i>
         <div class="file-details">
           <div class="file-name">{{ localPluginFile.name }}</div>
-          <div class="file-size text-xs text-gray-500">
+          <div class="file-size text-xs hint-text">
             {{
               localPluginFile.size > 0
                 ? formatFileSize(localPluginFile.size)
@@ -129,7 +129,7 @@
 
     <div class="import-placeholder" v-else>
       <div class="text-center py-4">
-        <i class="pi pi-upload text-4xl text-gray-400 mb-3"></i>
+        <i class="pi pi-upload text-4xl upload-icon mb-3"></i>
         <p>请先选择要导入的插件文件</p>
         <Button
           label="选择文件"
@@ -196,8 +196,16 @@ const formatFileSize = (bytes: number) => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .plugin-import-dialog {
+  .hint-text {
+    color: var(--theme-text-muted);
+  }
+
+  .upload-icon {
+    color: var(--theme-text-muted);
+  }
+
   .import-content {
     padding: 1rem;
   }

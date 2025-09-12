@@ -133,7 +133,7 @@ function handleSearch() {
     position: relative;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
     border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     border-radius: 12px;
 
@@ -274,7 +274,7 @@ function handleSearch() {
     position: relative;
 
     &:hover {
-      background: rgba(var(--theme-primary-rgb), 0.1);
+      background: rgba(var(--theme-primary-rgb), var(--theme-transparency-border));
     }
 
     .option-icon {

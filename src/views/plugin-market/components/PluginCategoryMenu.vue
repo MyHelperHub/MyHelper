@@ -37,7 +37,7 @@ defineProps<Props>();
 defineEmits<Emits>();
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .category-menu {
   width: 12rem;
   flex: none;

@@ -136,9 +136,9 @@ const pasteTo = async (item: QuickInputItem) => {
   justify-content: center;
   gap: 12px;
   padding: 32px 20px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
   backdrop-filter: blur(8px);
-  border: 1.5px dashed rgba(156, 163, 175, 0.3);
+  border: 1.5px dashed rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 12px;
   margin: 20px 0;
 
@@ -154,7 +154,7 @@ const pasteTo = async (item: QuickInputItem) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--theme-background);
     font-size: 16px;
     opacity: 0.7;
   }

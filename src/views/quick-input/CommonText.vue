@@ -241,7 +241,7 @@ const pasteTo = (item: QuickInputItem) => {
   z-index: 10;
 
   .fab-icon {
-    color: white;
+    color: var(--theme-background);
     font-size: 16px;
     font-weight: bold;
     transition: all 0.3s ease;

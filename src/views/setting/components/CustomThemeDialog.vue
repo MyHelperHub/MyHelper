@@ -271,6 +271,7 @@
                           )
                         }}%</span
                       >
+                    </div>
                     <div class="info-item">
                       <span class="label">边框透明度:</span>
                       <span class="value"
@@ -422,7 +423,9 @@ const getCurrentThemeColors = (): CustomThemeConfig => {
         ? parseFloat(bgSecondaryAlpha)
         : defaultTransparency.backgroundSecondary,
       card: cardAlpha ? parseFloat(cardAlpha) : defaultTransparency.card,
-      border: borderAlpha ? parseFloat(borderAlpha) : defaultTransparency.border,
+      border: borderAlpha
+        ? parseFloat(borderAlpha)
+        : defaultTransparency.border,
     },
     colors: {
       primary: getColorFromCSSVar("--theme-primary") || "#4f6df5",
@@ -582,7 +585,10 @@ watch(isVisible, (newVal) => {
       }
 
       &::-webkit-scrollbar-thumb {
-        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        background: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
         border-radius: 3px;
       }
     }
@@ -645,7 +651,10 @@ watch(isVisible, (newVal) => {
           text-align: center;
           font-size: 12px;
           color: var(--theme-text-muted);
-          background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+          background: rgba(
+            var(--theme-background-secondary-rgb),
+            var(--theme-transparency-background-secondary)
+          );
           padding: 2px 6px;
           border-radius: 4px;
           font-weight: 500;
@@ -771,11 +780,11 @@ watch(isVisible, (newVal) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        color: var(--theme-background);
         font-size: 11px;
         font-weight: 600;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 1px 2px rgba(var(--theme-text-rgb), 0.3);
+        box-shadow: var(--theme-shadow-sm);
       }
     }
   }
@@ -785,7 +794,8 @@ watch(isVisible, (newVal) => {
     gap: 8px;
     justify-content: flex-end;
     padding-top: 16px;
-    border-top: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border-top: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     margin-top: 16px;
   }
 }

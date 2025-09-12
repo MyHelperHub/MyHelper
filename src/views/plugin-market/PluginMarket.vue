@@ -924,7 +924,7 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .plugin-market {
   min-height: 100vh;
   background-color: var(--theme-background-secondary);
@@ -1005,8 +1005,8 @@ onMounted(async () => {
 
     .developer-link {
       &:hover {
-        color: var(--primary-color);
-        background-color: var(--surface-100);
+        color: var(--theme-primary);
+        background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
       }
     }
   }

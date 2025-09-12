@@ -3,7 +3,7 @@
     :visible="visible"
     :header="activeMenu === MenuKey.UploadHistory ? '上传记录详情' : '插件详情'"
     :modal="true"
-    class="w-[700px]"
+    class="w-[700px] develop-detail-dialog"
     dismissableMask
     @update:visible="$emit('update:visible', $event)">
     <div class="p-6" v-if="selectedPlugin">
@@ -19,7 +19,7 @@
               height="48" />
             <div>
               <h3 class="text-xl font-semibold">{{ selectedPlugin.Name }}</h3>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm detail-label">
                 版本：{{ selectedPlugin.Version }}
               </p>
             </div>
@@ -33,14 +33,14 @@
         <!-- 上传记录特有信息 -->
         <template v-if="activeMenu === MenuKey.UploadHistory">
           <div>
-            <label class="text-sm text-gray-600">上传时间</label>
+            <label class="text-sm detail-label">上传时间</label>
             <p class="mt-1">{{ selectedPlugin.CreateTime }}</p>
           </div>
           <div v-if="selectedPlugin.Message">
-            <label class="text-sm text-gray-600">审核消息</label>
+            <label class="text-sm detail-label">审核消息</label>
             <p
               class="mt-1"
-              :class="{ 'text-red-500': selectedPlugin.Status === 2 }">
+              :class="{ 'error-text': selectedPlugin.Status === 2 }">
               {{ selectedPlugin.Message }}
             </p>
           </div>
@@ -51,31 +51,31 @@
           <!-- 插件统计信息 -->
           <div class="grid grid-cols-2 gap-4">
             <div v-if="selectedPlugin.Downloads !== undefined">
-              <label class="text-sm text-gray-600">下载次数</label>
+              <label class="text-sm detail-label">下载次数</label>
               <p class="mt-1">{{ formatNumber(selectedPlugin.Downloads) }}</p>
             </div>
             <div>
-              <label class="text-sm text-gray-600">创建时间</label>
+              <label class="text-sm detail-label">创建时间</label>
               <p class="mt-1">{{ selectedPlugin.CreateTime }}</p>
             </div>
             <div>
-              <label class="text-sm text-gray-600">更新时间</label>
+              <label class="text-sm detail-label">更新时间</label>
               <p class="mt-1">{{ selectedPlugin.UpdateTime }}</p>
             </div>
             <div>
-              <label class="text-sm text-gray-600">评分</label>
+              <label class="text-sm detail-label">评分</label>
               <div class="mt-1 flex items-center gap-2">
                 <Rating
                   :modelValue="selectedPlugin.Rating || 0"
                   :cancel="false"
                   readonly />
-                <span class="text-sm text-gray-600">{{
+                <span class="text-sm detail-label">{{
                   selectedPlugin.Rating || "暂无评分"
                 }}</span>
               </div>
             </div>
             <div v-if="selectedPlugin.Category !== undefined">
-              <label class="text-sm text-gray-600">分类</label>
+              <label class="text-sm detail-label">分类</label>
               <p class="mt-1">
                 {{ getCategoryName(selectedPlugin.Category) }}
               </p>
@@ -84,7 +84,7 @@
 
           <!-- 插件标签 -->
           <div v-if="selectedPlugin.Tags?.length">
-            <label class="text-sm text-gray-600">标签</label>
+            <label class="text-sm detail-label">标签</label>
             <div class="mt-2 flex flex-wrap gap-2">
               <Tag
                 v-for="tag in selectedPlugin.Tags"
@@ -96,8 +96,8 @@
 
           <!-- 插件描述 -->
           <div v-if="selectedPlugin.Description">
-            <label class="text-sm text-gray-600">描述</label>
-            <p class="mt-1 text-gray-700 whitespace-pre-line">
+            <label class="text-sm detail-label">描述</label>
+            <p class="mt-1 description-text whitespace-pre-line">
               {{ selectedPlugin.Description }}
             </p>
           </div>
@@ -106,7 +106,7 @@
           <div
             v-if="selectedPlugin.Screenshots?.length"
             class="screenshot-carousel-container">
-            <label class="text-sm text-gray-600">截图预览</label>
+            <label class="text-sm detail-label">截图预览</label>
             <div class="mt-2 carousel-wrapper">
               <Carousel
                 :value="selectedPlugin.Screenshots"
@@ -183,8 +183,21 @@ const getCategoryName = (category: number | undefined) => {
 };
 </script>
 
-<style lang="less" scoped>
-.screenshot-carousel-container {
+<style lang="less">
+.develop-detail-dialog {
+  .detail-label {
+    color: var(--theme-text-muted);
+  }
+
+  .error-text {
+    color: var(--theme-danger);
+  }
+
+  .description-text {
+    color: var(--theme-text-secondary);
+  }
+
+  .screenshot-carousel-container {
   .carousel-wrapper {
     position: relative;
     margin: 0 -1rem;
@@ -221,12 +234,12 @@ const getCategoryName = (category: number | undefined) => {
         transform: translateY(-50%);
         width: 3rem;
         height: 3rem;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
         border-radius: 50%;
         margin: 0;
 
         &:enabled:hover {
-          background: rgba(255, 255, 255, 1);
+          background: var(--theme-background-card);
         }
       }
 
@@ -246,7 +259,7 @@ const getCategoryName = (category: number | undefined) => {
             width: 0.5rem;
             height: 0.5rem;
             border-radius: 50%;
-            background: rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+            background: var(--theme-border);
 
             &.p-highlight {
               background: var(--theme-primary);

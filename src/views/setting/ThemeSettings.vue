@@ -298,7 +298,7 @@ onMounted(() => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: var(--theme-background);
           font-size: 10px;
           font-weight: bold;
           line-height: 1;
@@ -315,7 +315,7 @@ onMounted(() => {
         overflow: hidden;
         box-shadow:
           0 2px 8px rgba(var(--theme-text-rgb), 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          inset 0 1px 0 rgba(var(--theme-background-rgb), var(--theme-transparency-border));
         border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
         .preview-dots {
@@ -331,8 +331,8 @@ onMounted(() => {
             height: 8px;
             border-radius: 50%;
             display: block;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--theme-shadow-sm);
+            border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
           }
         }
 
@@ -342,9 +342,9 @@ onMounted(() => {
           inset: 0;
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.1) 0%,
+            rgba(var(--theme-background-rgb), var(--theme-transparency-border)) 0%,
             transparent 50%,
-            rgba(0, 0, 0, 0.05) 100%
+            rgba(var(--theme-border-rgb), calc(var(--theme-transparency-border) * 0.3)) 100%
           );
           pointer-events: none;
         }

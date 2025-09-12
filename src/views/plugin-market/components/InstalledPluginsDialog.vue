@@ -166,7 +166,7 @@ const hasUpdate = (plugin: Plugin): boolean => {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .installed-plugins-dialog {
   :deep(.p-dialog) {
     width: 80vw;
