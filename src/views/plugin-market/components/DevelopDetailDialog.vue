@@ -249,7 +249,7 @@ const getCategoryName = (category: number | undefined) => {
             background: rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
             &.p-highlight {
-              background: var(--p-primary-color);
+              background: var(--theme-primary);
             }
           }
         }

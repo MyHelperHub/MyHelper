@@ -88,8 +88,10 @@ defineExpose({ showMessage, hideMessage });
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.6);
-    color: white;
+    background-color: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+    color: var(--theme-text);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 10px 20px;
     border-radius: 20px;
     z-index: 9999;
@@ -99,12 +101,12 @@ defineExpose({ showMessage, hideMessage });
     text-align: center;
 
     &.success {
-      background-color: var(--p-green-500);
+      background-color: var(--theme-success);
       opacity: 0.9;
     }
 
     &.warning {
-      background-color: var(--p-red-500);
+      background-color: var(--theme-error);
       opacity: 0.9;
     }
   }

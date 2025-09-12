@@ -2,9 +2,10 @@
 
 /* 毛玻璃卡片基础样式 */
 .glass-card {
-  background: var(--theme-glass-background);
-  backdrop-filter: var(--theme-glass-backdrop);
-  border: 1px solid var(--theme-glass-border);
+  background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
@@ -13,7 +14,7 @@
 }
 
 .glass-card:hover {
-  background: rgba(var(--theme-background-rgb), 0.6);
+  background: rgba(var(--theme-background-secondary-rgb), calc(var(--theme-transparency-background-secondary) + 0.05));
   transform: translateY(-1px);
   box-shadow: var(--theme-shadow-md);
 }

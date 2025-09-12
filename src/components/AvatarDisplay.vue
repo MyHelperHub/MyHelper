@@ -200,7 +200,7 @@ defineExpose({
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: var(--p-primary-color);
+  background: var(--theme-primary);
   opacity: 0.3;
   transform: translate(-50%, -50%);
   transition: all 0.6s ease-out;
@@ -224,8 +224,8 @@ defineExpose({
 .large-mode {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: var(--p-surface-0);
-  border: 1px solid var(--p-content-border-color);
+  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   box-shadow: var(--theme-shadow-sm);
   position: relative;
 
@@ -236,7 +236,7 @@ defineExpose({
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, transparent, var(--p-primary-color));
+    background: linear-gradient(135deg, transparent, var(--theme-primary));
     opacity: 0.1;
     border-radius: 50%;
     z-index: -1;
@@ -246,11 +246,11 @@ defineExpose({
 
 .large-mode:hover {
   box-shadow: var(--theme-shadow-md);
-  border-color: var(--p-primary-color);
+  border-color: var(--theme-primary);
   transform: scale(1.02);
 
   &::before {
-    background: linear-gradient(135deg, var(--p-surface-0), var(--p-primary-color));
+    background: linear-gradient(135deg, rgba(var(--theme-background-rgb), var(--theme-transparency-background)), var(--theme-primary));
     opacity: 0.2;
   }
 }
@@ -266,8 +266,8 @@ defineExpose({
 .loading-spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top: 2px solid var(--p-primary-color);
+  border: 2px solid rgba(var(--theme-border-rgb), 0.1);
+  border-top: 2px solid var(--theme-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -288,7 +288,7 @@ defineExpose({
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
-  background: var(--p-red-500);
+  background: var(--theme-error);
   opacity: 0.9;
   border-radius: 50%;
   display: flex;
@@ -300,12 +300,12 @@ defineExpose({
 }
 
 .error-overlay:hover {
-  background: var(--p-red-600);
+  background: var(--theme-error);
   transform: translate(-50%, -50%) scale(1.1);
 }
 
 .error-overlay i {
-  color: white;
+  color: var(--theme-background);
   font-size: 10px;
 }
 </style>

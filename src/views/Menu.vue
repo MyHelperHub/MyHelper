@@ -214,7 +214,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: 6px;
     padding: 8px 12px;
-    border: 1px solid rgba(var(--theme-border-rgb), 0.3);
+    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     border-radius: 10px;
     cursor: pointer;
     font-size: 12px;
@@ -222,6 +222,7 @@ onUnmounted(() => {
     transition: all 0.2s ease;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
 
     &.label-btn {
       background: linear-gradient(

@@ -300,7 +300,7 @@ onMounted(async () => {
     gap: 24px;
 
     .setting-section {
-      background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+      background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
       border-radius: 8px;
       padding: 20px;
       border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));

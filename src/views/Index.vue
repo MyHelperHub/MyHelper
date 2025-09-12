@@ -191,7 +191,7 @@ const showMenu = async () => {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
-  box-shadow: var(--p-shadow-8);
+  box-shadow: var(--theme-shadow-lg);
 
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -229,8 +229,8 @@ const showMenu = async () => {
         color: var(--theme-text);
         background: linear-gradient(
           135deg,
-          var(--p-primary-color),
-          var(--p-primary-600)
+          var(--theme-primary),
+          var(--theme-primary-dark)
         );
         background-clip: text;
         -webkit-background-clip: text;
@@ -283,8 +283,8 @@ const showMenu = async () => {
       &:hover {
         transform: scale(1.1);
         color: var(--theme-text);
-        border-color: var(--p-primary-color);
-        box-shadow: 0 2px 8px var(--p-focus-ring-color);
+        border-color: var(--theme-primary);
+        box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.3);
 
         &::before {
           background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));

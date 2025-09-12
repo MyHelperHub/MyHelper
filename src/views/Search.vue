@@ -139,12 +139,12 @@ function handleSearch() {
 
     &:hover {
       background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
-      box-shadow: var(--p-shadow-4);
+      box-shadow: var(--theme-shadow-sm);
     }
 
     &:focus-within {
       background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
-      box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.3);
+      box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.3);
     }
   }
 
@@ -222,10 +222,10 @@ function handleSearch() {
       border-radius: 50%;
       background: linear-gradient(
         135deg,
-        var(--p-primary-color),
-        var(--p-primary-600)
+        var(--theme-primary),
+        var(--theme-primary-dark)
       );
-      color: white;
+      color: var(--theme-background);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -237,7 +237,7 @@ function handleSearch() {
       &:hover {
         opacity: 1;
         transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(var(--p-primary-color-rgb), 0.3);
+        box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.3);
       }
 
       &:active {
@@ -246,7 +246,7 @@ function handleSearch() {
 
       &.active {
         opacity: 1;
-        box-shadow: 0 2px 8px rgba(var(--p-primary-color-rgb), 0.2);
+        box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
       }
     }
   }
@@ -261,7 +261,7 @@ function handleSearch() {
   background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
   border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 8px;
-  box-shadow: var(--p-shadow-8);
+  box-shadow: var(--theme-shadow-lg);
 
   .engine-option {
     display: flex;
@@ -274,7 +274,7 @@ function handleSearch() {
     position: relative;
 
     &:hover {
-      background: rgba(var(--p-primary-color-rgb), 0.1);
+      background: rgba(var(--theme-primary-rgb), 0.1);
     }
 
     .option-icon {
@@ -293,7 +293,7 @@ function handleSearch() {
 
     .option-check {
       font-size: 12px;
-      color: var(--p-primary-color);
+      color: var(--theme-primary);
     }
   }
 }

@@ -62,6 +62,21 @@
                   >
                 </div>
               </div>
+              <div class="slider-group">
+                <label>边框透明度</label>
+                <div class="slider-container">
+                  <Slider
+                    v-model="localConfig.transparency.border"
+                    :min="0.1"
+                    :max="1"
+                    :step="0.05" />
+                  <span class="slider-value"
+                    >{{
+                      Math.round(localConfig.transparency.border * 100)
+                    }}%</span
+                  >
+                </div>
+              </div>
             </div>
           </div>
 
@@ -256,6 +271,13 @@
                           )
                         }}%</span
                       >
+                    <div class="info-item">
+                      <span class="label">边框透明度:</span>
+                      <span class="value"
+                        >{{
+                          Math.round(localConfig.transparency.border * 100)
+                        }}%</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -318,6 +340,7 @@ interface CustomThemeConfig {
     background: number;
     backgroundSecondary: number;
     card: number;
+    border: number;
   };
   colors: {
     primary: string;
@@ -374,16 +397,20 @@ const getCurrentThemeColors = (): CustomThemeConfig => {
     background: 0.9,
     backgroundSecondary: 0.8,
     card: 0.85,
+    border: 0.3,
   };
 
   const bgAlpha = getComputedStyle(document.documentElement)
     .getPropertyValue("--theme-transparency-background")
     .trim();
   const bgSecondaryAlpha = getComputedStyle(document.documentElement)
-    .getPropertyValue("--theme-transparency-backgroundSecondary")
+    .getPropertyValue("--theme-transparency-background-secondary")
     .trim();
   const cardAlpha = getComputedStyle(document.documentElement)
     .getPropertyValue("--theme-transparency-card")
+    .trim();
+  const borderAlpha = getComputedStyle(document.documentElement)
+    .getPropertyValue("--theme-transparency-border")
     .trim();
 
   return {
@@ -395,6 +422,7 @@ const getCurrentThemeColors = (): CustomThemeConfig => {
         ? parseFloat(bgSecondaryAlpha)
         : defaultTransparency.backgroundSecondary,
       card: cardAlpha ? parseFloat(cardAlpha) : defaultTransparency.card,
+      border: borderAlpha ? parseFloat(borderAlpha) : defaultTransparency.border,
     },
     colors: {
       primary: getColorFromCSSVar("--theme-primary") || "#4f6df5",
@@ -578,7 +606,7 @@ watch(isVisible, (newVal) => {
       gap: 8px;
 
       i {
-        color: var(--p-primary-color);
+        color: var(--theme-primary);
         font-size: 14px;
       }
     }
@@ -719,7 +747,7 @@ watch(isVisible, (newVal) => {
 
             .value {
               font-weight: 600;
-              background: rgba(var(--p-primary-color-rgb), 0.1);
+              background: rgba(var(--theme-primary-rgb), 0.1);
               padding: 1px 4px;
               border-radius: 3px;
             }

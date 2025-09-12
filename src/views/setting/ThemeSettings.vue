@@ -271,20 +271,20 @@ onMounted(() => {
       }
 
       &:hover {
-        border-color: var(--p-primary-color);
+        border-color: var(--theme-primary);
         box-shadow:
-          0 4px 16px rgba(var(--p-primary-color-rgb), 0.15),
-          0 2px 8px rgba(var(--p-text-color-rgb), 0.08);
+          0 4px 16px rgba(var(--theme-primary-rgb), 0.15),
+          0 2px 8px rgba(var(--theme-text-rgb), 0.08);
         transform: translateY(-2px) scale(1.02);
         background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
       }
 
       &.active {
-        border-color: var(--p-primary-color);
-        background: rgba(var(--p-primary-color-rgb), 0.08);
+        border-color: var(--theme-primary);
+        background: rgba(var(--theme-primary-rgb), 0.08);
         box-shadow:
-          0 4px 16px rgba(var(--p-primary-color-rgb), 0.2),
-          inset 0 1px 0 rgba(var(--p-primary-color-rgb), 0.1);
+          0 4px 16px rgba(var(--theme-primary-rgb), 0.2),
+          inset 0 1px 0 rgba(var(--theme-primary-rgb), 0.1);
 
         &::after {
           content: "✓";
@@ -293,7 +293,7 @@ onMounted(() => {
           right: 8px;
           width: 16px;
           height: 16px;
-          background: var(--p-primary-color);
+          background: var(--theme-primary);
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -302,7 +302,7 @@ onMounted(() => {
           font-size: 10px;
           font-weight: bold;
           line-height: 1;
-          box-shadow: 0 2px 4px rgba(var(--p-primary-color-rgb), 0.3);
+          box-shadow: 0 2px 4px rgba(var(--theme-primary-rgb), 0.3);
         }
       }
 
@@ -314,7 +314,7 @@ onMounted(() => {
         position: relative;
         overflow: hidden;
         box-shadow:
-          0 2px 8px rgba(var(--p-text-color-rgb), 0.1),
+          0 2px 8px rgba(var(--theme-text-rgb), 0.1),
           inset 0 1px 0 rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
@@ -356,7 +356,7 @@ onMounted(() => {
         color: var(--theme-text);
         text-align: center;
         letter-spacing: 0.3px;
-        text-shadow: 0 1px 2px rgba(var(--p-text-color-rgb), 0.1);
+        text-shadow: 0 1px 2px rgba(var(--theme-text-rgb), 0.1);
       }
     }
   }

@@ -305,7 +305,7 @@ const hasUpdateComputed = computed(() => {
                 }
 
                 &.p-rating-item-active .p-rating-icon {
-                  color: var(--p-orange-500);
+                  color: var(--theme-warning);
                 }
               }
             }
@@ -384,7 +384,7 @@ const hasUpdateComputed = computed(() => {
 
     .version-info {
       margin-bottom: 20px;
-      background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background-color: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
       border-radius: 8px;
       padding: 1.5rem;
 
@@ -407,7 +407,7 @@ const hasUpdateComputed = computed(() => {
 
           i {
             font-size: 1.2rem;
-            color: var(--p-primary-color);
+            color: var(--theme-primary);
             margin-top: 3px;
           }
 
@@ -426,7 +426,7 @@ const hasUpdateComputed = computed(() => {
               font-weight: 500;
 
               .latest-version {
-                color: var(--p-primary-color);
+                color: var(--theme-primary);
                 font-size: 0.875rem;
                 margin-left: 0.5rem;
                 font-weight: normal;
@@ -460,6 +460,6 @@ const hasUpdateComputed = computed(() => {
 }
 
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {
-  color: var(--p-orange-500);
+  color: var(--theme-warning);
 }
 </style>

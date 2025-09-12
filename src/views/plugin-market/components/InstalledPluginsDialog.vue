@@ -193,7 +193,7 @@ const hasUpdate = (plugin: Plugin): boolean => {
 
       &:hover {
         .name {
-          color: var(--p-primary-color);
+          color: var(--theme-primary);
         }
       }
 

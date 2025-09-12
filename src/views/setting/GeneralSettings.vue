@@ -196,7 +196,7 @@ const handleDataReset = async (
     display: flex;
     justify-content: space-between;
     align-items: center;
-    --p-toggleswitch-checked-background: var(--p-primary-color);
+    --p-toggleswitch-checked-background: var(--theme-primary);
 
     &:hover {
       background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));

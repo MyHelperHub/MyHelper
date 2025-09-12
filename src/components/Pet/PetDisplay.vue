@@ -199,14 +199,14 @@ defineExpose({
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: var(--p-text-color);
+    color: var(--theme-text);
     z-index: 20;
 
     .loading-spinner {
       width: 24px;
       height: 24px;
       border: 3px solid rgba(0, 0, 0, 0.1);
-      border-top: 3px solid var(--p-primary-color);
+      border-top: 3px solid var(--theme-primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 8px;
@@ -219,7 +219,7 @@ defineExpose({
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: var(--p-red-500);
+    color: var(--theme-error);
     background: rgba(0, 0, 0, 0.8);
     padding: 12px;
     border-radius: 6px;
@@ -229,7 +229,7 @@ defineExpose({
     .retry-btn {
       margin-top: 8px;
       padding: 6px 12px;
-      background: var(--p-red-500);
+      background: var(--theme-error);
       color: white;
       border: none;
       border-radius: 4px;
@@ -238,7 +238,7 @@ defineExpose({
       transition: background 0.3s;
 
       &:hover {
-        background: var(--p-red-600);
+        background: var(--theme-error);
       }
     }
   }

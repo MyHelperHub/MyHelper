@@ -331,8 +331,8 @@ defineExpose({
 <style lang="less">
 .pet-selector {
   border-radius: 8px;
-  background: var(--p-surface-0);
-  border: 1px solid var(--p-content-border-color);
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
   :deep(.model-dataview) {
     border: none;
@@ -359,15 +359,15 @@ defineExpose({
     h4 {
       margin: 0;
       font-size: 14px;
-      color: var(--p-text-color);
+      color: var(--theme-text);
       font-weight: 600;
     }
   }
 
   .model-count {
     font-size: 11px;
-    color: var(--p-text-muted-color);
-    background: var(--p-surface-100);
+    color: var(--theme-text-muted);
+    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
     padding: 2px 6px;
     border-radius: 12px;
     font-weight: 500;
@@ -376,11 +376,11 @@ defineExpose({
   .empty-state {
     text-align: center;
     padding: 24px;
-    color: var(--p-text-muted-color);
+    color: var(--theme-text-muted);
 
     .empty-icon {
       font-size: 32px;
-      color: var(--p-surface-400);
+      color: var(--theme-text-secondary);
       margin-bottom: 12px;
     }
 
@@ -399,28 +399,28 @@ defineExpose({
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
-    background: var(--p-surface-0);
+    background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
     margin-bottom: 4px;
 
     &:hover {
-      background: var(--p-content-hover-background);
+      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     &.selected {
-      border-color: var(--p-primary-color);
-      background: var(--p-highlight-background);
-      box-shadow: 0 0 0 1px var(--p-primary-color);
+      border-color: var(--theme-primary);
+      background: rgba(var(--theme-primary-rgb), 0.1);
+      box-shadow: 0 0 0 1px var(--theme-primary);
 
       .model-path {
-        color: var(--p-text-color);
+        color: var(--theme-text);
         opacity: 0.8;
       }
 
       :deep(.info-chip) {
-        background: var(--p-surface-200);
-        color: var(--p-text-color);
+        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        color: var(--theme-text);
       }
     }
 
@@ -433,11 +433,11 @@ defineExpose({
         height: 40px;
         font-size: 16px;
         font-weight: 600;
-        background: linear-gradient(45deg, var(--p-primary-color), var(--p-primary-600));
+        background: linear-gradient(45deg, var(--theme-primary), var(--theme-primary-dark));
         color: white;
 
         &.user-model {
-          background: linear-gradient(45deg, var(--p-green-500), var(--p-green-600));
+          background: linear-gradient(45deg, var(--theme-success), var(--theme-success));
         }
       }
 
@@ -448,19 +448,19 @@ defineExpose({
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: var(--p-surface-0);
+        background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 8px;
-        border: 2px solid var(--p-content-border-color);
+        border: 2px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
         .builtin-badge {
-          color: var(--p-orange-500);
+          color: var(--theme-warning);
         }
 
         .user-badge {
-          color: var(--p-surface-500);
+          color: var(--theme-text-secondary);
         }
       }
     }
@@ -471,7 +471,7 @@ defineExpose({
 
       .model-name {
         font-weight: 600;
-        color: var(--p-text-color);
+        color: var(--theme-text);
         margin-bottom: 4px;
         word-break: break-word;
         font-size: 13px;
@@ -490,7 +490,7 @@ defineExpose({
 
       .model-path {
         font-size: 11px;
-        color: var(--p-text-muted-color);
+        color: var(--theme-text-muted);
         word-break: break-all;
         line-height: 1.2;
         margin-bottom: 4px;
@@ -504,8 +504,8 @@ defineExpose({
         :deep(.info-chip) {
           font-size: 9px;
           padding: 2px 6px;
-          background: var(--p-surface-100);
-          color: var(--p-text-muted-color);
+          background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+          color: var(--theme-text-muted);
 
           i {
             font-size: 8px;

@@ -33,11 +33,12 @@
   --theme-transparency-background: 0.9;
   --theme-transparency-background-secondary: 0.8;
   --theme-transparency-card: 0.85;
+  --theme-transparency-border: 0.3;
 
-  /* 阴影变量 */
-  --theme-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --theme-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --theme-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+  /* 阴影变量 - 使用主题文字色 */
+  --theme-shadow-sm: 0 1px 3px rgba(var(--theme-text-rgb, 0, 0, 0), 0.1);
+  --theme-shadow-md: 0 4px 12px rgba(var(--theme-text-rgb, 0, 0, 0), 0.15);
+  --theme-shadow-lg: 0 8px 32px rgba(var(--theme-text-rgb, 0, 0, 0), 0.2);
 }
 
 /* ===== 深色模式变量映射 ===== */
@@ -119,10 +120,10 @@ html[data-theme="dark"] {
 
 /* 毛玻璃卡片主题化 */
 .theme-glass-card {
-  background: rgba(var(--p-surface-0), var(--theme-transparency-card, 0.9));
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--theme-border);
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 14px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -138,10 +139,10 @@ html[data-theme="dark"] {
 
 /* 功能卡片主题化 */
 .theme-feature-card {
-  background: var(--theme-background-card);
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--theme-border);
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -178,8 +179,8 @@ html[data-theme="dark"] {
 
 /* 输入框主题化 */
 .theme-input {
-  background: var(--theme-background-card);
-  border: 1px solid var(--theme-border);
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   color: var(--theme-text);
   transition: all 0.3s ease;
 }
@@ -237,18 +238,18 @@ html[data-theme="dark"] {
 
 /* 抽屉主题 */
 .p-drawer {
-  background: var(--theme-background-card) !important;
-  border: 1px solid var(--theme-border) !important;
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card)) !important;
+  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border)) !important;
 }
 
 .p-drawer .p-drawer-header {
-  background: var(--theme-background-card) !important;
-  border-bottom: 1px solid var(--theme-border) !important;
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card)) !important;
+  border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border)) !important;
   color: var(--theme-text) !important;
 }
 
 .p-drawer .p-drawer-content {
-  background: var(--theme-background-card) !important;
+  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card)) !important;
   color: var(--theme-text) !important;
 }
 

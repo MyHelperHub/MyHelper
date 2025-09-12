@@ -227,6 +227,6 @@ const safeGetTags = (): string[] => {
 }
 
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {
-  color: var(--p-orange-500);
+  color: var(--theme-warning);
 }
 </style>

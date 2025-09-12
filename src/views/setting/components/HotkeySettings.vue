@@ -206,7 +206,7 @@ const captureHotkey = async (event: KeyboardEvent) => {
         border-radius: 8px;
 
         &:hover {
-          background-color: rgba(var(--p-text-color-rgb), 0.02);
+          background-color: rgba(var(--theme-text-rgb), 0.02);
         }
 
         .hotkey-info {
@@ -245,8 +245,8 @@ const captureHotkey = async (event: KeyboardEvent) => {
     }
 
     &.recording .hotkey-input {
-      border-color: var(--p-primary-color);
-      box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
+      border-color: var(--theme-primary);
+      box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
     }
   }
 
@@ -263,8 +263,8 @@ const captureHotkey = async (event: KeyboardEvent) => {
 
     &:focus {
       outline: none;
-      border-color: var(--p-primary-color);
-      box-shadow: 0 0 0 2px rgba(var(--p-primary-color-rgb), 0.2);
+      border-color: var(--theme-primary);
+      box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.2);
     }
 
     &:disabled {
@@ -283,10 +283,10 @@ const captureHotkey = async (event: KeyboardEvent) => {
   }
 
   .edit-icon {
-    color: var(--p-primary-color);
+    color: var(--theme-primary);
 
     &:hover {
-      color: var(--p-primary-600);
+      color: var(--theme-primary-dark);
     }
   }
 
@@ -294,7 +294,7 @@ const captureHotkey = async (event: KeyboardEvent) => {
     color: var(--theme-text-muted);
 
     &:hover {
-      color: var(--p-red-500);
+      color: var(--theme-error);
     }
 
     &.disabled {

@@ -99,3 +99,14 @@ MyHelper uses different event naming conventions:
 - **Hot Reload**: Vite dev server runs on port 1420, plugin dev on 1421
 - **Build Process**: Frontend builds to `dist/`, Tauri handles final packaging
 - **annotation**: When writing comments, functions and variables should be commented on in a single-line document. Unnecessary comments do not need to be added
+
+## Theme System
+
+**IMPORTANT**: When working with themes and UI styling, always refer to the comprehensive theme development guide in `THEME_GUIDE.md`. This guide contains:
+
+- Complete theme variable reference (colors, transparency, shadows)
+- Development standards and mandatory requirements  
+- Standard usage templates and forbidden patterns
+- Code examples and best practices
+
+**Core Principle**: All UI elements MUST use theme variables - no hardcoded colors or transparency values allowed.

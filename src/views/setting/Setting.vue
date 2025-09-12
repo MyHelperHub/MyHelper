@@ -186,11 +186,11 @@ const handleClose = () => {
             transition: height 0.3s ease;
           }
 
-          &:hover {
+            &:hover {
             background: var(--theme-background);
             color: var(--theme-text);
             transform: translateX(4px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--theme-shadow-sm);
 
             &::before {
               height: 20px;
@@ -208,17 +208,17 @@ const handleClose = () => {
               var(--theme-primary),
               var(--theme-primary-dark, var(--theme-primary))
             );
-            color: white;
+            color: var(--theme-background);
             transform: translateX(6px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--theme-shadow-md);
 
             &::before {
               height: 100%;
-              background: rgba(255, 255, 255, 0.3);
+              background: rgba(var(--theme-background-rgb), 0.3);
             }
 
             .menu-icon {
-              color: white;
+              color: var(--theme-background);
               transform: scale(1.1);
             }
           }

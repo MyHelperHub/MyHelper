@@ -331,7 +331,7 @@ const handleClick = (e: MouseEvent) => {
 
       .progress-fill {
         height: 100%;
-        background-color: var(--p-primary-color);
+        background-color: var(--theme-primary);
         transition: width 0.3s ease;
       }
     }

@@ -196,9 +196,9 @@ defineExpose({
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: var(--p-primary-color);
-      color: var(--p-primary-color);
-      box-shadow: 0 2px 8px var(--p-focus-ring-color);
+      border-color: var(--theme-primary);
+      color: var(--theme-primary);
+      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.3);
     }
   }
 
