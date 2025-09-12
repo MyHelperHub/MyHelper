@@ -111,14 +111,12 @@ const openCommon = (key: CommonState) => {
   const target = commonState[key];
   if (!target.value) return;
 
-  // 先关闭其他弹窗
   Object.entries(commonState).forEach(([k, ref]) => {
     if (k !== key && ref.value) {
       ref.value.visible = false;
     }
   });
 
-  // 打开目标弹窗
   target.value.visible = true;
 };
 

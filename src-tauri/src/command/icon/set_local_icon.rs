@@ -25,7 +25,6 @@ pub fn set_local_icon(image_path: &str, app_type: u32) -> Result<ApiResponse<Str
     // 加载图片
     let img = image::open(image_path).map_err(|e| AppError::Error(e.to_string()))?;
 
-    // 调整图片大小为 32x32
     let resized_img = img.resize_exact(32, 32, image::imageops::FilterType::Lanczos3);
 
     let output_path = match app_type {

@@ -19,12 +19,16 @@ import { Logger } from "@/utils/logger";
  * 专注于模型加载和显示，移除复杂的工厂模式和多态设计
  */
 export class SimpleLive2DManager {
-  // 全局Application实例管理，确保每个canvas只有一个Application
+  /** 全局Application实例管理，确保每个canvas只有一个Application */
   private static apps = new Map<HTMLCanvasElement, Application>();
 
+  /** PIXI应用实例 */
   private app: Application | null = null;
+  /** Live2D模型实例 */
   private model: Live2DModel | null = null;
+  /** 画布元素 */
   private canvas: HTMLCanvasElement | null = null;
+  /** 模型缩放比例 */
   private modelScale: number = 0.8;
 
   /**
@@ -73,6 +77,7 @@ export class SimpleLive2DManager {
     }
   }
 
+  /** 清理非活动应用实例 */
   static cleanupInactiveApps(): void {
     const canvasesToRemove: HTMLCanvasElement[] = [];
 
@@ -87,6 +92,7 @@ export class SimpleLive2DManager {
     });
   }
 
+  /** 获取活动应用实例数量 */
   static getActiveAppCount(): number {
     return this.apps.size;
   }

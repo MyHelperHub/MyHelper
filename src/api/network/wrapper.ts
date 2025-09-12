@@ -5,13 +5,15 @@ import { ResponseCodeEnum } from "@/interface/enum";
 import { tokenManager } from "@/utils/tokenManager";
 import { refreshToken } from "./user.api";
 
-let isRefreshing = false; // 是否正在刷新token
+/** 是否正在刷新token */
+let isRefreshing = false;
+/** 失败请求队列 */
 let failedQueue: Array<{
   resolve: (value: any) => void;
   reject: (reason: any) => void;
-}> = []; // 失败请求队列
+}> = [];
 
-// 处理队列中的请求
+/** 处理队列中的请求 */
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
@@ -24,7 +26,7 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// 刷新token
+/** 刷新token */
 const refreshTokenRequest = async (): Promise<string> => {
   try {
     const currentToken = await tokenManager.getToken();
@@ -48,7 +50,7 @@ const refreshTokenRequest = async (): Promise<string> => {
   }
 };
 
-// 创建 axios 实例
+/** 创建 axios 实例 */
 const instance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
@@ -57,7 +59,7 @@ const instance: AxiosInstance = axios.create({
   },
 });
 
-// 请求拦截器
+/** 请求拦截器 */
 instance.interceptors.request.use(
   async (config) => {
     const token = await tokenManager.getToken();
@@ -72,7 +74,7 @@ instance.interceptors.request.use(
   },
 );
 
-// 处理token刷新的统一函数
+/** 处理token刷新的统一函数 */
 const handleTokenRefresh = async (response: AxiosResponse) => {
   const originalRequest = response.config as any;
 
@@ -111,7 +113,7 @@ const handleTokenRefresh = async (response: AxiosResponse) => {
   }
 };
 
-// 响应拦截器
+/** 响应拦截器 */
 instance.interceptors.response.use(
   async (response) => {
     const { Code, Message } = response.data;
@@ -154,7 +156,7 @@ instance.interceptors.response.use(
   },
 );
 
-// 封装请求方法
+/** 封装请求方法 */
 export const request = {
   get: <T>(
     url: string,
@@ -187,7 +189,7 @@ export const request = {
   },
 };
 
-// 兼容性方法，保持向后兼容
+/** 兼容性方法，保持向后兼容 */
 export const updateToken = async (token: string | null) => {
   if (token) {
     await tokenManager.setToken(token);
@@ -196,10 +198,12 @@ export const updateToken = async (token: string | null) => {
   }
 };
 
+/** 获取token */
 export const getToken = async () => {
   return await tokenManager.getToken();
 };
 
+/** 检查是否有token */
 export const hasToken = async () => {
   return await tokenManager.hasToken();
 };

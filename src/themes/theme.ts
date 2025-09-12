@@ -11,24 +11,30 @@ import type {
 import { emit as tauriEmit } from "@tauri-apps/api/event";
 import { ErrorHandler } from "../utils/errorHandler";
 
-// PrimeVue 主题集成
+/** PrimeVue 主题集成 */
 import { applyPrimeVueTheme } from "./primevue";
 
+/** 默认主题配置 */
 const DEFAULT_THEME_CONFIG: ThemeConfig = {
   mode: ThemeMode.Light,
   currentThemeId: "default-light",
 };
 
+/** 是否正在更新主题 */
 let isUpdatingTheme = false;
+/** 缓存的样式元素 */
 let cachedStyleElement: HTMLStyleElement | null = null;
+/** 最后应用的变量 */
 let lastAppliedVariables: string = "";
 
+/** 默认透明度配置 */
 const DEFAULT_TRANSPARENCY = {
   light: { background: 0.92, backgroundSecondary: 0.85, card: 0.9, border: 0.3 },
   dark: { background: 0.88, backgroundSecondary: 0.82, card: 0.85, border: 0.25 },
   custom: { background: 0.88, backgroundSecondary: 0.82, card: 0.85, border: 0.3 },
 };
 
+/** 颜色工具函数 */
 export const colorUtils = {
   hexToRgb(hex: string): string {
     const shorthand = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -384,10 +390,8 @@ export const presetThemes: PresetTheme[] = [
  * @returns 是否为暗色主题
  */
 function isThemeDark(colors: ThemeColors, mode: ThemeMode): boolean {
-  // 如果明确是 dark 模式，直接返回 true
   if (mode === ThemeMode.Dark) return true;
   
-  // 如果明确是 light 模式，直接返回 false
   if (mode === ThemeMode.Light) return false;
   
   // 对于 custom 模式，根据背景色亮度自动判断
@@ -492,6 +496,7 @@ export async function getCurrentThemeConfig(
   }
 }
 
+/** 防抖的保存配置函数 */
 const debouncedSaveConfig = useDebounce(async (config: ThemeConfig) => {
   if (isUpdatingTheme) return;
 

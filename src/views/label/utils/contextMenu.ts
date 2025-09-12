@@ -4,13 +4,15 @@ import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 
-let isAlwaysOnTop = false; // 用于跟踪窗口是否置顶
+/** 窗口置顶状态跟踪 */
+let isAlwaysOnTop = false;
 
+/** 显示右键菜单 */
 export async function showContextMenu(event: MouseEvent) {
   const toggleItem = await MenuItem.new({
     text: isAlwaysOnTop ? "取消置顶" : "置顶",
     action: async () => {
-      isAlwaysOnTop = !isAlwaysOnTop; // 切换状态
+      isAlwaysOnTop = !isAlwaysOnTop;
       await ipcWindowControl(WindowOperation.ToggleAlwaysOnTop, {
         window_id: NewWindowEnum.Label,
         always_on_top: isAlwaysOnTop,

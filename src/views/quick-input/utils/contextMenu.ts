@@ -6,7 +6,6 @@ import type { MenuItem } from "primevue/menuitem";
 // 主菜单 - 使用通用的 contextMenu 组合式函数
 const { contextMenuRef, menuItems, showContextMenu } = useContextMenu();
 
-// Clipboard专用菜单 - 使用通用的 contextMenu 组合式函数
 const {
   contextMenuRef: clipboardContextMenuRef,
   menuItems: clipboardMenuItems,

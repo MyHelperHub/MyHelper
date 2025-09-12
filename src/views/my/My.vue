@@ -62,30 +62,35 @@ import { NewWindowEnum } from "@/interface/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
 
+/** 头像logo引用 */
 const avatarLogo = ref<string | undefined>();
+/** 显示裁剪模态框 */
 const showCropperModal = ref(false);
+/** 裁剪器引用 */
 const cropper = ref();
+/** 裁剪图片数据 */
 const cropperImage = ref();
 
+/** 初始化头像 */
 const init = async () => {
   const logoPath = await checkLogoPath();
   avatarLogo.value = logoPath;
 };
 init();
-// 选择图片后
+/** 选择图片后 */
 const onSelect = (event: any) => {
   const file = event.files[0];
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
       cropperImage.value = e.target?.result as string;
-      showCropperModal.value = true; // 显示裁剪框
+      showCropperModal.value = true;
     };
     reader.readAsDataURL(file);
   }
 };
 
-// 裁剪完成后
+/** 裁剪完成后 */
 const confirmCrop = () => {
   cropper.value.getCropData((data: string) => {
     if (data) {
@@ -93,19 +98,19 @@ const confirmCrop = () => {
         /^data:image\/[a-zA-Z]+;base64,/,
         "",
       );
-      ipcSetLogo(base64); // 将裁剪后的图片上传
+      ipcSetLogo(base64);
       avatarLogo.value = data;
       cropperImage.value = "";
-      showCropperModal.value = false; // 隐藏裁剪框
+      showCropperModal.value = false;
       tauriEmit("update:logo");
     }
   });
 };
 
-// 取消裁剪
+/** 取消裁剪 */
 const cancelCrop = () => {
   cropperImage.value = "";
-  showCropperModal.value = false; // 隐藏裁剪框
+  showCropperModal.value = false;
 };
 
 const handleClose = () => {

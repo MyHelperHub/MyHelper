@@ -23,13 +23,13 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from "vue";
 
-// 定义Props
+/** 定义Props */
 interface Props {
   items: any[];
   itemHeight: number;
   containerHeight: number;
   keyField?: string;
-  overscan?: number; // 预渲染项目数量，提升滚动体验
+  overscan?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -37,16 +37,16 @@ const props = withDefaults(defineProps<Props>(), {
   overscan: 5,
 });
 
-// 容器引用
+/** 容器引用 */
 const containerRef = ref<HTMLElement>();
 
-// 滚动位置
+/** 滚动位置 */
 const scrollTop = ref(0);
 
-// 计算总高度
+/** 计算总高度 */
 const totalHeight = computed(() => props.items.length * props.itemHeight);
 
-// 计算可见范围
+/** 计算可见范围 */
 const visibleRange = computed(() => {
   const start = Math.floor(scrollTop.value / props.itemHeight);
   const end = Math.min(
@@ -54,7 +54,6 @@ const visibleRange = computed(() => {
     props.items.length,
   );
 
-  // 加上overscan
   const overscanStart = Math.max(0, start - props.overscan);
   const overscanEnd = Math.min(props.items.length, end + props.overscan);
 
@@ -64,7 +63,7 @@ const visibleRange = computed(() => {
   };
 });
 
-// 计算可见项目
+/** 计算可见项目 */
 const visibleItems = computed(() => {
   const { start, end } = visibleRange.value;
   return props.items.slice(start, end).map((item, index) => ({
@@ -73,12 +72,12 @@ const visibleItems = computed(() => {
   }));
 });
 
-// 计算偏移量
+/** 计算偏移量 */
 const offsetY = computed(() => {
   return visibleRange.value.start * props.itemHeight;
 });
 
-// 获取项目的key
+/** 获取项目的key */
 const getItemKey = (item: any) => {
   if (typeof item === "object" && item !== null) {
     return item[props.keyField] || item.id || JSON.stringify(item);
@@ -86,13 +85,13 @@ const getItemKey = (item: any) => {
   return item;
 };
 
-// 处理滚动事件
+/** 处理滚动事件 */
 const handleScroll = (event: Event) => {
   const target = event.target as HTMLElement;
   scrollTop.value = target.scrollTop;
 };
 
-// 滚动到指定项目
+/** 滚动到指定项目 */
 const scrollToItem = (index: number, behavior: ScrollBehavior = "smooth") => {
   if (!containerRef.value) return;
 
@@ -103,18 +102,18 @@ const scrollToItem = (index: number, behavior: ScrollBehavior = "smooth") => {
   });
 };
 
-// 滚动到顶部
+/** 滚动到顶部 */
 const scrollToTop = (behavior: ScrollBehavior = "smooth") => {
   scrollToItem(0, behavior);
 };
 
-// 暴露方法给父组件
+/** 暴露方法给父组件 */
 defineExpose({
   scrollToItem,
   scrollToTop,
 });
 
-// 监听items变化，保持滚动位置合理
+/** 监听items变化，保持滚动位置合理 */
 watch(
   () => props.items.length,
   (newLength, oldLength) => {

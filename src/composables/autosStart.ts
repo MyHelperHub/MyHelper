@@ -8,10 +8,8 @@ import { updateConfig } from "../utils/config.ts";
 export const syncAutoStartState = async (
   autoStart: boolean,
 ): Promise<boolean> => {
-  // 获取系统实际的开机启动状态
   const systemEnabled = await isEnabled();
 
-  // 如果数据库状态与系统状态不一致，则更新数据库
   if (autoStart !== systemEnabled) {
     await updateConfig("settingConfig", { autoStart: systemEnabled });
   }

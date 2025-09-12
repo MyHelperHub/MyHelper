@@ -9,7 +9,7 @@ import { Ref, ref } from "vue";
 import { delay } from "@/utils/common";
 import { hideMessage } from "@/composables/message.ts";
 
-// 全局主窗口菜单展开状态
+/** 全局主窗口菜单展开状态 */
 export const isMainMenuVisible = ref(false);
 
 /**
@@ -23,7 +23,6 @@ export const handleWindowToggle = async (
 ) => {
   try {
     if (isOpen.value) {
-      // 如果窗口已打开，尝试关闭
       try {
         await ipcWindowControl(WindowOperation.Close, {
           window_id: config.windowId,
@@ -35,7 +34,6 @@ export const handleWindowToggle = async (
         isOpen.value = Boolean(res);
       }
     } else {
-      // 如果窗口未打开，创建新窗口
       const res = await ipcCreateNewWindow(config);
       isOpen.value = Boolean(res);
     }

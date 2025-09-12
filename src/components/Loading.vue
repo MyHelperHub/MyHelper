@@ -17,15 +17,17 @@
 import { ref } from "vue";
 import ProgressSpinner from "primevue/progressspinner";
 
+/** loading计数器 */
 const loadingCount = ref(0);
 
+/** 显示加载状态 */
 const showLoading = () => {
   loadingCount.value++;
 };
 
+/** 隐藏加载状态 */
 const hideLoading = () => {
   loadingCount.value--;
-  // 保证 loadingCount 始终不小于 0
   if (loadingCount.value < 0) {
     loadingCount.value = 0;
   }

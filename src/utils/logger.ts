@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
+/** 日志条目接口 */
 export interface LogEntry {
   level: "info" | "warn" | "error";
   message: string;
@@ -7,7 +8,9 @@ export interface LogEntry {
   details?: string;
 }
 
+/** 日志管理器 */
 export class Logger {
+  /** 写入日志 */
   private static async writeLog(entry: LogEntry): Promise<void> {
     try {
       await invoke("write_log", { entry });
@@ -16,6 +19,7 @@ export class Logger {
     }
   }
 
+  /** 记录信息级别日志 */
   static async info(message: string, details?: string): Promise<void> {
     const entry: LogEntry = {
       level: "info",
@@ -26,6 +30,7 @@ export class Logger {
     await this.writeLog(entry);
   }
 
+  /** 记录警告级别日志 */
   static async warn(message: string, details?: string): Promise<void> {
     const entry: LogEntry = {
       level: "warn",
@@ -36,6 +41,7 @@ export class Logger {
     await this.writeLog(entry);
   }
 
+  /** 记录错误级别日志 */
   static async error(message: string, error?: string): Promise<void> {
     const entry: LogEntry = {
       level: "error",

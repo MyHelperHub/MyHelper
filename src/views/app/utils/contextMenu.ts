@@ -3,7 +3,6 @@ import { useContextMenu } from "@/composables/useContextMenu";
 import { emit } from "@/utils/eventBus";
 import type { MenuItem } from "primevue/menuitem";
 
-// 使用通用的 contextMenu 组合式函数
 const { contextMenuRef, menuItems, showContextMenu } = useContextMenu();
 
 /**

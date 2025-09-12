@@ -194,7 +194,6 @@ pub async fn get_web_icon(url: String) -> Result<ApiResponse<String>, AppError> 
     if let Ok(response) = html_result {
         if response.status().is_success() {
             if let Ok(text) = response.text().await {
-                // 使用 tl 解析HTML并提取图标 URL
                 let icon_urls = extract_icon_urls(&text);
 
                 // 异步尝试获取每个图标

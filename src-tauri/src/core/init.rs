@@ -3,12 +3,7 @@ use crate::mh_plugin::sync::sync_plugins;
 use crate::services::database::init_database;
 use crate::utils::error::{AppError, AppResult};
 
-/// 初始化应用程序
-/// 
-/// 执行以下初始化任务：
-/// 1. 初始化数据库
-/// 2. 同步插件配置  
-/// 3. 初始化应用观察者
+/// 初始化应用
 pub fn init_app() -> AppResult<()> {
     // 初始化数据库
     init_database().map_err(|e| AppError::Error(format!("初始化数据库失败: {}", e)))?;
@@ -21,8 +16,7 @@ pub fn init_app() -> AppResult<()> {
     });
 
     // 初始化应用观察者
-    observe_app()
-        .map_err(|e| AppError::Error(format!("初始化应用观察者失败: {}", e)))?;
+    observe_app().map_err(|e| AppError::Error(format!("初始化应用观察者失败: {}", e)))?;
 
     Ok(())
 }

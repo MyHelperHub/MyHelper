@@ -1,5 +1,6 @@
 import { Logger } from "./logger";
 
+/** 错误处理类 */
 export class ErrorHandler {
   static async handleError(error: any, context?: string) {
     let message = "操作失败";

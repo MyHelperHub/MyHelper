@@ -1,11 +1,13 @@
+/** 启动任务配置类型 */
 type StartupTask = {
-  key: string; // 设置项的 key
+  key: string;
   enabledFn: () => Promise<void> | void; // 启用时的执行函数
   disabledFn?: () => Promise<void> | void; // 禁用时的执行函数 (可选)
   startEnabledFn?: boolean; // 是否在启动时执行启用函数，默认为 true
   startDisabledFn?: boolean; // 是否在启动时执行禁用函数，默认为 false
 };
 
+/** 启动任务列表 */
 const startupTasks: StartupTask[] = [];
 
 /**
@@ -18,7 +20,6 @@ const startupTasks: StartupTask[] = [];
  *   - startDisabledFn: 启动时是否执行禁用函数，默认为 false
  */
 export function registerTask(task: StartupTask) {
-  // 默认值设置
   task.startEnabledFn = task.startEnabledFn ?? true;
   task.startDisabledFn = task.startDisabledFn ?? false;
 
@@ -35,7 +36,7 @@ export async function runStartupTasks(getSetting: (key: string) => boolean) {
 
     // 仅在设置为启用且需要在启动时运行的任务执行
     if (isEnabled && task.startEnabledFn) {
-      await task.enabledFn(); // 调用启用时的执行函数
+      await task.enabledFn();
     } else if (!isEnabled && task.startDisabledFn && task.disabledFn) {
       // 如果当前任务是启用的，而设置项变为禁用，则调用禁用时的执行函数（如果有）
       await task.disabledFn();
@@ -57,12 +58,12 @@ export async function handleSettingChange(
 
   if (!task) {
     console.log(`No startup task found for key: ${key}`);
-    return; // 如果没有找到对应的任务，直接返回
+    return;
   }
 
   if (isEnabled && task.enabledFn) {
-    await task.enabledFn(); // 启用时执行
+    await task.enabledFn();
   } else if (!isEnabled && task.disabledFn) {
-    await task.disabledFn(); // 禁用时执行
+    await task.disabledFn();
   }
 }

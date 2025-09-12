@@ -1,13 +1,15 @@
 import { ref } from "vue";
 
-// 定义消息引用的类型
+/** 定义消息引用的类型 */
 interface MessageRef {
   showMessage: (message: string, duration?: number, type?: number) => void;
-  hideMessage: () => void; // 添加 hideMessage 方法
+  hideMessage: () => void;
 }
 
+/** 消息组件引用 */
 const messageRef = ref<MessageRef | null>(null);
 
+/** 设置消息组件引用 */
 const setMessageRef = (ref: MessageRef | null) => {
   messageRef.value = ref;
 };

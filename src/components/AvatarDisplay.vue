@@ -57,26 +57,32 @@ const emit = defineEmits<{
   error: [error: string];
 }>();
 
+/** PetDisplay组件引用 */
 const petDisplayRef = ref<InstanceType<typeof PetDisplay>>();
+/** 是否加载中 */
 const isLoading = ref(false);
+/** 错误信息 */
 const error = ref<string | null>(null);
+/** 是否显示点击波纹 */
 const showRipple = ref(false);
 
-// 使用全局宠物状态管理器
+/** 使用全局宠物状态管理器 */
 const selectedModel = PetGlobalManager.createSelectedModelRef();
 const preferences = PetGlobalManager.createPreferencesRef();
 const isSmallMode = computed(() => !props.isShowMenu);
 
-// 计算是否应该显示宠物：需要启用宠物系统且有选中的模型
+/** 计算是否应该显示宠物 */
 const shouldShowPet = computed(() => {
   return preferences.value.isEnabledPet && !!selectedModel.value;
 });
 
+/** 计算显示尺寸 */
 const displaySize = computed(() => {
   const size = isSmallMode.value ? 60 : 40;
   return { width: size, height: size };
 });
 
+/** 处理点击事件 */
 const handleClick = () => {
   emit("click");
 
@@ -96,6 +102,7 @@ const handleClick = () => {
   }
 };
 
+/** 模型加载完成回调 */
 const onModelLoaded = (modelInfo: ModelInfo) => {
   emit("loaded", modelInfo);
   // 模型加载完成后应用缩放
@@ -104,12 +111,13 @@ const onModelLoaded = (modelInfo: ModelInfo) => {
   }
 };
 
+/** 模型加载错误回调 */
 const onModelError = (errorMsg: string) => {
   error.value = errorMsg;
   emit("error", errorMsg);
 };
 
-// 监听缩放设置变化
+/** 监听缩放设置变化 */
 watch(
   () => preferences.value.defaultScale,
   (newScale) => {

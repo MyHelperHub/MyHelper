@@ -7,9 +7,10 @@ import {
 } from "@/api/ipc/clipboard.api.ts";
 import { showMessage } from "./message.ts";
 
-// 响应式的剪贴板数据引用
+/** 响应式的剪贴板数据引用 */
 export const clipboardData = ref<QuickInputItem[]>([]);
 
+/** 剪贴板监听器引用 */
 let clipboardListener: UnlistenFn | null = null;
 
 /** 启动剪贴板监听 */

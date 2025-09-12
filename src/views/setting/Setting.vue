@@ -40,11 +40,14 @@ interface MenuConfig {
   loader: () => Promise<any>;
 }
 
+/** 当前活动菜单 */
 const activeMenu = ref<SettingMenuItemEnum | null>(null);
+/** 已加载的组件列表 */
 const loadedComponents = ref<string[]>([]);
+/** 组件映射表 */
 const componentMap = reactive<Record<string, any>>({});
 
-// 统一的菜单配置
+/** 统一的菜单配置 */
 const menuConfigs: MenuConfig[] = [
   {
     type: SettingMenuItemEnum.General,
@@ -76,10 +79,12 @@ const menuConfigs: MenuConfig[] = [
   },
 ];
 
+/** 计算当前组件 */
 const currentComponent = computed(() => {
   return activeMenu.value ? componentMap[activeMenu.value] || null : null;
 });
 
+/** 加载组件 */
 const loadComponent = async (menuType: SettingMenuItemEnum) => {
   if (!componentMap[menuType]) {
     const config = menuConfigs.find((item) => item.type === menuType);
@@ -98,6 +103,7 @@ const loadComponent = async (menuType: SettingMenuItemEnum) => {
   }
 };
 
+/** 处理菜单点击 */
 const handleMenuClick = async (menuType: SettingMenuItemEnum) => {
   await loadComponent(menuType);
   activeMenu.value = menuType;
@@ -108,8 +114,10 @@ onMounted(async () => {
   activeMenu.value = SettingMenuItemEnum.General;
 });
 
+/** 初始化设置 */
 initSetting();
 
+/** 处理关闭 */
 const handleClose = () => {
   ipcWindowControl(WindowOperation.Close, { window_id: NewWindowEnum.Setting });
 };

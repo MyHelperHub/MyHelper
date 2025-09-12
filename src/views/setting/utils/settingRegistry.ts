@@ -11,7 +11,7 @@ import {
   syncAutoStartState,
 } from "@/composables/autosStart.ts";
 
-// 模块级缓存变量，存储初始化时的配置
+/** 模块级缓存变量，存储初始化时的配置 */
 let cachedSettingConfig: AppConfig["settingConfig"] | null = null;
 
 /**
@@ -21,19 +21,16 @@ let cachedSettingConfig: AppConfig["settingConfig"] | null = null;
 const getLatestConfig = async (
   passedConfig?: AppConfig["settingConfig"],
 ): Promise<AppConfig["settingConfig"]> => {
-  // 优先使用传入的配置（避免重复数据库查询）
   if (passedConfig) {
     return passedConfig;
   }
 
   if (cachedSettingConfig) {
     const config = cachedSettingConfig;
-    // 使用后立即清空缓存，确保下次获取最新值
     cachedSettingConfig = null;
     return config;
   }
 
-  // 缓存为空时从数据库获取最新配置
   const latestConfig = (await getConfig("settingConfig")) || {};
   return latestConfig;
 };
@@ -74,7 +71,6 @@ export const initSetting = async (
     },
     disabledFn: async () => {
       const config = await getLatestConfig(settingConfig);
-      // 确保总开关关闭
       const hotkeyConfig = { ...config.hotkey, enabled: false };
       await setHotkeyEnabled(hotkeyConfig);
     },
@@ -91,7 +87,4 @@ export const initSetting = async (
     },
     startEnabledFn: false,
   });
-
-  // 清空缓存（注意：不能过早清空，因为启动任务是异步执行的）
-  // cachedSettingConfig = null; // 移除这行，让缓存在实际使用时清空
 };

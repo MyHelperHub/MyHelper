@@ -4,6 +4,7 @@ import { ipcFileExists } from "@/api/ipc/launch.api";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
 
+/** 用户配置键名 */
 const USER_CONFIG_KEY = "userConfig";
 
 /**
@@ -42,6 +43,7 @@ export const setUserConfig = async (config: Partial<User>): Promise<void> => {
   }
 };
 
+/** 检查logo路径 */
 export const checkLogoPath = async (): Promise<string> => {
   const appDataPath = await appDataDir();
   const logoPath = `${appDataPath}/Image/logo.png`;

@@ -15,12 +15,19 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
+/** 消息内容 */
 const message = ref<string>("");
+/** 显示持续时间 */
 const duration = ref<number>(3000);
+/** 是否可见 */
 const visible = ref(false);
-const type = ref<number>(0); // 0: 默认黑色, 1: 成功色绿色, 2: 警告色红色
+/** 消息类型
+ * 0: 默认黑色, 1: 成功色绿色, 2: 警告色红色 */
+const type = ref<number>(0);
+/** 定时器 */
 let timer: ReturnType<typeof setTimeout> | null = null;
 
+/** 计算消息样式类 */
 const messageClass = computed(() => {
   switch (type.value) {
     case 1:
@@ -58,6 +65,7 @@ const showMessage = (msg: string, dur?: number, msgType?: number) => {
   }, duration.value);
 };
 
+/** 隐藏消息 */
 const hideMessage = () => {
   visible.value = false;
   if (timer) {

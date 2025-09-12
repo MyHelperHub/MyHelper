@@ -3,6 +3,7 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { showMessage } from "@/composables/message.ts";
 import { UpdateProgress, UpdateResult } from "@/interface/update";
 
+/** 检查应用更新 */
 export async function ipcCheckForUpdates(): Promise<UpdateResult> {
   try {
     const update = await check();
@@ -23,6 +24,7 @@ export async function ipcCheckForUpdates(): Promise<UpdateResult> {
   }
 }
 
+/** 下载并安装更新 */
 export async function ipcDownloadAndInstallUpdate(
   onProgress?: (progress: UpdateProgress) => void,
 ): Promise<void> {

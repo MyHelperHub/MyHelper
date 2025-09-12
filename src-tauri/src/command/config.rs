@@ -124,7 +124,6 @@ pub fn delete_config(keys: Vec<String>) -> Result<ApiResponse<()>, AppError> {
             }
 
             if keys.len() == 1 {
-                // 到达最后一个键，删除值
                 match data {
                     Value::Object(map) => {
                         map.remove(&keys[0]);

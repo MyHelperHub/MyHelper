@@ -8,26 +8,25 @@ import {
   handleMainWindowToggle,
 } from "../utils/windowManager.ts";
 
-// 快捷键常量
+/** 快捷键常量 */
 export const HotkeyActions = {
   TOGGLE_PANEL: "togglePanel",
   TOGGLE_WEB_LIST: "toggleWebList",
   TOGGLE_APP_LIST: "toggleAppList",
   TOGGLE_QUICK_INPUT: "toggleQuickInput",
-  // TOGGLE_PROXY: "toggleProxy",
 } as const;
 
 export type HotkeyActionType =
   (typeof HotkeyActions)[keyof typeof HotkeyActions];
 
-// 快捷键配置定义，包含ID、标题和默认键
+/** 快捷键配置定义，包含ID、标题和默认键 */
 export interface HotkeyDefinition {
   id: HotkeyActionType;
   title: string;
   defaultKey: string;
 }
 
-// 统一的快捷键配置表
+/** 统一的快捷键配置表 */
 export const HOTKEY_DEFINITIONS: HotkeyDefinition[] = [
   {
     id: HotkeyActions.TOGGLE_PANEL,
@@ -56,7 +55,7 @@ export const HOTKEY_DEFINITIONS: HotkeyDefinition[] = [
   // },
 ];
 
-// 获取所有快捷键定义的映射表
+/** 获取所有快捷键定义的映射表 */
 export const getHotkeyItemsMap = () => {
   const map: Record<string, { title: string }> = {};
   HOTKEY_DEFINITIONS.forEach((def) => {
@@ -65,7 +64,7 @@ export const getHotkeyItemsMap = () => {
   return map;
 };
 
-// 获取默认快捷键配置
+/** 获取默认快捷键配置 */
 export const getDefaultHotkeyConfig = () => {
   const config: Record<string, HotkeyConfig> = {};
   HOTKEY_DEFINITIONS.forEach((def) => {
@@ -80,7 +79,7 @@ export const getDefaultHotkeyConfig = () => {
   };
 };
 
-// 监听器的引用
+/** 监听器的引用 */
 let hotkeyUnlistener: UnlistenFn | null = null;
 
 /**
@@ -100,7 +99,6 @@ const ensureMainWindowExpanded = async () => {
  * 处理快捷键动作
  */
 const handleHotkeyAction = async (action: string) => {
-  // 根据动作类型执行相应操作
   switch (action) {
     case HotkeyActions.TOGGLE_PANEL:
       console.log("触发打开/关闭主窗口快捷键");
@@ -108,26 +106,19 @@ const handleHotkeyAction = async (action: string) => {
       break;
     case HotkeyActions.TOGGLE_WEB_LIST:
       console.log("触发打开网站列表弹窗快捷键");
-      // 先确保主窗口展开，再打开弹窗
       await ensureMainWindowExpanded();
       emit("hotkey-open-commonWeb");
       break;
     case HotkeyActions.TOGGLE_APP_LIST:
       console.log("触发打开软件列表弹窗快捷键");
-      // 先确保主窗口展开，再打开弹窗
       await ensureMainWindowExpanded();
       emit("hotkey-open-commonApp");
       break;
     case HotkeyActions.TOGGLE_QUICK_INPUT:
       console.log("触发打开快捷输入弹窗快捷键");
-      // 先确保主窗口展开，再打开弹窗
       await ensureMainWindowExpanded();
       emit("hotkey-open-quickInput");
       break;
-    // case HotkeyActions.TOGGLE_PROXY:
-    //   console.log("触发打开/关闭系统代理快捷键");
-    //   // 实际功能在此处理
-    //   break;
     default:
       Logger.warn("未知的快捷键动作:", action);
   }
@@ -138,13 +129,11 @@ const handleHotkeyAction = async (action: string) => {
  */
 const initHotkeyListener = async (): Promise<void> => {
   try {
-    // 如果已经有监听器，先取消它
     if (hotkeyUnlistener) {
       await hotkeyUnlistener();
       hotkeyUnlistener = null;
     }
 
-    // 监听来自后端的快捷键事件
     hotkeyUnlistener = await listen(
       "hotkey-triggered",
       (event: { payload: string }) => {
@@ -177,13 +166,11 @@ export const setHotkeyEnabled = async (
   config: HotkeyConfig,
 ): Promise<boolean> => {
   try {
-    // 设置后端热键状态
     await ipcSetHotkeyEnabled(config);
 
     if (config.enabled) {
       await initHotkeyListener();
     } else {
-      // 如果禁用热键，清理现有的监听器
       await cleanupHotkeyListener();
     }
 

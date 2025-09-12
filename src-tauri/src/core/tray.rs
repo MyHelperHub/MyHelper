@@ -13,16 +13,10 @@ pub fn setup<R: Runtime>(
 ) -> AppResult<()> {
     let handle = app.app_handle();
 
-    // 创建菜单
     let menu = create_tray_menu(handle)?;
-
-    // 创建托盘图标
     let icon = load_tray_icon()?;
-
-    // 构建托盘
     let tray = build_tray(handle, window, &menu, &icon)?;
 
-    // 设置托盘图标
     tray.set_icon(Some(icon))
         .map_err(|e| AppError::Error(format!("设置托盘图标失败: {}", e)))?;
 
