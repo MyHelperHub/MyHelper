@@ -477,11 +477,11 @@ const isDraggingScreenshot = ref(false);
   }
 
   .required-mark {
-    color: var(--theme-danger);
+    color: var(--theme-error);
   }
 
   .error-text {
-    color: var(--theme-danger);
+    color: var(--theme-error);
   }
 
   .question-icon {

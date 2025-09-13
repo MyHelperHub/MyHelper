@@ -1,7 +1,7 @@
 <template>
   <div
     class="label-container"
-    data-tauri-drag-region
+    v-window-drag
     @mouseover="showCloseButton = true"
     @mouseleave="showCloseButton = false"
     @contextmenu="showContextMenu">
@@ -18,11 +18,11 @@
       left-ear="down"
       right-ear="down">
       <div class="content">
-        <input class="title" placeholder="输入标题..." spellcheck="false" />
-        <textarea
+        <InputText class="title" placeholder="输入标题..." spellcheck="false" />
+        <Textarea
           class="textarea"
           placeholder="输入内容..."
-          spellcheck="false"></textarea>
+          spellcheck="false" />
       </div>
     </Mochi>
   </div>
@@ -35,6 +35,8 @@ import { ipcWindowControl } from "@/api/ipc/window.api";
 import { WindowOperation } from "@/interface/enum";
 import { showContextMenu } from "./utils/contextMenu";
 import { NewWindowEnum } from "@/interface/windowEnum";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
 
 const showCloseButton = ref(false);
 

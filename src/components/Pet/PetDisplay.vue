@@ -205,7 +205,8 @@ defineExpose({
     .loading-spinner {
       width: 24px;
       height: 24px;
-      border: 3px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+      border: 3px solid
+        rgba(var(--theme-border-rgb), var(--theme-transparency-border));
       border-top: 3px solid var(--theme-primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
@@ -220,7 +221,10 @@ defineExpose({
     transform: translate(-50%, -50%);
     text-align: center;
     color: var(--theme-error);
-    background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+    background: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
     padding: 12px;
     border-radius: 6px;
     z-index: 20;

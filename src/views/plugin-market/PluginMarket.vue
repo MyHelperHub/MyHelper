@@ -1006,7 +1006,10 @@ onMounted(async () => {
     .developer-link {
       &:hover {
         color: var(--theme-primary);
-        background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        background-color: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
       }
     }
   }

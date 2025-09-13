@@ -22,7 +22,7 @@ const duration = ref<number>(3000);
 /** 是否可见 */
 const visible = ref(false);
 /** 消息类型
- * 0: 默认黑色, 1: 成功色绿色, 2: 警告色红色 */
+ * 0: 默认, 1: 成功(绿色), 2: 错误(红色) */
 const type = ref<number>(0);
 /** 定时器 */
 let timer: ReturnType<typeof setTimeout> | null = null;
@@ -33,7 +33,7 @@ const messageClass = computed(() => {
     case 1:
       return "success";
     case 2:
-      return "warning";
+      return "error";
     default:
       return "";
   }
@@ -43,7 +43,7 @@ const messageClass = computed(() => {
  * 消息提示框
  * @param msg 提示信息
  * @param dur 持续时间
- * @param msgType 提示类型，0: 默认黑色, 1: 成功色绿色, 2: 警告色红色
+ * @param msgType 提示类型，0: 默认, 1: 成功(绿色), 2: 错误(红色)
  */
 const showMessage = (msg: string, dur?: number, msgType?: number) => {
   message.value = msg;
@@ -88,12 +88,18 @@ defineExpose({ showMessage, hideMessage });
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+    background-color: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
     color: var(--theme-text);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 10px 20px;
-    border-radius: 20px;
+    border-radius: var(--theme-radius-xl);
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    box-shadow: var(--theme-shadow-sm);
     z-index: 9999;
     transition: opacity 0.3s ease-in-out;
     font-size: 14px;
@@ -101,13 +107,19 @@ defineExpose({ showMessage, hideMessage });
     text-align: center;
 
     &.success {
-      background-color: var(--theme-success);
-      opacity: 0.9;
+      background-color: rgba(
+        var(--theme-success-rgb),
+        var(--theme-transparency-card)
+      );
+      color: var(--theme-background);
     }
 
-    &.warning {
-      background-color: var(--theme-error);
-      opacity: 0.9;
+    &.error {
+      background-color: rgba(
+        var(--theme-error-rgb),
+        var(--theme-transparency-card)
+      );
+      color: var(--theme-background);
     }
   }
 

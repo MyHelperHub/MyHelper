@@ -214,81 +214,187 @@ onUnmounted(() => {
     justify-content: center;
     gap: 6px;
     padding: 8px 12px;
-    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-    border-radius: 10px;
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border-radius: var(--theme-radius-sm);
     cursor: pointer;
     font-size: 12px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+    background: rgba(
+      var(--theme-background-secondary-rgb),
+      var(--theme-transparency-background-secondary)
+    );
+
+    i,
+    span {
+      position: relative;
+      z-index: 1;
+    }
 
     &.label-btn {
-      background: rgba(var(--theme-warning-rgb), var(--theme-transparency-background-secondary));
-      color: var(--theme-text);
-      border: 1px solid rgba(var(--theme-warning-rgb), var(--theme-transparency-border));
+      background: linear-gradient(
+        135deg,
+        rgba(var(--theme-warning-rgb), 0.9) 0%,
+        rgba(var(--theme-warning-rgb), 0.7) 100%
+      );
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: rgba(var(--theme-background-rgb), 0.9);
+      border: 1px solid rgba(var(--theme-warning-rgb), 0.8);
       position: relative;
       overflow: hidden;
+      box-shadow:
+        0 2px 8px rgba(var(--theme-warning-rgb), 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
+      // 便签纸撕裂效果 - 右上角
       &::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 16px;
+        height: 16px;
+        background:
+          radial-gradient(
+            circle at 50% 50%,
+            transparent 30%,
+            rgba(var(--theme-warning-rgb), 0.3) 35%
+          ),
+          conic-gradient(
+            from 45deg at 50% 50%,
+            transparent 0deg,
+            rgba(var(--theme-warning-rgb), 0.8) 90deg,
+            transparent 180deg
+          );
+        transform: rotate(45deg);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      // 纸质纹理效果
+      &::after {
         content: "";
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(
-          135deg,
-          rgba(var(--theme-warning-rgb), 0.1) 0%,
-          transparent 50%,
-          rgba(var(--theme-warning-rgb), 0.05) 100%
-        );
+        background:
+          repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 2px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            rgba(255, 255, 255, 0.02) 1px,
+            transparent 3px
+          );
         pointer-events: none;
       }
 
       &:hover {
-        transform: translateY(-1px);
-        background: rgba(var(--theme-warning-rgb), var(--theme-transparency-card));
-        border-color: rgba(var(--theme-warning-rgb), calc(var(--theme-transparency-border) * 2));
-        box-shadow: 
-          0 4px 12px rgba(var(--theme-warning-rgb), 0.15),
-          0 2px 6px rgba(var(--theme-warning-rgb), 0.1);
-        color: var(--theme-text);
+        transform: translateY(-3px) scale(1.03) rotate(0.5deg);
+        background: linear-gradient(
+          135deg,
+          var(--theme-warning) 0%,
+          rgba(var(--theme-warning-rgb), 0.85) 100%
+        );
+        box-shadow:
+          0 6px 20px rgba(var(--theme-warning-rgb), 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        color: rgba(var(--theme-background-rgb), 0.95);
+
+        &::before {
+          transform: rotate(45deg) scale(1.2);
+        }
       }
     }
 
     &.market-btn {
-      background: rgba(var(--theme-info-rgb), var(--theme-transparency-background-secondary));
-      color: var(--theme-text);
-      border: 1px solid rgba(var(--theme-info-rgb), var(--theme-transparency-border));
+      background: linear-gradient(
+        135deg,
+        rgba(var(--theme-success-rgb), 0.9) 0%,
+        rgba(var(--theme-success-rgb), 0.7) 100%
+      );
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: rgba(var(--theme-background-rgb), 0.9);
+      border: 1px solid rgba(var(--theme-success-rgb), 0.8);
       position: relative;
       overflow: hidden;
+      box-shadow:
+        0 2px 8px rgba(var(--theme-success-rgb), 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
+      // 金币装饰效果
       &::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 8px;
+        height: 8px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 215, 0, 0.8) 0%,
+          rgba(255, 215, 0, 0.4) 50%,
+          transparent 100%
+        );
+        border-radius: 50%;
+        box-shadow:
+          0 0 4px rgba(255, 215, 0, 0.6),
+          inset 0 1px 2px rgba(255, 255, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      // 钱袋纹理效果
+      &::after {
         content: "";
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(
-          135deg,
-          rgba(var(--theme-info-rgb), 0.1) 0%,
-          transparent 50%,
-          rgba(var(--theme-info-rgb), 0.05) 100%
-        );
+        background:
+          radial-gradient(
+            circle at 25% 25%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 40%
+          );
         pointer-events: none;
       }
 
       &:hover {
-        transform: translateY(-1px);
-        background: rgba(var(--theme-info-rgb), var(--theme-transparency-card));
-        border-color: rgba(var(--theme-info-rgb), calc(var(--theme-transparency-border) * 2));
-        box-shadow: 
-          0 4px 12px rgba(var(--theme-info-rgb), 0.15),
-          0 2px 6px rgba(var(--theme-info-rgb), 0.1);
-        color: var(--theme-text);
+        transform: translateY(-3px) scale(1.03);
+        background: linear-gradient(
+          135deg,
+          var(--theme-success) 0%,
+          rgba(var(--theme-success-rgb), 0.85) 100%
+        );
+        box-shadow:
+          0 6px 20px rgba(var(--theme-success-rgb), 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        color: rgba(var(--theme-background-rgb), 0.95);
+
+        &::before {
+          width: 10px;
+          height: 10px;
+          box-shadow:
+            0 0 8px rgba(255, 215, 0, 0.8),
+            0 0 12px rgba(255, 215, 0, 0.4),
+            inset 0 1px 2px rgba(255, 255, 255, 0.4);
+        }
       }
     }
 

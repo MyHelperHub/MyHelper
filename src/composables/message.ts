@@ -17,7 +17,7 @@ const setMessageRef = (ref: MessageRef | null) => {
 /** 展示消息
  * @param {string} message - 消息内容
  * @param {number} duration - 消息展示时间
- * @param {number} type - 消息类型：0 默认黑色，1 成功绿色，2 警告红色
+ * @param {number} type - 消息类型：0 默认，1 成功(绿色)，2 错误(红色)
  */
 const showMessage = (message: string, duration?: number, type?: number) => {
   if (messageRef.value) {

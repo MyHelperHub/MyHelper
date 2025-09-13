@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <Dialog
     v-model:visible="isVisible"
     modal
     header="自定义主题配置"
-    :style="{ width: '900px', maxHeight: '85vh' }"
+    :style="{ width: '96vw', height: '85vh' }"
     class="custom-theme-dialog">
     <div class="dialog-content">
       <div class="layout-container">
@@ -62,6 +62,7 @@
                   >
                 </div>
               </div>
+
               <div class="slider-group">
                 <label>边框透明度</label>
                 <div class="slider-container">
@@ -273,7 +274,7 @@
                       >
                     </div>
                     <div class="info-item">
-                      <span class="label">边框透明度:</span>
+                      <span class="label">边框透明度</span>
                       <span class="value"
                         >{{
                           Math.round(localConfig.transparency.border * 100)
@@ -355,10 +356,7 @@ interface CustomThemeConfig {
   };
 }
 
-const props = defineProps<{
-  visible: boolean;
-  currentTheme?: any;
-}>();
+const props = defineProps<{ visible: boolean; currentTheme?: any }>();
 
 const emit = defineEmits<{
   "update:visible": [value: boolean];
@@ -371,61 +369,35 @@ const isVisible = computed({
   set: (value) => emit("update:visible", value),
 });
 
-/**
- * 从CSS变量中获取颜色值
- * @param varName CSS变量名
- * @returns 十六进制颜色值或空字符串
- */
+// 从 CSS 变量读取颜色值
 const getColorFromCSSVar = (varName: string): string => {
-  const root = document.documentElement;
-  const value = getComputedStyle(root).getPropertyValue(varName).trim();
-
-  if (value.startsWith("rgb")) {
-    return colorUtils.rgbToHex(value);
-  }
-  if (value.startsWith("#")) {
-    return value;
-  }
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(varName)
+    .trim();
+  if (value.startsWith("rgb")) return colorUtils.rgbToHex(value);
+  if (value.startsWith("#")) return value;
+  if (/^[a-fA-F0-9]{6}$/.test(value)) return `#${value.toLowerCase()}`;
   return "";
 };
 
-/**
- * 获取当前应用的主题配置
- * @returns 当前主题配置对象
- */
+// 获取当前主题配置（从 CSS 变量）
 const getCurrentThemeColors = (): CustomThemeConfig => {
-  const defaultTransparency = {
-    background: 0.9,
-    backgroundSecondary: 0.8,
-    card: 0.85,
-    border: 0.3,
-  };
+  const gs = (name: string) =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-  const bgAlpha = getComputedStyle(document.documentElement)
-    .getPropertyValue("--theme-transparency-background")
-    .trim();
-  const bgSecondaryAlpha = getComputedStyle(document.documentElement)
-    .getPropertyValue("--theme-transparency-background-secondary")
-    .trim();
-  const cardAlpha = getComputedStyle(document.documentElement)
-    .getPropertyValue("--theme-transparency-card")
-    .trim();
-  const borderAlpha = getComputedStyle(document.documentElement)
-    .getPropertyValue("--theme-transparency-border")
-    .trim();
+  const bgAlpha = gs("--theme-transparency-background");
+  const bgSecondaryAlpha = gs("--theme-transparency-background-secondary");
+  const cardAlpha = gs("--theme-transparency-card");
+  const borderAlpha = gs("--theme-transparency-border");
 
   return {
     transparency: {
-      background: bgAlpha
-        ? parseFloat(bgAlpha)
-        : defaultTransparency.background,
+      background: bgAlpha ? parseFloat(bgAlpha) : 0.9,
       backgroundSecondary: bgSecondaryAlpha
         ? parseFloat(bgSecondaryAlpha)
-        : defaultTransparency.backgroundSecondary,
-      card: cardAlpha ? parseFloat(cardAlpha) : defaultTransparency.card,
-      border: borderAlpha
-        ? parseFloat(borderAlpha)
-        : defaultTransparency.border,
+        : 0.8,
+      card: cardAlpha ? parseFloat(cardAlpha) : 0.85,
+      border: borderAlpha ? parseFloat(borderAlpha) : 0.3,
     },
     colors: {
       primary: getColorFromCSSVar("--theme-primary") || "#4f6df5",
@@ -441,29 +413,19 @@ const getCurrentThemeColors = (): CustomThemeConfig => {
   };
 };
 
-// 当前编辑的配置
+// 工作配置与原始配置
 const localConfig = ref<CustomThemeConfig>(getCurrentThemeColors());
-// 原始配置，用于取消和重置操作
 const originalConfig = ref<CustomThemeConfig>(getCurrentThemeColors());
 
-/**
- * 将颜色值转换为带透明度的RGBA格式
- * @param hexOrRgb 十六进制或RGB颜色值
- * @param alpha 透明度值 (0-1)
- * @returns RGBA颜色字符串
- */
+// 将十六进制或 rgb 转为 rgba
 const toRgba = (hexOrRgb: string, alpha: number) => {
   if (!hexOrRgb) return `rgba(255, 255, 255, ${alpha})`;
-
-  let rgbStr = hexOrRgb;
-  if (hexOrRgb.startsWith("#")) {
-    rgbStr = colorUtils.hexToRgb(hexOrRgb);
-  }
-
-  if (rgbStr && rgbStr.startsWith("rgb(")) {
-    return rgbStr.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
-  }
-  return `rgba(255, 255, 255, ${alpha})`;
+  const rgbStr = hexOrRgb.startsWith("#")
+    ? colorUtils.hexToRgb(hexOrRgb)
+    : hexOrRgb;
+  return rgbStr.startsWith("rgb(")
+    ? rgbStr.replace("rgb(", "rgba(").replace(")", `, ${alpha})`)
+    : `rgba(255, 255, 255, ${alpha})`;
 };
 
 // 预览容器样式
@@ -482,13 +444,12 @@ const previewStyles = computed(() => {
     padding: "16px",
     color: localConfig.value.colors.text,
     minHeight: "200px",
-  };
+  } as Record<string, string>;
 });
 
 // 预览卡片样式
 const previewCardStyles = computed(() => {
   const cardBgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
-
   return {
     background: toRgba(cardBgRgb, localConfig.value.transparency.card),
     backdropFilter: "blur(10px)",
@@ -497,13 +458,12 @@ const previewCardStyles = computed(() => {
     padding: "12px",
     color: localConfig.value.colors.text,
     marginBottom: "12px",
-  };
+  } as Record<string, string>;
 });
 
 // 透明度演示样式
 const transparencyDemoStyles = computed(() => {
   const bgRgb = colorUtils.hexToRgb(localConfig.value.colors.background);
-
   return {
     background: `linear-gradient(135deg, ${toRgba(bgRgb, localConfig.value.transparency.background)} 0%, ${toRgba(bgRgb, localConfig.value.transparency.backgroundSecondary)} 100%)`,
     backdropFilter: "blur(15px)",
@@ -512,43 +472,30 @@ const transparencyDemoStyles = computed(() => {
     padding: "12px",
     color: localConfig.value.colors.text,
     marginTop: "12px",
-  };
+  } as Record<string, string>;
 });
 
-/**
- * 重置配置到打开弹窗时的状态
- */
+// 操作：重置、取消、应用
 const resetConfig = () => {
   localConfig.value = JSON.parse(JSON.stringify(originalConfig.value));
   showMessage("配置已重置", 2000, 1);
 };
 
-/**
- * 关闭弹窗并恢复原始配置
- */
 const closeDialog = () => {
   localConfig.value = JSON.parse(JSON.stringify(originalConfig.value));
   isVisible.value = false;
 };
 
-/**
- * 应用当前配置
- */
 const applyConfig = () => {
-  try {
-    emit("apply", localConfig.value);
-    originalConfig.value = JSON.parse(JSON.stringify(localConfig.value));
-    isVisible.value = false;
-    showMessage("主题配置已应用", 2000, 1);
-  } catch (error) {
-    console.error("应用主题配置失败:", error);
-    showMessage("应用主题配置失败", 3000, 3);
-  }
+  emit("apply", localConfig.value);
+  originalConfig.value = JSON.parse(JSON.stringify(localConfig.value));
+  isVisible.value = false;
+  showMessage("主题配置已应用", 2000, 1);
 };
 
-// 监听弹窗打开，初始化配置
-watch(isVisible, (newVal) => {
-  if (newVal) {
+// 打开时刷新配置
+watch(isVisible, (open) => {
+  if (open) {
     const config = getCurrentThemeColors();
     localConfig.value = JSON.parse(JSON.stringify(config));
     originalConfig.value = JSON.parse(JSON.stringify(config));
@@ -558,8 +505,24 @@ watch(isVisible, (newVal) => {
 
 <style lang="less">
 .custom-theme-dialog {
+  padding: 6px;
+  /* 让 Dialog 本体按列布局，并固定高度，便于内容区占满剩余空间 */
+  &.p-dialog {
+    display: flex;
+    flex-direction: column;
+    height: 85vh;
+  }
+
+  /* 让 PrimeVue 内容区占满剩余空间，并作为弹性容器承载内部布局 */
+  .p-dialog-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
   .dialog-content {
-    max-height: 70vh;
+    /* 占满内容区剩余空间，避免被父容器裁切 */
+    flex: 1 1 auto;
     overflow: hidden;
     padding: 0;
   }
@@ -571,7 +534,9 @@ watch(isVisible, (newVal) => {
 
     .config-panel {
       flex: 1;
-      max-height: 70vh;
+      /* 让面板自身占满容器高度，滚动在此处产生 */
+      height: 100%;
+      min-height: 0; // 允许在flex容器内正确产生内部滚动
       overflow-y: auto;
       padding-right: 8px;
 
@@ -596,6 +561,27 @@ watch(isVisible, (newVal) => {
     .preview-panel {
       flex: 1;
       min-width: 300px;
+      height: 100%;
+      min-height: 0; // 允许在flex容器内正确产生内部滚动
+      overflow-y: auto;
+      padding-right: 8px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: var(--theme-border);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
+        border-radius: 3px;
+      }
     }
   }
 

@@ -7,7 +7,7 @@
         'small-mode': !isShowMenu,
         'large-mode': isShowMenu,
       }"
-      data-tauri-drag-region>
+      v-window-drag>
       <AvatarDisplay
         :default-logo="avatarLogo"
         :is-show-menu="isShowMenu"
@@ -130,7 +130,7 @@ const showMenu = async () => {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: var(--theme-radius-xl);
   overflow: hidden;
 }
 
@@ -190,13 +190,17 @@ const showMenu = async () => {
   height: 100%;
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--theme-radius-xl);
   box-shadow: var(--theme-shadow-lg);
 
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-rgb),
+    var(--theme-transparency-background)
+  );
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 }
 
 .header-section {
@@ -253,9 +257,13 @@ const showMenu = async () => {
     .action-btn {
       width: 28px;
       height: 28px;
-      border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+      border: 1px solid
+        rgba(var(--theme-border-rgb), var(--theme-transparency-border));
       border-radius: 50%;
-      background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+      background: rgba(
+        var(--theme-background-rgb),
+        var(--theme-transparency-background)
+      );
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: var(--theme-text-muted);
@@ -274,7 +282,10 @@ const showMenu = async () => {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        background: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
         border-radius: 50%;
         z-index: -1;
         transition: all 0.2s ease;
@@ -287,7 +298,10 @@ const showMenu = async () => {
         box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.3);
 
         &::before {
-          background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+          background: rgba(
+            var(--theme-background-secondary-rgb),
+            var(--theme-transparency-background-secondary)
+          );
         }
       }
 
@@ -300,7 +314,8 @@ const showMenu = async () => {
 
 .search-section {
   padding: 8px 16px;
-  border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  border-bottom: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   animation: section-fade-in 0.2s cubic-bezier(0.25, 1, 0.5, 1) 0.12s both;
 }
 

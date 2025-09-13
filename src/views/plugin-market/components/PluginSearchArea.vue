@@ -1,7 +1,7 @@
 <template>
-  <div class="search-area" data-tauri-drag-region>
+  <div class="search-area" v-window-drag>
     <div class="container">
-      <div class="search-wrapper" data-tauri-drag-region>
+      <div class="search-wrapper" v-window-drag>
         <div class="search-input">
           <InputText
             :model-value="keyword"
@@ -12,16 +12,13 @@
             v-if="keyword"
             class="pi pi-times-circle clear-button"
             @click="$emit('clear-search')" />
-          <Button
-            class="search-button"
-            icon="pi pi-search"
-            @click="$emit('search')" />
+          <i class="pi pi-search search-button" @click="$emit('search')"></i>
         </div>
         <div class="button-group">
           <Button
             icon="pi pi-list"
             label="已安装插件"
-            class="installed-button"
+            class="installed-button theme-button-primary"
             @click="$emit('show-installed')" />
         </div>
       </div>
@@ -50,7 +47,10 @@ defineEmits<Emits>();
 
 <style lang="less">
 .search-area {
-  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+  background: rgba(
+    var(--theme-background-rgb),
+    var(--theme-transparency-background)
+  );
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--theme-border);
@@ -71,12 +71,12 @@ defineEmits<Emits>();
 
   .search-input {
     position: relative;
-    flex: 1;
     max-width: 36rem;
+    min-width: 0;
 
     :deep(.p-inputtext) {
       width: 100%;
-      padding-right: 5rem;
+      padding-right: 5rem; /* 留出右侧清除/搜索图标空间 */
     }
 
     .clear-button {
@@ -100,17 +100,11 @@ defineEmits<Emits>();
       top: 50%;
       transform: translateY(-50%);
       padding: 0.5rem;
-      border: none;
-      background-color: transparent;
       color: var(--theme-text-muted);
+      cursor: pointer;
 
       &:hover {
         color: var(--theme-primary);
-        background-color: var(--theme-background-secondary);
-      }
-
-      &:focus {
-        box-shadow: none;
       }
     }
   }

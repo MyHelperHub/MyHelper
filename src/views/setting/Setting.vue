@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-wrap" data-tauri-drag-region>
+  <div class="settings-wrap" v-window-drag>
     <i class="pi pi-times close close-button" @click="handleClose"></i>
     <div class="layout-container">
       <div class="menu-container">
@@ -15,7 +15,7 @@
           </div>
         </div>
       </div>
-      <div class="content-container" data-tauri-drag-region>
+      <div class="content-container">
         <KeepAlive :include="loadedComponents">
           <component :is="currentComponent" :key="activeMenu" />
         </KeepAlive>
@@ -186,7 +186,7 @@ const handleClose = () => {
             transition: height 0.3s ease;
           }
 
-            &:hover {
+          &:hover {
             background: var(--theme-background);
             color: var(--theme-text);
             transform: translateX(4px);

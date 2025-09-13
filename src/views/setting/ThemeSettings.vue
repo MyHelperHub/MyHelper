@@ -200,7 +200,8 @@ onMounted(() => {
   .setting-item {
     margin-bottom: 24px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border-bottom: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
     &:last-child {
       border-bottom: none;
@@ -245,11 +246,15 @@ onMounted(() => {
       flex-direction: column;
       align-items: center;
       padding: 16px 12px;
-      border: 2px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+      border: 2px solid
+        rgba(var(--theme-border-rgb), var(--theme-transparency-border));
       border-radius: 16px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+      background: rgba(
+        var(--theme-background-rgb),
+        var(--theme-transparency-background)
+      );
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       position: relative;
@@ -265,7 +270,10 @@ onMounted(() => {
         background: linear-gradient(
           90deg,
           transparent,
-          rgba(var(--theme-background-rgb), var(--theme-transparency-background)),
+          rgba(
+            var(--theme-background-rgb),
+            var(--theme-transparency-background)
+          ),
           transparent
         );
       }
@@ -276,7 +284,10 @@ onMounted(() => {
           0 4px 16px rgba(var(--theme-primary-rgb), 0.15),
           0 2px 8px rgba(var(--theme-text-rgb), 0.08);
         transform: translateY(-2px) scale(1.02);
-        background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+        background: rgba(
+          var(--theme-background-rgb),
+          var(--theme-transparency-background)
+        );
       }
 
       &.active {
@@ -315,8 +326,10 @@ onMounted(() => {
         overflow: hidden;
         box-shadow:
           0 2px 8px rgba(var(--theme-text-rgb), 0.1),
-          inset 0 1px 0 rgba(var(--theme-background-rgb), var(--theme-transparency-border));
-        border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+          inset 0 1px 0
+            rgba(var(--theme-background-rgb), var(--theme-transparency-border));
+        border: 1px solid
+          rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
         .preview-dots {
           position: absolute;
@@ -332,7 +345,8 @@ onMounted(() => {
             border-radius: 50%;
             display: block;
             box-shadow: var(--theme-shadow-sm);
-            border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+            border: 1px solid
+              rgba(var(--theme-border-rgb), var(--theme-transparency-border));
           }
         }
 
@@ -342,9 +356,14 @@ onMounted(() => {
           inset: 0;
           background: linear-gradient(
             135deg,
-            rgba(var(--theme-background-rgb), var(--theme-transparency-border)) 0%,
+            rgba(var(--theme-background-rgb), var(--theme-transparency-border))
+              0%,
             transparent 50%,
-            rgba(var(--theme-border-rgb), calc(var(--theme-transparency-border) * 0.3)) 100%
+            rgba(
+                var(--theme-border-rgb),
+                calc(var(--theme-transparency-border) * 0.3)
+              )
+              100%
           );
           pointer-events: none;
         }

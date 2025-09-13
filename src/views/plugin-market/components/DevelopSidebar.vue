@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <div class="menu-header" data-tauri-drag-region>
+    <div class="menu-header" v-window-drag>
       <Button
         icon="pi pi-arrow-left"
         class="p-button-text p-button-sm back-button"
@@ -96,7 +96,10 @@ const menuItems = MENU_ITEMS;
 
       &:hover,
       &.active {
-        background: rgba(var(--theme-primary-rgb), var(--theme-transparency-border));
+        background: rgba(
+          var(--theme-primary-rgb),
+          var(--theme-transparency-border)
+        );
         color: var(--theme-primary);
       }
 

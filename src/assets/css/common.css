@@ -2,8 +2,12 @@
 
 /* 精确的 PrimeVue Dialog/Popover 主题样式 - 避免全局影响 */
 .p-dialog.p-component {
-  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card)
+  );
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 16px;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -19,8 +23,12 @@
 }
 
 .p-popover.p-component {
-  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card)
+  );
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 8px;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
@@ -37,10 +45,14 @@
 
 /* 毛玻璃卡片基础样式 */
 .glass-card {
-  background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+  background: rgba(
+    var(--theme-background-secondary-rgb),
+    var(--theme-transparency-background-secondary)
+  );
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
@@ -49,7 +61,10 @@
 }
 
 .glass-card:hover {
-  background: rgba(var(--theme-background-secondary-rgb), calc(var(--theme-transparency-background-secondary) + 0.05));
+  background: rgba(
+    var(--theme-background-secondary-rgb),
+    calc(var(--theme-transparency-background-secondary) + 0.05)
+  );
   transform: translateY(-1px);
   box-shadow: var(--theme-shadow-md);
 }
@@ -66,7 +81,8 @@
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -155,7 +171,10 @@
   font-size: 14px;
   margin-bottom: 6px;
   transition: all 0.3s ease;
-  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background-secondary));
+  background: rgba(
+    var(--theme-background-rgb),
+    var(--theme-transparency-background-secondary)
+  );
   box-shadow: var(--theme-shadow-sm);
 }
 
@@ -257,7 +276,8 @@
     rgba(var(--theme-primary-rgb), 0.08),
     rgba(var(--theme-primary-rgb), 0.05)
   ) !important;
-  border: 1px dashed rgba(var(--theme-primary-rgb), var(--theme-transparency-border)) !important;
+  border: 1px dashed
+    rgba(var(--theme-primary-rgb), var(--theme-transparency-border)) !important;
   box-shadow: var(--theme-shadow-sm), var(--theme-shadow-md) !important;
   color: var(--theme-text);
 }
@@ -277,12 +297,16 @@
     rgba(var(--theme-primary-rgb), 0.12),
     rgba(var(--theme-primary-rgb), 0.08)
   ) !important;
-  border: 1px dashed rgba(var(--theme-primary-rgb), calc(var(--theme-transparency-border) * 1.5)) !important;
+  border: 1px dashed
+    rgba(var(--theme-primary-rgb), calc(var(--theme-transparency-border) * 1.5)) !important;
   box-shadow: var(--theme-shadow-lg), var(--theme-shadow-md) !important;
 }
 
 .add-card .icon-container {
-  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background-secondary)) !important;
+  background: rgba(
+    var(--theme-background-rgb),
+    var(--theme-transparency-background-secondary)
+  ) !important;
   color: var(--theme-primary) !important;
   font-weight: bold;
   box-shadow: var(--theme-shadow-sm);
@@ -303,7 +327,8 @@
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 18px;
   box-shadow:
     0 4px 16px rgba(var(--theme-text-rgb), 0.08),
@@ -341,7 +366,8 @@
   );
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(var(--theme-border-rgb), calc(var(--theme-transparency-border) * 0.8));
+  border: 1px solid
+    rgba(var(--theme-border-rgb), calc(var(--theme-transparency-border) * 0.8));
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

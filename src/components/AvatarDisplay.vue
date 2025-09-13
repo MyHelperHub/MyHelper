@@ -224,8 +224,12 @@ defineExpose({
 .large-mode {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-rgb),
+    var(--theme-transparency-background)
+  );
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   box-shadow: var(--theme-shadow-sm);
   position: relative;
 
@@ -250,7 +254,11 @@ defineExpose({
   transform: scale(1.02);
 
   &::before {
-    background: linear-gradient(135deg, rgba(var(--theme-background-rgb), var(--theme-transparency-background)), var(--theme-primary));
+    background: linear-gradient(
+      135deg,
+      rgba(var(--theme-background-rgb), var(--theme-transparency-background)),
+      var(--theme-primary)
+    );
     opacity: 0.2;
   }
 }

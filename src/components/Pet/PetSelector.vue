@@ -1,13 +1,12 @@
 <template>
   <div class="pet-selector">
     <ConfirmDialog></ConfirmDialog>
-    
-    <DataView 
-      :value="models" 
+
+    <DataView
+      :value="models"
       :loading="isLoading"
       layout="list"
       class="model-dataview">
-      
       <!-- 头部模板 -->
       <template #header>
         <div class="selector-header">
@@ -23,33 +22,34 @@
         <div class="empty-state">
           <i class="pi pi-box empty-icon"></i>
           <p>暂无可用模型</p>
-          <Button 
-            @click="refreshModels" 
-            label="刷新" 
+          <Button
+            @click="refreshModels"
+            label="刷新"
             icon="pi pi-refresh"
-            size="small" 
+            size="small"
             outlined />
         </div>
       </template>
 
       <!-- 列表项模板 -->
       <template #list="slotProps">
-        <div 
+        <div
           v-for="(model, index) in slotProps.items"
           :key="index"
           class="model-item"
           :class="{ selected: selectedIndex === index }"
           @click="selectModel(index)">
-          
           <!-- 模型预览头像 -->
           <div class="model-avatar-container">
-            <Avatar 
+            <Avatar
               :label="getModelInitial(model.name)"
               class="model-avatar"
               :class="{ 'user-model': model.source === 1 }"
               size="normal" />
             <div class="avatar-badge">
-              <i v-if="model.source === 0" class="pi pi-star-fill builtin-badge"></i>
+              <i
+                v-if="model.source === 0"
+                class="pi pi-star-fill builtin-badge"></i>
               <i v-else class="pi pi-user user-badge"></i>
             </div>
           </div>
@@ -59,13 +59,17 @@
             <div class="model-name">
               {{ model.name }}
               <Tag v-if="model.source === 0" value="内置" severity="warning" />
-              <Tag v-if="model.version" :value="formatVersion(model.version)" severity="info" />
+              <Tag
+                v-if="model.version"
+                :value="formatVersion(model.version)"
+                severity="info" />
             </div>
-            
+
             <div class="model-path">{{ getShortPath(model.path) }}</div>
-            
-            <div v-if="model.source === 1 && (model.size || model.importTime)" 
-                 class="model-extra-info">
+
+            <div
+              v-if="model.source === 1 && (model.size || model.importTime)"
+              class="model-extra-info">
               <Chip v-if="model.size" class="info-chip">
                 <template #icon>
                   <i class="pi pi-database"></i>
@@ -83,7 +87,7 @@
 
           <!-- 操作按钮 -->
           <div v-if="model.source === 1" class="model-actions">
-            <Button 
+            <Button
               @click.stop="deleteUserModel(model)"
               icon="pi pi-trash"
               severity="danger"
@@ -331,8 +335,12 @@ defineExpose({
 <style lang="less">
 .pet-selector {
   border-radius: 8px;
-  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card)
+  );
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
   :deep(.model-dataview) {
     border: none;
@@ -367,7 +375,10 @@ defineExpose({
   .model-count {
     font-size: 11px;
     color: var(--theme-text-muted);
-    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+    background: rgba(
+      var(--theme-background-secondary-rgb),
+      var(--theme-transparency-background-secondary)
+    );
     padding: 2px 6px;
     border-radius: 12px;
     font-weight: 500;
@@ -399,11 +410,17 @@ defineExpose({
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
-    background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+    background: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
     margin-bottom: 4px;
 
     &:hover {
-      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       transform: translateY(-1px);
       box-shadow: var(--theme-shadow-sm);
     }
@@ -419,7 +436,10 @@ defineExpose({
       }
 
       :deep(.info-chip) {
-        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        background: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
         color: var(--theme-text);
       }
     }
@@ -433,11 +453,19 @@ defineExpose({
         height: 40px;
         font-size: 16px;
         font-weight: 600;
-        background: linear-gradient(45deg, var(--theme-primary), var(--theme-primary-dark));
+        background: linear-gradient(
+          45deg,
+          var(--theme-primary),
+          var(--theme-primary-dark)
+        );
         color: var(--theme-background);
 
         &.user-model {
-          background: linear-gradient(45deg, var(--theme-success), var(--theme-success));
+          background: linear-gradient(
+            45deg,
+            var(--theme-success),
+            var(--theme-success)
+          );
         }
       }
 
@@ -448,12 +476,16 @@ defineExpose({
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+        background: rgba(
+          var(--theme-background-card-rgb),
+          var(--theme-transparency-card)
+        );
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 8px;
-        border: 2px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+        border: 2px solid
+          rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
         .builtin-badge {
           color: var(--theme-warning);
@@ -504,7 +536,10 @@ defineExpose({
         :deep(.info-chip) {
           font-size: 9px;
           padding: 2px 6px;
-          background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+          background: rgba(
+            var(--theme-background-secondary-rgb),
+            var(--theme-transparency-background-secondary)
+          );
           color: var(--theme-text-muted);
 
           i {

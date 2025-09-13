@@ -19,6 +19,7 @@ import {
   completeThemeInit,
   initMainWindow,
 } from "./utils/appInit";
+import windowDrag from "./utils/windowDrag";
 
 // 预初始化主题
 await preInitTheme();
@@ -59,6 +60,7 @@ app.use(PrimeVue, {
 app.directive("tooltip", Tooltip);
 app.use(ConfirmationService);
 app.use(ToastService);
+app.directive("window-drag", windowDrag);
 
 // 完成主题系统初始化
 completeThemeInit().catch((error) =>

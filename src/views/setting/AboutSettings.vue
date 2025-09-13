@@ -325,7 +325,10 @@ const handleClick = (e: MouseEvent) => {
     .progress-bar {
       width: 100%;
       height: 6px;
-      background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background-color: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       border-radius: 3px;
       overflow: hidden;
 

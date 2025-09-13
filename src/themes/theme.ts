@@ -22,20 +22,57 @@ const DEFAULT_THEME_CONFIG: ThemeConfig = {
 
 /** 是否正在更新主题 */
 let isUpdatingTheme = false;
-/** 缓存的样式元素 */
-let cachedStyleElement: HTMLStyleElement | null = null;
-/** 最后应用的变量 */
-let lastAppliedVariables: string = "";
 
 /** 默认透明度配置 */
 const DEFAULT_TRANSPARENCY = {
-  light: { background: 0.92, backgroundSecondary: 0.85, card: 0.9, border: 0.3 },
-  dark: { background: 0.88, backgroundSecondary: 0.82, card: 0.85, border: 0.25 },
-  custom: { background: 0.88, backgroundSecondary: 0.82, card: 0.85, border: 0.3 },
+  light: {
+    background: 0.92,
+    backgroundSecondary: 0.85,
+    card: 0.9,
+    border: 0.3,
+  },
+  dark: {
+    background: 0.88,
+    backgroundSecondary: 0.82,
+    card: 0.85,
+    border: 0.25,
+  },
+  custom: {
+    background: 0.88,
+    backgroundSecondary: 0.82,
+    card: 0.85,
+    border: 0.3,
+  },
 };
 
 /** 颜色工具函数 */
 export const colorUtils = {
+  /**
+   * 规范化十六进制颜色串，确保为 #rrggbb 形式
+   */
+  normalizeHex(input: string): string {
+    if (!input) return "#000000";
+
+    let hex = input.trim();
+    // rgb(...) -> #rrggbb
+    if (hex.startsWith("rgb")) {
+      const converted = this.rgbToHex(hex);
+      hex = converted || hex;
+    }
+
+    // 添加缺失的 # 前缀
+    if (!hex.startsWith("#")) hex = `#${hex}`;
+
+    // #rgb -> #rrggbb 展开
+    const shorthand = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthand, (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`);
+
+    // 只保留标准形式
+    const full = /^#([a-f\d]{6})$/i.exec(hex);
+    if (full) return `#${full[1].toLowerCase()}`;
+
+    return hex.toLowerCase();
+  },
   hexToRgb(hex: string): string {
     const shorthand = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthand, (_, r, g, b) => r + r + g + g + b + b);
@@ -110,10 +147,11 @@ export const colorUtils = {
   },
 
   createColorValue(hex: string): ColorValue {
+    const normalized = this.normalizeHex(hex);
     return {
-      hex,
-      rgb: this.hexToRgb(hex),
-      hsl: this.hexToHsl(hex),
+      hex: normalized,
+      rgb: this.hexToRgb(normalized),
+      hsl: this.hexToHsl(normalized),
     };
   },
 
@@ -263,7 +301,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#ff8c00"),
       error: colorUtils.createColorValue("#ff4757"),
       info: colorUtils.createColorValue("#74b9ff"),
-      transparency: { background: 0.85, backgroundSecondary: 0.78, card: 0.82, border: 0.2 },
+      transparency: {
+        background: 0.85,
+        backgroundSecondary: 0.78,
+        card: 0.82,
+        border: 0.2,
+      },
     },
   },
   {
@@ -286,7 +329,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#06b6d4"),
-      transparency: { background: 0.95, backgroundSecondary: 0.88, card: 0.92, border: 0.35 },
+      transparency: {
+        background: 0.95,
+        backgroundSecondary: 0.88,
+        card: 0.92,
+        border: 0.35,
+      },
     },
   },
   {
@@ -309,7 +357,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#eab308"),
       error: colorUtils.createColorValue("#ef4444"),
       info: colorUtils.createColorValue("#3b82f6"),
-      transparency: { background: 0.93, backgroundSecondary: 0.86, card: 0.9, border: 0.32 },
+      transparency: {
+        background: 0.93,
+        backgroundSecondary: 0.86,
+        card: 0.9,
+        border: 0.32,
+      },
     },
   },
   {
@@ -332,7 +385,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#f59e0b"),
       error: colorUtils.createColorValue("#f43f5e"),
       info: colorUtils.createColorValue("#06b6d4"),
-      transparency: { background: 0.87, backgroundSecondary: 0.8, card: 0.84, border: 0.22 },
+      transparency: {
+        background: 0.87,
+        backgroundSecondary: 0.8,
+        card: 0.84,
+        border: 0.22,
+      },
     },
   },
   {
@@ -355,7 +413,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#d97706"),
       error: colorUtils.createColorValue("#dc2626"),
       info: colorUtils.createColorValue("#0284c7"),
-      transparency: { background: 0.96, backgroundSecondary: 0.9, card: 0.94, border: 0.4 },
+      transparency: {
+        background: 0.96,
+        backgroundSecondary: 0.9,
+        card: 0.94,
+        border: 0.4,
+      },
     },
   },
   {
@@ -378,7 +441,12 @@ export const presetThemes: PresetTheme[] = [
       warning: colorUtils.createColorValue("#ffaa00"),
       error: colorUtils.createColorValue("#ff0044"),
       info: colorUtils.createColorValue("#0088ff"),
-      transparency: { background: 0.82, backgroundSecondary: 0.75, card: 0.8, border: 0.18 },
+      transparency: {
+        background: 0.82,
+        backgroundSecondary: 0.75,
+        card: 0.8,
+        border: 0.18,
+      },
     },
   },
 ];
@@ -391,17 +459,17 @@ export const presetThemes: PresetTheme[] = [
  */
 function isThemeDark(colors: ThemeColors, mode: ThemeMode): boolean {
   if (mode === ThemeMode.Dark) return true;
-  
+
   if (mode === ThemeMode.Light) return false;
-  
+
   // 对于 custom 模式，根据背景色亮度自动判断
   const rgb = colors.background.rgb.match(/\d+/g);
   if (!rgb) return false;
-  
+
   const [r, g, b] = rgb.map(Number);
   // 使用相对亮度公式判断
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  
+
   // 亮度小于0.5认为是暗色主题
   return luminance < 0.5;
 }
@@ -430,7 +498,8 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
   variables["--theme-transparency-background-secondary"] =
     transparency.backgroundSecondary.toString();
   variables["--theme-transparency-card"] = transparency.card.toString();
-  variables["--theme-transparency-border"] = transparency.border?.toString() || "0.3";
+  variables["--theme-transparency-border"] =
+    transparency.border?.toString() || "0.3";
 
   // 渐变变量
   if (colors.gradient) {
@@ -451,27 +520,11 @@ function generateCSSVariables(colors: ThemeColors): Record<string, string> {
   return variables;
 }
 
-/**
- * 应用主题变量
- */
-function applyThemeVariables(variables: Record<string, string>): void {
-  const cssRules = Object.entries(variables)
-    .map(([key, value]) => `  ${key}: ${value};`)
-    .join("\n");
-
-  const cssContent = `:root {\n${cssRules}\n}`;
-
-  if (lastAppliedVariables === cssContent) return;
-
-  requestAnimationFrame(() => {
-    if (!cachedStyleElement) {
-      cachedStyleElement = document.createElement("style");
-      cachedStyleElement.id = "dynamic-theme-vars";
-      document.head.appendChild(cachedStyleElement);
-    }
-
-    cachedStyleElement.textContent = cssContent;
-    lastAppliedVariables = cssContent;
+/** 直接设置到 :root 的 CSS 变量 */
+function setRootCSSVariables(variables: Record<string, string>): void {
+  const root = document.documentElement;
+  Object.entries(variables).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
   });
 }
 
@@ -569,9 +622,9 @@ export async function applyTheme(
       }
     }
 
-    // 应用传统 CSS 变量（保持向后兼容）
+    // 应用 CSS 变量
     const variables = generateCSSVariables(colors);
-    applyThemeVariables(variables);
+    setRootCSSVariables(variables);
 
     // 判断是否为暗色主题
     const isDark = isThemeDark(colors, config.mode);

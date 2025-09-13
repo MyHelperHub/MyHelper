@@ -8,13 +8,16 @@ import { colorUtils } from "../theme";
 /**
  * 将主题颜色应用到 PrimeVue --p-* 变量
  */
-export function applyPrimeVueTheme(colors: ThemeColors, mode: "light" | "dark"): void {
+export function applyPrimeVueTheme(
+  colors: ThemeColors,
+  mode: "light" | "dark",
+): void {
   const root = document.documentElement;
   const isDark = mode === "dark";
 
   // 1. 设置主题模式属性 - 官方推荐方式
   root.setAttribute("data-theme", isDark ? "dark" : "light");
-  
+
   // 2. 设置暗色模式类 - 让PrimeVue自动处理暗色模式
   if (isDark) {
     root.classList.add("dark");
@@ -41,7 +44,7 @@ export function applyPrimeVueTheme(colors: ThemeColors, mode: "light" | "dark"):
 function generatePrimaryPalette(baseColor: string): Record<string, string> {
   const palette: Record<string, string> = {};
   const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-  
+
   // 使用更精确的颜色调整算法
   const adjustments = [-90, -80, -60, -30, -15, 0, 15, 30, 50, 70, 85];
 
@@ -67,25 +70,25 @@ function generatePrimaryPalette(baseColor: string): Record<string, string> {
  */
 function applySemanticColors(colors: ThemeColors): void {
   const root = document.documentElement;
-  
+
   // Success 色系
   const successPalette = generateColorPalette(colors.success.hex);
   Object.entries(successPalette).forEach(([key, value]) => {
     root.style.setProperty(`--p-green-${key}`, value);
   });
-  
-  // Warning 色系  
+
+  // Warning 色系
   const warningPalette = generateColorPalette(colors.warning.hex);
   Object.entries(warningPalette).forEach(([key, value]) => {
     root.style.setProperty(`--p-orange-${key}`, value);
   });
-  
+
   // Error 色系
   const errorPalette = generateColorPalette(colors.error.hex);
   Object.entries(errorPalette).forEach(([key, value]) => {
     root.style.setProperty(`--p-red-${key}`, value);
   });
-  
+
   // Info 色系
   const infoPalette = generateColorPalette(colors.info.hex);
   Object.entries(infoPalette).forEach(([key, value]) => {
@@ -98,23 +101,41 @@ function applySemanticColors(colors: ThemeColors): void {
  */
 function applyTransparencySystem(_colors: ThemeColors): void {
   const root = document.documentElement;
-  
+
   // 这个函数现在主要用于PrimeVue特定的集成
   // 所有的--theme-*变量已经由传统的generateCSSVariables函数生成
-  
+
   // 添加阴影变量（基于主题模式）
-  const isDark = document.documentElement.classList.contains('dark');
-  
+  const isDark = document.documentElement.classList.contains("dark");
+
   if (isDark) {
     // 暗色主题阴影
-    root.style.setProperty('--theme-shadow-sm', '0 1px 2px 0 rgba(0, 0, 0, 0.3)');
-    root.style.setProperty('--theme-shadow-md', '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2)');
-    root.style.setProperty('--theme-shadow-lg', '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2)');
+    root.style.setProperty(
+      "--theme-shadow-sm",
+      "0 1px 2px 0 rgba(0, 0, 0, 0.3)",
+    );
+    root.style.setProperty(
+      "--theme-shadow-md",
+      "0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2)",
+    );
+    root.style.setProperty(
+      "--theme-shadow-lg",
+      "0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2)",
+    );
   } else {
     // 亮色主题阴影
-    root.style.setProperty('--theme-shadow-sm', '0 1px 2px 0 rgba(0, 0, 0, 0.05)');
-    root.style.setProperty('--theme-shadow-md', '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)');
-    root.style.setProperty('--theme-shadow-lg', '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)');
+    root.style.setProperty(
+      "--theme-shadow-sm",
+      "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    );
+    root.style.setProperty(
+      "--theme-shadow-md",
+      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    );
+    root.style.setProperty(
+      "--theme-shadow-lg",
+      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    );
   }
 }
 

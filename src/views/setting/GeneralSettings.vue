@@ -199,7 +199,10 @@ const handleDataReset = async (
     --p-toggleswitch-checked-background: var(--theme-primary);
 
     &:hover {
-      background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background-color: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       box-shadow: var(--theme-shadow-sm);
     }
 

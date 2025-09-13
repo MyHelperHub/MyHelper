@@ -48,9 +48,7 @@ class AppInitManager {
         this.themeConfig = themeConfig;
       }
 
-      if (this.themeConfig) {
-        await initTheme(this.themeConfig);
-      }
+      await initTheme(this.themeConfig);
 
       this.isThemeReady = true;
     } catch (error) {

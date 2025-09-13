@@ -189,9 +189,9 @@ const getCategoryName = (category: number | undefined) => {
     color: var(--theme-text-muted);
   }
 
-  .error-text {
-    color: var(--theme-danger);
-  }
+    .error-text {
+      color: var(--theme-error);
+    }
 
   .description-text {
     color: var(--theme-text-secondary);

@@ -213,7 +213,8 @@ defineExpose({
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     border-radius: 8px;
     width: 40px;
     height: 40px;

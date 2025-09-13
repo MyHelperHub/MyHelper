@@ -43,15 +43,24 @@ defineExpose({ showLoading, hideLoading });
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(var(--theme-background-rgb), 0.5);
+  background-color: rgba(
+    var(--theme-background-rgb),
+    calc(var(--theme-transparency-background) - 0.4)
+  );
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 20px;
+  border-radius: var(--theme-radius-xl);
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 5000;
   transition: opacity 0.3s ease-in-out;
+
+  .p-progress-spinner {
+    color: var(--theme-primary);
+  }
 
   .loading-spinner {
     width: 30px;

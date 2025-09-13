@@ -50,12 +50,11 @@
           spellcheck="false"
           @keydown.enter="handleSearch" />
 
-        <button
-          class="search-button"
+        <i
+          class="pi pi-search search-button"
           :class="{ active: searchData.length > 0 }"
-          @click="handleSearch">
-          <i class="pi pi-search"></i>
-        </button>
+          @click="handleSearch"
+          aria-label="搜索"></i>
       </div>
     </div>
   </div>
@@ -133,17 +132,27 @@ function handleSearch() {
     position: relative;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
-    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-    border-radius: 12px;
+    background: rgba(
+      var(--theme-background-secondary-rgb),
+      var(--theme-transparency-background-secondary)
+    );
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border-radius: var(--theme-radius-md);
 
     &:hover {
-      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       box-shadow: var(--theme-shadow-sm);
     }
 
     &:focus-within {
-      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.3);
     }
   }
@@ -157,7 +166,10 @@ function handleSearch() {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
     }
 
     .engine-icon-wrapper {
@@ -189,13 +201,16 @@ function handleSearch() {
   }
 
   .search-input-wrapper {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     align-items: center;
-    margin-left: 8px;
+    min-width: 0;
 
     .search-input {
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: 0;
+      width: auto;
+      box-sizing: border-box;
       border: none;
       outline: none;
       background: transparent;
@@ -211,42 +226,37 @@ function handleSearch() {
       }
 
       &:focus {
-        background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        background: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
       }
     }
 
     .search-button {
-      width: 28px;
-      height: 28px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(
-        135deg,
-        var(--theme-primary),
-        var(--theme-primary-dark)
-      );
-      color: var(--theme-background);
+      flex: 0 0 auto;
+      margin-left: 6px;
+      color: var(--theme-text-muted);
+      font-size: 16px;
+      line-height: 1;
       cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
+      transition:
+        color 0.2s ease,
+        transform 0.1s ease;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      opacity: 0.7;
 
       &:hover {
-        opacity: 1;
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb), 0.3);
+        color: var(--theme-primary);
       }
 
       &:active {
-        transform: scale(0.95);
+        transform: scale(0.96);
       }
 
       &.active {
-        opacity: 1;
-        box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
+        color: var(--theme-primary);
       }
     }
   }
@@ -258,8 +268,12 @@ function handleSearch() {
   min-width: 140px;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
-  border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card)
+  );
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: 8px;
   box-shadow: var(--theme-shadow-lg);
 
@@ -274,14 +288,18 @@ function handleSearch() {
     position: relative;
 
     &:hover {
-      background: rgba(var(--theme-primary-rgb), var(--theme-transparency-border));
+      background: rgba(
+        var(--theme-primary-rgb),
+        var(--theme-transparency-border)
+      );
     }
 
     .option-icon {
       width: 16px;
       height: 16px;
       border-radius: 3px;
-      border: 1px solid rgba(var(--theme-border-light-rgb), var(--theme-transparency-border));
+      border: 1px solid
+        rgba(var(--theme-border-light-rgb), var(--theme-transparency-border));
     }
 
     .option-title {

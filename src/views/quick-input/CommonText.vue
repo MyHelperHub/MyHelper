@@ -34,7 +34,7 @@
             <div v-if="editingId !== item.id" class="item-text">
               {{ item.text || "空内容" }}
             </div>
-            <input
+            <InputText
               v-else
               v-model="item.text"
               class="item-input"
@@ -65,6 +65,7 @@ import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { on } from "@/utils/eventBus";
 import VirtualList from "@/components/VirtualList.vue";
 import ContextMenu from "primevue/contextmenu";
+import InputText from "primevue/inputtext";
 import {
   contextMenuRef,
   menuItems,

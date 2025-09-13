@@ -36,6 +36,15 @@
 | `--theme-shadow-md` | 中等阴影 |
 | `--theme-shadow-lg` | 大阴影 |
 
+### 圆角变量
+| 变量 | 数值 | 应用场景 |
+|------|------|----------|
+| `--theme-radius-xl` | 20px | 主容器、弹窗 |
+| `--theme-radius-lg` | 16px | 卡片、面板 |
+| `--theme-radius-md` | 14px | 按钮、输入框 |
+| `--theme-radius-sm` | 10px | 小组件 |
+| `--theme-radius-xs` | 8px | 图标、标签 |
+
 ## 🎯 快速选择指南
 
 ### 颜色选择
@@ -74,6 +83,24 @@ background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card
 
 /* 边框 */
 border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+```
+
+### 圆角选择
+```css
+/* 主容器、弹窗 */
+border-radius: var(--theme-radius-xl);
+
+/* 卡片、面板 */
+border-radius: var(--theme-radius-lg);
+
+/* 按钮、输入框 */
+border-radius: var(--theme-radius-md);
+
+/* 小组件 */
+border-radius: var(--theme-radius-sm);
+
+/* 图标、标签 */
+border-radius: var(--theme-radius-xs);
 ```
 
 ## ✅ 标准写法模板

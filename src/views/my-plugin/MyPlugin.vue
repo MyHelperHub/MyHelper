@@ -125,7 +125,12 @@ defineExpose({ openPopover });
   padding: 1.5rem;
   gap: 1.5rem;
   justify-content: flex-start;
-  background: var(--theme-background-card) !important;
+  background: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card)
+  ) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .icon-wrapper {
@@ -138,9 +143,13 @@ defineExpose({ openPopover });
     transform: translateY(-3px);
 
     .icon {
-      background-color: rgba(var(--theme-background-rgb), 0.9) !important;
+      background-color: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      ) !important;
       box-shadow: var(--theme-shadow-md) !important;
-      border: 1px solid rgba(var(--theme-primary-rgb), 0.3) !important;
+      border: 1px solid
+        rgba(var(--theme-primary-rgb), var(--theme-transparency-border)) !important;
     }
   }
 }
@@ -159,9 +168,13 @@ defineExpose({ openPopover });
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(var(--theme-background-rgb), 0.7) !important;
-  border: 1px solid var(--theme-border) !important;
-  border-radius: 14px;
+  background-color: rgba(
+    var(--theme-background-card-rgb),
+    var(--theme-transparency-card)
+  ) !important;
+  border: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border)) !important;
+  border-radius: var(--theme-radius-md);
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
@@ -171,7 +184,7 @@ defineExpose({ openPopover });
     width: 36px;
     height: 36px;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: var(--theme-radius-xs);
   }
 }
 </style>

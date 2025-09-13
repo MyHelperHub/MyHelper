@@ -201,22 +201,35 @@ defineExpose({ visible });
   }
 
   .feature-card {
-    background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
-    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    background: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
     &:hover {
-      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       box-shadow: var(--theme-shadow-md);
       border-color: var(--theme-primary);
     }
   }
 
   .add-card {
-    background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+    background: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
     border: 1px dashed var(--theme-primary);
 
     &:hover {
-      background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+      background: rgba(
+        var(--theme-background-secondary-rgb),
+        var(--theme-transparency-background-secondary)
+      );
       border: 1px dashed var(--theme-primary-dark);
       box-shadow: var(--theme-shadow-sm);
     }

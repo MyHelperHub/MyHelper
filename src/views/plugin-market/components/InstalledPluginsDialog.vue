@@ -11,7 +11,7 @@
         <Button
           icon="pi pi-upload"
           label="从本地导入"
-          class="p-button-outlined mb-3"
+          class="theme-button-primary"
           @click="$emit('open-import-dialog')" />
       </div>
       <DataTable
@@ -244,7 +244,10 @@ const hasUpdate = (plugin: Plugin): boolean => {
         padding: 0.5rem;
 
         &:hover {
-          background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+          background-color: rgba(
+            var(--theme-background-secondary-rgb),
+            var(--theme-transparency-background-secondary)
+          );
         }
       }
     }
@@ -255,5 +258,6 @@ const hasUpdate = (plugin: Plugin): boolean => {
   display: flex;
   justify-content: flex-start;
   margin-bottom: 1rem;
+  margin-left: 1rem;
 }
 </style>

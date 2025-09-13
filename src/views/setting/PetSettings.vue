@@ -300,10 +300,14 @@ onMounted(async () => {
     gap: 24px;
 
     .setting-section {
-      background: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+      background: rgba(
+        var(--theme-background-card-rgb),
+        var(--theme-transparency-card)
+      );
       border-radius: 8px;
       padding: 20px;
-      border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+      border: 1px solid
+        rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
       .section-header {
         display: flex;
@@ -383,8 +387,12 @@ onMounted(async () => {
           gap: 16px;
 
           .preview-container {
-            background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
-            border: 2px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+            background: rgba(
+              var(--theme-background-secondary-rgb),
+              var(--theme-transparency-background-secondary)
+            );
+            border: 2px solid
+              rgba(var(--theme-border-rgb), var(--theme-transparency-border));
             border-radius: 12px;
             padding: 12px;
             display: flex;
@@ -413,7 +421,10 @@ onMounted(async () => {
 
               span {
                 padding: 4px 8px;
-                background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+                background: rgba(
+                  var(--theme-background-secondary-rgb),
+                  var(--theme-transparency-background-secondary)
+                );
                 border-radius: 12px;
                 font-size: 12px;
                 color: var(--theme-text-muted);
@@ -430,7 +441,8 @@ onMounted(async () => {
             .scale-control {
               margin-top: 12px;
               padding-top: 12px;
-              border-top: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+              border-top: 1px solid
+                rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
               label {
                 display: block;
@@ -441,14 +453,6 @@ onMounted(async () => {
               }
 
               .scale-slider {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-
-                :deep(.p-slider) {
-                  flex: 1;
-                }
-
                 .scale-value {
                   font-size: 13px;
                   color: var(--theme-text);

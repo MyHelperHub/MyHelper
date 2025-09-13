@@ -11,7 +11,7 @@
                 disabled: !modelValue[key]?.enabled,
                 recording: recording && activeKey === key,
               }">
-              <input
+              <InputText
                 class="hotkey-input"
                 :value="
                   recording && activeKey === key
@@ -23,13 +23,7 @@
                 @blur="cancelRecording"
                 @keydown="captureHotkey($event)"
                 placeholder="点击输入快捷键"
-                :disabled="!modelValue[key]?.enabled"
-                :ref="
-                  (el) => {
-                    if (key === activeKey)
-                      activeInputRef = el as HTMLInputElement;
-                  }
-                " />
+                :disabled="!modelValue[key]?.enabled" />
               <i
                 v-if="recording && activeKey === key"
                 class="pi pi-times edit-icon"
@@ -61,6 +55,7 @@
 
 <script setup lang="ts">
 import ToggleSwitch from "primevue/toggleswitch";
+import InputText from "primevue/inputtext";
 import { showMessage } from "@/composables/message.ts";
 import { ref } from "vue";
 import { delay } from "@/utils/common";
@@ -83,8 +78,6 @@ const emit = defineEmits<{
 const recording = ref(false);
 // 当前活动的键(正在录制的键)
 const activeKey = ref<string | null>(null);
-// 当前活动输入框引用
-const activeInputRef = ref<HTMLInputElement | null>(null);
 // 临时按键值
 const tempKey = ref("");
 
@@ -176,11 +169,13 @@ const captureHotkey = async (event: KeyboardEvent) => {
   showMessage(`已设置快捷键: ${hotkey}`, 1500, 1);
 
   await delay(300).then(() => {
-    // 使用引用直接访问当前输入框并使其失焦
-    if (activeInputRef.value) {
-      activeInputRef.value.blur();
+    // 让当前激活元素失焦
+    if (
+      document.activeElement &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur();
     }
-
     // 取消录制状态
     cancelRecording();
   });
@@ -239,7 +234,10 @@ const captureHotkey = async (event: KeyboardEvent) => {
       opacity: 0.7;
 
       .hotkey-input {
-        background-color: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
+        background-color: rgba(
+          var(--theme-background-secondary-rgb),
+          var(--theme-transparency-background-secondary)
+        );
         color: var(--theme-text-muted);
       }
     }
@@ -253,10 +251,14 @@ const captureHotkey = async (event: KeyboardEvent) => {
   .hotkey-input {
     width: 100%;
     padding: 6px 12px;
-    border: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     border-radius: 6px;
     font-size: 0.9rem;
-    background-color: rgba(var(--theme-background-rgb), var(--theme-transparency-background));
+    background-color: rgba(
+      var(--theme-background-rgb),
+      var(--theme-transparency-background)
+    );
     color: var(--theme-text);
     cursor: pointer;
     text-align: center;

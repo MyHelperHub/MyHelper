@@ -384,7 +384,10 @@ const hasUpdateComputed = computed(() => {
 
     .version-info {
       margin-bottom: 20px;
-      background-color: rgba(var(--theme-background-card-rgb), var(--theme-transparency-card));
+      background-color: rgba(
+        var(--theme-background-card-rgb),
+        var(--theme-transparency-card)
+      );
       border-radius: 8px;
       padding: 1.5rem;
 

@@ -24,7 +24,7 @@
 
     <!-- 主内容区 -->
     <div class="main-content">
-      <div class="content-header" data-tauri-drag-region>
+      <div class="content-header" v-window-drag>
         <h2>{{ MENU_TITLES[activeMenu] }}</h2>
         <Button
           v-if="activeMenu === MenuKey.MyPlugins"
@@ -909,7 +909,7 @@ onMounted(() => {
 <style lang="less">
 .plugin-develop {
   .error-text {
-    color: var(--theme-danger);
+    color: var(--theme-error);
   }
 
   display: flex;

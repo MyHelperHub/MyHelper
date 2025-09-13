@@ -110,3 +110,9 @@ MyHelper uses different event naming conventions:
 - Code examples and best practices
 
 **Core Principle**: All UI elements MUST use theme variables - no hardcoded colors or transparency values allowed.
+
+## Window Dragging 规范
+
+- 选择：复杂区用 `v-window-drag`；空白区用 `data-tauri-drag-region`；可混用，优先保证点击/输入正常。
+- `v-window-drag`：`<div v-window-drag>`；可选 `{ handle: '.title', threshold: 6, dblclickMaximize: true }`；排除 `.no-drag` / `[data-no-drag]`。
+- `data-tauri-drag-region`：给纯空白元素添加；混有控件时用分层（背板 `.drag-layer[data-tauri-drag-region]` + 上层 `.content`）。

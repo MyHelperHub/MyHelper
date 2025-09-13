@@ -86,8 +86,12 @@ defineExpose({ visible });
   display: flex;
   padding: 8px;
   gap: 4px;
-  background: rgba(var(--theme-background-secondary-rgb), var(--theme-transparency-background-secondary));
-  border-bottom: 1px solid rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  background: rgba(
+    var(--theme-background-secondary-rgb),
+    var(--theme-transparency-background-secondary)
+  );
+  border-bottom: 1px solid
+    rgba(var(--theme-border-rgb), var(--theme-transparency-border));
 
   .tab-btn {
     flex: 1;
