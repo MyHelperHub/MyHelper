@@ -1,187 +1,197 @@
 <template>
   <Dialog
     v-model:visible="visible"
-    :modal="true"
-    :dismissableMask="true"
+    modal
+    dismissableMask
     :closable="false"
     :showHeader="false"
-    :style="{ top: '50px', left: '10px' }">
+    :style="{ width: '232px', top: '10px', left: '10px' }"
+    @hide="onHide">
     <div class="panel-container quick-input-container">
-      <!-- 头部标签切换 -->
-      <div class="tab-header">
-        <button
-          class="tab-btn"
-          :class="{ active: activeTab === 0 }"
-          @click="activeTab = 0">
-          <div class="tab-icon">
-            <i class="pi pi-file-edit"></i>
-          </div>
-          <span>常用文本</span>
-        </button>
-        <button
-          class="tab-btn"
-          :class="{ active: activeTab === 1 }"
-          @click="activeTab = 1">
-          <div class="tab-icon">
-            <i class="pi pi-clipboard"></i>
-          </div>
-          <span>剪贴板</span>
-        </button>
+      <div class="qi-header">
+        <div class="qi-search">
+          <i class="pi pi-search"></i>
+          <InputText
+            v-model.trim="query"
+            autofocus
+            :placeholder="activeTab === 0 ? '搜索常用文本…' : '搜索剪贴板…'"
+            class="search-input" />
+        </div>
+        <div class="qi-tabs" role="tablist">
+          <button
+            type="button"
+            class="seg-btn"
+            :class="{ active: activeTab === 0 }"
+            role="tab"
+            :aria-selected="activeTab === 0"
+            @click="activeTab = 0"
+            title="常用文本">
+            常用 ({{ commonCount }})
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            :class="{ active: activeTab === 1 }"
+            role="tab"
+            :aria-selected="activeTab === 1"
+            @click="activeTab = 1"
+            title="剪贴板">
+            剪贴板 ({{ clipboardCount }})
+          </button>
+        </div>
       </div>
 
       <!-- 内容区域 -->
-      <div class="tab-content">
-        <transition name="fade-slide" mode="out-in">
-          <div v-if="activeTab === 0" key="text" class="content-wrapper">
-            <CommonText />
-          </div>
-          <div v-else key="clipboard" class="content-wrapper">
-            <Clipboard />
-          </div>
-        </transition>
+      <div class="qi-content">
+        <div v-show="activeTab === 0" class="content-wrapper">
+          <CommonText ref="commonRef" :query="query" />
+        </div>
+        <div v-show="activeTab === 1" class="content-wrapper">
+          <Clipboard ref="clipboardRef" :query="query" />
+        </div>
       </div>
     </div>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, useTemplateRef } from "vue";
 import Dialog from "primevue/dialog";
 import CommonText from "./CommonText.vue";
 import Clipboard from "./Clipboard.vue";
+import InputText from "primevue/inputtext";
 
 const visible = ref(false);
 
 /** 0为常用，1为剪贴板 */
 const activeTab = ref(0);
+const query = ref("");
+const commonRef = useTemplateRef<InstanceType<typeof CommonText>>("commonRef");
+const clipboardRef =
+  useTemplateRef<InstanceType<typeof Clipboard>>("clipboardRef");
+
+const commonCount = computed(() => commonRef.value?.getFilteredCount?.() ?? 0);
+const clipboardCount = computed(
+  () => clipboardRef.value?.getFilteredCount?.() ?? 0,
+);
 
 defineExpose({ visible });
+
+const onHide = () => {
+  query.value = "";
+};
 </script>
 
 <style lang="less">
 .quick-input-container {
-  width: 200px;
-  height: 320px;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  height: 400px;
+  max-height: calc(100vh - 54px);
   display: flex;
   flex-direction: column;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(
-      90deg,
-      rgba(var(--theme-primary-rgb), 0.3),
-      rgba(var(--theme-success-rgb), 0.3),
-      rgba(var(--theme-primary-rgb), 0.3)
-    );
-    z-index: 1;
-  }
+  position: relative;
 }
 
-.tab-header {
-  display: flex;
-  padding: 8px;
+.qi-header {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 4px;
-  background: rgba(
-    var(--theme-background-secondary-rgb),
-    var(--theme-transparency-background-secondary)
-  );
+  padding: 6px 6px 4px 6px;
+  background: transparent;
   border-bottom: 1px solid
     rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+}
 
-  .tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 10px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+.qi-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  i {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
     color: var(--theme-text-muted);
-    font-size: 11px;
-    font-weight: 600;
-    position: relative;
-    overflow: hidden;
+  }
 
-    .tab-icon {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--theme-background);
-      background: linear-gradient(
-        135deg,
-        var(--theme-text-muted),
-        var(--theme-border)
-      );
-      transition: all 0.3s ease;
-    }
-
-    &:hover {
-      background: rgba(var(--theme-background-rgb), 0.3);
-      transform: translateY(-1px);
-    }
-
-    &.active {
-      background: rgba(var(--theme-background-rgb), 0.6);
-      color: var(--theme-text);
-      box-shadow: 0 2px 8px rgba(var(--theme-primary-rgb), 0.2);
-
-      .tab-icon {
-        background: linear-gradient(
-          135deg,
-          var(--theme-primary) 0%,
-          var(--theme-info) 100%
-        );
-      }
-    }
-
-    span {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
+  .search-input {
+    width: 100%;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 26px;
+    padding-right: 8px;
+    border-radius: 8px;
+    background: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    color: var(--theme-text);
+    font-size: 12px;
   }
 }
 
-.tab-content {
+.qi-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.seg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--theme-text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &.active {
+    color: var(--theme-text);
+    border-bottom: 2px solid var(--theme-primary);
+  }
+}
+
+.qi-content {
   flex: 1;
   overflow: hidden;
 
   .content-wrapper {
     height: 100%;
-    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
     &::-webkit-scrollbar {
       width: 0;
       background: transparent;
     }
+    padding: 8px;
   }
 }
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: opacity 0.15s ease;
 }
-
 .fade-slide-enter-from {
   opacity: 0;
-  transform: translateX(10px) scale(0.98);
 }
-
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateX(-10px) scale(0.98);
 }
 
 .p-dialog .p-dialog-content {

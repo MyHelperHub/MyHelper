@@ -9,32 +9,16 @@
       }" />
 
     <!-- 剪贴板列表 -->
-    <VirtualList
-      :items="clipboardData"
-      :item-height="52"
-      :container-height="280"
-      key-field="id"
-      :overscan="3"
-      class="clipboard-list">
-      <template #default="{ item }">
-        <div
-          class="theme-list-card clipboard-item"
-          @click="pasteTo(item)"
-          @contextmenu.prevent="(e) => handleClipboardContextMenu(e, item)">
-          <!-- 简单图标 -->
-          <div class="item-icon">
-            <i class="pi pi-copy"></i>
-          </div>
-
-          <!-- 内容区域 -->
-          <div class="item-content">
-            <div class="item-text">
-              {{ item.text || "空内容" }}
-            </div>
-          </div>
-        </div>
-      </template>
-    </VirtualList>
+    <div class="clipboard-list">
+      <div
+        v-for="item in filtered"
+        :key="item.id"
+        class="qi-row"
+        @click="pasteTo(item)"
+        @contextmenu.prevent="(e) => handleClipboardContextMenu(e, item)">
+        <div class="row-text">{{ item.text || "空内容" }}</div>
+      </div>
+    </div>
 
     <!-- 空状态 -->
     <div v-if="clipboardData.length === 0" class="empty-state">
@@ -54,13 +38,23 @@ import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { QuickInputItem } from "@/interface/quickInput";
 import { clipboardData, removeClipboardItem } from "@/composables/clipboard.ts";
 import { on } from "@/utils/eventBus";
-import VirtualList from "@/components/VirtualList.vue";
 import ContextMenu from "primevue/contextmenu";
+import { computed } from "vue";
 import {
   clipboardContextMenuRef,
   clipboardMenuItems,
   handleClipboardContextMenu,
 } from "./utils/contextMenu";
+
+const props = defineProps<{ query?: string }>();
+
+const filtered = computed(() => {
+  const q = (props.query || "").trim().toLowerCase();
+  if (!q) return clipboardData.value;
+  return clipboardData.value.filter((i) =>
+    (i.text || "").toLowerCase().includes(q),
+  );
+});
 
 // 初始化事件监听
 on("delete-clipboardItem", deleteClipboardItem);
@@ -76,55 +70,64 @@ const pasteTo = async (item: QuickInputItem) => {
   await ipcWriteClipboard(item.text);
   await ipcPaste();
 };
+
+const getFilteredCount = () => filtered.value.length;
+defineExpose({ getFilteredCount });
 </script>
 
 <style lang="less">
 .clipboard-panel {
-  padding: 12px;
+  padding: 8px;
   height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .clipboard-list {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
 
-  .clipboard-item {
+  .qi-row {
+    display: flex;
+    align-items: center;
     width: 100%;
-    margin-bottom: 6px;
+    padding: 0 10px;
+    border: 1px solid
+      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+    border-radius: 8px;
+    background: transparent;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+    cursor: pointer;
+    height: 36px;
+  }
 
-    .item-icon {
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--theme-text-muted);
-      font-size: 12px;
-      transition: all 0.3s ease;
-      flex-shrink: 0;
-    }
+  .qi-row:hover {
+    background: rgba(
+      var(--theme-background-card-rgb),
+      var(--theme-transparency-card)
+    );
+    border-color: rgba(var(--theme-primary-rgb), 0.35);
+  }
 
-    .item-content {
-      flex: 1;
-      min-width: 0;
-      margin-left: 6px;
-
-      .item-text {
-        font-size: 13px;
-        color: var(--theme-text);
-        line-height: 1.4;
-        font-weight: 500;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        letter-spacing: 0.2px;
-      }
-    }
-
-    &:hover .item-icon {
-      color: var(--theme-primary);
-    }
+  .row-text {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: var(--theme-text);
+    font-weight: 500;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
   }
 }
 

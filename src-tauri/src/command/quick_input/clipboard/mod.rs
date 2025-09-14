@@ -25,7 +25,6 @@ use clipboard_rs::{
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
-use tauri::async_runtime;
 use tauri::{AppHandle, Emitter};
 use tokio::sync::mpsc;
 
@@ -66,15 +65,13 @@ impl Manager {
         if !CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
             return;
         }
-        
+
         let _ = self.sender.try_send(text.clone());
 
         let app_handle = self.app_handle.clone();
-        async_runtime::spawn(async move {
-            if let Err(e) = app_handle.emit("clipboard-updated", text) {
-                eprintln!("Failed to emit event: {}", e);
-            }
-        });
+        if let Err(e) = app_handle.emit("clipboard-updated", text) {
+            eprintln!("Failed to emit event: {}", e);
+        }
     }
 }
 
@@ -110,7 +107,12 @@ pub async fn start_clipboard_listener() -> Result<ApiResponse<()>, AppError> {
 
     let app_handle = match crate::core::app_handle::AppHandleManager::clone() {
         Some(handle) => handle,
-        None => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, "获取AppHandle失败")),
+        None => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrSystem,
+                "获取AppHandle失败",
+            ))
+        }
     };
 
     CLIPBOARD_LISTENER.store(true, Ordering::SeqCst);
@@ -119,7 +121,12 @@ pub async fn start_clipboard_listener() -> Result<ApiResponse<()>, AppError> {
     let manager = Manager::new(tx.clone(), app_handle.clone());
     let mut watcher = match ClipboardWatcherContext::new() {
         Ok(w) => w,
-        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("创建剪贴板监听程序失败： {}", e))),
+        Err(e) => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrSystem,
+                format!("创建剪贴板监听程序失败： {}", e),
+            ))
+        }
     };
 
     let watcher_shutdown = watcher.add_handler(manager).get_shutdown_channel();
@@ -156,11 +163,19 @@ pub async fn write_clipboard(text: String) -> Result<ApiResponse<()>, AppError> 
 
     let ctx = match ClipboardContext::new() {
         Ok(c) => c,
-        Err(e) => return Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("Failed to create clipboard context: {}", e))),
+        Err(e) => {
+            return Ok(ApiResponse::error(
+                ApiStatusCode::ErrSystem,
+                format!("Failed to create clipboard context: {}", e),
+            ))
+        }
     };
 
     match ctx.set_text(text) {
         Ok(_) => Ok(ApiResponse::success(())),
-        Err(e) => Ok(ApiResponse::error(ApiStatusCode::ErrSystem, format!("Failed to set clipboard content: {}", e))),
+        Err(e) => Ok(ApiResponse::error(
+            ApiStatusCode::ErrSystem,
+            format!("Failed to set clipboard content: {}", e),
+        )),
     }
 }

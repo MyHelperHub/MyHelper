@@ -20,24 +20,17 @@ export async function startClipboardListening() {
   }
 
   clipboardListener = await listen("clipboard-updated", (event) => {
-    const clipboardContent = event.payload as string;
+    const payload = event.payload as string | undefined;
+    const text = typeof payload === "string" ? payload : String(payload ?? "");
 
-    // 只处理不同于当前第一条的内容
-    if (
-      !clipboardData.value.length ||
-      (clipboardData.value[0].text !== clipboardContent &&
-        clipboardData.value[0].text !== "")
-    ) {
-      clipboardData.value.unshift({
-        id: Date.now(),
-        text: clipboardContent,
-      });
+    // 跳过空内容，避免阻塞后续有效内容被记录
+    if (text.trim().length === 0) return;
 
-      // 限制数据条数，超过 50 条时删除最早的记录
-      if (clipboardData.value.length > 50) {
-        clipboardData.value.pop();
-      }
-    }
+    // 与最新一条相同则忽略，避免重复
+    if (clipboardData.value[0]?.text === text) return;
+
+    // 以不可变方式更新，确保依赖于 ref.value 的计算属性/模板立即触发更新
+    clipboardData.value = [{ id: Date.now(), text }, ...clipboardData.value].slice(0, 50);
   });
 
   await ipcStartClipboardListener();
