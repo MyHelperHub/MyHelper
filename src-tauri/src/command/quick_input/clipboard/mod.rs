@@ -26,7 +26,6 @@ use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, Emitter};
-use tokio::sync::mpsc;
 
 // 使用OnceCell初始化静态资源，提高性能和线程安全性
 static CLIPBOARD_LISTENER: AtomicBool = AtomicBool::new(false); // 控制监听状态
@@ -44,32 +43,35 @@ fn get_watcher_shutdown() -> &'static Mutex<Option<WatcherShutdown>> {
 /// 负责处理剪贴板事件和内容更新
 struct Manager {
     ctx: ClipboardContext,
-    sender: mpsc::Sender<String>, // 发送器
     app_handle: AppHandle,        // 保存 AppHandle
+    last_text: Option<String>,    // 上一次文本，用于去重
 }
 
 impl Manager {
     /// 创建新的剪贴板管理器实例
-    pub fn new(sender: mpsc::Sender<String>, app_handle: AppHandle) -> Self {
+    pub fn new(app_handle: AppHandle) -> Self {
         let ctx = ClipboardContext::new().unwrap();
-        Manager {
-            ctx,
-            sender,
-            app_handle,
-        }
+        Manager { ctx, app_handle, last_text: None }
     }
 
     /// 处理剪贴板文本内容
-    fn handle_text(&self, text: String) {
+    fn handle_text(&mut self, text: String) {
         // 如果监听已经停止，不处理剪贴板事件
-        if !CLIPBOARD_LISTENER.load(Ordering::SeqCst) {
+        if !CLIPBOARD_LISTENER.load(Ordering::Relaxed) {
             return;
         }
 
-        let _ = self.sender.try_send(text.clone());
+        if self
+            .last_text
+            .as_ref()
+            .map(|s| s.as_str() == text.as_str())
+            .unwrap_or(false)
+        {
+            return;
+        }
+        self.last_text = Some(text.clone());
 
-        let app_handle = self.app_handle.clone();
-        if let Err(e) = app_handle.emit("clipboard-updated", text) {
+        if let Err(e) = self.app_handle.emit("clipboard-updated", text) {
             eprintln!("Failed to emit event: {}", e);
         }
     }
@@ -78,20 +80,18 @@ impl Manager {
 impl ClipboardHandler for Manager {
     fn on_clipboard_change(&mut self) {
         // 检查是否是内部操作触发的剪贴板变化
-        if INTERNAL_CLIPBOARD_OPERATION.load(Ordering::SeqCst) {
-            // 如果是内部操作，不处理这次剪贴板变化
-            INTERNAL_CLIPBOARD_OPERATION.store(false, Ordering::SeqCst);
+        if INTERNAL_CLIPBOARD_OPERATION.load(Ordering::Acquire) {
+            INTERNAL_CLIPBOARD_OPERATION.store(false, Ordering::Release);
             return;
         }
 
         if self.ctx.has(ContentFormat::Text) {
-            // 只获取一次剪贴板内容，避免重复系统调用
+            // 只获取一次剪贴板内容
             if let Ok(text) = self.ctx.get_text() {
-                println!("{}", text);
                 self.handle_text(text);
             }
         } else {
-            println!("Clipboard does not contain text format.");
+            // 非文本内容忽略
         }
     }
 }
@@ -117,8 +117,7 @@ pub async fn start_clipboard_listener() -> Result<ApiResponse<()>, AppError> {
 
     CLIPBOARD_LISTENER.store(true, Ordering::SeqCst);
 
-    let (tx, _rx) = mpsc::channel::<String>(10);
-    let manager = Manager::new(tx.clone(), app_handle.clone());
+    let manager = Manager::new(app_handle.clone());
     let mut watcher = match ClipboardWatcherContext::new() {
         Ok(w) => w,
         Err(e) => {
@@ -159,7 +158,7 @@ pub async fn stop_clipboard_listener() -> Result<ApiResponse<()>, AppError> {
 #[tauri::command]
 pub async fn write_clipboard(text: String) -> Result<ApiResponse<()>, AppError> {
     // 设置标志位，标记这是内部操作
-    INTERNAL_CLIPBOARD_OPERATION.store(true, Ordering::SeqCst);
+    INTERNAL_CLIPBOARD_OPERATION.store(true, Ordering::Release);
 
     let ctx = match ClipboardContext::new() {
         Ok(c) => c,

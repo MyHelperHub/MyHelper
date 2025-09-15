@@ -10,14 +10,13 @@
 
     <!-- 剪贴板列表 -->
     <div class="clipboard-list">
-      <div
+      <QuickInputRow
         v-for="item in filtered"
         :key="item.id"
-        class="qi-row"
+        :text="item.text"
         @click="pasteTo(item)"
-        @contextmenu.prevent="(e) => handleClipboardContextMenu(e, item)">
-        <div class="row-text">{{ item.text || "空内容" }}</div>
-      </div>
+        @contextmenu="handleClipboardContextMenu($event, item)"
+      />
     </div>
 
     <!-- 空状态 -->
@@ -40,6 +39,7 @@ import { clipboardData, removeClipboardItem } from "@/composables/clipboard.ts";
 import { on } from "@/utils/eventBus";
 import ContextMenu from "primevue/contextmenu";
 import { computed } from "vue";
+import QuickInputRow from "./components/QuickInputRow.vue";
 import {
   clipboardContextMenuRef,
   clipboardMenuItems,
@@ -92,43 +92,6 @@ defineExpose({ getFilteredCount });
   gap: 6px;
   overflow-y: auto;
   scrollbar-gutter: stable both-edges;
-
-  .qi-row {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0 10px;
-    border: 1px solid
-      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-    border-radius: 8px;
-    background: transparent;
-    transition:
-      background 0.15s ease,
-      border-color 0.15s ease;
-    cursor: pointer;
-    height: 36px;
-  }
-
-  .qi-row:hover {
-    background: rgba(
-      var(--theme-background-card-rgb),
-      var(--theme-transparency-card)
-    );
-    border-color: rgba(var(--theme-primary-rgb), 0.35);
-  }
-
-  .row-text {
-    flex: 1;
-    min-width: 0;
-    font-size: 13px;
-    color: var(--theme-text);
-    font-weight: 500;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    letter-spacing: 0.2px;
-  }
 }
 
 .empty-state {

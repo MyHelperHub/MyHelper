@@ -10,24 +10,22 @@
 
     <!-- 文本列表 -->
     <div ref="listRef" class="text-list">
-      <div
+      <QuickInputRow
         v-for="item in filtered"
         :key="item.id"
-        class="qi-row"
+        :text="item.text"
         @click="pasteTo(item)"
-        @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-        <div v-if="editingId !== item.id" class="row-text">
-          {{ item.text || "空内容" }}
-        </div>
-        <InputText
-          v-else
-          v-model="item.text"
-          class="row-input"
-          placeholder="输入文本内容..."
-          :data-id="item.id"
-          @blur="save"
-          @keyup.enter="save" />
-      </div>
+        @contextmenu="handleContextMenu($event, item)">
+        <template v-if="editingId === item.id">
+          <InputText
+            v-model="item.text"
+            class="row-input"
+            placeholder="输入文本内容..."
+            :data-id="item.id"
+            @blur="save"
+            @keyup.enter="save" />
+        </template>
+      </QuickInputRow>
     </div>
 
     <!-- 固定在右下角的添加按钮 -->
@@ -48,6 +46,7 @@ import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
 import { on } from "@/utils/eventBus";
 import ContextMenu from "primevue/contextmenu";
 import InputText from "primevue/inputtext";
+import QuickInputRow from "./components/QuickInputRow.vue";
 import {
   contextMenuRef,
   menuItems,
@@ -147,43 +146,6 @@ defineExpose({ getFilteredCount });
   display: flex;
   flex-direction: column;
   gap: 6px;
-
-  .qi-row {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0 10px;
-    border: 1px solid
-      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-    border-radius: 8px;
-    background: transparent;
-    transition:
-      background 0.15s ease,
-      border-color 0.15s ease;
-    cursor: pointer;
-    height: 36px;
-  }
-
-  .qi-row:hover {
-    background: rgba(
-      var(--theme-background-card-rgb),
-      var(--theme-transparency-card)
-    );
-    border-color: rgba(var(--theme-primary-rgb), 0.35);
-  }
-
-  .row-text {
-    flex: 1;
-    min-width: 0;
-    font-size: 13px;
-    color: var(--theme-text);
-    font-weight: 500;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    letter-spacing: 0.2px;
-  }
 
   .row-input {
     width: 100%;

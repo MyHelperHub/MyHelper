@@ -26,11 +26,11 @@ export async function startClipboardListening() {
     // 跳过空内容，避免阻塞后续有效内容被记录
     if (text.trim().length === 0) return;
 
-    // 与最新一条相同则忽略，避免重复
-    if (clipboardData.value[0]?.text === text) return;
-
-    // 以不可变方式更新，确保依赖于 ref.value 的计算属性/模板立即触发更新
-    clipboardData.value = [{ id: Date.now(), text }, ...clipboardData.value].slice(0, 50);
+    // 以不可变方式更新
+    clipboardData.value = [
+      { id: Date.now(), text },
+      ...clipboardData.value,
+    ].slice(0, 50);
   });
 
   await ipcStartClipboardListener();
