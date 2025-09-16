@@ -1,5 +1,6 @@
 import { Window } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
+import type { UnlistenFn } from "@tauri-apps/api/event";
 
 import { getConfig, getConfigs } from "./config";
 import { ErrorHandler } from "./errorHandler";
@@ -15,14 +16,20 @@ import {
 } from "../views/setting/utils/startupManager";
 import { PetGlobalManager } from "../components/Pet/PetGlobalManager";
 
+type MainWindowConfigs = {
+  themeConfig?: any;
+  settingConfig?: any;
+  userConfig?: any;
+};
+
 /**
  * 应用初始化管理器
  */
 class AppInitManager {
   private static instance: AppInitManager;
-  private themeConfig: any = null;
   private isThemeReady = false;
-
+  private unlistenSettingChange?: UnlistenFn;
+  private totalConfigs: MainWindowConfigs = {};
   private constructor() {}
 
   static getInstance(): AppInitManager {
@@ -30,6 +37,17 @@ class AppInitManager {
       AppInitManager.instance = new AppInitManager();
     }
     return AppInitManager.instance;
+  }
+
+  async getTotalConfigs(): Promise<MainWindowConfigs> {
+    if (Object.keys(this.totalConfigs).length === 0) {
+      this.totalConfigs = await getConfigs([
+        "themeConfig",
+        "settingConfig",
+        "userConfig",
+      ]);
+    }
+    return this.totalConfigs;
   }
 
   /**
@@ -42,18 +60,20 @@ class AppInitManager {
 
     try {
       // 如果没有传入themeConfig，则单独获取
-      if (!themeConfig) {
-        this.themeConfig = await getConfig("themeConfig");
+      if (themeConfig) {
+        this.totalConfigs.themeConfig = themeConfig;
+      } else if (this.totalConfigs?.themeConfig) {
+        // 已有，无需处理
       } else {
-        this.themeConfig = themeConfig;
+        this.totalConfigs.themeConfig = await getConfig("themeConfig");
       }
 
-      await initTheme(this.themeConfig);
+      await initTheme(this.totalConfigs.themeConfig);
 
       this.isThemeReady = true;
     } catch (error) {
-      ErrorHandler.handleError(error, "预初始化主题失败");
-      this.isThemeReady = true;
+      this.isThemeReady = false;
+      throw error;
     }
   }
 
@@ -72,16 +92,12 @@ class AppInitManager {
   /**
    * 初始化主窗口功能
    */
-  async initMainWindow(): Promise<void> {
+  async initMainWindow(preloadedConfigs?: MainWindowConfigs): Promise<void> {
     if (Window.getCurrent().label !== "main") return;
 
     try {
       // 批量获取所有配置，包括themeConfig
-      const configs = await getConfigs([
-        "themeConfig",
-        "settingConfig",
-        "userConfig",
-      ]);
+      const configs = preloadedConfigs ?? this.totalConfigs;
       const themeConfig = configs.themeConfig;
       const settingConfig = configs.settingConfig || {};
       const userConfig = configs.userConfig;
@@ -93,13 +109,18 @@ class AppInitManager {
       await initSetting(settingConfig);
 
       // 监听设置变化
-      listen(
-        "update:setting",
-        (event: { payload: { key: string; value: boolean } }) => {
-          const { key, value } = event.payload;
-          handleSettingChange(key, value);
-        },
-      );
+      this.unlistenSettingChange?.();
+      try {
+        this.unlistenSettingChange = await listen(
+          "update:setting",
+          (event: { payload: { key: string; value: boolean } }) => {
+            const { key, value } = event.payload;
+            handleSettingChange(key, value);
+          },
+        );
+      } catch (error) {
+        await ErrorHandler.handleError(error, "监听设置变化失败");
+      }
 
       // 执行启动任务
       await runStartupTasks((key) => {
@@ -118,10 +139,10 @@ class AppInitManager {
         return getValue(settingConfig, key) === true;
       });
 
-      await this.initUserState(userConfig);
-
-      // 初始化宠物管理器
-      await this.initPetManager();
+      await Promise.all([
+        this.initUserState(userConfig),
+        this.initPetManager(),
+      ]);
     } catch (error) {
       await ErrorHandler.handleError(error, "主窗口初始化失败");
     }
@@ -156,7 +177,7 @@ class AppInitManager {
   }
 
   getThemeConfig(): any {
-    return this.themeConfig;
+    return this.totalConfigs.themeConfig;
   }
 
   isThemeInitialized(): boolean {
@@ -166,6 +187,9 @@ class AppInitManager {
 
 export const appInit = AppInitManager.getInstance();
 
-export const preInitTheme = () => appInit.preInitTheme();
+export const preInitTheme = (themeConfig?: MainWindowConfigs["themeConfig"]) =>
+  appInit.preInitTheme(themeConfig);
 export const completeThemeInit = () => appInit.completeThemeInit();
-export const initMainWindow = () => appInit.initMainWindow();
+export const initMainWindow = (preloadedConfigs?: MainWindowConfigs) =>
+  appInit.initMainWindow(preloadedConfigs);
+export const getTotalConfigs = () => appInit.getTotalConfigs();

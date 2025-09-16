@@ -30,6 +30,7 @@ const DEFAULT_PREFERENCES: PetPreferences = {
 export class PetGlobalManager {
   private static isInitialized = false;
   private static initPromise: Promise<void> | null = null;
+  private static modelStateLoaded = false;
 
   /** 初始化全局宠物管理器 */
   static async init(): Promise<void> {
@@ -52,18 +53,41 @@ export class PetGlobalManager {
         ? { ...DEFAULT_PREFERENCES, ...savedPreferences }
         : DEFAULT_PREFERENCES;
 
-      // 从数据库加载选中的模型
-      const savedModel = await ipcGetPetConfig<ModelConfig>("selected_model");
-
-      // 设置到GlobalData中（但不发送事件，避免初始化时的重复通知）
       await GlobalData.set(GLOBAL_KEYS.PET_PREFERENCES, preferences);
-      await GlobalData.set(GLOBAL_KEYS.SELECTED_PET_MODEL, savedModel);
-      await GlobalData.set(GLOBAL_KEYS.PET_MODEL_CACHE, []);
+
+      if (preferences.isEnabledPet) {
+        await this.ensureModelStateLoaded();
+      } else {
+        this.modelStateLoaded = false;
+      }
 
       this.isInitialized = true;
     } catch (error) {
       Logger.error("PetGlobalManager: 初始化失败", String(error));
       throw error;
+    }
+  }
+
+  private static async ensureModelStateLoaded(): Promise<void> {
+    if (this.modelStateLoaded) return;
+
+    const preferences = ((await GlobalData.get(GLOBAL_KEYS.PET_PREFERENCES)) ||
+      DEFAULT_PREFERENCES) as PetPreferences;
+    if (!preferences.isEnabledPet) {
+      return;
+    }
+
+    try {
+      const savedModel = await ipcGetPetConfig<ModelConfig>("selected_model");
+      if (savedModel) {
+        await GlobalData.set(GLOBAL_KEYS.SELECTED_PET_MODEL, savedModel);
+      } else {
+        await GlobalData.set(GLOBAL_KEYS.SELECTED_PET_MODEL, null);
+      }
+
+      this.modelStateLoaded = true;
+    } catch (error) {
+      Logger.warn("PetGlobalManager: 加载宠物模型状态失败", String(error));
     }
   }
 
@@ -76,8 +100,17 @@ export class PetGlobalManager {
 
     // 初始化时从GlobalData加载
     this.init().then(async () => {
-      const initialModel = await GlobalData.get(GLOBAL_KEYS.SELECTED_PET_MODEL);
-      modelRef.value = initialModel;
+      const preferences = (await GlobalData.get(
+        GLOBAL_KEYS.PET_PREFERENCES,
+      )) as PetPreferences | null;
+
+      if (!preferences || !preferences.isEnabledPet) {
+        modelRef.value = null;
+        return;
+      }
+
+      await this.ensureModelStateLoaded();
+      modelRef.value = await GlobalData.get(GLOBAL_KEYS.SELECTED_PET_MODEL);
     });
 
     // 监听Tauri事件更新
@@ -124,6 +157,7 @@ export class PetGlobalManager {
     try {
       // 1. 更新GlobalData
       await GlobalData.set(GLOBAL_KEYS.SELECTED_PET_MODEL, model);
+      this.modelStateLoaded = true;
 
       // 2. 持久化到数据库
       await ipcSetPetConfig("selected_model", model);
@@ -147,6 +181,8 @@ export class PetGlobalManager {
         (await GlobalData.get(GLOBAL_KEYS.PET_PREFERENCES)) ||
         DEFAULT_PREFERENCES;
       const newPreferences = { ...currentPreferences, ...updates };
+      const wasEnabled = currentPreferences.isEnabledPet;
+      const willEnable = newPreferences.isEnabledPet;
 
       // 1. 更新GlobalData
       await GlobalData.set(GLOBAL_KEYS.PET_PREFERENCES, newPreferences);
@@ -156,6 +192,13 @@ export class PetGlobalManager {
 
       // 3. 发送Tauri事件通知所有webview
       await tauriEmit(TAURI_EVENTS.PREFERENCES_CHANGED, updates);
+
+      if (!wasEnabled && willEnable) {
+        this.modelStateLoaded = false;
+        await this.ensureModelStateLoaded();
+      } else if (wasEnabled && !willEnable) {
+        this.modelStateLoaded = false;
+      }
     } catch (error) {
       Logger.error("PetGlobalManager: 更新偏好设置失败", String(error));
       throw error;
@@ -276,6 +319,14 @@ export class PetGlobalManager {
    */
   static async getSelectedModel(): Promise<ModelConfig | null> {
     try {
+      const preferences = ((await GlobalData.get(
+        GLOBAL_KEYS.PET_PREFERENCES,
+      )) || DEFAULT_PREFERENCES) as PetPreferences;
+      if (!preferences.isEnabledPet) {
+        return null;
+      }
+
+      await this.ensureModelStateLoaded();
       return await GlobalData.get(GLOBAL_KEYS.SELECTED_PET_MODEL);
     } catch (error) {
       Logger.error("PetGlobalManager: 获取选中模型失败", String(error));

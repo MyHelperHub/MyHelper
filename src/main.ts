@@ -18,53 +18,61 @@ import {
   preInitTheme,
   completeThemeInit,
   initMainWindow,
+  getTotalConfigs,
 } from "./utils/appInit";
 import windowDrag from "./utils/windowDrag";
 
-// 预初始化主题
-await preInitTheme();
-
-if (Window.getCurrent().label === "main") {
-  ipcSetWindowSize(65, 65);
-  initMainWindow().catch((error) =>
-    ErrorHandler.handleError(error, "主窗口初始化失败"),
-  );
-}
-
-// 生产环境禁用右键菜单
 if (!import.meta.env.DEV) {
   document.oncontextmenu = (event) => {
     event.preventDefault();
   };
 }
 
-const app = createApp(App);
+const bootstrap = async () => {
+  const isMainWindow = Window.getCurrent().label === "main";
+  let mainWindowConfigs;
+  if (isMainWindow) {
+    mainWindowConfigs = await getTotalConfigs();
+  }
+  await preInitTheme(mainWindowConfigs?.themeConfig);
 
-app.config.errorHandler = async (err, _, info) => {
-  await ErrorHandler.handleError(err, info);
-};
+  if (isMainWindow) {
+    await ipcSetWindowSize(65, 65).catch((error) =>
+      ErrorHandler.handleError(error, "设置窗口尺寸失败"),
+    );
 
-app.use(router);
-app.use(PrimeVue, {
-  theme: {
-    preset: Lara,
-    options: {
-      darkModeSelector: ".dark",
-      cssLayer: {
-        name: "primevue",
-        order: "tailwind-base, primevue, tailwind-utilities",
+    await initMainWindow(mainWindowConfigs);
+  }
+
+  const app = createApp(App);
+
+  app.config.errorHandler = async (err, _, info) => {
+    await ErrorHandler.handleError(err, info);
+  };
+
+  app.use(router);
+  app.use(PrimeVue, {
+    theme: {
+      preset: Lara,
+      options: {
+        darkModeSelector: ".dark",
+        cssLayer: {
+          name: "primevue",
+          order: "tailwind-base, primevue, tailwind-utilities",
+        },
       },
     },
-  },
-});
-app.directive("tooltip", Tooltip);
-app.use(ConfirmationService);
-app.use(ToastService);
-app.directive("window-drag", windowDrag);
+  });
+  app.directive("tooltip", Tooltip);
+  app.use(ConfirmationService);
+  app.use(ToastService);
+  app.directive("window-drag", windowDrag);
 
-// 完成主题系统初始化
-completeThemeInit().catch((error) =>
-  ErrorHandler.handleError(error, "主题系统初始化失败"),
-);
+  app.mount("#app");
 
-app.mount("#app");
+  await completeThemeInit().catch((error) =>
+    ErrorHandler.handleError(error, "主题系统初始化失败"),
+  );
+};
+
+bootstrap().catch((error) => ErrorHandler.handleError(error, "应用启动失败"));

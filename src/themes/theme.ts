@@ -8,7 +8,7 @@ import type {
   PresetTheme,
   ThemeApplyResult,
 } from "@/interface/theme.d";
-import { emit as tauriEmit } from "@tauri-apps/api/event";
+import { emit as tauriEmit, listen } from "@tauri-apps/api/event";
 import { ErrorHandler } from "../utils/errorHandler";
 
 /** PrimeVue 主题集成 */
@@ -731,8 +731,6 @@ export async function initTheme(themeConfig?: ThemeConfig): Promise<void> {
  */
 export async function setupThemeListener(): Promise<void> {
   try {
-    const { listen } = await import("@tauri-apps/api/event");
-
     await listen("theme:update", async (event) => {
       const config = event.payload as any;
 
