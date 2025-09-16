@@ -6,7 +6,7 @@ on:
 jobs:
   build-preview:
     permissions:
-      contents: read
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -97,6 +97,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           CI: false
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           tagName: ${{ steps.version.outputs.version }}
           releaseName: MyHelper Preview ${{ steps.version.outputs.version }}
@@ -105,8 +108,8 @@ jobs:
             Branch: ${{ github.ref_name }}
 
             ⚠️ This is a preview build for testing purposes only.
-          releaseDraft: false
-          prerelease: true
+          releaseDraft: true
+          prerelease: false
           includeUpdaterJson: false
           args: --target ${{ matrix.target }}
 
