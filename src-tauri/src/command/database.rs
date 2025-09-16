@@ -4,7 +4,7 @@ use crate::utils::response::{ApiResponse, ApiStatusCode};
 use serde_json::{json, Value};
 use simd_json;
 
-#[permission_macro::permission("main", "setting", "my")]
+#[permission_macro::permission("main", "setting", "my", "label")]
 #[tauri::command]
 pub fn set_config_value(key: &str, value: Value) -> Result<ApiResponse<()>, AppError> {
     let pool = get_db_pool();
@@ -32,7 +32,7 @@ pub fn set_config_value(key: &str, value: Value) -> Result<ApiResponse<()>, AppE
     }
 }
 
-#[permission_macro::permission("main", "setting", "my", "pluginMarket")]
+#[permission_macro::permission("main", "setting", "my", "pluginMarket", "label")]
 #[tauri::command]
 pub fn get_config_value(key: &str) -> Result<ApiResponse<Option<Value>>, AppError> {
     let pool = get_db_pool();
@@ -101,7 +101,7 @@ pub fn get_config_value(key: &str) -> Result<ApiResponse<Option<Value>>, AppErro
     }
 }
 
-#[permission_macro::permission("main", "setting", "my", "pluginMarket")]
+#[permission_macro::permission("main", "setting", "my", "pluginMarket", "label")]
 #[tauri::command]
 pub fn get_config_values_batch(keys: Vec<&str>) -> Result<ApiResponse<std::collections::HashMap<String, Option<Value>>>, AppError> {
     let pool = get_db_pool();
@@ -203,7 +203,7 @@ pub fn get_config_values_batch(keys: Vec<&str>) -> Result<ApiResponse<std::colle
     Ok(ApiResponse::success(result))
 }
 
-#[permission_macro::permission("main", "setting", "my")]
+#[permission_macro::permission("main", "setting", "my", "label")]
 #[tauri::command]
 pub fn delete_config_value(key: &str) -> Result<ApiResponse<()>, AppError> {
     let pool = get_db_pool();

@@ -5,7 +5,7 @@ use serde_json::{Map, Value};
 use std::collections::HashMap;
 
 /// 获取配置数据
-#[permission_macro::permission("main", "setting", "my")]
+#[permission_macro::permission("main", "setting", "my", "label")]
 #[tauri::command]
 pub fn get_config(keys: Vec<String>) -> Result<ApiResponse<Option<Value>>, AppError> {
     match utils_get_config("config", keys) {
@@ -25,7 +25,7 @@ pub fn get_config(keys: Vec<String>) -> Result<ApiResponse<Option<Value>>, AppEr
 ///
 /// * `ApiResponse<()>` - 操作成功返回成功响应，失败返回错误响应
 
-#[permission_macro::permission("main", "setting", "my")]
+#[permission_macro::permission("main", "setting", "my", "label")]
 #[tauri::command]
 pub fn set_config(keys: Vec<String>, value: Value) -> Result<ApiResponse<()>, AppError> {
     let mut config_data = match utils_get_config("config", vec![]) {
@@ -95,7 +95,7 @@ pub fn set_config(keys: Vec<String>, value: Value) -> Result<ApiResponse<()>, Ap
 ///
 /// * `ApiResponse<()>` - 操作成功返回成功响应，失败返回错误响应
 
-#[permission_macro::permission("main", "setting", "my")]
+#[permission_macro::permission("main", "setting", "my", "label")]
 #[tauri::command]
 pub fn delete_config(keys: Vec<String>) -> Result<ApiResponse<()>, AppError> {
     let mut data = match utils_get_config("config", vec![]) {
