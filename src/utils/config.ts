@@ -4,6 +4,7 @@ import {
   deleteConfigValue,
   getConfigValuesBatch,
 } from "./database";
+import { ErrorHandler } from "./errorHandler";
 
 /**
  * 获取配置值
@@ -18,7 +19,7 @@ export const getConfig = async <T = any>(key: string): Promise<T | null> => {
   try {
     return await getConfigValue<T>(key);
   } catch (error) {
-    console.error(`获取配置[${key}]失败:`, error);
+    ErrorHandler.handleError(error, `获取配置[${key}]失败:`);
     throw error;
   }
 };
@@ -30,8 +31,6 @@ export const getConfig = async <T = any>(key: string): Promise<T | null> => {
  *
  * @example
  * const configs = await getConfigs<any>(['theme', 'settings', 'userConfig']);
- * console.log(configs.theme); // 主题配置
- * console.log(configs.settings); // 设置配置
  */
 export const getConfigs = async <T = any>(
   keys: string[],
@@ -39,7 +38,7 @@ export const getConfigs = async <T = any>(
   try {
     return await getConfigValuesBatch<T>(keys);
   } catch (error) {
-    console.error(`批量获取配置[${keys.join(", ")}]失败:`, error);
+    ErrorHandler.handleError(error, `批量获取配置[${keys.join(", ")}]失败:`);
     throw error;
   }
 };
@@ -61,7 +60,7 @@ export const setConfig = async <T = any>(
   try {
     await setConfigValue(key, value);
   } catch (error) {
-    console.error(`设置配置[${key}]失败:`, error);
+    ErrorHandler.handleError(error, `设置配置[${key}]失败:`);
     throw error;
   }
 };
@@ -78,7 +77,7 @@ export const deleteConfig = async (key: string): Promise<void> => {
   try {
     await deleteConfigValue(key);
   } catch (error) {
-    console.error(`删除配置[${key}]失败:`, error);
+    ErrorHandler.handleError(error, `删除配置[${key}]失败:`);
     throw error;
   }
 };
@@ -100,7 +99,7 @@ export const updateConfig = async <T extends object>(
     const currentValue = await getConfig<T>(key);
     await setConfig(key, { ...currentValue, ...value });
   } catch (error) {
-    console.error(`更新配置[${key}]失败:`, error);
+    ErrorHandler.handleError(error, `更新配置[${key}]失败:`);
     throw error;
   }
 };
@@ -138,7 +137,7 @@ export async function resetConfig(keys: string[]): Promise<void> {
       }
     }
   } catch (error) {
-    console.error("重置配置失败:", error);
+    ErrorHandler.handleError(error, "重置配置失败:");
     throw error;
   }
 }

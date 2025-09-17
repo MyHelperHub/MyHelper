@@ -68,6 +68,7 @@ import { ThemeMode } from "@/interface/theme.d";
 import type { ThemeConfig, ThemeColors } from "@/interface/theme.d";
 import { showMessage } from "@/composables/message.ts";
 import CustomThemeDialog from "./components/CustomThemeDialog.vue";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 const currentConfig = ref<ThemeConfig>({
   mode: ThemeMode.Light,
@@ -87,7 +88,7 @@ const initializeThemeSettings = async () => {
     const config = await getCurrentThemeConfig();
     currentConfig.value = { ...config };
   } catch (error) {
-    console.error("初始化主题设置失败:", error);
+    ErrorHandler.handleError(error, "初始化主题设置失败:");
     showMessage("初始化主题设置失败", 2500, 2);
   }
 };
@@ -105,7 +106,7 @@ const switchThemeMode = async (mode: ThemeMode) => {
       showMessage("主题切换成功", 2500, 1);
     }
   } catch (error) {
-    console.error("切换主题模式失败:", error);
+    ErrorHandler.handleError(error, "切换主题模式失败:");
     showMessage("切换主题失败", 2500, 2);
   }
 };
@@ -122,7 +123,7 @@ const applyPresetTheme = async (themeId: string) => {
       showMessage("主题应用成功", 2500, 1);
     }
   } catch (error) {
-    console.error("应用预设主题失败:", error);
+    ErrorHandler.handleError(error, "应用预设主题失败:");
     showMessage("应用主题失败", 2500, 2);
   }
 };
@@ -178,7 +179,7 @@ const handleCustomThemeApply = async (config: any) => {
       showMessage("自定义主题应用成功", 2500, 1);
     }
   } catch (error) {
-    console.error("应用自定义主题失败:", error);
+    ErrorHandler.handleError(error, "应用自定义主题失败:");
     showMessage("应用自定义主题失败", 2500, 2);
   }
 };

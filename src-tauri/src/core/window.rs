@@ -148,7 +148,8 @@ fn save_window_position(window: &Arc<RwLock<tauri::WebviewWindow>>) {
         );
 
         if let Err(e) = utils_set_config("config", data) {
-            eprintln!("保存位置时出错: {}", e);
+            let app_error = AppError::from(format!("保存位置时出错: {}", e));
+            eprintln!("{}", app_error);
         }
     }
 }

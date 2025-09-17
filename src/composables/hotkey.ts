@@ -7,6 +7,7 @@ import {
   isMainMenuVisible,
   handleMainWindowToggle,
 } from "../utils/windowManager.ts";
+import { ErrorHandler } from "@/utils/errorHandler.ts";
 
 /** 快捷键常量 */
 export const HotkeyActions = {
@@ -88,7 +89,6 @@ let hotkeyUnlistener: UnlistenFn | null = null;
  */
 const ensureMainWindowExpanded = async () => {
   if (!isMainMenuVisible.value) {
-    console.log("当前是小窗模式，先展开主窗口");
     await handleMainWindowToggle();
     // 等待窗口展开动画完成
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -101,21 +101,17 @@ const ensureMainWindowExpanded = async () => {
 const handleHotkeyAction = async (action: string) => {
   switch (action) {
     case HotkeyActions.TOGGLE_PANEL:
-      console.log("触发打开/关闭主窗口快捷键");
       await handleMainWindowToggle();
       break;
     case HotkeyActions.TOGGLE_WEB_LIST:
-      console.log("触发打开网站列表弹窗快捷键");
       await ensureMainWindowExpanded();
       emit("hotkey-open-commonWeb");
       break;
     case HotkeyActions.TOGGLE_APP_LIST:
-      console.log("触发打开软件列表弹窗快捷键");
       await ensureMainWindowExpanded();
       emit("hotkey-open-commonApp");
       break;
     case HotkeyActions.TOGGLE_QUICK_INPUT:
-      console.log("触发打开快捷输入弹窗快捷键");
       await ensureMainWindowExpanded();
       emit("hotkey-open-quickInput");
       break;
@@ -143,7 +139,7 @@ const initHotkeyListener = async (): Promise<void> => {
     );
     console.log("快捷键监听器初始化成功");
   } catch (error) {
-    Logger.error("初始化快捷键监听器失败:", String(error));
+    ErrorHandler.handleError(error, "初始化快捷键监听器失败:");
   }
 };
 
@@ -176,8 +172,7 @@ export const setHotkeyEnabled = async (
 
     return true;
   } catch (error) {
-    console.error("设置热键状态失败:", String(error));
-    Logger.error("设置热键状态失败:", String(error));
+    ErrorHandler.handleError(error, "设置热键状态失败:");
     return false;
   }
 };

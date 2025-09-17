@@ -73,6 +73,7 @@ import {
   handleContextMenu,
 } from "./utils/contextMenu";
 import Dialog from "primevue/dialog";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 const dataList = ref<AppItem[]>([]);
 const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
@@ -154,7 +155,7 @@ const deleteAppItem = async (id: number) => {
     try {
       await setConfig("appConfig", { dataList: dataList.value });
       ipcDeleteIcon(fileName, 1).catch((err) => {
-        console.log("图标删除失败:", err);
+        ErrorHandler.handleError(err, "图标删除失败:");
       });
       showMessage("删除成功!", 3000, 1);
     } catch (error) {

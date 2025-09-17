@@ -4,6 +4,7 @@ use std::env;
 use std::time::Duration;
 
 use crate::utils::error::AppError;
+use crate::services::logger::{LogEntry, Logger};
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
@@ -59,13 +60,23 @@ pub fn create_web_client() -> Result<Client, AppError> {
 
     // 尝试从环境变量获取代理设置
     if let Ok(proxy) = env::var("HTTP_PROXY").or_else(|_| env::var("http_proxy")) {
-        println!("Using HTTP proxy: {}", proxy);
+        let _ = Logger::write_log(LogEntry {
+            level: "info".to_string(),
+            message: "使用HTTP代理".to_string(),
+            timestamp: String::new(),
+            details: Some(proxy.clone()),
+        });
         if let Ok(proxy) = Proxy::http(&proxy) {
             client_builder = client_builder.proxy(proxy);
         }
     }
     if let Ok(proxy) = env::var("HTTPS_PROXY").or_else(|_| env::var("https_proxy")) {
-        println!("Using HTTPS proxy: {}", proxy);
+        let _ = Logger::write_log(LogEntry {
+            level: "info".to_string(),
+            message: "使用HTTPS代理".to_string(),
+            timestamp: String::new(),
+            details: Some(proxy.clone()),
+        });
         if let Ok(proxy) = Proxy::https(&proxy) {
             client_builder = client_builder.proxy(proxy);
         }

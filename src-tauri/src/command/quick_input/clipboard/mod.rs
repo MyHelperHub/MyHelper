@@ -72,7 +72,8 @@ impl Manager {
         self.last_text = Some(text.clone());
 
         if let Err(e) = self.app_handle.emit("clipboard-updated", text) {
-            eprintln!("Failed to emit event: {}", e);
+            let app_error = AppError::from(format!("事件发送失败: {}", e));
+            eprintln!("{}", app_error);
         }
     }
 }

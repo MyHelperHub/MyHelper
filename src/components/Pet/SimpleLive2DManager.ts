@@ -70,7 +70,7 @@ export class SimpleLive2DManager {
         this.apps.delete(canvas);
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
-          console.warn("PIXI Application destroy warning:", error);
+          Logger.warn("PIXI Application destroy warning:", String(error));
         }
         this.apps.delete(canvas);
       }
@@ -477,7 +477,7 @@ export class SimpleLive2DManager {
         }
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
-          console.warn("Live2D model destroy warning:", error);
+          Logger.warn("Live2D model destroy warning:", String(error));
         }
       }
       this.model = null;

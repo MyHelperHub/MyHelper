@@ -634,7 +634,8 @@ export async function applyTheme(
       applyPrimeVueTheme(colors, isDark ? "dark" : "light");
     } catch (primeVueError) {
       // PrimeVue 主题应用失败不应该阻止整个主题系统
-      console.warn("PrimeVue 主题应用失败:", primeVueError);
+      ErrorHandler.handleError(primeVueError, "PrimeVue 主题应用失败:");
+
     }
 
     // 设置主题属性（这里会被 PrimeVue 函数重复设置，但保持兼容性）

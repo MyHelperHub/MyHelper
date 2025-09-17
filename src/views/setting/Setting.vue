@@ -31,6 +31,7 @@ import { WindowOperation } from "@/interface/enum";
 import { initSetting } from "./utils/settingRegistry";
 import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 interface MenuConfig {
   type: SettingMenuItemEnum;
@@ -98,7 +99,7 @@ const loadComponent = async (menuType: SettingMenuItemEnum) => {
         loadedComponents.value.push(config.componentName);
       }
     } catch (error) {
-      console.error(`Failed to load component for ${menuType}:`, error);
+      ErrorHandler.handleError(error, `加载 ${menuType} 组件失败:`);
     }
   }
 };

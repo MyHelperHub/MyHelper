@@ -1,3 +1,5 @@
+import { Logger } from "@/utils/logger";
+
 /** 启动任务配置类型 */
 type StartupTask = {
   key: string;
@@ -57,7 +59,7 @@ export async function handleSettingChange(
   const task = startupTasks.find((task) => task.key === key);
 
   if (!task) {
-    console.log(`No startup task found for key: ${key}`);
+    Logger.warn(`未找到对应 key 的启动任务: ${key}`);
     return;
   }
 

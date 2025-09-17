@@ -135,7 +135,13 @@ fn install_plugin_from_zip<R: Read + Seek>(
 
 #[tauri::command]
 pub async fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
-    println!("开始安装插件: window_id={}, url={}", window_id, url);
+    Logger::write_log(LogEntry {
+        level: "info".to_string(),
+        message: "开始安装插件".to_string(),
+        timestamp: String::new(),
+        details: Some(format!("window_id={}, url={}", window_id, url)),
+    })
+    .map_err(|e| AppError::from(e))?;
 
     // 验证窗口ID格式
     validate_window_id(window_id)?;
@@ -181,13 +187,24 @@ pub async fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
         .await
         .map_err(|e| AppError::from(format!("下载文件失败: {}", e)))?;
 
-    println!("响应状态: {:?}", response.status());
-    println!("响应头: {:#?}", response.headers());
+    Logger::write_log(LogEntry {
+        level: "debug".to_string(),
+        message: "下载响应信息".to_string(),
+        timestamp: String::new(),
+        details: Some(format!("状态: {:?}, 响应头: {:#?}", response.status(), response.headers())),
+    })
+    .map_err(|e| AppError::from(e))?;
 
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
-        println!("错误响应内容: {}", error_text);
+        Logger::write_log(LogEntry {
+            level: "error".to_string(),
+            message: "下载请求失败".to_string(),
+            timestamp: String::new(),
+            details: Some(format!("状态码: {}, 错误内容: {}", status, error_text)),
+        })
+        .map_err(|e| AppError::from(e))?;
         return Err(AppError::from(format!(
             "下载失败，状态码: {} - 错误内容: {}",
             status, error_text
@@ -198,18 +215,32 @@ pub async fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
         .headers()
         .get("content-type")
         .and_then(|v| v.to_str().ok());
-    println!("Content-Type: {:?}", content_type);
+    Logger::write_log(LogEntry {
+        level: "debug".to_string(),
+        message: "响应Content-Type".to_string(),
+        timestamp: String::new(),
+        details: Some(format!("{:?}", content_type)),
+    })
+    .map_err(|e| AppError::from(e))?;
 
     let bytes = response
         .bytes()
         .await
         .map_err(|e| AppError::from(format!("读取响应失败: {}", e)))?;
 
-    println!("下载的内容大小: {} bytes", bytes.len());
-    if bytes.len() < 100 {
-        // 如果内容太小，可能不是ZIP文件，打印出来看看
-        println!("下载的内容: {:?}", String::from_utf8_lossy(&bytes));
-    }
+    Logger::write_log(LogEntry {
+        level: "debug".to_string(),
+        message: "下载完成".to_string(),
+        timestamp: String::new(),
+        details: Some(format!("内容大小: {} bytes{}", bytes.len(),
+            if bytes.len() < 100 {
+                format!(", 内容: {:?}", String::from_utf8_lossy(&bytes))
+            } else {
+                String::new()
+            }
+        )),
+    })
+    .map_err(|e| AppError::from(e))?;
 
     if bytes.len() > MAX_ZIP_SIZE {
         return Err(AppError::from(format!("插件包太大: {} bytes", bytes.len())));
@@ -229,10 +260,13 @@ pub async fn mh_plugin_install(url: &str, window_id: &str) -> AppResult<()> {
 
 #[tauri::command]
 pub async fn mh_plugin_install_local(file_path: &str, window_id: &str) -> AppResult<()> {
-    println!(
-        "开始安装本地插件: window_id={}, file_path={}",
-        window_id, file_path
-    );
+    Logger::write_log(LogEntry {
+        level: "info".to_string(),
+        message: "开始安装本地插件".to_string(),
+        timestamp: String::new(),
+        details: Some(format!("window_id={}, file_path={}", window_id, file_path)),
+    })
+    .map_err(|e| AppError::from(e))?;
 
     // 验证窗口ID格式
     validate_window_id(window_id)?;
@@ -332,7 +366,13 @@ pub fn mh_plugin_uninstall(window_id: &str) -> AppResult<()> {
 /// 解析插件包
 #[tauri::command]
 pub async fn mh_plugin_analyze_package(file_path: &str) -> Result<serde_json::Value, String> {
-    println!("开始解析插件包: file_path={}", file_path);
+    Logger::write_log(LogEntry {
+        level: "info".to_string(),
+        message: "开始解析插件包".to_string(),
+        timestamp: String::new(),
+        details: Some(format!("file_path={}", file_path)),
+    })
+    .map_err(|e| format!("写入日志失败: {}", e))?;
 
     // 检查文件是否存在
     let file_path = Path::new(file_path);

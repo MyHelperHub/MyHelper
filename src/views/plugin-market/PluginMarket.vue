@@ -175,6 +175,7 @@ import PluginCard from "./components/PluginCard.vue";
 import PluginDetailDialog from "./components/PluginDetailDialog.vue";
 import InstalledPluginsDialog from "./components/InstalledPluginsDialog.vue";
 import LocalPluginImportDialog from "./components/LocalPluginImportDialog.vue";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 const toast = useToast();
 const router = useRouter();
@@ -350,7 +351,7 @@ const checkPluginUpdate = (localVersion?: string, remoteVersion?: string) => {
 
     return false;
   } catch (error) {
-    console.error("版本号比较出错:", error);
+    ErrorHandler.handleError(error, "版本号比较出错:");
     return false;
   }
 };
@@ -434,7 +435,7 @@ const getInstalledPlugins = async () => {
       installedPlugins.value = [];
     }
   } catch (error) {
-    console.error("获取已安装插件列表失败:", error);
+    ErrorHandler.handleError(error, "获取已安装插件列表失败:");
     toast.add({
       severity: "error",
       summary: "错误",
@@ -767,7 +768,6 @@ const openFileSelector = async () => {
 
     await analyzePluginPackage(selected as string);
   } catch (error) {
-    console.error("选择文件失败:", error);
     toast.add({
       severity: "error",
       summary: "错误",
@@ -892,7 +892,6 @@ const importLocalPlugin = async () => {
     closeImportDialog();
     await getInstalledPlugins();
   } catch (error) {
-    console.error("导入本地插件失败:", error);
     toast.add({
       severity: "error",
       summary: "错误",

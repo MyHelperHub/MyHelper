@@ -11,7 +11,8 @@ pub fn init_app() -> AppResult<()> {
     // 同步插件配置
     tauri::async_runtime::spawn(async {
         if let Err(e) = sync_plugins().await {
-            eprintln!("同步插件失败: {}", e);
+            let app_error = AppError::from(format!("同步插件失败: {}", e));
+            eprintln!("{}", app_error);
         }
     });
 

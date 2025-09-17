@@ -54,7 +54,8 @@ pub fn run() {
         ))
         .run(tauri::generate_context!())
     {
-        eprintln!("MyHelper启动失败: {}", e);
+        let app_error = AppError::from(format!("MyHelper启动失败: {}", e));
+        eprintln!("{}", app_error);
         std::process::exit(1);
     }
 }
