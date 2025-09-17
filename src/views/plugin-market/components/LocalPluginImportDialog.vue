@@ -163,13 +163,13 @@ import type {
   LocalPluginInfo,
 } from "@/interface/pluginMarket.d";
 
-interface Props {
+type Props = {
   visible: boolean;
   localPluginFile: LocalPluginFile | null;
   localPluginInfo: LocalPluginInfo;
 }
 
-interface Emits {
+type Emits = {
   (e: "update:visible", value: boolean): void;
   (e: "close"): void;
   (e: "import"): void;

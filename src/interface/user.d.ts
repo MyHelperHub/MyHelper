@@ -1,4 +1,4 @@
-export interface User {
+export type User = {
   UserId: number;
   Username: string;
   Email: string;
@@ -7,13 +7,13 @@ export interface User {
   Token?: string;
 }
 
-export interface LoginDTO {
+export type LoginDTO = {
   Token: string;
   UserInfo: User;
 }
 
 // 添加新的接口，扩展 User 类型
-export interface UserForm extends User {
+export type UserForm = User & {
   Password?: string;
   ConfirmPassword?: string;
 }

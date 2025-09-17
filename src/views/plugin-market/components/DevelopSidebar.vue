@@ -26,11 +26,11 @@ import Button from "primevue/button";
 import type { MenuKey } from "@/interface/pluginMarket.d";
 import { MENU_ITEMS } from "@/interface/pluginMarket.d";
 
-interface Props {
+type Props = {
   activeMenu: MenuKey;
 }
 
-interface Emits {
+type Emits = {
   (e: "go-back"): void;
   (e: "menu-click", menuKey: MenuKey): void;
 }

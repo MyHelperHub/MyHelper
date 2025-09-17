@@ -6,7 +6,7 @@ import {
 } from "@/api/ipc/database.api";
 import { ErrorHandler } from "./errorHandler";
 
-interface PluginConfigData {
+type PluginConfigData = {
   windowId: string;
   info: Record<string, any>;
   config: Record<string, any>;

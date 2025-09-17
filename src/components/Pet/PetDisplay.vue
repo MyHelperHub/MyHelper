@@ -22,7 +22,7 @@ import type { ModelConfig, ModelInfo } from "@/interface/pet";
 import { SimpleLive2DManager } from "./SimpleLive2DManager";
 import { Logger } from "@/utils/logger";
 
-interface Props {
+type Props = {
   width?: number;
   height?: number;
   modelConfig: ModelConfig | null;

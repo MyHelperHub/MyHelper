@@ -1,6 +1,6 @@
 import { ResponseCodeEnum } from "./enum";
 
-export interface ServerResponse<T = any> {
+export type ServerResponse<T = any> = {
   Code: ResponseCodeEnum;
   Data: T;
   Message: string;

@@ -4,7 +4,7 @@
  */
 
 /** 模型配置接口 */
-export interface ModelConfig {
+export type ModelConfig = {
   name: string;
   path: string;
   configFile?: string;
@@ -15,7 +15,7 @@ export interface ModelConfig {
 }
 
 /** 模型信息接口 */
-export interface ModelInfo {
+export type ModelInfo = {
   width: number;
   height: number;
   motions: Record<string, Motion[]>;
@@ -23,7 +23,7 @@ export interface ModelInfo {
 }
 
 /** 宠物偏好设置接口 */
-export interface PetPreferences {
+export type PetPreferences = {
   /** 是否启用宠物系统 */
   isEnabledPet: boolean;
   /** 默认缩放比例 */
@@ -31,7 +31,7 @@ export interface PetPreferences {
 }
 
 /** 动作配置接口 */
-export interface Motion {
+export type Motion = {
   File: string;
   Name?: string;
   FadeInTime?: number;
@@ -39,7 +39,7 @@ export interface Motion {
 }
 
 /** 表情配置接口 */
-export interface Expression {
+export type Expression = {
   File: string;
   Name?: string;
 }

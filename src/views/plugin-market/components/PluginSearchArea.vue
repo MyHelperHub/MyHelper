@@ -30,11 +30,11 @@
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 
-interface Props {
+type Props = {
   keyword?: string;
 }
 
-interface Emits {
+type Emits = {
   (e: "update:keyword", value: string): void;
   (e: "search"): void;
   (e: "clear-search"): void;

@@ -146,17 +146,17 @@ import { PetGlobalManager } from "./PetGlobalManager";
 import { Logger } from "@/utils/logger";
 import { getErrorDescription } from "@/api/ipc/wrapper";
 
-interface Props {
+type Props = {
   visible: boolean;
 }
 
-interface ModelPreviewInfo {
+type ModelPreviewInfo = {
   motionCount: number;
   expressionCount: number;
   textureCount: number;
 }
 
-interface SelectedFile extends File {
+type SelectedFile = File & {
   path?: string;
   version?: string;
 }

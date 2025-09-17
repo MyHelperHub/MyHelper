@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 
 /** 日志条目接口 */
-export interface LogEntry {
+export type LogEntry = {
   level: "info" | "warn" | "error";
   message: string;
   timestamp: string;

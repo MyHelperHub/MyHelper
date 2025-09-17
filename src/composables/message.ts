@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 /** 定义消息引用的类型 */
-interface MessageRef {
+type MessageRef = {
   showMessage: (message: string, duration?: number, type?: number) => void;
   hideMessage: () => void;
 }

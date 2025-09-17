@@ -1,17 +1,17 @@
 import { User } from "./user";
 import { WebItem } from "./web";
 
-export interface ConfigData {
+export type ConfigData = {
   key: string;
   value: string;
 }
 /** 快捷键字段 */
-export interface HotkeyConfig {
+export type HotkeyConfig = {
   enabled: boolean;
   [key: string]: any;
 }
 
-export interface AppConfig {
+export type AppConfig = {
   appConfig: {
     dataList: any[];
   };

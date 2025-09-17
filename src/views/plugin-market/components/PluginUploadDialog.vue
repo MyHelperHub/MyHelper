@@ -399,7 +399,7 @@ import type {
 } from "@/interface/pluginMarket.d";
 import { formatFileSize } from "@/utils/pluginUtils";
 
-interface Props {
+type Props = {
   visible: boolean;
   isEditMode: boolean;
   pluginForm: PluginFormData;
@@ -407,7 +407,7 @@ interface Props {
   categoryOptions: CategoryOption[];
 }
 
-interface Emits {
+type Emits = {
   (e: "update:visible", value: boolean): void;
   (e: "close"): void;
   (e: "submit"): void;

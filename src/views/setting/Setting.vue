@@ -33,7 +33,7 @@ import { SettingMenuItemEnum } from "@/interface/enum";
 import { NewWindowEnum } from "@/interface/windowEnum";
 import { ErrorHandler } from "@/utils/errorHandler";
 
-interface MenuConfig {
+type MenuConfig = {
   type: SettingMenuItemEnum;
   label: string;
   icon: string;

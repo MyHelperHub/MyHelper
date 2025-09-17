@@ -4,7 +4,7 @@ import { ApiStatusCode } from "../../interface/enum";
 /**
  * API响应结构体接口（与Rust后端统一）
  */
-export interface ApiResponse<T> {
+export type ApiResponse<T> = {
   code: number;
   data: T | null;
   message: string;

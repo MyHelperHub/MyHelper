@@ -1,4 +1,4 @@
-export interface WebItem {
+export type WebItem = {
   id: number;
   title: string;
   url: string;

@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 /** 定义加载组件引用的类型 */
-interface LoadingRef {
+type LoadingRef = {
   showLoading: () => void;
   hideLoading: () => void;
 }

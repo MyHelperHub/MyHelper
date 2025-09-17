@@ -1,4 +1,4 @@
-export interface ContainState {
+export type ContainState = {
   label: boolean;
   pluginMarket: boolean;
 }

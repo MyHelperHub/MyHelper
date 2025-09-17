@@ -337,7 +337,7 @@ import InputText from "primevue/inputtext";
 import { colorUtils } from "@/themes/theme";
 import { showMessage } from "@/composables/message";
 
-interface CustomThemeConfig {
+type CustomThemeConfig = {
   transparency: {
     background: number;
     backgroundSecondary: number;

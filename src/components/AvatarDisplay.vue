@@ -41,7 +41,7 @@ import type { ModelInfo } from "@/interface/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
 
-interface Props {
+type Props = {
   defaultLogo?: string;
   isShowMenu?: boolean;
 }

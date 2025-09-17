@@ -137,13 +137,13 @@ import Tag from "primevue/tag";
 import type { Plugin, PluginDetail } from "@/interface/plugin.d";
 import { formatDate, checkPluginUpdate } from "@/utils/pluginUtils";
 
-interface Props {
+type Props = {
   visible: boolean;
   installedPlugins: Plugin[];
   plugins: PluginDetail[];
 }
 
-interface Emits {
+type Emits = {
   (e: "update:visible", value: boolean): void;
   (e: "open-import-dialog"): void;
   (e: "show-plugin-detail", plugin: Plugin): void;

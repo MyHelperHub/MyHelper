@@ -15,7 +15,7 @@ export type ColorFormat = "hex" | "rgb" | "hsl";
 /**
  * 颜色值接口
  */
-export interface ColorValue {
+export type ColorValue = {
   hex: string;
   rgb: string;
   hsl: string;
@@ -24,7 +24,7 @@ export interface ColorValue {
 /**
  * 渐变配置接口
  */
-export interface GradientConfig {
+export type GradientConfig = {
   type: "linear" | "radial";
   angle?: number; // 线性渐变角度
   stops: Array<{
@@ -36,7 +36,7 @@ export interface GradientConfig {
 /**
  * 透明度配置接口
  */
-export interface TransparencyConfig {
+export type TransparencyConfig = {
   background: number; // 主背景透明度 0.1-1
   backgroundSecondary: number; // 次要背景透明度 0.1-1
   card: number; // 卡片透明度 0.1-1
@@ -46,7 +46,7 @@ export interface TransparencyConfig {
 /**
  * 主题颜色配置接口
  */
-export interface ThemeColors {
+export type ThemeColors = {
   // 主要颜色
   primary: ColorValue;
   primaryLight: ColorValue;
@@ -82,7 +82,7 @@ export interface ThemeColors {
 /**
  * 预设主题配置
  */
-export interface PresetTheme {
+export type PresetTheme = {
   id: string;
   name: string;
   mode: ThemeMode;
@@ -93,7 +93,7 @@ export interface PresetTheme {
 /**
  * 主题配置接口
  */
-export interface ThemeConfig {
+export type ThemeConfig = {
   mode: ThemeMode;
   currentThemeId?: string;
   customColors?: ThemeColors;
@@ -102,7 +102,7 @@ export interface ThemeConfig {
 /**
  * 主题应用结果
  */
-export interface ThemeApplyResult {
+export type ThemeApplyResult = {
   success: boolean;
   error?: string;
   appliedColors: ThemeColors;
@@ -111,7 +111,7 @@ export interface ThemeApplyResult {
 /**
  * 颜色工具函数返回类型
  */
-export interface ColorUtils {
+export type ColorUtils = {
   hexToRgb: (hex: string) => string;
   hexToHsl: (hex: string) => string;
   rgbToHex: (rgb: string) => string;

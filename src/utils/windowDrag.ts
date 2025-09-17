@@ -2,7 +2,7 @@ import type { ObjectDirective, DirectiveBinding } from "vue";
 import { Window } from "@tauri-apps/api/window";
 
 /** 轻量型拖拽配置（仅保留常用开关） */
-export interface WindowDragOptions {
+export type WindowDragOptions = {
   // 触发拖拽的位移阈值（像素）
   threshold?: number;
   // 仅当事件源位于该选择器内时允许拖拽（可选）
@@ -13,7 +13,7 @@ export interface WindowDragOptions {
   dblclickMaximize?: boolean;
 }
 
-interface DragState {
+type DragState = {
   isDown: boolean;
   didDrag: boolean; // 标记是否发生过拖拽，用于吞掉紧随其后的 click
   startX: number;

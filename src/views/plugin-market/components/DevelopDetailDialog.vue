@@ -145,13 +145,13 @@ import type { DeveloperPlugin } from "@/interface/pluginMarket.d";
 import { STATUS_MAP, STATUS_SEVERITY_MAP } from "@/interface/pluginMarket.d";
 import { PluginCategory } from "@/interface/plugin.d";
 
-interface Props {
+type Props = {
   visible: boolean;
   selectedPlugin: DeveloperPlugin | null;
   activeMenu: MenuKey;
 }
 
-interface Emits {
+type Emits = {
   (e: "update:visible", value: boolean): void;
 }
 

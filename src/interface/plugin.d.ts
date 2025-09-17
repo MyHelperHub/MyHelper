@@ -7,7 +7,7 @@ import { WindowConfig } from "./window";
  * @param info 插件信息
  * @param config 插件配置(存储本地配置)
  */
-export interface PluginConfig {
+export type PluginConfig = {
   windowId: string;
   data: WindowConfig;
   config?: {
@@ -41,7 +41,7 @@ export interface PluginConfig {
  * @param icon 可选的插件图标路径
  * @param loading 可选的窗口是否显示加载动画，需自定义动画
  */
-interface PluginConfig extends Omit<WindowConfig, "windowId" | "url"> {
+type PluginConfigCreate = WindowConfig & {
   windowId: string;
 }
 
@@ -75,7 +75,7 @@ export enum PluginSortType {
 }
 
 /** 插件信息接口 */
-export interface Plugin {
+export type Plugin = {
   Id: number;
   Name: string;
   Description: string;
@@ -106,7 +106,7 @@ export interface Plugin {
 }
 
 /** 插件更新DTO */
-export interface PluginUpdateDTO {
+export type PluginUpdateDTO = {
   WindowId: string;
   Name?: string;
   Description?: string;
@@ -123,16 +123,16 @@ export interface PluginUpdateDTO {
   Screenshots?: string[];
 }
 
-export interface PluginThread {
+export type PluginThread = {
   IsRated: boolean;
 }
 
-export interface PluginDetail {
+export type PluginDetail = {
   Plugin: Plugin;
   IsRated: boolean;
 }
 
-export interface PluginResponse {
+export type PluginResponse = {
   Message: string;
   Data: PluginDetail[];
   Code: string;
@@ -144,7 +144,7 @@ export interface PluginResponse {
 }
 
 /** 插件创建DTO */
-export interface PluginCreateDTO {
+export type PluginCreateDTO = {
   Name: string;
   Description: string;
   Version: string;

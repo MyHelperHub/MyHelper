@@ -1,7 +1,7 @@
 import type { MenuItem } from "primevue/menuitem";
 import { ref, Ref } from "vue";
 
-export interface UseContextMenuReturn {
+export type UseContextMenuReturn = {
   contextMenuRef: Ref;
   menuItems: Ref<MenuItem[]>;
   showContextMenu: (event: MouseEvent, items: MenuItem[]) => void;

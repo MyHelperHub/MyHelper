@@ -1,4 +1,4 @@
-export interface QuickInputItem {
+export type QuickInputItem = {
   id: number;
   text: string;
 }

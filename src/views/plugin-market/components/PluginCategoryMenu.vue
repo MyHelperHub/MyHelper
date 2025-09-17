@@ -24,12 +24,12 @@ import Card from "primevue/card";
 import Listbox from "primevue/listbox";
 import type { CategoryMenuItem } from "@/interface/pluginMarket.d";
 
-interface Props {
+type Props = {
   selectedCategory: string;
   categoryMenuItems: CategoryMenuItem[];
 }
 
-interface Emits {
+type Emits = {
   (e: "select-category", category: string): void;
 }
 

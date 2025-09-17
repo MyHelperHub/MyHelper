@@ -116,7 +116,7 @@ import type { ModelConfig } from "@/interface/pet";
 import { PetGlobalManager } from "./PetGlobalManager";
 import { Logger } from "@/utils/logger";
 
-interface Props {
+type Props = {
   modelValue?: number | null;
 }
 

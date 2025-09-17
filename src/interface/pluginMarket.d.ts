@@ -3,7 +3,7 @@ export enum MenuKey {
   UploadHistory = 1,
 }
 
-export interface PluginFormData {
+export type PluginFormData = {
   Name: string;
   Description: string;
   Version: string;
@@ -21,7 +21,7 @@ export interface PluginFormData {
   Category: PluginCategory;
 }
 
-export interface PluginFormErrors {
+export type PluginFormErrors = {
   Name: string;
   Version: string;
   Description: string;
@@ -31,27 +31,27 @@ export interface PluginFormErrors {
   Position: string;
 }
 
-export interface CategoryMenuItem {
+export type CategoryMenuItem = {
   label: string;
   value: string | PluginCategory;
 }
 
-export interface SortOption {
+export type SortOption = {
   label: string;
   value: PluginSortType;
 }
 
-export interface TimeFilterOption {
+export type TimeFilterOption = {
   label: string;
   value: string;
 }
 
-export interface CategoryOption {
+export type CategoryOption = {
   label: string;
   value: PluginCategory;
 }
 
-export interface PluginMarketState {
+export type PluginMarketState = {
   keyword: string;
   category: string;
   sort: PluginSortType;
@@ -61,13 +61,13 @@ export interface PluginMarketState {
   total: number;
 }
 
-export interface LocalPluginFile {
+export type LocalPluginFile = {
   path: string;
   name: string;
   size: number;
 }
 
-export interface LocalPluginInfo {
+export type LocalPluginInfo = {
   windowId: string;
   title: string;
   description: string;
@@ -83,7 +83,7 @@ export interface LocalPluginInfo {
   icon?: string;
 }
 
-export interface DeveloperPlugin {
+export type DeveloperPlugin = {
   Id: number;
   Name: string;
   Description: string;
@@ -109,7 +109,7 @@ export interface DeveloperPlugin {
   Email?: string;
 }
 
-export interface PluginUploadData {
+export type PluginUploadData = {
   Name: string;
   Description: string;
   Version: string;
@@ -126,11 +126,11 @@ export interface PluginUploadData {
   Category: PluginCategory;
 }
 
-export interface PluginUpdateData extends PluginUploadData {
+export type PluginUpdateData = PluginUploadData & {
   Id: number;
 }
 
-export interface PluginAnalysisResult {
+export type PluginAnalysisResult = {
   success: boolean;
   message?: string;
   size?: number;

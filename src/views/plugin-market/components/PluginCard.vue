@@ -90,13 +90,13 @@ import Button from "primevue/button";
 import type { PluginDetail, Plugin } from "@/interface/plugin.d";
 import { formatNumber, checkPluginUpdate } from "@/utils/pluginUtils";
 
-interface Props {
+type Props = {
   pluginDetail: PluginDetail;
   installedPlugins: Plugin[];
   installedPluginIds: string[];
 }
 
-interface Emits {
+type Emits = {
   (e: "click", pluginDetail: PluginDetail): void;
 }
 

@@ -1,16 +1,16 @@
-export interface UpdateProgress {
+export type UpdateProgress = {
   downloaded: number;
   total: number;
   percent: number;
 }
 
-export interface UpdateResult {
+export type UpdateResult = {
   shouldUpdate: boolean;
   version?: string;
   notes?: string;
   date?: string;
 }
-export interface UpdateState {
+export type UpdateState = {
   checking: boolean;
   downloading: boolean;
   currentVersion: string;

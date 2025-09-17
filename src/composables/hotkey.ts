@@ -21,7 +21,7 @@ export type HotkeyActionType =
   (typeof HotkeyActions)[keyof typeof HotkeyActions];
 
 /** 快捷键配置定义，包含ID、标题和默认键 */
-export interface HotkeyDefinition {
+export type HotkeyDefinition = {
   id: HotkeyActionType;
   title: string;
   defaultKey: string;

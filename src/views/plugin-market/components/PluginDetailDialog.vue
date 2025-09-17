@@ -207,7 +207,7 @@ import {
   checkPluginUpdate,
 } from "@/utils/pluginUtils";
 
-interface Props {
+type Props = {
   visible: boolean;
   selectedPlugin: Plugin | null;
   selectedPluginIsRated: boolean;
@@ -218,7 +218,7 @@ interface Props {
   hasUpdate: boolean;
 }
 
-interface Emits {
+type Emits = {
   (e: "update:visible", value: boolean): void;
   (e: "close"): void;
   (e: "download", plugin: Plugin | null, isUpdate: boolean): void;
