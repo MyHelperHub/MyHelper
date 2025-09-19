@@ -1,7 +1,3 @@
-/**
- * Pet组件系统类型定义（GlobalData架构版本）
- * 基于GlobalData实现跨webview状态同步的简化版本
- */
 
 /** 模型配置接口 */
 export type ModelConfig = {

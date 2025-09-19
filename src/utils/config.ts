@@ -110,11 +110,18 @@ export const updateConfig = async <T extends object>(
  */
 export async function resetConfig(keys: string[]): Promise<void> {
   try {
+    // 引入快捷键默认配置
+    const { getDefaultHotkeyConfig } = await import("@/composables/hotkey");
+
     const defaultValues = {
       webConfig: { dataList: [] },
       appConfig: { dataList: [] },
       quickInputConfig: { commonText: [] },
-      settingConfig: { clipboardListening: false },
+      settingConfig: {
+        clipboardListening: false,
+        hotkey: getDefaultHotkeyConfig(),
+        autoStart: false
+      },
     };
 
     if (keys.length === 0) {

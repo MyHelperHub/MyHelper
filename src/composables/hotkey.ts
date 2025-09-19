@@ -1,4 +1,4 @@
-import { HotkeyItem } from "../types/setting.ts";
+import { HotkeyItem, HotkeyConfig } from "../types/setting.ts";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Logger } from "../utils/logger.ts";
 import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api.ts";
@@ -66,7 +66,7 @@ export const getHotkeyItemsMap = () => {
 };
 
 /** 获取默认快捷键配置 */
-export const getDefaultHotkeyConfig = () => {
+export const getDefaultHotkeyConfig = (): HotkeyConfig => {
   const config: Record<string, HotkeyItem> = {};
   HOTKEY_DEFINITIONS.forEach((def) => {
     config[def.id] = {
@@ -77,7 +77,45 @@ export const getDefaultHotkeyConfig = () => {
   return {
     enabled: false,
     ...config,
-  };
+  } as HotkeyConfig;
+};
+
+/** 规范化快捷键配置 */
+export const normalizeHotkeyConfig = (
+  config?: Partial<HotkeyConfig> | null,
+): HotkeyConfig => {
+  const defaults = getDefaultHotkeyConfig();
+
+  const normalized = {
+    ...defaults,
+    ...(config ?? {}),
+    enabled: config?.enabled ?? defaults.enabled,
+  } as HotkeyConfig;
+
+  for (const { id } of HOTKEY_DEFINITIONS) {
+    const defaultItem = defaults[id];
+    const incomingItem = (config as Partial<HotkeyConfig> | null | undefined)?.[id] as
+      | HotkeyItem
+      | undefined;
+
+    normalized[id] = {
+      ...defaultItem,
+      ...(incomingItem ?? {}),
+    } as HotkeyItem;
+
+    if (typeof normalized[id].enabled !== "boolean") {
+      normalized[id].enabled = defaultItem.enabled;
+    }
+
+    const keyValue = (normalized[id] as Record<string, unknown>).key;
+    if (typeof keyValue !== "string" || keyValue.trim() === "") {
+      (normalized[id] as Record<string, unknown>).key = (
+        defaultItem as Record<string, unknown>
+      ).key;
+    }
+  }
+
+  return normalized;
 };
 
 /** 监听器的引用 */
@@ -94,7 +132,6 @@ const ensureMainWindowExpanded = async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
 };
-
 /**
  * 处理快捷键动作
  */
@@ -159,12 +196,14 @@ const cleanupHotkeyListener = async (): Promise<void> => {
  * @returns 设置是否成功
  */
 export const setHotkeyEnabled = async (
-  config: HotkeyItem,
+  config: HotkeyConfig,
 ): Promise<boolean> => {
-  try {
-    await ipcSetHotkeyEnabled(config);
+  const normalizedConfig = normalizeHotkeyConfig(config);
 
-    if (config.enabled) {
+  try {
+    await ipcSetHotkeyEnabled(normalizedConfig);
+
+    if (normalizedConfig.enabled) {
       await initHotkeyListener();
     } else {
       await cleanupHotkeyListener();

@@ -121,6 +121,9 @@ const init = async () => {
     const config = await getConfig("settingConfig");
     if (config) {
       settingData.value = { ...settingData.value, ...config };
+    } else {
+      // 如果没有配置，设置默认值
+      await setConfig("settingConfig", settingData.value);
     }
   } catch (error) {
     ErrorHandler.handleError(error, "获取设置项配置时出错，使用默认值:");
@@ -139,6 +142,12 @@ const handleChange = async (key: string, value: any) => {
     key,
     value,
   });
+
+  // 如果是修改快捷键启用状态，立即应用设置
+  if (key === 'hotkey.enabled') {
+    await setHotkeyEnabled(settingData.value.hotkey);
+  }
+
   await setConfig("settingConfig", settingData.value);
 };
 /** 快捷键设置变更处理函数(小按钮) */
