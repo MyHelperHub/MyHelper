@@ -12,7 +12,7 @@ export type ModelConfig = {
   version?: "2.1" | "3.x" | "4.x";
   importTime?: string; // 导入时间（仅用户模型）
   size?: number; // 文件大小
-}
+};
 
 /** 模型信息接口 */
 export type ModelInfo = {
@@ -20,7 +20,7 @@ export type ModelInfo = {
   height: number;
   motions: Record<string, Motion[]>;
   expressions: Expression[];
-}
+};
 
 /** 宠物偏好设置接口 */
 export type PetPreferences = {
@@ -28,7 +28,7 @@ export type PetPreferences = {
   isEnabledPet: boolean;
   /** 默认缩放比例 */
   defaultScale: number;
-}
+};
 
 /** 动作配置接口 */
 export type Motion = {
@@ -36,10 +36,10 @@ export type Motion = {
   Name?: string;
   FadeInTime?: number;
   FadeOutTime?: number;
-}
+};
 
 /** 表情配置接口 */
 export type Expression = {
   File: string;
   Name?: string;
-}
+};

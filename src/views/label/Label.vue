@@ -32,9 +32,9 @@
 import { ref } from "vue";
 import Mochi from "./Mochi/Mochi.vue";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { WindowOperation } from "@/interface/enum";
+import { WindowOperation } from "@/types/enum";
 import { showContextMenu } from "./utils/contextMenu";
-import { NewWindowEnum } from "@/interface/windowEnum";
+import { NewWindowEnum } from "@/types/windowEnum";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 

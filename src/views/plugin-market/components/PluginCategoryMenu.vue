@@ -22,16 +22,16 @@
 <script setup lang="ts">
 import Card from "primevue/card";
 import Listbox from "primevue/listbox";
-import type { CategoryMenuItem } from "@/interface/pluginMarket.d";
+import type { CategoryMenuItem } from "@/types/pluginMarket";
 
 type Props = {
   selectedCategory: string;
   categoryMenuItems: CategoryMenuItem[];
-}
+};
 
 type Emits = {
   (e: "select-category", category: string): void;
-}
+};
 
 defineProps<Props>();
 defineEmits<Emits>();

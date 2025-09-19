@@ -4,7 +4,7 @@ import { ref } from "vue";
 type MessageRef = {
   showMessage: (message: string, duration?: number, type?: number) => void;
   hideMessage: () => void;
-}
+};
 
 /** 消息组件引用 */
 const messageRef = ref<MessageRef | null>(null);

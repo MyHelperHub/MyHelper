@@ -1,7 +1,7 @@
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { showMessage } from "@/composables/message.ts";
-import { UpdateProgress, UpdateResult } from "@/interface/update";
+import { UpdateProgress, UpdateResult } from "@/types/update";
 import { ErrorHandler } from "@/utils/errorHandler";
 
 /** 检查应用更新 */
@@ -32,7 +32,7 @@ export async function ipcDownloadAndInstallUpdate(
   try {
     const update = await check();
     if (!update) {
-      throw new Error("No update available");
+      throw new Error("没有可用的更新");
     }
 
     let downloaded = 0;

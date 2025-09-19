@@ -2,7 +2,7 @@
  * PrimeVue 主题集成 - 基于官方最佳实践
  */
 
-import type { ThemeColors } from "@/interface/theme.d";
+import type { ThemeColors } from "@/types/theme";
 import { colorUtils } from "../theme";
 
 /**

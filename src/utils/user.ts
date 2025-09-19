@@ -1,4 +1,4 @@
-import { User } from "../interface/user";
+import { User } from "../types/user";
 import { getConfig, updateConfig } from "./config";
 import { ipcFileExists } from "@/api/ipc/launch.api";
 import { convertFileSrc } from "@tauri-apps/api/core";

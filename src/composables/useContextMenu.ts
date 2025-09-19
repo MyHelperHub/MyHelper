@@ -5,7 +5,7 @@ export type UseContextMenuReturn = {
   contextMenuRef: Ref;
   menuItems: Ref<MenuItem[]>;
   showContextMenu: (event: MouseEvent, items: MenuItem[]) => void;
-}
+};
 
 /**
  * 通用的右键菜单组合式函数

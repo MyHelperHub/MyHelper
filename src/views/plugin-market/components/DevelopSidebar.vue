@@ -23,17 +23,17 @@
 
 <script setup lang="ts">
 import Button from "primevue/button";
-import type { MenuKey } from "@/interface/pluginMarket.d";
-import { MENU_ITEMS } from "@/interface/pluginMarket.d";
+import type { MenuKey } from "@/types/pluginMarket";
+import { MENU_ITEMS } from "@/types/pluginMarket";
 
 type Props = {
   activeMenu: MenuKey;
-}
+};
 
 type Emits = {
   (e: "go-back"): void;
   (e: "menu-click", menuKey: MenuKey): void;
-}
+};
 
 defineProps<Props>();
 defineEmits<Emits>();

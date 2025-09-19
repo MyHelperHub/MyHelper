@@ -1,6 +1,6 @@
 import { invokeApi, safeInvokeApi } from "./wrapper";
-import { WindowConfig } from "@/interface/window";
-import { WindowOperation } from "@/interface/enum";
+import { WindowConfig } from "@/types/window";
+import { WindowOperation } from "@/types/enum";
 
 /**
  * 创建新窗口

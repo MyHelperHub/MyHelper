@@ -12,7 +12,7 @@ type PluginConfigData = {
   config: Record<string, any>;
   data: Record<string, any>;
   [key: string]: any;
-}
+};
 
 type PluginConfigOrEmpty =
   | PluginConfigData

@@ -6,7 +6,7 @@ export type LogEntry = {
   message: string;
   timestamp: string;
   details?: string;
-}
+};
 
 /** 日志管理器 */
 export class Logger {

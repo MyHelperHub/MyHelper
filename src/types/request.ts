@@ -9,4 +9,4 @@ export type ServerResponse<T = any> = {
     PageIndex: number;
     PageSize: number;
   };
-}
+};

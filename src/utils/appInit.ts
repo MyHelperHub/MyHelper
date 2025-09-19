@@ -6,7 +6,7 @@ import { getConfig, getConfigs } from "./config";
 import { ErrorHandler } from "./errorHandler";
 import GlobalData from "./globalData";
 
-import { User } from "../interface/user";
+import { User } from "../types/user";
 import { initTheme, setupThemeListener } from "@/themes/theme";
 import { initThemeHelpers } from "@/themes/themeHelpers";
 import { initSetting } from "../views/setting/utils/settingRegistry";
@@ -15,6 +15,7 @@ import {
   runStartupTasks,
 } from "../views/setting/utils/startupManager";
 import { PetGlobalManager } from "../components/Pet/PetGlobalManager";
+import { ThemeConfig } from "@/types/theme";
 
 type MainWindowConfigs = {
   themeConfig?: any;
@@ -65,7 +66,8 @@ class AppInitManager {
       } else if (this.totalConfigs?.themeConfig) {
         // 已有，无需处理
       } else {
-        this.totalConfigs.themeConfig = await getConfig("themeConfig");
+        this.totalConfigs.themeConfig =
+          await getConfig<ThemeConfig>("themeConfig");
       }
 
       await initTheme(this.totalConfigs.themeConfig);

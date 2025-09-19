@@ -4,23 +4,23 @@ import {
 } from "@/composables/clipboard.ts";
 import { setHotkeyEnabled } from "@/composables/hotkey.ts";
 import { registerTask } from "./startupManager";
-import { AppConfig } from "@/interface/database";
 import { getConfig } from "@/utils/config";
 import {
   setAutoStartEnabled,
   syncAutoStartState,
 } from "@/composables/autosStart.ts";
+import { SettingConfig } from "@/types/setting";
 
 /** 模块级缓存变量，存储初始化时的配置 */
-let cachedSettingConfig: AppConfig["settingConfig"] | null = null;
+let cachedSettingConfig: SettingConfig | null = null;
 
 /**
  * 获取最新设置配置
  * 优先使用传入的配置，然后是缓存的初始配置，最后才从数据库获取
  */
 const getLatestConfig = async (
-  passedConfig?: AppConfig["settingConfig"],
-): Promise<AppConfig["settingConfig"]> => {
+  passedConfig?: SettingConfig,
+): Promise<SettingConfig> => {
   if (passedConfig) {
     return passedConfig;
   }
@@ -31,11 +31,12 @@ const getLatestConfig = async (
     return config;
   }
 
-  const latestConfig = (await getConfig("settingConfig")) || {};
+  const latestConfig =
+    (await getConfig<SettingConfig>("settingConfig")) || ({} as SettingConfig);
   return latestConfig;
 };
 /** 初始化时执行的设置相关的函数 */
-const initFunction = async (config: AppConfig["settingConfig"]) => {
+const initFunction = async (config: SettingConfig) => {
   // 初始化时同步开机启动状态
   await syncAutoStartState(config.autoStart);
 };
@@ -43,9 +44,7 @@ const initFunction = async (config: AppConfig["settingConfig"]) => {
 /**
  * 初始化设置
  */
-export const initSetting = async (
-  settingConfig?: AppConfig["settingConfig"],
-) => {
+export const initSetting = async (settingConfig?: SettingConfig) => {
   // 缓存初始配置供后续使用
   cachedSettingConfig = settingConfig || null;
 

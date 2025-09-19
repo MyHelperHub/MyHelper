@@ -134,14 +134,14 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Image from "primevue/image";
 import Tag from "primevue/tag";
-import type { Plugin, PluginDetail } from "@/interface/plugin.d";
+import type { Plugin, PluginDetail } from "@/types/plugin";
 import { formatDate, checkPluginUpdate } from "@/utils/pluginUtils";
 
 type Props = {
   visible: boolean;
   installedPlugins: Plugin[];
   plugins: PluginDetail[];
-}
+};
 
 type Emits = {
   (e: "update:visible", value: boolean): void;
@@ -150,7 +150,7 @@ type Emits = {
   (e: "download-plugin", plugin: Plugin, isUpdate: boolean): void;
   (e: "toggle-plugin", plugin: Plugin, enable: boolean): void;
   (e: "uninstall-plugin", plugin: Plugin, event: Event): void;
-}
+};
 
 const props = defineProps<Props>();
 defineEmits<Emits>();

@@ -106,9 +106,9 @@ import FloatLabel from "primevue/floatlabel";
 import { login, register } from "@/api/network/user.api";
 import { showMessage } from "@/composables/message.ts";
 import { setUserConfig } from "@/utils/user";
-import { User, UserForm } from "@/interface/user";
+import { User, UserForm } from "@/types/user";
 import GlobalData from "@/utils/globalData";
-import { ResponseCodeEnum } from "@/interface/enum";
+import { ResponseCodeEnum } from "@/types/enum";
 import { tokenManager } from "@/utils/tokenManager";
 
 const userData = ref<UserForm>({

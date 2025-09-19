@@ -59,18 +59,18 @@ import InputText from "primevue/inputtext";
 import { showMessage } from "@/composables/message.ts";
 import { ref } from "vue";
 import { delay } from "@/utils/common";
-import { HotkeyConfig } from "@/interface/database";
+import { HotkeyItem } from "@/types/setting";
 import { getHotkeyItemsMap } from "@/composables/hotkey.ts";
 
 // 快捷键项目配置，从统一配置获取
 const hotkeyItems = getHotkeyItemsMap();
 
 const props = defineProps<{
-  modelValue: HotkeyConfig;
+  modelValue: HotkeyItem;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: HotkeyConfig): void;
+  (e: "update:modelValue", value: HotkeyItem): void;
   (e: "change", key: string, value: any): void;
 }>();
 

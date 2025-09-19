@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { QuickInputItem } from "@/interface/quickInput";
+import { QuickInputItem } from "@/types/common";
 import { nextTick, ref, computed } from "vue";
 import { getConfig, setConfig } from "@/utils/config";
 import { showMessage } from "@/composables/message.ts";

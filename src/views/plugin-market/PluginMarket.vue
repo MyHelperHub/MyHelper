@@ -143,16 +143,17 @@ import {
   ipcInstallLocalPlugin,
   ipcAnalyzePluginPackage,
 } from "@/api/ipc/plugin.api";
-import { NewWindowEnum } from "@/interface/windowEnum";
-import { WindowOperation } from "@/interface/enum";
-import { ResponseCodeEnum } from "@/interface/enum";
+import { NewWindowEnum } from "@/types/windowEnum";
+import { WindowOperation } from "@/types/enum";
+import { ResponseCodeEnum } from "@/types/enum";
 import {
   Plugin,
   PluginCategory,
   PluginStatus,
   PluginSortType,
   PluginDetail,
-} from "@/interface/plugin.d";
+  PluginConfigCreate,
+} from "@/types/plugin";
 import type {
   PluginMarketState,
   LocalPluginFile,
@@ -161,7 +162,7 @@ import type {
   SortOption,
   TimeFilterOption,
   PluginAnalysisResult,
-} from "@/interface/pluginMarket.d";
+} from "@/types/pluginMarket";
 import { appDataDir } from "@tauri-apps/api/path";
 import { format } from "date-fns";
 import ConfirmPopup from "primevue/confirmpopup";
@@ -474,18 +475,20 @@ const handleDownload = async (
       const pluginList = Array.isArray(currentConfig) ? currentConfig : [];
       const appDataPath = await appDataDir();
 
+      const pluginWindowConfig: PluginConfigCreate = {
+        windowId: plugin.WindowId,
+        title: plugin.Title,
+        size: plugin.Size as [number, number],
+        position: plugin.Position as [number, number],
+        alwaysOnTop: plugin.AlwaysOnTop,
+        resizable: plugin.Resizable,
+        icon: plugin.Icon || "./icon.png",
+        url: `${appDataPath}/Plugin/${plugin.WindowId}/index.html`,
+      };
+
       const pluginConfig = {
         windowId: plugin.WindowId,
-        data: {
-          windowId: plugin.WindowId,
-          title: plugin.Title,
-          size: plugin.Size as [number, number],
-          position: plugin.Position as [number, number],
-          alwaysOnTop: plugin.AlwaysOnTop,
-          resizable: plugin.Resizable,
-          icon: plugin.Icon || "./icon.png",
-          url: `${appDataPath}/Plugin/${plugin.WindowId}/index.html`,
-        },
+        data: pluginWindowConfig,
         config: {
           isEnabled: true,
         },
@@ -840,18 +843,20 @@ const importLocalPlugin = async () => {
     const pluginList = Array.isArray(currentConfig) ? currentConfig : [];
     const appDataPath = await appDataDir();
 
+    const localPluginWindowConfig: PluginConfigCreate = {
+      windowId: localPluginInfo.value.windowId,
+      title: localPluginInfo.value.title,
+      size: localPluginInfo.value.size || [800, 600],
+      position: localPluginInfo.value.position || [-1, -1],
+      alwaysOnTop: localPluginInfo.value.alwaysOnTop || false,
+      resizable: localPluginInfo.value.resizable !== false,
+      icon: localPluginInfo.value.icon || "./icon.png",
+      url: `${appDataPath}/Plugin/${localPluginInfo.value.windowId}/index.html`,
+    };
+
     const pluginConfig = {
       windowId: localPluginInfo.value.windowId,
-      data: {
-        windowId: localPluginInfo.value.windowId,
-        title: localPluginInfo.value.title,
-        size: localPluginInfo.value.size || [800, 600],
-        position: localPluginInfo.value.position || [-1, -1],
-        alwaysOnTop: localPluginInfo.value.alwaysOnTop || false,
-        resizable: localPluginInfo.value.resizable !== false,
-        icon: localPluginInfo.value.icon || "./icon.png",
-        url: `${appDataPath}/Plugin/${localPluginInfo.value.windowId}/index.html`,
-      },
+      data: localPluginWindowConfig,
       config: {
         isEnabled: true,
       },

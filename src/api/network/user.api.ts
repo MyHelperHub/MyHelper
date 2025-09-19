@@ -1,4 +1,4 @@
-import { LoginDTO } from "@/interface/user";
+import { LoginDTO } from "@/types/user";
 import { request } from "./wrapper";
 
 /** 用户登录 */

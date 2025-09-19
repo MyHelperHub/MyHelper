@@ -1,3 +1,4 @@
+/** 设置菜单项枚举 */
 export enum SettingMenuItemEnum {
   General = "general",
   Theme = "theme",
@@ -5,6 +6,7 @@ export enum SettingMenuItemEnum {
   About = "about",
 }
 
+/** 响应码枚举 */
 export enum ResponseCodeEnum {
   /** 成功   */
   SUCCESS = "0001",
@@ -24,7 +26,7 @@ export enum ResponseCodeEnum {
  * API状态码枚举（与Rust后端统一）
  */
 export enum ApiStatusCode {
-  // 成功
+  /** 成功 */
   SUCCESS = 0,
 
   // 系统错误码 (1000-1099)
@@ -53,19 +55,16 @@ export enum ApiStatusCode {
   ERR_NETWORK_UNREACHABLE = 1402,
 }
 
-/**
- * 窗口操作类型
- * @enum {number}
- * @property {number} Close - 关闭窗口，值为0
- * @property {number} Minimize - 最小化窗口，值为1
- * @property {number} Maximize - 最大化窗口，值为2
- * @property {number} Restore - 还原窗口，值为3
- * @property {number} ToggleAlwaysOnTop - 切换窗口置顶状态，值为4
- */
+/** 窗口操作类型 */
 export enum WindowOperation {
+  /** 关闭窗口 */
   Close = 0,
+  /** 最小化窗口 */
   Minimize = 1,
+  /** 最大化窗口 */
   Maximize = 2,
+  /** 还原窗口 */
   Restore = 3,
+  /** 切换窗口置顶状态 */
   ToggleAlwaysOnTop = 4,
 }

@@ -30,7 +30,7 @@
               },
             },
           }"
-          @click="navigateTo(item.url)"
+          @click="navigateTo(String(item.url))"
           @contextmenu.prevent="(e) => handleContextMenu(e, item)">
           <div class="icon-container">
             <img
@@ -64,7 +64,7 @@ import AddItem from "@/views/web/AddItem.vue";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { ref } from "vue";
-import { WebItem } from "@/interface/web";
+import { SelectItem } from "@/types/common";
 import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
@@ -76,14 +76,15 @@ import {
 } from "./utils/contextMenu";
 import Dialog from "primevue/dialog";
 import { ErrorHandler } from "@/utils/errorHandler";
+import { WebConfig } from "@/types/database";
 
-const dataList = ref<WebItem[]>([]);
+const dataList = ref<SelectItem[]>([]);
 const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
 const visible = ref(false);
 
 const init = async () => {
   try {
-    const config = await getConfig<{ dataList: WebItem[] }>("webConfig");
+    const config = await getConfig<WebConfig>("webConfig");
     dataList.value = config?.dataList || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
@@ -94,7 +95,7 @@ const init = async () => {
 init();
 
 /** 打开编辑网站弹窗 */
-const openEditWebItem = async (item: WebItem) => {
+const openEditWebItem = async (item: SelectItem) => {
   addItemRef.value?.openModal(item);
 };
 
@@ -113,11 +114,11 @@ const navigateTo = (url: string) => {
 };
 
 /** 添加网站时触发事件 */
-const addWebItem = async (item: WebItem) => {
+const addWebItem = async (item: SelectItem) => {
   item.id = Date.now();
   dataList.value.push(item);
   try {
-    await setConfig("webConfig", { dataList: dataList.value });
+    await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
   } catch (error) {
     dataList.value.pop();
     showMessage("保存失败!", 3000, 2);
@@ -125,7 +126,7 @@ const addWebItem = async (item: WebItem) => {
 };
 
 /** 编辑网站 */
-const editWebItem = async (updatedItem: WebItem) => {
+const editWebItem = async (updatedItem: SelectItem) => {
   const index = dataList.value.findIndex((item) => item.id === updatedItem.id);
 
   if (index !== -1) {
@@ -133,7 +134,7 @@ const editWebItem = async (updatedItem: WebItem) => {
 
     // 更新本地配置
     try {
-      await setConfig("webConfig", { dataList: dataList.value });
+      await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);
@@ -155,7 +156,7 @@ const deleteWebItem = async (id: number) => {
 
     dataList.value.splice(index, 1);
     try {
-      await setConfig("webConfig", { dataList: dataList.value });
+      await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
       ipcDeleteIcon(fileName, 0).catch((err) => {
         ErrorHandler.handleError(err, "图标删除失败:");
       });

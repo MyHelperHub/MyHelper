@@ -1,13 +1,13 @@
 import { getConfig, setConfig } from "../utils/config";
 import { useDebounce } from "../utils/common";
-import { ThemeMode } from "@/interface/theme.d";
+import { ThemeMode } from "@/types/theme";
 import type {
   ThemeConfig,
   ThemeColors,
   ColorValue,
   PresetTheme,
   ThemeApplyResult,
-} from "@/interface/theme.d";
+} from "@/types/theme";
 import { emit as tauriEmit, listen } from "@tauri-apps/api/event";
 import { ErrorHandler } from "../utils/errorHandler";
 
@@ -635,7 +635,6 @@ export async function applyTheme(
     } catch (primeVueError) {
       // PrimeVue 主题应用失败不应该阻止整个主题系统
       ErrorHandler.handleError(primeVueError, "PrimeVue 主题应用失败:");
-
     }
 
     // 设置主题属性（这里会被 PrimeVue 函数重复设置，但保持兼容性）

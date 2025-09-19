@@ -89,9 +89,9 @@ import CommonApp from "@/views/app/CommonApp.vue";
 import QuickInput from "@/views/quick-input/QuickInput.vue";
 import MyPlugin from "@/views/my-plugin/MyPlugin.vue";
 import { ref, toRef, type Ref, onMounted, onUnmounted } from "vue";
-import { ContainState, type CommonState } from "@/interface/menu.d";
+import { ContainState, type CommonState } from "@/types/menu";
 import { handleWindowToggle } from "@/utils/windowManager";
-import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
+import { NewWindowEnum, WINDOW_CONFIG } from "@/types/windowEnum";
 import { on, off } from "@/utils/eventBus";
 
 const myPluginRef = ref<InstanceType<typeof MyPlugin> | null>(null);

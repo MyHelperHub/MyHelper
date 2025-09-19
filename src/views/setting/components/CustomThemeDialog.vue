@@ -354,7 +354,7 @@ type CustomThemeConfig = {
     warning: string;
     error: string;
   };
-}
+};
 
 const props = defineProps<{ visible: boolean; currentTheme?: any }>();
 

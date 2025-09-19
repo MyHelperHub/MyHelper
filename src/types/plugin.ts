@@ -27,7 +27,7 @@ export type PluginConfig = {
     createTime: string;
     updateTime: string;
   };
-}
+};
 
 /**
  * 创建插件时的配置项
@@ -41,9 +41,9 @@ export type PluginConfig = {
  * @param icon 可选的插件图标路径
  * @param loading 可选的窗口是否显示加载动画，需自定义动画
  */
-type PluginConfigCreate = WindowConfig & {
+export type PluginConfigCreate = WindowConfig & {
   windowId: string;
-}
+};
 
 /** 插件状态枚举 */
 export enum PluginStatus {
@@ -103,7 +103,7 @@ export type Plugin = {
   config?: {
     isEnabled: boolean;
   };
-}
+};
 
 /** 插件更新DTO */
 export type PluginUpdateDTO = {
@@ -121,16 +121,16 @@ export type PluginUpdateDTO = {
   Resizable?: boolean;
   Status?: PluginStatus;
   Screenshots?: string[];
-}
+};
 
 export type PluginThread = {
   IsRated: boolean;
-}
+};
 
 export type PluginDetail = {
   Plugin: Plugin;
   IsRated: boolean;
-}
+};
 
 export type PluginResponse = {
   Message: string;
@@ -141,7 +141,7 @@ export type PluginResponse = {
     PageSize: number;
     TotalRecords: number;
   };
-}
+};
 
 /** 插件创建DTO */
 export type PluginCreateDTO = {
@@ -158,4 +158,4 @@ export type PluginCreateDTO = {
   AlwaysOnTop: boolean;
   Resizable: boolean;
   FileUrl: string;
-}
+};

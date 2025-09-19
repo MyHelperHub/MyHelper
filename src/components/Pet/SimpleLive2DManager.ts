@@ -6,12 +6,7 @@ import {
   Live2DModel,
   Cubism4ModelSettings,
 } from "pixi-live2d-display-lipsyncpatch";
-import type {
-  ModelConfig,
-  ModelInfo,
-  Motion,
-  Expression,
-} from "@/interface/pet";
+import type { ModelConfig, ModelInfo, Motion, Expression } from "@/types/pet";
 import { Logger } from "@/utils/logger";
 
 /**

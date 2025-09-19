@@ -19,7 +19,7 @@ export type ColorValue = {
   hex: string;
   rgb: string;
   hsl: string;
-}
+};
 
 /**
  * 渐变配置接口
@@ -31,7 +31,7 @@ export type GradientConfig = {
     color: ColorValue;
     position: number; // 0-100
   }>;
-}
+};
 
 /**
  * 透明度配置接口
@@ -41,7 +41,7 @@ export type TransparencyConfig = {
   backgroundSecondary: number; // 次要背景透明度 0.1-1
   card: number; // 卡片透明度 0.1-1
   border: number; // 边框透明度 0.1-1
-}
+};
 
 /**
  * 主题颜色配置接口
@@ -77,7 +77,7 @@ export type ThemeColors = {
 
   // 透明度配置（可选）
   transparency?: TransparencyConfig;
-}
+};
 
 /**
  * 预设主题配置
@@ -88,7 +88,7 @@ export type PresetTheme = {
   mode: ThemeMode;
   colors: ThemeColors;
   preview?: string; // 预览图片URL
-}
+};
 
 /**
  * 主题配置接口
@@ -97,7 +97,7 @@ export type ThemeConfig = {
   mode: ThemeMode;
   currentThemeId?: string;
   customColors?: ThemeColors;
-}
+};
 
 /**
  * 主题应用结果
@@ -106,7 +106,7 @@ export type ThemeApplyResult = {
   success: boolean;
   error?: string;
   appliedColors: ThemeColors;
-}
+};
 
 /**
  * 颜色工具函数返回类型
@@ -119,4 +119,4 @@ export type ColorUtils = {
   lighten: (color: string, amount: number) => string;
   darken: (color: string, amount: number) => string;
   generatePalette: (baseColor: string) => ColorValue[];
-}
+};

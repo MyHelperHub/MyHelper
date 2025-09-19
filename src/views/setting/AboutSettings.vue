@@ -133,7 +133,7 @@ import {
 } from "@/api/ipc/update.api";
 import { showMessage } from "@/composables/message.ts";
 import { copyToClipboard } from "@/composables/clipboard.ts";
-import type { UpdateState } from "@/interface/update";
+import type { UpdateState } from "@/types/update";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { open } from "@tauri-apps/plugin-shell";

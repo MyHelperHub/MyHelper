@@ -114,7 +114,7 @@ import { ref, computed, onMounted, nextTick, watch } from "vue";
 import Button from "primevue/button";
 import ToggleSwitch from "primevue/toggleswitch";
 import Slider from "primevue/slider";
-import type { ModelConfig, ModelInfo } from "@/interface/pet";
+import type { ModelConfig, ModelInfo } from "@/types/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import PetSelector from "@/components/Pet/PetSelector.vue";
 import ModelImportDialog from "@/components/Pet/ModelImportDialog.vue";

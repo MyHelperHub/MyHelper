@@ -30,7 +30,7 @@
               },
             },
           }"
-          @click="openApp(item.src)"
+          @click="openApp(String(item.src))"
           @contextmenu.prevent="(e) => handleContextMenu(e, item)">
           <div class="icon-container">
             <img
@@ -61,7 +61,7 @@ import { open as tauriOpen } from "@tauri-apps/plugin-dialog";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
 import { ref } from "vue";
-import { AppItem } from "@/interface/app";
+import { SelectItem } from "@/types/common";
 import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
@@ -74,14 +74,15 @@ import {
 } from "./utils/contextMenu";
 import Dialog from "primevue/dialog";
 import { ErrorHandler } from "@/utils/errorHandler";
+import { AppConfig } from "@/types/database";
 
-const dataList = ref<AppItem[]>([]);
+const dataList = ref<SelectItem[]>([]);
 const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
 const visible = ref(false);
 
 const init = async () => {
   try {
-    const config = await getConfig<{ dataList: AppItem[] }>("appConfig");
+    const config = await getConfig<AppConfig>("appConfig");
     dataList.value = config?.dataList || [];
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
@@ -104,7 +105,7 @@ const openApp = async (path: string) => {
 
 /** 添加应用 */
 const addAppItem = async () => {
-  const newItem: AppItem = {
+  const newItem: SelectItem = {
     id: Date.now(),
     src: "",
     title: "",
@@ -133,13 +134,13 @@ const addAppItem = async () => {
     newItem.logo = (await ipcGetAppIcon(filePath)) as string;
 
     dataList.value.push(newItem);
-    await setConfig("appConfig", { dataList: dataList.value });
+    await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
   } catch (error) {
     showMessage("添加应用失败!", 3000, 2);
   }
 };
 
-const openEditAppItem = (item: AppItem) => {
+const openEditAppItem = (item: SelectItem) => {
   editItemRef.value?.openModal(item);
 };
 
@@ -153,7 +154,7 @@ const deleteAppItem = async (id: number) => {
     );
     dataList.value.splice(index, 1);
     try {
-      await setConfig("appConfig", { dataList: dataList.value });
+      await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
       ipcDeleteIcon(fileName, 1).catch((err) => {
         ErrorHandler.handleError(err, "图标删除失败:");
       });
@@ -164,14 +165,14 @@ const deleteAppItem = async (id: number) => {
   }
 };
 
-const editAppItem = async (updatedItem: AppItem) => {
+const editAppItem = async (updatedItem: SelectItem) => {
   const index = dataList.value.findIndex((item) => item.id === updatedItem.id);
   if (index !== -1) {
     dataList.value[index] = updatedItem;
 
     // 更新本地配置
     try {
-      await setConfig("appConfig", { dataList: dataList.value });
+      await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);

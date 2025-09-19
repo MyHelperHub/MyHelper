@@ -68,7 +68,7 @@ import {
   handleMainWindowToggle,
   isMainMenuVisible,
 } from "@/utils/windowManager";
-import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
+import { NewWindowEnum, WINDOW_CONFIG } from "@/types/windowEnum";
 import { checkLogoPath } from "@/utils/user";
 import Search from "@/views/Search.vue";
 import Menu from "./Menu.vue";

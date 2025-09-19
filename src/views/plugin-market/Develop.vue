@@ -178,8 +178,8 @@ import Tag from "primevue/tag";
 import { useRouter } from "vue-router";
 import ConfirmPopup from "primevue/confirmpopup";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { ResponseCodeEnum, WindowOperation } from "@/interface/enum";
-import { NewWindowEnum, WINDOW_CONFIG } from "@/interface/windowEnum";
+import { ResponseCodeEnum, WindowOperation } from "@/types/enum";
+import { NewWindowEnum, WINDOW_CONFIG } from "@/types/windowEnum";
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import { isDev } from "@/utils/common";
 import {
@@ -191,7 +191,7 @@ import {
   deletePlugin,
   uploadImage,
 } from "@/api/network/plugin.api";
-import { PluginStatus, PluginCategory } from "@/interface/plugin.d";
+import { PluginStatus, PluginCategory } from "@/types/plugin";
 import { showLoading, hideLoading } from "@/composables/loading.ts";
 import GlobalData from "@/utils/globalData";
 import Paginator from "primevue/paginator";
@@ -200,7 +200,7 @@ import {
   STATUS_MAP,
   STATUS_SEVERITY_MAP,
   MENU_TITLES,
-} from "@/interface/pluginMarket.d";
+} from "@/types/pluginMarket";
 import type {
   DeveloperPlugin,
   PluginFormData,
@@ -208,7 +208,7 @@ import type {
   CategoryOption,
   PluginUploadData,
   PluginUpdateData,
-} from "@/interface/pluginMarket.d";
+} from "@/types/pluginMarket";
 
 // 导入组件
 import DevelopSidebar from "./components/DevelopSidebar.vue";

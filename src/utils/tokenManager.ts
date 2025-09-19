@@ -1,5 +1,5 @@
 import GlobalData from "@/utils/globalData";
-import { User } from "@/interface/user";
+import { User } from "@/types/user";
 
 /**
  * Token管理器

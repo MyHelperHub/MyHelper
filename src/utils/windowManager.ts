@@ -3,8 +3,8 @@ import {
   ipcCreateNewWindow,
   ipcSetWindowSize,
 } from "@/api/ipc/window.api";
-import { WindowOperation } from "@/interface/enum";
-import { WindowConfig } from "@/interface/window";
+import { WindowOperation } from "@/types/enum";
+import { WindowConfig } from "@/types/window";
 import { Ref, ref } from "vue";
 import { delay } from "@/utils/common";
 import { hideMessage } from "@/composables/message.ts";

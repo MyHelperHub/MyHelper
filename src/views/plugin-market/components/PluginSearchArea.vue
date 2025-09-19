@@ -32,14 +32,14 @@ import Button from "primevue/button";
 
 type Props = {
   keyword?: string;
-}
+};
 
 type Emits = {
   (e: "update:keyword", value: string): void;
   (e: "search"): void;
   (e: "clear-search"): void;
   (e: "show-installed"): void;
-}
+};
 
 defineProps<Props>();
 defineEmits<Emits>();

@@ -22,4 +22,4 @@ export type WindowConfig = {
   resizable?: boolean;
   icon?: string;
   loading?: boolean;
-}
+};

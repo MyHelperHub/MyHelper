@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { ApiStatusCode } from "../../interface/enum";
+import { ApiStatusCode } from "../../types/enum";
 
 /**
  * API响应结构体接口（与Rust后端统一）
@@ -8,7 +8,7 @@ export type ApiResponse<T> = {
   code: number;
   data: T | null;
   message: string;
-}
+};
 
 /**
  * API调用异常类

@@ -27,10 +27,10 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted, markRaw } from "vue";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { WindowOperation } from "@/interface/enum";
+import { WindowOperation } from "@/types/enum";
 import { initSetting } from "./utils/settingRegistry";
-import { SettingMenuItemEnum } from "@/interface/enum";
-import { NewWindowEnum } from "@/interface/windowEnum";
+import { SettingMenuItemEnum } from "@/types/enum";
+import { NewWindowEnum } from "@/types/windowEnum";
 import { ErrorHandler } from "@/utils/errorHandler";
 
 type MenuConfig = {
@@ -39,7 +39,7 @@ type MenuConfig = {
   icon: string;
   componentName: string;
   loader: () => Promise<any>;
-}
+};
 
 /** 当前活动菜单 */
 const activeMenu = ref<SettingMenuItemEnum | null>(null);

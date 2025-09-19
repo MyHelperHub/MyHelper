@@ -90,7 +90,7 @@ export async function ipcDeletePluginConfigValue(
 
 /**
  * 设置宠物配置
- * @param configType 配置类型 ('selected_model' | 'preferences')
+ * @param configType 配置类型 ('selectedModel' | 'preferences')
  * @param configData 配置数据
  */
 export async function ipcSetPetConfig(
@@ -102,7 +102,7 @@ export async function ipcSetPetConfig(
 
 /**
  * 获取宠物配置
- * @param configType 配置类型 ('selected_model' | 'preferences')
+ * @param configType 配置类型 ('selectedModel' | 'preferences')
  * @returns 配置数据，如果不存在返回 null
  */
 export async function ipcGetPetConfig<T = any>(

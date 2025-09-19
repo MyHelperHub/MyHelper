@@ -59,11 +59,11 @@ import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { ipcGetAppIcon, ipcSetLocalIcon } from "@/api/ipc/launch.api";
-import { AppItem } from "@/interface/app";
+import { SelectItem } from "@/types/common";
 
 const emit = defineEmits(["editAppItem"]);
 
-const formData = ref<AppItem>({
+const formData = ref<SelectItem>({
   /** -1时为编辑 */
   id: -1,
   title: "",
@@ -73,7 +73,7 @@ const formData = ref<AppItem>({
 const showModal = ref(false);
 
 /** 打开AddItem弹窗 */
-const openModal = (item: AppItem) => {
+const openModal = (item: SelectItem) => {
   formData.value = { ...item };
   showModal.value = true;
 };

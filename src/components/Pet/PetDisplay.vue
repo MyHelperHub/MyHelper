@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, watch } from "vue";
-import type { ModelConfig, ModelInfo } from "@/interface/pet";
+import type { ModelConfig, ModelInfo } from "@/types/pet";
 import { SimpleLive2DManager } from "./SimpleLive2DManager";
 import { Logger } from "@/utils/logger";
 
@@ -26,7 +26,7 @@ type Props = {
   width?: number;
   height?: number;
   modelConfig: ModelConfig | null;
-}
+};
 
 const props = withDefaults(defineProps<Props>(), {
   width: 120,

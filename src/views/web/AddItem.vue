@@ -39,7 +39,7 @@
             </div>
             <transition name="icon">
               <Button
-                v-if="urlRegex.test(formData.url)"
+                v-if="urlRegex.test(String(formData.url))"
                 class="get-icon-btn"
                 @click="getIcon"
                 text
@@ -67,7 +67,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { showMessage } from "@/composables/message.ts";
 import { hideLoading, showLoading } from "@/composables/loading.ts";
 import { open } from "@tauri-apps/plugin-dialog";
-import { WebItem } from "@/interface/web";
+import { SelectItem } from "@/types/common";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
@@ -79,7 +79,7 @@ const emit = defineEmits(["addWebItem", "editWebItem"]);
 const urlRegex =
   /^(https?:\/\/)?(((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(\[[0-9a-fA-F:]+\])|(([\w-]+\.)+[a-z]{2,})|localhost)(:\d{1,5})?(\/.*)?$/i;
 
-const formData = ref<WebItem>({
+const formData = ref<SelectItem>({
   /** -1时为编辑 */
   id: -1,
   title: "",
@@ -89,7 +89,7 @@ const formData = ref<WebItem>({
 const showModal = ref(false);
 
 /** 打开AddItem弹窗 */
-const openModal = (item: WebItem) => {
+const openModal = (item: SelectItem) => {
   formData.value = { ...item };
   showModal.value = true;
 };

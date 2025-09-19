@@ -11,7 +11,7 @@ export type WindowDragOptions = {
   disabled?: boolean;
   // 双击是否切换最大化
   dblclickMaximize?: boolean;
-}
+};
 
 type DragState = {
   isDown: boolean;
@@ -21,7 +21,7 @@ type DragState = {
   options: Required<WindowDragOptions>;
   cleanup?: () => void;
   lastDownTarget: EventTarget | null;
-}
+};
 
 // 判断是否为交互元素（在这些元素上不触发拖拽）
 function isInteractive(target: EventTarget | null): boolean {

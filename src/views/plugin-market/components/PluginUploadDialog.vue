@@ -396,7 +396,7 @@ import type {
   PluginFormData,
   PluginFormErrors,
   CategoryOption,
-} from "@/interface/pluginMarket.d";
+} from "@/types/pluginMarket";
 import { formatFileSize } from "@/utils/pluginUtils";
 
 type Props = {
@@ -405,7 +405,7 @@ type Props = {
   pluginForm: PluginFormData;
   errors: PluginFormErrors;
   categoryOptions: CategoryOption[];
-}
+};
 
 type Emits = {
   (e: "update:visible", value: boolean): void;
@@ -422,7 +422,7 @@ type Emits = {
   (e: "remove-file"): void;
   (e: "remove-screenshot", index: number): void;
   (e: "update:form", data: { field: string; value: any }): void;
-}
+};
 
 defineProps<Props>();
 defineEmits<Emits>();

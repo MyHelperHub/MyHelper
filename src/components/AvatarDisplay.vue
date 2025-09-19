@@ -37,14 +37,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import type { ModelInfo } from "@/interface/pet";
+import type { ModelInfo } from "@/types/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
 
 type Props = {
   defaultLogo?: string;
   isShowMenu?: boolean;
-}
+};
 
 const props = withDefaults(defineProps<Props>(), {
   defaultLogo: "/logo.png",

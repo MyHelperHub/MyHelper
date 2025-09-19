@@ -200,7 +200,7 @@ import Rating from "primevue/rating";
 import Tag from "primevue/tag";
 import Carousel from "primevue/carousel";
 import Button from "primevue/button";
-import type { Plugin } from "@/interface/plugin.d";
+import type { Plugin } from "@/types/plugin";
 import {
   formatNumber,
   formatDate,
@@ -216,14 +216,14 @@ type Props = {
   installedPluginIds: string[];
   installedPlugins: Plugin[];
   hasUpdate: boolean;
-}
+};
 
 type Emits = {
   (e: "update:visible", value: boolean): void;
   (e: "close"): void;
   (e: "download", plugin: Plugin | null, isUpdate: boolean): void;
   (e: "rating-change", event: { value: number }): void;
-}
+};
 
 const props = defineProps<Props>();
 defineEmits<Emits>();

@@ -1,7 +1,7 @@
 import { ref, Ref } from "vue";
 import { emit as tauriEmit, listen } from "@tauri-apps/api/event";
 import GlobalData from "@/utils/globalData";
-import type { ModelConfig, PetPreferences } from "@/interface/pet";
+import type { ModelConfig, PetPreferences } from "@/types/pet";
 import { Logger } from "@/utils/logger";
 import { ipcGetPetConfig, ipcSetPetConfig } from "@/api/ipc/database.api";
 import { resolveResource } from "@tauri-apps/api/path";
@@ -79,7 +79,7 @@ export class PetGlobalManager {
     }
 
     try {
-      const savedModel = await ipcGetPetConfig<ModelConfig>("selected_model");
+      const savedModel = await ipcGetPetConfig<ModelConfig>("selectedModel");
       if (savedModel) {
         await GlobalData.set(GLOBAL_KEYS.SELECTED_PET_MODEL, savedModel);
       } else {
@@ -161,7 +161,7 @@ export class PetGlobalManager {
       this.modelStateLoaded = true;
 
       // 2. 持久化到数据库
-      await ipcSetPetConfig("selected_model", model);
+      await ipcSetPetConfig("selectedModel", model);
 
       // 3. 发送Tauri事件通知所有webview
       await tauriEmit(TAURI_EVENTS.MODEL_CHANGED, { model });
@@ -367,7 +367,10 @@ export class PetGlobalManager {
 
       return result;
     } catch (error) {
-      ErrorHandler.handleError(error, "PetGlobalManager.importModel 完整错误对象:");
+      ErrorHandler.handleError(
+        error,
+        "PetGlobalManager.importModel 完整错误对象:",
+      );
       const errorStr =
         error instanceof Error ? error.message : JSON.stringify(error, null, 2);
       ErrorHandler.handleError(

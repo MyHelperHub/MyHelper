@@ -1,6 +1,6 @@
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { ref } from "vue";
-import { QuickInputItem } from "@/interface/quickInput";
+import { QuickInputItem } from "@/types/common.ts";
 import {
   ipcStartClipboardListener,
   ipcStopClipboardListener,

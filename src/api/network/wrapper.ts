@@ -1,7 +1,7 @@
-import { ServerResponse } from "@/interface/request";
+import { ServerResponse } from "@/types/request";
 import { showMessage } from "@/composables/message.ts";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { ResponseCodeEnum } from "@/interface/enum";
+import { ResponseCodeEnum } from "@/types/enum";
 import { tokenManager } from "@/utils/tokenManager";
 import { refreshToken } from "./user.api";
 

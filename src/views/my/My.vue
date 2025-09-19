@@ -53,12 +53,12 @@ import FileUpload from "primevue/fileupload";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { WindowOperation } from "@/interface/enum";
+import { WindowOperation } from "@/types/enum";
 import { ipcSetLogo } from "@/api/ipc/launch.api";
 import { VueCropper } from "vue-cropper";
 import "vue-cropper/dist/index.css";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
-import { NewWindowEnum } from "@/interface/windowEnum";
+import { NewWindowEnum } from "@/types/windowEnum";
 import Login from "./Login.vue";
 import { checkLogoPath } from "@/utils/user";
 

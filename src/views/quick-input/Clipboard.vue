@@ -15,8 +15,7 @@
         :key="item.id"
         :text="item.text"
         @click="pasteTo(item)"
-        @contextmenu="handleClipboardContextMenu($event, item)"
-      />
+        @contextmenu="handleClipboardContextMenu($event, item)" />
     </div>
 
     <!-- 空状态 -->
@@ -34,7 +33,7 @@
 
 <script setup lang="ts">
 import { ipcPaste, ipcWriteClipboard } from "@/api/ipc/clipboard.api";
-import { QuickInputItem } from "@/interface/quickInput";
+import { QuickInputItem } from "@/types/common";
 import { clipboardData, removeClipboardItem } from "@/composables/clipboard.ts";
 import { on } from "@/utils/eventBus";
 import ContextMenu from "primevue/contextmenu";

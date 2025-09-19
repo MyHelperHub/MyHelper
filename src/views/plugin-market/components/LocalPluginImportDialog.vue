@@ -158,23 +158,20 @@ import { computed } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
-import type {
-  LocalPluginFile,
-  LocalPluginInfo,
-} from "@/interface/pluginMarket.d";
+import type { LocalPluginFile, LocalPluginInfo } from "@/types/pluginMarket";
 
 type Props = {
   visible: boolean;
   localPluginFile: LocalPluginFile | null;
   localPluginInfo: LocalPluginInfo;
-}
+};
 
 type Emits = {
   (e: "update:visible", value: boolean): void;
   (e: "close"): void;
   (e: "import"): void;
   (e: "open-file-selector"): void;
-}
+};
 
 const props = defineProps<Props>();
 defineEmits<Emits>();

@@ -137,23 +137,23 @@
 <script setup lang="ts">
 import Dialog from "primevue/dialog";
 import Image from "primevue/image";
-import { MenuKey } from "@/interface/pluginMarket.d";
+import { MenuKey } from "@/types/pluginMarket";
 import Tag from "primevue/tag";
 import Rating from "primevue/rating";
 import Carousel from "primevue/carousel";
-import type { DeveloperPlugin } from "@/interface/pluginMarket.d";
-import { STATUS_MAP, STATUS_SEVERITY_MAP } from "@/interface/pluginMarket.d";
-import { PluginCategory } from "@/interface/plugin.d";
+import type { DeveloperPlugin } from "@/types/pluginMarket";
+import { STATUS_MAP, STATUS_SEVERITY_MAP } from "@/types/pluginMarket";
+import { PluginCategory } from "@/types/plugin";
 
 type Props = {
   visible: boolean;
   selectedPlugin: DeveloperPlugin | null;
   activeMenu: MenuKey;
-}
+};
 
 type Emits = {
   (e: "update:visible", value: boolean): void;
-}
+};
 
 defineProps<Props>();
 defineEmits<Emits>();

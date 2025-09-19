@@ -1,3 +1,5 @@
+import { PluginStatus, PluginCategory, PluginSortType } from "./plugin";
+
 export enum MenuKey {
   MyPlugins = 0,
   UploadHistory = 1,
@@ -19,7 +21,7 @@ export type PluginFormData = {
   AlwaysOnTop: boolean;
   Resizable: boolean;
   Category: PluginCategory;
-}
+};
 
 export type PluginFormErrors = {
   Name: string;
@@ -29,27 +31,27 @@ export type PluginFormErrors = {
   Title: string;
   Size: string;
   Position: string;
-}
+};
 
 export type CategoryMenuItem = {
   label: string;
   value: string | PluginCategory;
-}
+};
 
 export type SortOption = {
   label: string;
   value: PluginSortType;
-}
+};
 
 export type TimeFilterOption = {
   label: string;
   value: string;
-}
+};
 
 export type CategoryOption = {
   label: string;
   value: PluginCategory;
-}
+};
 
 export type PluginMarketState = {
   keyword: string;
@@ -59,13 +61,13 @@ export type PluginMarketState = {
   pageIndex: number;
   pageSize: number;
   total: number;
-}
+};
 
 export type LocalPluginFile = {
   path: string;
   name: string;
   size: number;
-}
+};
 
 export type LocalPluginInfo = {
   windowId: string;
@@ -81,7 +83,7 @@ export type LocalPluginInfo = {
   alwaysOnTop?: boolean;
   resizable?: boolean;
   icon?: string;
-}
+};
 
 export type DeveloperPlugin = {
   Id: number;
@@ -107,7 +109,7 @@ export type DeveloperPlugin = {
   HasUpdate?: boolean;
   Category?: PluginCategory;
   Email?: string;
-}
+};
 
 export type PluginUploadData = {
   Name: string;
@@ -124,11 +126,11 @@ export type PluginUploadData = {
   Resizable: boolean;
   FileUrl: string;
   Category: PluginCategory;
-}
+};
 
 export type PluginUpdateData = PluginUploadData & {
   Id: number;
-}
+};
 
 export type PluginAnalysisResult = {
   success: boolean;
@@ -149,7 +151,7 @@ export type PluginAnalysisResult = {
     resizable?: boolean;
     icon?: string;
   };
-}
+};
 
 export const STATUS_MAP: Record<number, string> = {
   0: "审核中",
@@ -174,6 +176,3 @@ export const MENU_TITLES = {
   [MenuKey.MyPlugins]: "我的插件",
   [MenuKey.UploadHistory]: "上传记录",
 };
-
-// Import missing types from other files
-import { PluginStatus, PluginCategory, PluginSortType } from "./plugin.d";

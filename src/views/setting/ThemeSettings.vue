@@ -64,8 +64,8 @@ import {
   presetThemes,
   colorUtils,
 } from "@/themes/theme";
-import { ThemeMode } from "@/interface/theme.d";
-import type { ThemeConfig, ThemeColors } from "@/interface/theme.d";
+import { ThemeMode } from "@/types/theme";
+import type { ThemeConfig, ThemeColors } from "@/types/theme";
 import { showMessage } from "@/composables/message.ts";
 import CustomThemeDialog from "./components/CustomThemeDialog.vue";
 import { ErrorHandler } from "@/utils/errorHandler";

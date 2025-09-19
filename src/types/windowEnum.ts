@@ -1,6 +1,7 @@
 import { WindowConfig } from "./window";
 import pluginConfig from "mh-plugin/mhPlugin.json";
 
+/** 窗口类型枚举 */
 export const NewWindowEnum = {
   Label: "label",
   My: "my",
@@ -9,6 +10,10 @@ export const NewWindowEnum = {
   MhPlugin: pluginConfig.windowId,
 } as const;
 
+/** 窗口类型枚举类型 */
+export type NewWindowEnum = (typeof NewWindowEnum)[keyof typeof NewWindowEnum];
+
+/** 窗口配置 */
 export const WINDOW_CONFIG: Record<
   (typeof NewWindowEnum)[keyof typeof NewWindowEnum],
   WindowConfig

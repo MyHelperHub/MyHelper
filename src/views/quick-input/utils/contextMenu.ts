@@ -1,4 +1,4 @@
-import { QuickInputItem } from "@/interface/quickInput";
+import { QuickInputItem } from "@/types/common";
 import { useContextMenu } from "@/composables/useContextMenu";
 import { emit } from "@/utils/eventBus";
 import type { MenuItem } from "primevue/menuitem";

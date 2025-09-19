@@ -1,4 +1,4 @@
-import { HotkeyConfig } from "../interface/database";
+import { HotkeyItem } from "../types/setting.ts";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Logger } from "../utils/logger.ts";
 import { ipcSetHotkeyEnabled } from "@/api/ipc/hotkey.api.ts";
@@ -25,7 +25,7 @@ export type HotkeyDefinition = {
   id: HotkeyActionType;
   title: string;
   defaultKey: string;
-}
+};
 
 /** 统一的快捷键配置表 */
 export const HOTKEY_DEFINITIONS: HotkeyDefinition[] = [
@@ -67,7 +67,7 @@ export const getHotkeyItemsMap = () => {
 
 /** 获取默认快捷键配置 */
 export const getDefaultHotkeyConfig = () => {
-  const config: Record<string, HotkeyConfig> = {};
+  const config: Record<string, HotkeyItem> = {};
   HOTKEY_DEFINITIONS.forEach((def) => {
     config[def.id] = {
       enabled: true,
@@ -159,7 +159,7 @@ const cleanupHotkeyListener = async (): Promise<void> => {
  * @returns 设置是否成功
  */
 export const setHotkeyEnabled = async (
-  config: HotkeyConfig,
+  config: HotkeyItem,
 ): Promise<boolean> => {
   try {
     await ipcSetHotkeyEnabled(config);

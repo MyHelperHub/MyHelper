@@ -1,8 +1,8 @@
 import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { LogicalPosition } from "@tauri-apps/api/window";
 import { ipcWindowControl } from "@/api/ipc/window.api";
-import { WindowOperation } from "@/interface/enum";
-import { NewWindowEnum } from "@/interface/windowEnum";
+import { WindowOperation } from "@/types/enum";
+import { NewWindowEnum } from "@/types/windowEnum";
 
 /** 窗口置顶状态跟踪 */
 let isAlwaysOnTop = false;

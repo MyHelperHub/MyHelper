@@ -148,18 +148,18 @@ import { getErrorDescription } from "@/api/ipc/wrapper";
 
 type Props = {
   visible: boolean;
-}
+};
 
 type ModelPreviewInfo = {
   motionCount: number;
   expressionCount: number;
   textureCount: number;
-}
+};
 
 type SelectedFile = File & {
   path?: string;
   version?: string;
-}
+};
 
 const props = defineProps<Props>();
 

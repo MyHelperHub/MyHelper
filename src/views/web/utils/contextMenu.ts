@@ -1,4 +1,4 @@
-import { WebItem } from "@/interface/web";
+import { SelectItem } from "@/types/common";
 import { useContextMenu } from "@/composables/useContextMenu";
 import { emit } from "@/utils/eventBus";
 import type { MenuItem } from "primevue/menuitem";
@@ -9,7 +9,7 @@ const { contextMenuRef, menuItems, showContextMenu } = useContextMenu();
 /**
  * 获取 Web 项的菜单项
  */
-function getContextMenuItems(item: WebItem): MenuItem[] {
+function getContextMenuItems(item: SelectItem): MenuItem[] {
   return [
     {
       label: "编辑",
@@ -34,7 +34,7 @@ function getContextMenuItems(item: WebItem): MenuItem[] {
 /**
  * 处理右键菜单事件
  */
-export function handleContextMenu(event: MouseEvent, item: WebItem) {
+export function handleContextMenu(event: MouseEvent, item: SelectItem) {
   const items = getContextMenuItems(item);
   showContextMenu(event, items);
 }

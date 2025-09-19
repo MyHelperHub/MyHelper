@@ -112,13 +112,13 @@ import Avatar from "primevue/avatar";
 import Button from "primevue/button";
 import Tag from "primevue/tag";
 import Chip from "primevue/chip";
-import type { ModelConfig } from "@/interface/pet";
+import type { ModelConfig } from "@/types/pet";
 import { PetGlobalManager } from "./PetGlobalManager";
 import { Logger } from "@/utils/logger";
 
 type Props = {
   modelValue?: number | null;
-}
+};
 
 const props = defineProps<Props>();
 

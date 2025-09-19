@@ -87,18 +87,18 @@ import Image from "primevue/image";
 import Rating from "primevue/rating";
 import Tag from "primevue/tag";
 import Button from "primevue/button";
-import type { PluginDetail, Plugin } from "@/interface/plugin.d";
+import type { PluginDetail, Plugin } from "@/types/plugin";
 import { formatNumber, checkPluginUpdate } from "@/utils/pluginUtils";
 
 type Props = {
   pluginDetail: PluginDetail;
   installedPlugins: Plugin[];
   installedPluginIds: string[];
-}
+};
 
 type Emits = {
   (e: "click", pluginDetail: PluginDetail): void;
-}
+};
 
 // 常量定义
 const DEFAULT_IMAGE = "https://placeholder.co/64";

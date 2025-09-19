@@ -43,7 +43,7 @@
 import { ipcCreateNewWindow } from "@/api/ipc/window.api";
 import Drawer from "primevue/drawer";
 import { computed, ref } from "vue";
-import type { PluginConfig } from "@/interface/plugin";
+import type { PluginConfig } from "@/types/plugin";
 import { getPluginConfig } from "@/utils/plugin";
 import { showMessage } from "@/composables/message.ts";
 import { ipcFileExists } from "@/api/ipc/launch.api";

@@ -4,7 +4,7 @@ import { ref } from "vue";
 type LoadingRef = {
   showLoading: () => void;
   hideLoading: () => void;
-}
+};
 
 /** 加载组件引用 */
 const loadingRef = ref<LoadingRef | null>(null);

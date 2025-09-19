@@ -6,7 +6,7 @@ import {
   PluginSortType,
   PluginResponse,
   PluginCreateDTO,
-} from "@/interface/plugin";
+} from "@/types/plugin";
 import { request } from "./wrapper";
 
 /**
