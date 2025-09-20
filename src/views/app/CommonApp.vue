@@ -1,84 +1,39 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    :modal="true"
-    :dismissableMask="true"
-    :closable="false"
-    :showHeader="false"
-    :style="{ top: '120px', left: '15px' }">
-    <div class="app-panel">
-      <ContextMenu
-        ref="contextMenuRef"
-        :model="menuItems"
-        :pt="{
-          root: { style: 'width: 120px; min-width: 120px' },
-        }" />
-
-      <div class="grid-3">
-        <div
-          v-for="item in dataList"
-          :key="item.id"
-          class="feature-card hover-lift"
-          v-tooltip.bottom="{
-            value: item.title,
-            showDelay: 200,
-            pt: {
-              text: {
-                style: {
-                  fontSize: '12px',
-                },
-              },
-            },
-          }"
-          @click="openApp(String(item.src))"
-          @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-          <div class="icon-container">
-            <img
-              v-if="item.logo"
-              :src="convertFileSrc(item.logo)"
-              loading="lazy"
-              class="icon-image" />
-            <i v-else class="pi pi-desktop"></i>
-          </div>
-          <div class="card-title">{{ item.title }}</div>
-        </div>
-
-        <div class="feature-card add-card hover-lift" @click="addAppItem">
-          <div class="icon-container">
-            <i class="pi pi-plus"></i>
-          </div>
-          <div class="card-title">添加</div>
-        </div>
-      </div>
-
-      <EditItem ref="editItemRef" @editAppItem="editAppItem"></EditItem>
-    </div>
-  </Dialog>
+  <CommonPanel
+    mode="app"
+    :dataList="dataList"
+    v-model="visible"
+    @openItem="openApp"
+    @addAppItem="addAppItem"
+    @editAppItem="editAppItem"
+    @editItem="openEditAppItem"
+    @deleteItem="deleteAppItem"
+    ref="commonPanelRef" />
 </template>
 
 <script setup lang="ts">
 import { open as tauriOpen } from "@tauri-apps/plugin-dialog";
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { SelectItem } from "@/types/common";
 import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
-import EditItem from "./EditItem.vue";
-import ContextMenu from "primevue/contextmenu";
-import {
-  contextMenuRef,
-  menuItems,
-  handleContextMenu,
-} from "./utils/contextMenu";
-import Dialog from "primevue/dialog";
+import CommonPanel from "@/components/items/CommonPanel.vue";
 import { ErrorHandler } from "@/utils/errorHandler";
 import { AppConfig } from "@/types/database";
 
 const dataList = ref<SelectItem[]>([]);
-const editItemRef = ref<InstanceType<typeof EditItem> | null>(null);
-const visible = ref(false);
+const commonPanelRef = ref<InstanceType<typeof CommonPanel> | null>(null);
+const _visible = ref(false);
+
+const visible = computed({
+  get: () => _visible.value,
+  set: (value: boolean) => {
+    value && init();
+    _visible.value = value;
+  },
+});
 
 const init = async () => {
   try {
@@ -90,11 +45,9 @@ const init = async () => {
   on("edit-appItem", openEditAppItem);
   on("delete-appItem", deleteAppItem);
 };
-init();
 
-/** 打开应用 */
-const openApp = async (path: string) => {
-  ipcOpen(path)
+const openApp = async (item: SelectItem) => {
+  ipcOpen(item.src!)
     .then(() => {
       visible.value = false;
     })
@@ -103,7 +56,6 @@ const openApp = async (path: string) => {
     });
 };
 
-/** 添加应用 */
 const addAppItem = async () => {
   const newItem: SelectItem = {
     id: Date.now(),
@@ -141,13 +93,12 @@ const addAppItem = async () => {
 };
 
 const openEditAppItem = (item: SelectItem) => {
-  editItemRef.value?.openModal(item);
+  commonPanelRef.value?.openEditModal(item);
 };
 
 const deleteAppItem = async (id: number) => {
   const index = dataList.value.findIndex((item) => item.id === id);
   if (index !== -1) {
-    //暂存logo文件名
     const filePath = dataList.value[index].logo;
     const fileName = dataList.value[index].logo.substring(
       filePath.lastIndexOf("\\") + 1,
@@ -170,7 +121,6 @@ const editAppItem = async (updatedItem: SelectItem) => {
   if (index !== -1) {
     dataList.value[index] = updatedItem;
 
-    // 更新本地配置
     try {
       await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
       showMessage("更新成功!", 3000, 1);
@@ -182,63 +132,7 @@ const editAppItem = async (updatedItem: SelectItem) => {
   }
 };
 
-defineExpose({ visible });
+defineExpose({
+  visible,
+});
 </script>
-
-<style lang="less">
-.app-panel {
-  .grid-3 {
-    max-height: 175px;
-  }
-
-  .card-title {
-    max-width: 100%;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    line-clamp: 3;
-    -webkit-line-clamp: 3;
-    line-height: 1.2;
-    max-height: calc(1.2em * 3);
-  }
-
-  .feature-card {
-    background: rgba(
-      var(--theme-background-card-rgb),
-      var(--theme-transparency-card)
-    );
-    border: 1px solid
-      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-
-    &:hover {
-      background: rgba(
-        var(--theme-background-secondary-rgb),
-        var(--theme-transparency-background-secondary)
-      );
-      box-shadow: var(--theme-shadow-md);
-      border-color: var(--theme-primary);
-    }
-  }
-
-  .add-card {
-    background: rgba(
-      var(--theme-background-card-rgb),
-      var(--theme-transparency-card)
-    );
-    border: 1px dashed var(--theme-primary);
-
-    &:hover {
-      background: rgba(
-        var(--theme-background-secondary-rgb),
-        var(--theme-transparency-background-secondary)
-      );
-      border: 1px dashed var(--theme-primary-dark);
-      box-shadow: var(--theme-shadow-sm);
-    }
-
-    .icon-container {
-      color: var(--theme-error);
-    }
-  }
-}
-</style>

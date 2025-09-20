@@ -1,86 +1,38 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    :modal="true"
-    :dismissableMask="true"
-    :closable="false"
-    :showHeader="false"
-    :style="{ top: '60px', left: '15px' }">
-    <div class="web-panel">
-      <ContextMenu
-        ref="contextMenuRef"
-        :model="menuItems"
-        :pt="{
-          root: { style: 'width: 120px; min-width: 120px' },
-        }" />
-
-      <div class="grid-3">
-        <div
-          v-for="item in dataList"
-          :key="item.id"
-          class="feature-card hover-lift"
-          v-tooltip.bottom="{
-            value: item.title,
-            showDelay: 200,
-            pt: {
-              text: {
-                style: {
-                  fontSize: '12px',
-                },
-              },
-            },
-          }"
-          @click="navigateTo(String(item.url))"
-          @contextmenu.prevent="(e) => handleContextMenu(e, item)">
-          <div class="icon-container">
-            <img
-              v-if="item.logo"
-              :src="convertFileSrc(item.logo)"
-              loading="lazy"
-              class="icon-image" />
-            <i v-else class="pi pi-image"></i>
-          </div>
-          <div class="card-title">{{ item.title }}</div>
-        </div>
-
-        <AddItem
-          ref="addItemRef"
-          @addWebItem="addWebItem"
-          @editWebItem="editWebItem">
-          <div class="feature-card add-card hover-lift">
-            <div class="icon-container">
-              <i class="pi pi-plus"></i>
-            </div>
-            <div class="card-title">添加</div>
-          </div>
-        </AddItem>
-      </div>
-    </div>
-  </Dialog>
+  <CommonPanel
+    mode="web"
+    :dataList="dataList"
+    v-model="visible"
+    @openItem="navigateTo"
+    @addWebItem="addWebItem"
+    @editWebItem="editWebItem"
+    @editItem="openEditWebItem"
+    @deleteItem="deleteWebItem"
+    ref="commonPanelRef" />
 </template>
 
 <script setup lang="ts">
-import AddItem from "@/views/web/AddItem.vue";
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { getConfig, setConfig } from "@/utils/config.ts";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { SelectItem } from "@/types/common";
 import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
-import ContextMenu from "primevue/contextmenu";
-import {
-  contextMenuRef,
-  menuItems,
-  handleContextMenu,
-} from "./utils/contextMenu";
-import Dialog from "primevue/dialog";
+import CommonPanel from "@/components/items/CommonPanel.vue";
 import { ErrorHandler } from "@/utils/errorHandler";
 import { WebConfig } from "@/types/database";
 
 const dataList = ref<SelectItem[]>([]);
-const addItemRef = ref<InstanceType<typeof AddItem> | null>(null);
-const visible = ref(false);
+const commonPanelRef = ref<InstanceType<typeof CommonPanel> | null>(null);
+const _visible = ref(false);
+
+const visible = computed({
+  get: () => _visible.value,
+  set: (value: boolean) => {
+    value && init();
+    _visible.value = value;
+  },
+});
 
 const init = async () => {
   try {
@@ -92,15 +44,13 @@ const init = async () => {
   on("edit-webItem", openEditWebItem);
   on("delete-webItem", deleteWebItem);
 };
-init();
 
-/** 打开编辑网站弹窗 */
 const openEditWebItem = async (item: SelectItem) => {
-  addItemRef.value?.openModal(item);
+  commonPanelRef.value?.openEditModal(item);
 };
 
-/** 跳转到指定链接 */
-const navigateTo = (url: string) => {
+const navigateTo = (item: SelectItem) => {
+  let url = item.url!;
   if (!/^https?:\/\//i.test(url)) {
     url = `http://${url}`;
   }
@@ -113,7 +63,6 @@ const navigateTo = (url: string) => {
     });
 };
 
-/** 添加网站时触发事件 */
 const addWebItem = async (item: SelectItem) => {
   item.id = Date.now();
   dataList.value.push(item);
@@ -125,14 +74,12 @@ const addWebItem = async (item: SelectItem) => {
   }
 };
 
-/** 编辑网站 */
 const editWebItem = async (updatedItem: SelectItem) => {
   const index = dataList.value.findIndex((item) => item.id === updatedItem.id);
 
   if (index !== -1) {
     dataList.value[index] = updatedItem;
 
-    // 更新本地配置
     try {
       await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
       showMessage("更新成功!", 3000, 1);
@@ -144,11 +91,9 @@ const editWebItem = async (updatedItem: SelectItem) => {
   }
 };
 
-/** 删除某个网站 */
 const deleteWebItem = async (id: number) => {
   const index = dataList.value.findIndex((item) => item.id === id);
   if (index !== -1) {
-    //暂存logo文件名
     const filePath = dataList.value[index].logo;
     const fileName = dataList.value[index].logo.substring(
       filePath.lastIndexOf("/") + 1,
@@ -167,61 +112,7 @@ const deleteWebItem = async (id: number) => {
   }
 };
 
-defineExpose({ visible });
+defineExpose({
+  visible,
+});
 </script>
-
-<style lang="less">
-.web-panel {
-  .card-title {
-    max-width: 100%;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-height: 1.2;
-    max-height: calc(1.2em * 3);
-  }
-
-  .feature-card {
-    background: rgba(
-      var(--theme-background-card-rgb),
-      var(--theme-transparency-card)
-    );
-    border: 1px solid
-      rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-
-    &:hover {
-      background: rgba(
-        var(--theme-background-secondary-rgb),
-        var(--theme-transparency-background-secondary)
-      );
-      box-shadow: var(--theme-shadow-md);
-      border-color: var(--theme-primary);
-    }
-  }
-
-  .add-card {
-    background: rgba(var(--theme-primary-rgb), 0.08);
-    border: 1px dashed
-      rgba(var(--theme-primary-rgb), var(--theme-transparency-border));
-
-    &:hover {
-      background: rgba(var(--theme-primary-rgb), 0.12);
-      border: 1px dashed
-        rgba(
-          var(--theme-primary-rgb),
-          calc(var(--theme-transparency-border) * 1.5)
-        );
-      box-shadow: var(--theme-shadow-sm);
-    }
-
-    .icon-container {
-      color: var(--theme-primary);
-      background: rgba(
-        var(--theme-background-rgb),
-        var(--theme-transparency-background-secondary)
-      );
-    }
-  }
-}
-</style>
