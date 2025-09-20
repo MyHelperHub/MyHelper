@@ -1,6 +1,7 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { resolveResource, appDataDir } from "@tauri-apps/api/path";
 import { readTextFile, readDir } from "@tauri-apps/plugin-fs";
+import "@pixi/unsafe-eval";
 import { Application, Ticker } from "pixi.js";
 import {
   Live2DModel,
@@ -491,3 +492,4 @@ export class SimpleLive2DManager {
     SimpleLive2DManager.cleanupInactiveApps();
   }
 }
+

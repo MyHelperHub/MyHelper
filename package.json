@@ -18,6 +18,7 @@
     "check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@pixi/unsafe-eval": "^7.4.3",
     "@primeuix/themes": "^1.2.3",
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-autostart": "^2.5.0",

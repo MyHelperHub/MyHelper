@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@pixi/unsafe-eval':
+        specifier: ^7.4.3
+        version: 7.4.3(@pixi/core@7.4.3)
       '@primeuix/themes':
         specifier: ^1.2.3
         version: 1.2.3
@@ -513,6 +516,11 @@ packages:
 
   '@pixi/ticker@7.4.3':
     resolution: {integrity: sha512-tHsAD0iOUb6QSGGw+c8cyRBvxsq/NlfzIFBZLEHhWZ+Bx4a0MmXup6I/yJDGmyPCYE+ctCcAfY13wKAzdiVFgQ==, tarball: https://registry.npmmirror.com/@pixi/ticker/-/ticker-7.4.3.tgz}
+
+  '@pixi/unsafe-eval@7.4.3':
+    resolution: {integrity: sha512-iR2iLcMculCSmn3x446ICCL5iokmFuLZDgNo7k1Q5rzNiULELIixfpSJwvlJqrJPY1kda0oqGHgVGRQ2vGfaLg==, tarball: https://registry.npmmirror.com/@pixi/unsafe-eval/-/unsafe-eval-7.4.3.tgz}
+    peerDependencies:
+      '@pixi/core': 7.4.3
 
   '@pixi/utils@7.4.3':
     resolution: {integrity: sha512-NO3Y9HAn2UKS1YdxffqsPp+kDpVm8XWvkZcS/E+rBzY9VTLnNOI7cawSRm+dacdET3a8Jad3aDKEDZ0HmAqAFA==, tarball: https://registry.npmmirror.com/@pixi/utils/-/utils-7.4.3.tgz}
@@ -1907,6 +1915,10 @@ snapshots:
       '@pixi/extensions': 7.4.3
       '@pixi/settings': 7.4.3
       '@pixi/utils': 7.4.3
+
+  '@pixi/unsafe-eval@7.4.3(@pixi/core@7.4.3)':
+    dependencies:
+      '@pixi/core': 7.4.3
 
   '@pixi/utils@7.4.3':
     dependencies:
