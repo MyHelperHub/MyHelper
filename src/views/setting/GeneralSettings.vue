@@ -144,7 +144,7 @@ const handleChange = async (key: string, value: any) => {
   });
 
   // 如果是修改快捷键启用状态，立即应用设置
-  if (key === 'hotkey.enabled') {
+  if (key === "hotkey.enabled") {
     await setHotkeyEnabled(settingData.value.hotkey);
   }
 

@@ -120,7 +120,7 @@ export async function resetConfig(keys: string[]): Promise<void> {
       settingConfig: {
         clipboardListening: false,
         hotkey: getDefaultHotkeyConfig(),
-        autoStart: false
+        autoStart: false,
       },
     };
 

@@ -94,9 +94,9 @@ export const normalizeHotkeyConfig = (
 
   for (const { id } of HOTKEY_DEFINITIONS) {
     const defaultItem = defaults[id];
-    const incomingItem = (config as Partial<HotkeyConfig> | null | undefined)?.[id] as
-      | HotkeyItem
-      | undefined;
+    const incomingItem = (config as Partial<HotkeyConfig> | null | undefined)?.[
+      id
+    ] as HotkeyItem | undefined;
 
     normalized[id] = {
       ...defaultItem,

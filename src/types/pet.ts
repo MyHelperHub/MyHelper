@@ -1,4 +1,3 @@
-
 /** 模型配置接口 */
 export type ModelConfig = {
   name: string;
