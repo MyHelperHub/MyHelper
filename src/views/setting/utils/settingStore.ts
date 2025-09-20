@@ -54,12 +54,11 @@ export const setHotkeyEnabledState = async (
   enabled: boolean,
 ): Promise<void> => {
   const config = await loadSettingConfig();
-  if (config.hotkey.enabled === enabled) {
-    return;
+
+  if (config.hotkey.enabled !== enabled) {
+    config.hotkey.enabled = enabled;
+    updateCache(config);
   }
 
-  config.hotkey.enabled = enabled;
-
   await setHotkeyEnabled(config.hotkey);
-  updateCache(config);
 };
