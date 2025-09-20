@@ -26,7 +26,7 @@
     ],
     "security": {
       "csp": {
-        "default-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https https://myhelper.ialtone.xyz",
+        "default-src": "'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' asset: http://asset.localhost http https https://myhelper.ialtone.xyz",
         "media-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https https://myhelper.ialtone.xyz",
         "img-src": "'self' 'unsafe-inline' asset: http://asset.localhost http https data: blob: * https://myhelper.ialtone.xyz",
         "connect-src": "'self' 'unsafe-inline' asset: ipc: http://ipc.localhost http://asset.localhost http https https://myhelper.ialtone.xyz"
