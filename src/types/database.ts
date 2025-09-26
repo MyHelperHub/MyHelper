@@ -4,6 +4,7 @@ import { SettingConfig } from "./setting";
 import { ThemeConfig } from "./theme";
 import { PetPreferences, ModelConfig } from "./pet";
 import { PluginConfig } from "./plugin";
+import { DisplayModeEnum } from "./enum";
 
 /** 总表配置 */
 // @ts-expect-error
@@ -48,11 +49,13 @@ export type PetConfigTableMap = {
 /** 应用列表配置 */
 export type AppConfig = {
   dataList: SelectItem[];
+  displayMode: DisplayModeEnum;
 };
 
 /** 网站配置 */
 export type WebConfig = {
   dataList: SelectItem[];
+  displayMode: DisplayModeEnum;
 };
 
 export type QuickInputConfig = QuickInputItem[];

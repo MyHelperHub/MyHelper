@@ -48,6 +48,69 @@
       </div>
     </div>
 
+    <div class="setting-item flex justify-between items-center">
+      <div class="setting-label">
+        <span>界面显示</span>
+        <small>设置应用和网站的显示模式</small>
+      </div>
+      <Button
+        label="显示设置"
+        severity="secondary"
+        variant="outlined"
+        size="small"
+        icon="pi pi-cog"
+        @click="showDisplayModeDialog = true" />
+    </div>
+
+    <!-- 显示模式设置弹窗 -->
+    <Dialog
+      v-model:visible="showDisplayModeDialog"
+      header="界面显示设置"
+      modal
+      :dismissableMask="true"
+      :closable="true"
+      :style="{ width: '380px' }">
+      <div class="display-mode-dialog">
+        <div class="dialog-content">
+          <div class="mode-group">
+            <div class="group-row">
+              <div class="group-label">
+                <i class="pi pi-globe"></i>
+                <span>网站列表</span>
+              </div>
+              <Select
+                v-model="webDisplayMode"
+                :options="displayModeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="选择显示模式"
+                @change="handleDisplayModeChange('web', webDisplayMode)"
+                size="small"
+                class="mode-select" />
+            </div>
+          </div>
+
+          <div class="mode-group">
+            <div class="group-row">
+              <div class="group-label">
+                <i class="pi pi-desktop"></i>
+                <span>应用列表</span>
+              </div>
+              <Select
+                v-model="appDisplayMode"
+                :options="displayModeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="选择显示模式"
+                @change="handleDisplayModeChange('app', appDisplayMode)"
+                size="small"
+                class="mode-select" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Dialog>
+
     <CustomThemeDialog
       v-model:visible="customThemeDialogVisible"
       :current-theme="currentConfig"
@@ -58,6 +121,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import Button from "primevue/button";
+import Select from "primevue/select";
+import Dialog from "primevue/dialog";
 import {
   getCurrentThemeConfig,
   applyTheme,
@@ -69,13 +134,27 @@ import type { ThemeConfig, ThemeColors } from "@/types/theme";
 import { showMessage } from "@/composables/message.ts";
 import CustomThemeDialog from "./components/CustomThemeDialog.vue";
 import { ErrorHandler } from "@/utils/errorHandler";
+import { DisplayModeEnum } from "@/types/enum";
+import { getConfig, setConfig } from "@/utils/config";
+import { emit as tauriEmit } from "@tauri-apps/api/event";
 
 const currentConfig = ref<ThemeConfig>({
   mode: ThemeMode.Light,
   currentThemeId: "default-light",
 });
 
+// 显示模式相关
+const appDisplayMode = ref(DisplayModeEnum.List);
+const webDisplayMode = ref(DisplayModeEnum.List);
+
+// 显示模式选项
+const displayModeOptions = [
+  { label: "列表视图", value: DisplayModeEnum.List },
+  { label: "卡片视图", value: DisplayModeEnum.Card },
+];
+
 const customThemeDialogVisible = ref(false);
+const showDisplayModeDialog = ref(false);
 
 const themeModes = [
   { label: "浅色", value: ThemeMode.Light },
@@ -87,6 +166,30 @@ const initializeThemeSettings = async () => {
   try {
     const config = await getCurrentThemeConfig();
     currentConfig.value = { ...config };
+
+    // 初始化显示模式
+    const appConfig = await getConfig("appConfig");
+    const webConfig = await getConfig("webConfig");
+
+    if (appConfig?.displayMode !== undefined) {
+      appDisplayMode.value = appConfig.displayMode;
+    } else {
+      // 设置默认显示模式
+      await setConfig("appConfig", {
+        dataList: [],
+        displayMode: DisplayModeEnum.List,
+      });
+    }
+
+    if (webConfig?.displayMode !== undefined) {
+      webDisplayMode.value = webConfig.displayMode;
+    } else {
+      // 设置默认显示模式
+      await setConfig("webConfig", {
+        dataList: [],
+        displayMode: DisplayModeEnum.List,
+      });
+    }
   } catch (error) {
     ErrorHandler.handleError(error, "初始化主题设置失败:");
     showMessage("初始化主题设置失败", 2500, 2);
@@ -131,6 +234,29 @@ const applyPresetTheme = async (themeId: string) => {
 const showCustomThemeDialog = async () => {
   await initializeThemeSettings();
   customThemeDialogVisible.value = true;
+};
+
+// 处理显示模式变更
+const handleDisplayModeChange = async (
+  type: "app" | "web",
+  mode: DisplayModeEnum,
+) => {
+  try {
+    const configKey = type === "app" ? "appConfig" : "webConfig";
+    const currentConfig = await getConfig(configKey);
+    await setConfig(configKey, {
+      ...currentConfig,
+      displayMode: mode,
+    });
+
+    // 发送事件通知其他组件显示模式已更改
+    tauriEmit(`update:${type}-display-mode`, { displayMode: mode });
+  } catch (error) {
+    ErrorHandler.handleError(
+      error,
+      `设置${type === "app" ? "应用" : "网站"}显示模式失败:`,
+    );
+  }
 };
 
 const handleCustomThemeApply = async (config: any) => {
@@ -377,6 +503,62 @@ onMounted(() => {
         text-align: center;
         letter-spacing: 0.3px;
         text-shadow: 0 1px 2px rgba(var(--theme-text-rgb), 0.1);
+      }
+    }
+  }
+}
+.display-mode-dialog {
+  padding: 10px;
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .mode-group {
+      background: rgba(
+        var(--theme-background-card-rgb),
+        var(--theme-transparency-card)
+      );
+      border: 1px solid
+        rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: rgba(var(--theme-primary-rgb), 0.3);
+      }
+
+      .group-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+
+        .group-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+
+          i {
+            font-size: 16px;
+            color: var(--theme-primary);
+            width: 20px;
+            text-align: center;
+          }
+
+          span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--theme-text);
+          }
+        }
+
+        .mode-select {
+          width: 140px;
+          flex-shrink: 0;
+        }
       }
     }
   }

@@ -68,3 +68,11 @@ export enum WindowOperation {
   /** 切换窗口置顶状态 */
   ToggleAlwaysOnTop = 4,
 }
+
+/** 显示模式枚举 */
+export enum DisplayModeEnum {
+  /** 列表视图 */
+  List = 0,
+  /** 卡片视图 */
+  Card = 1,
+}

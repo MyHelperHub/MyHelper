@@ -5,6 +5,8 @@ import {
   getConfigValuesBatch,
 } from "./database";
 import { ErrorHandler } from "./errorHandler";
+import { DisplayModeEnum } from "@/types/enum";
+import { getDefaultHotkeyConfig } from "@/composables/hotkey";
 
 /**
  * 获取配置值
@@ -110,12 +112,9 @@ export const updateConfig = async <T extends object>(
  */
 export async function resetConfig(keys: string[]): Promise<void> {
   try {
-    // 引入快捷键默认配置
-    const { getDefaultHotkeyConfig } = await import("@/composables/hotkey");
-
     const defaultValues = {
-      webConfig: { dataList: [] },
-      appConfig: { dataList: [] },
+      webConfig: { dataList: [], displayMode: DisplayModeEnum.List },
+      appConfig: { dataList: [], displayMode: DisplayModeEnum.List },
       quickInputConfig: { commonText: [] },
       settingConfig: {
         clipboardListening: false,

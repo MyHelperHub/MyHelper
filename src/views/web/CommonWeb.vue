@@ -2,6 +2,7 @@
   <CommonPanel
     mode="web"
     :dataList="dataList"
+    :displayMode="displayMode"
     v-model="visible"
     @openItem="navigateTo"
     @addWebItem="addWebItem"
@@ -21,8 +22,10 @@ import { ipcDeleteIcon, ipcOpen } from "@/api/ipc/launch.api";
 import CommonPanel from "@/components/items/CommonPanel.vue";
 import { ErrorHandler } from "@/utils/errorHandler";
 import { WebConfig } from "@/types/database";
+import { DisplayModeEnum } from "@/types/enum";
 
 const dataList = ref<SelectItem[]>([]);
+const displayMode = ref<DisplayModeEnum>(DisplayModeEnum.List);
 const commonPanelRef = ref<InstanceType<typeof CommonPanel> | null>(null);
 const _visible = ref(false);
 
@@ -38,6 +41,9 @@ const init = async () => {
   try {
     const config = await getConfig<WebConfig>("webConfig");
     dataList.value = config?.dataList || [];
+    if (config?.displayMode !== undefined) {
+      displayMode.value = config.displayMode;
+    }
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -67,7 +73,10 @@ const addWebItem = async (item: SelectItem) => {
   item.id = Date.now();
   dataList.value.push(item);
   try {
-    await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
+    await setConfig("webConfig", {
+      dataList: dataList.value,
+      displayMode: displayMode.value
+    } as WebConfig);
   } catch (error) {
     dataList.value.pop();
     showMessage("保存失败!", 3000, 2);
@@ -81,7 +90,10 @@ const editWebItem = async (updatedItem: SelectItem) => {
     dataList.value[index] = updatedItem;
 
     try {
-      await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
+      await setConfig("webConfig", {
+        dataList: dataList.value,
+        displayMode: displayMode.value
+      } as WebConfig);
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);
@@ -101,7 +113,10 @@ const deleteWebItem = async (id: number) => {
 
     dataList.value.splice(index, 1);
     try {
-      await setConfig("webConfig", { dataList: dataList.value } as WebConfig);
+      await setConfig("webConfig", {
+        dataList: dataList.value,
+        displayMode: displayMode.value
+      } as WebConfig);
       ipcDeleteIcon(fileName, 0).catch((err) => {
         ErrorHandler.handleError(err, "图标删除失败:");
       });

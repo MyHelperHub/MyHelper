@@ -8,13 +8,16 @@
       v-model:visible="showModal"
       @hide="closeModal"
       :dismissableMask="true"
-      :header="modalTitle"
+      :showHeader="false"
       modal
       appendTo="body"
       :closable="false"
-      :style="{ width: mode === 'web' ? '240px' : '220px' }"
-      position="center">
+      :style="{ width: '280px', minHeight: '200px' }">
       <div class="dialog-wrapper">
+        <!-- 添加标题栏 -->
+        <div class="modal-header">
+          <h3 class="modal-title">{{ modalTitle }}</h3>
+        </div>
         <div class="modal-content">
           <img
             v-if="formData.logo"
@@ -258,6 +261,19 @@ defineExpose({
 .dialog-wrapper {
   padding: 0;
   overflow: hidden;
+}
+
+.modal-header {
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid rgba(var(--theme-border-rgb), 0.1);
+
+  .modal-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--theme-text);
+    margin: 0;
+    text-align: center;
+  }
 }
 
 .modal-content {

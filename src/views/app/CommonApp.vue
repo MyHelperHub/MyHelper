@@ -2,6 +2,7 @@
   <CommonPanel
     mode="app"
     :dataList="dataList"
+    :displayMode="displayMode"
     v-model="visible"
     @openItem="openApp"
     @addAppItem="addAppItem"
@@ -22,8 +23,10 @@ import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import CommonPanel from "@/components/items/CommonPanel.vue";
 import { ErrorHandler } from "@/utils/errorHandler";
 import { AppConfig } from "@/types/database";
+import { DisplayModeEnum } from "@/types/enum";
 
 const dataList = ref<SelectItem[]>([]);
+const displayMode = ref<DisplayModeEnum>(DisplayModeEnum.List);
 const commonPanelRef = ref<InstanceType<typeof CommonPanel> | null>(null);
 const _visible = ref(false);
 
@@ -39,6 +42,9 @@ const init = async () => {
   try {
     const config = await getConfig<AppConfig>("appConfig");
     dataList.value = config?.dataList || [];
+    if (config?.displayMode !== undefined) {
+      displayMode.value = config.displayMode;
+    }
   } catch (error) {
     showMessage("初始化数据失败，请重置数据!", 3000, 2);
   }
@@ -86,7 +92,10 @@ const addAppItem = async () => {
     newItem.logo = (await ipcGetAppIcon(filePath)) as string;
 
     dataList.value.push(newItem);
-    await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
+    await setConfig("appConfig", {
+      dataList: dataList.value,
+      displayMode: displayMode.value
+    } as AppConfig);
   } catch (error) {
     showMessage("添加应用失败!", 3000, 2);
   }
@@ -105,7 +114,10 @@ const deleteAppItem = async (id: number) => {
     );
     dataList.value.splice(index, 1);
     try {
-      await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
+      await setConfig("appConfig", {
+        dataList: dataList.value,
+        displayMode: displayMode.value
+      } as AppConfig);
       ipcDeleteIcon(fileName, 1).catch((err) => {
         ErrorHandler.handleError(err, "图标删除失败:");
       });
@@ -122,7 +134,10 @@ const editAppItem = async (updatedItem: SelectItem) => {
     dataList.value[index] = updatedItem;
 
     try {
-      await setConfig("appConfig", { dataList: dataList.value } as AppConfig);
+      await setConfig("appConfig", {
+        dataList: dataList.value,
+        displayMode: displayMode.value
+      } as AppConfig);
       showMessage("更新成功!", 3000, 1);
     } catch (error) {
       showMessage("更新失败!", 3000, 2);
