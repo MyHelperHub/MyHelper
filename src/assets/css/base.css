@@ -1,9 +1,10 @@
-/* PrimeVue 基础配置 */
-:root {
-  --p-content-border-radius: 6px;
-}
+/**
+ * 基础样式文件 - PrimeVue基础配置和样式重置
+ */
 
-/* Light Mode - 仅基础配置，颜色由主题系统提供 */
+/* ===== PrimeVue 基础配置 ===== */
+
+/* Light Mode - PrimeVue基础配置 */
 :root {
   --p-primary-color: var(--p-primary-500);
   --p-primary-contrast-color: var(--p-surface-0);
@@ -22,7 +23,7 @@
   --p-text-hover-muted-color: var(--p-surface-600);
 }
 
-/* Dark Mode - 仅基础配置，颜色由主题系统提供 */
+/* Dark Mode - PrimeVue基础配置 */
 :root.dark,
 html[data-theme="dark"] {
   --p-primary-color: var(--p-primary-400);
@@ -48,6 +49,17 @@ html[data-theme="dark"] {
   --p-text-hover-color: var(--p-surface-0);
   --p-text-muted-color: var(--p-surface-400);
   --p-text-hover-muted-color: var(--p-surface-300);
+}
+
+/* ===== PrimeVue 组件基础样式 ===== */
+
+.p-overlay-mask {
+  border-radius: var(--theme-radius-xl);
+}
+
+.p-drawer {
+  border-radius: var(--theme-radius-xl);
+  overflow: hidden;
 }
 
 /* 滚动条样式 - 使用CSS变量 */

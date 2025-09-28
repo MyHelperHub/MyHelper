@@ -1,6 +1,6 @@
 <template>
   <CommonPanel
-    mode="app"
+    :mode="ItemTypeEnum.App"
     :dataList="dataList"
     :displayMode="displayMode"
     v-model="visible"
@@ -21,9 +21,10 @@ import { showMessage } from "@/composables/message.ts";
 import { on } from "@/utils/eventBus";
 import { ipcDeleteIcon, ipcGetAppIcon, ipcOpen } from "@/api/ipc/launch.api";
 import CommonPanel from "@/components/items/CommonPanel.vue";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { PathHandler } from "@/utils/pathHandler";
 import { AppConfig } from "@/types/database";
-import { DisplayModeEnum } from "@/types/enum";
+import { DisplayModeEnum, ItemTypeEnum } from "@/types/enum";
+import { ErrorHandler } from "@/utils/errorHandler";
 
 const dataList = ref<SelectItem[]>([]);
 const displayMode = ref<DisplayModeEnum>(DisplayModeEnum.List);
@@ -53,7 +54,7 @@ const init = async () => {
 };
 
 const openApp = async (item: SelectItem) => {
-  ipcOpen(item.src!)
+  ipcOpen(item.path)
     .then(() => {
       visible.value = false;
     })
@@ -63,12 +64,8 @@ const openApp = async (item: SelectItem) => {
 };
 
 const addAppItem = async () => {
-  const newItem: SelectItem = {
-    id: Date.now(),
-    src: "",
-    title: "",
-    logo: "",
-  };
+  const newItem = PathHandler.createDefaultItem();
+  newItem.id = Date.now();
 
   const filePath = (await tauriOpen({
     multiple: false,
@@ -76,7 +73,7 @@ const addAppItem = async () => {
   })) as string;
 
   const formattedFilePath = filePath.replace(/\\/g, "/");
-  newItem.src = formattedFilePath;
+  newItem.path = formattedFilePath;
 
   let fileName = formattedFilePath.substring(
     formattedFilePath.lastIndexOf("/") + 1,
@@ -94,7 +91,7 @@ const addAppItem = async () => {
     dataList.value.push(newItem);
     await setConfig("appConfig", {
       dataList: dataList.value,
-      displayMode: displayMode.value
+      displayMode: displayMode.value,
     } as AppConfig);
   } catch (error) {
     showMessage("添加应用失败!", 3000, 2);
@@ -116,9 +113,9 @@ const deleteAppItem = async (id: number) => {
     try {
       await setConfig("appConfig", {
         dataList: dataList.value,
-        displayMode: displayMode.value
+        displayMode: displayMode.value,
       } as AppConfig);
-      ipcDeleteIcon(fileName, 1).catch((err) => {
+      ipcDeleteIcon(fileName, ItemTypeEnum.App).catch((err) => {
         ErrorHandler.handleError(err, "图标删除失败:");
       });
       showMessage("删除成功!", 3000, 1);
@@ -136,7 +133,7 @@ const editAppItem = async (updatedItem: SelectItem) => {
     try {
       await setConfig("appConfig", {
         dataList: dataList.value,
-        displayMode: displayMode.value
+        displayMode: displayMode.value,
       } as AppConfig);
       showMessage("更新成功!", 3000, 1);
     } catch (error) {

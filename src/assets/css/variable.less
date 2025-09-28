@@ -1,10 +1,67 @@
+/**
+ * CSS变量定义文件 - 所有变量统一管理
+ */
+
+/* ===== PrimeVue 基础变量配置 ===== */
 :root {
+  /* PrimeVue 基础配置 */
+  --p-content-border-radius: 6px;
   --p-overlay-modal-padding: 1rem;
-  .p-overlay-mask {
-    border-radius: var(--theme-radius-xl);
-  }
-  .p-drawer {
-    border-radius: var(--theme-radius-xl);
-    overflow: hidden;
-  }
+}
+
+/* ===== 主题变量系统 ===== */
+:root {
+  /* 主要颜色变量 - 映射到PrimeVue变量 */
+  --theme-primary: var(--p-primary-color);
+  --theme-primary-light: var(--p-primary-300);
+  --theme-primary-dark: var(--p-primary-700);
+
+  /* 背景颜色变量 */
+  --theme-background: var(--p-surface-0);
+  --theme-background-secondary: var(--p-surface-50);
+  --theme-background-card: var(--p-surface-0);
+
+  /* 文字颜色变量 */
+  --theme-text: var(--p-text-color);
+  --theme-text-secondary: var(--p-text-muted-color);
+  --theme-text-muted: var(--p-surface-500);
+
+  /* 边框颜色变量 */
+  --theme-border: var(--p-content-border-color);
+  --theme-border-light: var(--p-surface-100);
+
+  /* 功能性颜色变量 */
+  --theme-success: var(--p-green-500);
+  --theme-warning: var(--p-orange-500);
+  --theme-error: var(--p-red-500);
+  --theme-info: var(--p-blue-500);
+
+  /* 透明度变量 */
+  --theme-transparency-background: 0.9;
+  --theme-transparency-background-secondary: 0.8;
+  --theme-transparency-card: 0.85;
+  --theme-transparency-border: 0.3;
+
+  /* 圆角变量 */
+  --theme-radius-xl: 20px; /* 主容器、弹窗 */
+  --theme-radius-lg: 16px; /* 卡片、面板 */
+  --theme-radius-md: 14px; /* 按钮、输入框 */
+  --theme-radius-sm: 10px; /* 小组件 */
+  --theme-radius-xs: 8px; /* 图标、标签 */
+
+  /* 阴影变量 - 使用主题文字色 */
+  --theme-shadow-sm: 0 1px 3px rgba(var(--theme-text-rgb, 0, 0, 0), 0.1);
+  --theme-shadow-md: 0 4px 12px rgba(var(--theme-text-rgb, 0, 0, 0), 0.15);
+  --theme-shadow-lg: 0 8px 32px rgba(var(--theme-text-rgb, 0, 0, 0), 0.2);
+}
+
+/* ===== 深色模式变量映射 ===== */
+[data-theme="dark"],
+html[data-theme="dark"] {
+  --theme-background: var(--p-surface-900);
+  --theme-background-secondary: var(--p-surface-800);
+  --theme-background-card: var(--p-surface-700);
+
+  --theme-border: var(--p-surface-600);
+  --theme-border-light: var(--p-surface-500);
 }

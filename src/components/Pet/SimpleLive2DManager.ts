@@ -492,4 +492,3 @@ export class SimpleLive2DManager {
     SimpleLive2DManager.cleanupInactiveApps();
   }
 }
-

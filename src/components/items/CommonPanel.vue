@@ -5,7 +5,6 @@
     :dismissableMask="true"
     :closable="false"
     :showHeader="false"
-    style="top: 120px; left: 15px"
     ref="dialogRef">
     <div class="panel">
       <ContextMenu
@@ -100,37 +99,26 @@
           </div>
         </div>
       </div>
-
-      <ItemFormModal
-        v-if="mode === 'app'"
-        ref="itemFormRef"
-        :mode="mode"
-        @editAppItem="$emit('editAppItem', $event)">
-      </ItemFormModal>
     </div>
   </Dialog>
 
   <!-- 悬浮在dialog外部的添加按钮 -->
   <Teleport to="body">
     <div v-if="visible" class="external-add-button">
-      <ItemFormModal
-        v-if="mode === 'web'"
-        ref="itemFormRef"
-        :mode="mode"
-        @addWebItem="$emit('addWebItem', $event)"
-        @editWebItem="$emit('editWebItem', $event)">
-        <div class="external-btn">
-          <i class="pi pi-plus"></i>
-          <span>添加</span>
-        </div>
-      </ItemFormModal>
-
-      <div v-else class="external-btn" @click="$emit('addAppItem')">
+      <div class="external-btn" @click="handleAddClick">
         <i class="pi pi-plus"></i>
         <span>添加</span>
       </div>
     </div>
   </Teleport>
+
+  <!-- 统一的ItemFormModal -->
+  <ItemFormModal
+    ref="itemFormRef"
+    :mode="mode"
+    @addWebItem="$emit('addWebItem', $event)"
+    @editWebItem="$emit('editWebItem', $event)"
+    @editAppItem="$emit('editAppItem', $event)" />
 </template>
 
 <script setup lang="ts">
@@ -140,7 +128,8 @@ import { SelectItem } from "@/types/common";
 import ItemFormModal from "@/components/items/ItemFormModal.vue";
 import ContextMenu from "primevue/contextmenu";
 import Dialog from "primevue/dialog";
-import { DisplayModeEnum } from "@/types/enum";
+import { DisplayModeEnum, ItemTypeEnum } from "@/types/enum";
+import { PathHandler } from "@/utils/pathHandler";
 import {
   contextMenuRef,
   menuItems,
@@ -148,7 +137,7 @@ import {
 } from "./utils/contextMenu";
 
 interface Props {
-  mode: "app" | "web";
+  mode: ItemTypeEnum;
   dataList: SelectItem[];
   modelValue: boolean;
   displayMode?: DisplayModeEnum;
@@ -178,11 +167,20 @@ const currentDisplayMode = computed(
 );
 
 const defaultIcon = computed(() => {
-  return props.mode === "app" ? "pi pi-desktop" : "pi pi-image";
+  return props.mode === ItemTypeEnum.App ? "pi pi-desktop" : "pi pi-image";
 });
 
 const openEditModal = (item: SelectItem) => {
   itemFormRef.value?.openModal(item);
+};
+
+const handleAddClick = () => {
+  if (props.mode === ItemTypeEnum.Web) {
+    const defaultItem = PathHandler.createDefaultItem();
+    itemFormRef.value?.openModal(defaultItem);
+  } else {
+    emit("addAppItem");
+  }
 };
 
 defineExpose({
@@ -197,7 +195,7 @@ defineExpose({
   min-height: 160px;
 
   .content-area {
-    max-height: 180px;
+    max-height: 280px;
     padding: 8px;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -357,6 +355,7 @@ defineExpose({
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       line-height: 1.2;
     }
   }
@@ -364,12 +363,12 @@ defineExpose({
 
 .external-add-button {
   position: fixed;
-  bottom: 60px;
+  bottom: 20px;
   left: 0;
   width: 100vw;
   display: flex;
   justify-content: center;
-  z-index: 1200;
+  z-index: 1102;
 
   .external-btn {
     display: inline-flex;

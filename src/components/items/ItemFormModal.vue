@@ -12,7 +12,8 @@
       modal
       appendTo="body"
       :closable="false"
-      :style="{ width: '280px', minHeight: '200px' }">
+      :baseZIndex="1103"
+      :style="{ width: '235px', minHeight: '200px' }">
       <div class="dialog-wrapper">
         <!-- 添加标题栏 -->
         <div class="modal-header">
@@ -28,19 +29,23 @@
           <div class="input-container">
             <div class="input-wrapper">
               <label class="input-label">{{
-                mode === "web" ? "网站名称" : "软件名称"
+                isWebMode ? "网站名称" : "软件名称"
               }}</label>
               <InputText
                 v-model="formData.title"
                 class="input"
-                :placeholder="`请输入${mode === 'web' ? '网站' : '软件'}名称`" />
+                :placeholder="`请输入${isWebMode ? '网站' : '软件'}名称`" />
             </div>
-            <div v-if="mode === 'web'" class="input-wrapper">
-              <label class="input-label">网站地址</label>
+            <div class="input-wrapper">
+              <label class="input-label">{{
+                isWebMode ? "网站地址" : "软件路径"
+              }}</label>
               <InputText
-                v-model="formData.url"
+                v-model="formData.path"
                 class="input"
-                placeholder="请输入网站地址" />
+                :placeholder="
+                  isWebMode ? '请输入网站地址' : '请输入软件路径'
+                " />
             </div>
             <transition name="icon">
               <Button
@@ -75,39 +80,25 @@ import { open } from "@tauri-apps/plugin-dialog";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
-import {
-  ipcGetAppIcon,
-  ipcGetWebIcon,
-  ipcSetLocalIcon,
-} from "@/api/ipc/launch.api";
+import { ipcSetLocalIcon } from "@/api/ipc/launch.api";
 import { SelectItem } from "@/types/common";
+import { PathHandler } from "@/utils/pathHandler";
+import { ItemTypeEnum } from "@/types/enum";
 
 interface Props {
-  mode: "app" | "web";
+  mode: ItemTypeEnum;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits([
-  "addAppItem",
-  "editAppItem",
-  "addWebItem",
-  "editWebItem",
-]);
+const emit = defineEmits(["editAppItem", "addWebItem", "editWebItem"]);
 
-const urlRegex =
-  /^(https?:\/\/)?(((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(\[[0-9a-fA-F:]+\])|(([\w-]+\.)+[a-z]{2,})|localhost)(:\d{1,5})?(\/.*)?$/i;
+const isWebMode = computed(() => props.mode === ItemTypeEnum.Web);
 
-const formData = ref<SelectItem>({
-  id: -1,
-  title: "",
-  src: "",
-  url: "",
-  logo: "",
-});
+const formData = ref<SelectItem>(PathHandler.createDefaultItem());
 const showModal = ref(false);
 
 const modalTitle = computed(() => {
-  if (props.mode === "web") {
+  if (isWebMode.value) {
     return formData.value.id === -1 ? "添加网站" : "编辑网站";
   } else {
     return "编辑软件";
@@ -115,11 +106,10 @@ const modalTitle = computed(() => {
 });
 
 const showGetIconButton = computed(() => {
-  if (props.mode === "web") {
-    return urlRegex.test(String(formData.value.url));
-  } else {
-    return !!formData.value.src;
-  }
+  return (
+    !!formData.value.path &&
+    (isWebMode.value ? PathHandler.isWebUrl(formData.value.path) : true)
+  );
 });
 
 const openModal = (item: SelectItem) => {
@@ -129,50 +119,26 @@ const openModal = (item: SelectItem) => {
 
 const closeModal = () => {
   if (formData.value.id !== -1) {
-    formData.value = {
-      id: -1,
-      title: "",
-      src: "",
-      url: "",
-      logo: "",
-    };
+    formData.value = PathHandler.createDefaultItem();
   }
 };
 
 const getIcon = () => {
-  if (props.mode === "web") {
-    if (!formData.value.url) {
-      showMessage("请输入网站地址");
-      return;
-    }
-    showLoading();
-    ipcGetWebIcon(formData.value.url)
-      .then((res) => {
-        formData.value.logo = (res as string).replace(/\\/g, "/");
-      })
-      .catch(() => {
-        showMessage("获取图标失败!", 3000, 2);
-      })
-      .finally(() => {
-        hideLoading();
-      });
-  } else {
-    if (!formData.value.src) {
-      showMessage("未查询到软件路径");
-      return;
-    }
-    showLoading();
-    ipcGetAppIcon(formData.value.src.replace(/\//g, "\\"))
-      .then((res) => {
-        formData.value.logo = (res as string).replace(/\\/g, "/");
-      })
-      .catch(() => {
-        showMessage("获取图标失败!", 3000, 2);
-      })
-      .finally(() => {
-        hideLoading();
-      });
+  if (!formData.value.path) {
+    showMessage("请输入路径或网址");
+    return;
   }
+  showLoading();
+  PathHandler.getIcon(formData.value.path)
+    .then((res) => {
+      formData.value.logo = res.replace(/\\/g, "/");
+    })
+    .catch(() => {
+      showMessage("获取图标失败!", 3000, 2);
+    })
+    .finally(() => {
+      hideLoading();
+    });
 };
 
 const selectLocalImage = async () => {
@@ -188,7 +154,7 @@ const selectLocalImage = async () => {
   });
 
   if (filePath) {
-    ipcSetLocalIcon(filePath, props.mode === "web" ? 0 : 1)
+    ipcSetLocalIcon(filePath, props.mode)
       .then((res) => {
         formData.value.logo = (res as string).replace(/\\/g, "/");
       })
@@ -199,47 +165,25 @@ const selectLocalImage = async () => {
 };
 
 const handleConfirm = async () => {
-  if (props.mode === "web") {
-    if (!formData.value.title || !formData.value.url) {
-      showMessage("请完整填写内容!");
-      return;
-    }
-    if (!urlRegex.test(formData.value.url)) {
-      showMessage("请输入正确的网址格式!");
-      return;
-    }
-    if (!formData.value.logo) {
-      showMessage("请选择图标!");
-      return;
-    }
-    if (!/^https?:\/\//i.test(formData.value.url)) {
-      formData.value.url = `http://${formData.value.url}`;
-    }
+  const validation = PathHandler.validateItem(formData.value);
+  if (!validation.isValid) {
+    showMessage(validation.message!);
+    return;
+  }
+
+  if (isWebMode.value && PathHandler.isWebUrl(formData.value.path)) {
+    formData.value.path = PathHandler.formatUrl(formData.value.path);
     if (formData.value.id === -1) {
       emit("addWebItem", formData.value);
     } else {
       emit("editWebItem", formData.value);
     }
   } else {
-    if (!formData.value.title || !formData.value.src) {
-      showMessage("请完整填写内容!");
-      return;
-    }
-    if (!formData.value.logo) {
-      showMessage("请选择图标!");
-      return;
-    }
     emit("editAppItem", formData.value);
   }
 
   showModal.value = false;
-  formData.value = {
-    id: -1,
-    title: "",
-    src: "",
-    url: "",
-    logo: "",
-  };
+  formData.value = PathHandler.createDefaultItem();
 };
 
 defineExpose({

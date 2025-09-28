@@ -76,3 +76,11 @@ export enum DisplayModeEnum {
   /** 卡片视图 */
   Card = 1,
 }
+
+/** 项目类型枚举 */
+export enum ItemTypeEnum {
+  /** 网站 */
+  Web = 0,
+  /** 应用程序 */
+  App = 1,
+}

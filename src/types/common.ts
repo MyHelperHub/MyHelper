@@ -4,10 +4,8 @@ export type SelectItem = {
   id: number;
   /** 名称 */
   title: string;
-  /** 软件路径 */
-  src?: string;
-  /** 网站地址 */
-  url?: string;
+  /** 软件路径或网站地址 */
+  path: string;
   /** 图标 */
   logo: string;
 };

@@ -10,7 +10,7 @@ const { contextMenuRef, menuItems, showContextMenu } = useContextMenu();
 function getContextMenuItems(
   item: SelectItem,
   onEdit: (item: SelectItem) => void,
-  onDelete: (id: number) => void
+  onDelete: (id: number) => void,
 ): MenuItem[] {
   return [
     {
@@ -40,7 +40,7 @@ export function handleContextMenu(
   event: MouseEvent,
   item: SelectItem,
   onEdit: (item: SelectItem) => void,
-  onDelete: (id: number) => void
+  onDelete: (id: number) => void,
 ) {
   const items = getContextMenuItems(item, onEdit, onDelete);
   showContextMenu(event, items);
