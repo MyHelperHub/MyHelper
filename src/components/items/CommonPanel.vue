@@ -5,6 +5,11 @@
     :dismissableMask="true"
     :closable="false"
     :showHeader="false"
+    :autoZIndex="false"
+    :pt="{
+      mask: { style: { zIndex: 1002 } },
+      root: { style: { zIndex: 1003 } },
+    }"
     ref="dialogRef">
     <div class="panel">
       <ContextMenu
@@ -159,7 +164,12 @@ const itemFormRef = ref<InstanceType<typeof ItemFormModal> | null>(null);
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit("update:modelValue", value),
+  set: (value) => {
+    if (value && itemFormRef.value) {
+      itemFormRef.value.closeModal?.();
+    }
+    emit("update:modelValue", value);
+  },
 });
 
 const currentDisplayMode = computed(

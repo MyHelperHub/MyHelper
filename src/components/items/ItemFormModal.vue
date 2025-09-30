@@ -12,7 +12,7 @@
       modal
       appendTo="body"
       :closable="false"
-      :baseZIndex="1103"
+      :baseZIndex="1004"
       :style="{ width: '235px', minHeight: '200px' }">
       <div class="dialog-wrapper">
         <!-- 添加标题栏 -->
@@ -188,6 +188,9 @@ const handleConfirm = async () => {
 
 defineExpose({
   openModal,
+  closeModal: () => {
+    showModal.value = false;
+  },
 });
 </script>
 
