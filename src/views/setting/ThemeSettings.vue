@@ -133,7 +133,7 @@ import { ThemeMode } from "@/types/theme";
 import type { ThemeConfig, ThemeColors } from "@/types/theme";
 import { showMessage } from "@/composables/message.ts";
 import CustomThemeDialog from "./components/CustomThemeDialog.vue";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { Logger } from "@/utils/logger";
 import { DisplayModeEnum } from "@/types/enum";
 import { getConfig, setConfig } from "@/utils/config";
 import { emit as tauriEmit } from "@tauri-apps/api/event";
@@ -191,7 +191,7 @@ const initializeThemeSettings = async () => {
       });
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "初始化主题设置失败:");
+    Logger.error(error, "初始化主题设置失败:");
     showMessage("初始化主题设置失败", 2500, 2);
   }
 };
@@ -209,7 +209,7 @@ const switchThemeMode = async (mode: ThemeMode) => {
       showMessage("主题切换成功", 2500, 1);
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "切换主题模式失败:");
+    Logger.error(error, "切换主题模式失败:");
     showMessage("切换主题失败", 2500, 2);
   }
 };
@@ -226,7 +226,7 @@ const applyPresetTheme = async (themeId: string) => {
       showMessage("主题应用成功", 2500, 1);
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "应用预设主题失败:");
+    Logger.error(error, "应用预设主题失败:");
     showMessage("应用主题失败", 2500, 2);
   }
 };
@@ -252,7 +252,7 @@ const handleDisplayModeChange = async (
     // 发送事件通知其他组件显示模式已更改
     tauriEmit(`update:${type}-display-mode`, { displayMode: mode });
   } catch (error) {
-    ErrorHandler.handleError(
+    Logger.error(
       error,
       `设置${type === "app" ? "应用" : "网站"}显示模式失败:`,
     );
@@ -305,7 +305,7 @@ const handleCustomThemeApply = async (config: any) => {
       showMessage("自定义主题应用成功", 2500, 1);
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "应用自定义主题失败:");
+    Logger.error(error, "应用自定义主题失败:");
     showMessage("应用自定义主题失败", 2500, 2);
   }
 };

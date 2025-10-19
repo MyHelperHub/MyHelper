@@ -4,7 +4,7 @@ import {
   deleteConfigValue,
   getConfigValuesBatch,
 } from "./database";
-import { ErrorHandler } from "./errorHandler";
+import { Logger } from "./logger";
 import { DisplayModeEnum } from "@/types/enum";
 import { getDefaultHotkeyConfig } from "@/composables/hotkey";
 
@@ -21,7 +21,7 @@ export const getConfig = async <T = any>(key: string): Promise<T | null> => {
   try {
     return await getConfigValue<T>(key);
   } catch (error) {
-    ErrorHandler.handleError(error, `获取配置[${key}]失败:`);
+    Logger.error(error, `获取配置[${key}]失败:`);
     throw error;
   }
 };
@@ -40,7 +40,7 @@ export const getConfigs = async <T = any>(
   try {
     return await getConfigValuesBatch<T>(keys);
   } catch (error) {
-    ErrorHandler.handleError(error, `批量获取配置[${keys.join(", ")}]失败:`);
+    Logger.error(error, `批量获取配置[${keys.join(", ")}]失败:`);
     throw error;
   }
 };
@@ -62,7 +62,7 @@ export const setConfig = async <T = any>(
   try {
     await setConfigValue(key, value);
   } catch (error) {
-    ErrorHandler.handleError(error, `设置配置[${key}]失败:`);
+    Logger.error(error, `设置配置[${key}]失败:`);
     throw error;
   }
 };
@@ -79,7 +79,7 @@ export const deleteConfig = async (key: string): Promise<void> => {
   try {
     await deleteConfigValue(key);
   } catch (error) {
-    ErrorHandler.handleError(error, `删除配置[${key}]失败:`);
+    Logger.error(error, `删除配置[${key}]失败:`);
     throw error;
   }
 };
@@ -101,7 +101,7 @@ export const updateConfig = async <T extends object>(
     const currentValue = await getConfig<T>(key);
     await setConfig(key, { ...currentValue, ...value });
   } catch (error) {
-    ErrorHandler.handleError(error, `更新配置[${key}]失败:`);
+    Logger.error(error, `更新配置[${key}]失败:`);
     throw error;
   }
 };
@@ -143,7 +143,7 @@ export async function resetConfig(keys: string[]): Promise<void> {
       }
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "重置配置失败:");
+    Logger.error(error, "重置配置失败:");
     throw error;
   }
 }

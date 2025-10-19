@@ -3,7 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import type { UnlistenFn } from "@tauri-apps/api/event";
 
 import { getConfig, getConfigs } from "./config";
-import { ErrorHandler } from "./errorHandler";
+import { Logger } from "./logger";
 import GlobalData from "./globalData";
 
 import { User } from "../types/user";
@@ -87,7 +87,7 @@ class AppInitManager {
     try {
       await Promise.all([setupThemeListener(), initThemeHelpers()]);
     } catch (error) {
-      await ErrorHandler.handleError(error, "主题系统初始化失败");
+      await Logger.error(error, "主题系统初始化失败");
     }
   }
 
@@ -121,7 +121,7 @@ class AppInitManager {
           },
         );
       } catch (error) {
-        await ErrorHandler.handleError(error, "监听设置变化失败");
+        await Logger.error(error, "监听设置变化失败");
       }
 
       // 执行启动任务
@@ -146,7 +146,7 @@ class AppInitManager {
         this.initPetManager(),
       ]);
     } catch (error) {
-      await ErrorHandler.handleError(error, "主窗口初始化失败");
+      await Logger.error(error, "主窗口初始化失败");
     }
   }
 
@@ -174,7 +174,7 @@ class AppInitManager {
     try {
       await PetGlobalManager.init();
     } catch (error) {
-      await ErrorHandler.handleError(error, "宠物管理器初始化失败");
+      await Logger.error(error, "宠物管理器初始化失败");
     }
   }
 

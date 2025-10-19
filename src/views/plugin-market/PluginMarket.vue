@@ -176,7 +176,7 @@ import PluginCard from "./components/PluginCard.vue";
 import PluginDetailDialog from "./components/PluginDetailDialog.vue";
 import InstalledPluginsDialog from "./components/InstalledPluginsDialog.vue";
 import LocalPluginImportDialog from "./components/LocalPluginImportDialog.vue";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { Logger } from "@/utils/logger";
 
 const toast = useToast();
 const router = useRouter();
@@ -352,7 +352,7 @@ const checkPluginUpdate = (localVersion?: string, remoteVersion?: string) => {
 
     return false;
   } catch (error) {
-    ErrorHandler.handleError(error, "版本号比较出错:");
+    Logger.error(error, "版本号比较出错:");
     return false;
   }
 };
@@ -436,7 +436,7 @@ const getInstalledPlugins = async () => {
       installedPlugins.value = [];
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "获取已安装插件列表失败:");
+    Logger.error(error, "获取已安装插件列表失败:");
     toast.add({
       severity: "error",
       summary: "错误",

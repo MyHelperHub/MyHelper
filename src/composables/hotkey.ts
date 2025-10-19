@@ -7,7 +7,6 @@ import {
   isMainMenuVisible,
   handleMainWindowToggle,
 } from "../utils/windowManager.ts";
-import { ErrorHandler } from "@/utils/errorHandler.ts";
 
 /** 快捷键常量 */
 export const HotkeyActions = {
@@ -176,7 +175,7 @@ const initHotkeyListener = async (): Promise<void> => {
     );
     console.log("快捷键监听器初始化成功");
   } catch (error) {
-    ErrorHandler.handleError(error, "初始化快捷键监听器失败:");
+    Logger.error(error, "初始化快捷键监听器失败:");
   }
 };
 
@@ -211,7 +210,7 @@ export const setHotkeyEnabled = async (
 
     return true;
   } catch (error) {
-    ErrorHandler.handleError(error, "设置热键状态失败:");
+    Logger.error(error, "设置热键状态失败:");
     return false;
   }
 };

@@ -24,7 +24,7 @@ import CommonPanel from "@/components/items/CommonPanel.vue";
 import { PathHandler } from "@/utils/pathHandler";
 import { AppConfig } from "@/types/database";
 import { DisplayModeEnum, ItemTypeEnum } from "@/types/enum";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { Logger } from "@/utils/logger";
 
 const dataList = ref<SelectItem[]>([]);
 const displayMode = ref<DisplayModeEnum>(DisplayModeEnum.List);
@@ -116,7 +116,7 @@ const deleteAppItem = async (id: number) => {
         displayMode: displayMode.value,
       } as AppConfig);
       ipcDeleteIcon(fileName, ItemTypeEnum.App).catch((err) => {
-        ErrorHandler.handleError(err, "图标删除失败:");
+        Logger.error(err, "图标删除失败:");
       });
       showMessage("删除成功!", 3000, 1);
     } catch (error) {

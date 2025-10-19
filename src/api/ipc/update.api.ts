@@ -2,7 +2,7 @@ import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { showMessage } from "@/composables/message.ts";
 import { UpdateProgress, UpdateResult } from "@/types/update";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { Logger } from "@/utils/logger";
 
 /** 检查应用更新 */
 export async function ipcCheckForUpdates(): Promise<UpdateResult> {
@@ -20,7 +20,7 @@ export async function ipcCheckForUpdates(): Promise<UpdateResult> {
       shouldUpdate: false,
     };
   } catch (error) {
-    ErrorHandler.handleError(error, "检查更新失败");
+    Logger.error(error, "检查更新失败");
     throw error;
   }
 }
@@ -67,12 +67,12 @@ export async function ipcDownloadAndInstallUpdate(
       try {
         await relaunch();
       } catch (error) {
-        ErrorHandler.handleError(error, "重启应用失败");
+        Logger.error(error, "重启应用失败");
         showMessage("重启应用失败，请手动重启", 2500, 2);
       }
     }, 2000);
   } catch (error) {
-    ErrorHandler.handleError(error, "更新安装失败");
+    Logger.error(error, "更新安装失败");
     showMessage("更新安装失败，请重试", 2500, 2);
     throw error;
   }

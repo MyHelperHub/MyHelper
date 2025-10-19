@@ -41,14 +41,35 @@ export class Logger {
     await this.writeLog(entry);
   }
 
-  /** 记录错误级别日志 */
-  static async error(message: string, error?: string): Promise<void> {
+  /** 记录错误级别日志 - 支持 Error 对象、字符串或任意类型 */
+  static async error(
+    error: string | Error | unknown,
+    context?: string
+  ): Promise<void> {
+    let message = "操作失败";
+    let details: string | undefined;
+
+    if (error instanceof Error) {
+      message = error.message;
+      details = JSON.stringify({
+        name: error.name,
+        stack: error.stack,
+        context,
+      });
+    } else if (typeof error === "string") {
+      message = error;
+      details = context;
+    } else {
+      details = JSON.stringify({ error, context });
+    }
+
     const entry: LogEntry = {
       level: "error",
       message,
       timestamp: new Date().toISOString(),
-      details: error,
+      details,
     };
+
     await this.writeLog(entry);
   }
 }

@@ -9,7 +9,7 @@ import type {
   ThemeApplyResult,
 } from "@/types/theme";
 import { emit as tauriEmit, listen } from "@tauri-apps/api/event";
-import { ErrorHandler } from "../utils/errorHandler";
+import { Logger } from "../utils/logger";
 
 /** PrimeVue 主题集成 */
 import { applyPrimeVueTheme } from "./primevue";
@@ -544,7 +544,7 @@ export async function getCurrentThemeConfig(
     const config = await getConfig<ThemeConfig>("themeConfig");
     return config || DEFAULT_THEME_CONFIG;
   } catch (error) {
-    await ErrorHandler.handleError(error, "获取主题配置");
+    await Logger.error(error, "获取主题配置");
     return DEFAULT_THEME_CONFIG;
   }
 }
@@ -558,7 +558,7 @@ const debouncedSaveConfig = useDebounce(async (config: ThemeConfig) => {
     await setConfig("themeConfig", config);
     await tauriEmit("theme:update", config);
   } catch (error) {
-    await ErrorHandler.handleError(error, "保存主题配置");
+    await Logger.error(error, "保存主题配置");
   } finally {
     isUpdatingTheme = false;
   }
@@ -571,7 +571,7 @@ export async function saveThemeConfig(config: ThemeConfig): Promise<void> {
   try {
     debouncedSaveConfig(config);
   } catch (error) {
-    await ErrorHandler.handleError(error, "保存主题配置");
+    await Logger.error(error, "保存主题配置");
   }
 }
 
@@ -600,7 +600,7 @@ export async function applyTheme(
     } else if (themeId) {
       const preset = presetThemes.find((t) => t.id === themeId);
       if (!preset) {
-        await ErrorHandler.handleError(`主题 ${themeId} 不存在`, "应用主题");
+        await Logger.error(`主题 ${themeId} 不存在`, "应用主题");
         return {
           success: false,
           error: `主题 ${themeId} 不存在`,
@@ -634,7 +634,7 @@ export async function applyTheme(
       applyPrimeVueTheme(colors, isDark ? "dark" : "light");
     } catch (primeVueError) {
       // PrimeVue 主题应用失败不应该阻止整个主题系统
-      ErrorHandler.handleError(primeVueError, "PrimeVue 主题应用失败:");
+      Logger.error(primeVueError, "PrimeVue 主题应用失败:");
     }
 
     // 设置主题属性（这里会被 PrimeVue 函数重复设置，但保持兼容性）
@@ -655,7 +655,7 @@ export async function applyTheme(
 
     return { success: true, appliedColors: colors };
   } catch (error) {
-    await ErrorHandler.handleError(error, "应用主题");
+    await Logger.error(error, "应用主题");
     return {
       success: false,
       error: error instanceof Error ? error.message : "应用主题失败",
@@ -677,7 +677,7 @@ export async function toggleThemeMode(): Promise<ThemeApplyResult> {
     if (targetTheme) {
       return await applyTheme(targetTheme.id);
     } else {
-      await ErrorHandler.handleError("找不到目标主题模式", "切换主题模式");
+      await Logger.error("找不到目标主题模式", "切换主题模式");
       return {
         success: false,
         error: "找不到目标主题模式",
@@ -685,7 +685,7 @@ export async function toggleThemeMode(): Promise<ThemeApplyResult> {
       };
     }
   } catch (error) {
-    await ErrorHandler.handleError(error, "切换主题模式");
+    await Logger.error(error, "切换主题模式");
     return {
       success: false,
       error: error instanceof Error ? error.message : "切换主题模式失败",
@@ -713,13 +713,13 @@ export async function initTheme(themeConfig?: ThemeConfig): Promise<void> {
       await applyTheme("default-light", undefined, true, config);
     }
   } catch (error) {
-    await ErrorHandler.handleError(error, "主题初始化");
+    await Logger.error(error, "主题初始化");
 
     try {
       // 降级时使用默认配置，不传递config避免循环
       await applyTheme("default-light", undefined, true);
     } catch (fallbackError) {
-      await ErrorHandler.handleError(fallbackError, "默认主题降级失败");
+      await Logger.error(fallbackError, "默认主题降级失败");
     }
   } finally {
     isUpdatingTheme = false;
@@ -741,6 +741,6 @@ export async function setupThemeListener(): Promise<void> {
       }
     });
   } catch (error) {
-    await ErrorHandler.handleError(error, "主题事件监听器设置");
+    await Logger.error(error, "主题事件监听器设置");
   }
 }

@@ -4,7 +4,7 @@ import {
   ipcSetPluginConfigValue,
   ipcDeletePluginConfigValue,
 } from "@/api/ipc/database.api";
-import { ErrorHandler } from "./errorHandler";
+import { Logger } from "./logger";
 
 type PluginConfigData = {
   windowId: string;
@@ -65,7 +65,7 @@ export const getPluginConfig = async (
 
     return null;
   } catch (error) {
-    ErrorHandler.handleError(error, "获取插件配置失败:");
+    Logger.error(error, "获取插件配置失败:");
     throw error;
   }
 };
@@ -140,7 +140,7 @@ export const setPluginConfig = async (
       );
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "设置插件配置失败:");
+    Logger.error(error, "设置插件配置失败:");
     throw error;
   }
 };
@@ -164,7 +164,7 @@ export const deletePluginConfig = async (
       await ipcDeletePluginConfigValue(keys[1]);
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "删除插件配置失败:");
+    Logger.error(error, "删除插件配置失败:");
     throw error;
   }
 };
@@ -189,7 +189,7 @@ export const installPlugin = async (
   try {
     await ipcInstallPlugin(url, windowId);
   } catch (error) {
-    ErrorHandler.handleError(error, "安装插件失败:");
+    Logger.error(error, "安装插件失败:");
     throw error;
   }
 };
@@ -207,7 +207,7 @@ export const uninstallPlugin = async (windowId: string): Promise<void> => {
   try {
     await ipcUninstallPlugin(windowId);
   } catch (error) {
-    ErrorHandler.handleError(error, "卸载插件失败:");
+    Logger.error(error, "卸载插件失败:");
     throw error;
   }
 };

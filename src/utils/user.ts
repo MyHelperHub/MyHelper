@@ -3,7 +3,7 @@ import { getConfig, updateConfig } from "./config";
 import { ipcFileExists } from "@/api/ipc/launch.api";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
-import { ErrorHandler } from "./errorHandler";
+import { Logger } from "./logger";
 
 /** 用户配置键名 */
 const USER_CONFIG_KEY = "userConfig";
@@ -25,7 +25,7 @@ export const getUserConfig = async (): Promise<User> => {
       }
     );
   } catch (error) {
-    ErrorHandler.handleError(error, "获取用户配置失败:");
+    Logger.error(error, "获取用户配置失败:");
     throw error;
   }
 };
@@ -39,7 +39,7 @@ export const setUserConfig = async (config: Partial<User>): Promise<void> => {
   try {
     await updateConfig<User>(USER_CONFIG_KEY, config);
   } catch (error) {
-    ErrorHandler.handleError(error, "设置用户配置失败:");
+    Logger.error(error, "设置用户配置失败:");
     throw error;
   }
 };

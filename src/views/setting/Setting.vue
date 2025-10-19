@@ -31,7 +31,7 @@ import { WindowOperation } from "@/types/enum";
 import { initSetting } from "./utils/settingRegistry";
 import { SettingMenuItemEnum } from "@/types/enum";
 import { NewWindowEnum } from "@/types/windowEnum";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { Logger } from "@/utils/logger";
 
 type MenuConfig = {
   type: SettingMenuItemEnum;
@@ -99,7 +99,7 @@ const loadComponent = async (menuType: SettingMenuItemEnum) => {
         loadedComponents.value.push(config.componentName);
       }
     } catch (error) {
-      ErrorHandler.handleError(error, `加载 ${menuType} 组件失败:`);
+      Logger.error(error, `加载 ${menuType} 组件失败:`);
     }
   }
 };

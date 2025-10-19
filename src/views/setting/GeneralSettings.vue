@@ -104,7 +104,7 @@ import {
   setHotkeyEnabled,
   getDefaultHotkeyConfig,
 } from "@/composables/hotkey.ts";
-import { ErrorHandler } from "@/utils/errorHandler";
+import { Logger } from "@/utils/logger";
 
 const settingData = ref({
   clipboardListening: false,
@@ -126,7 +126,7 @@ const init = async () => {
       await setConfig("settingConfig", settingData.value);
     }
   } catch (error) {
-    ErrorHandler.handleError(error, "获取设置项配置时出错，使用默认值:");
+    Logger.error(error, "获取设置项配置时出错，使用默认值:");
   }
 };
 
@@ -177,7 +177,7 @@ const handleDataReset = async (
         await resetConfig(keys);
         showMessage("重置成功！", 2500, 1);
       } catch (error) {
-        ErrorHandler.handleError(error, "重置数据失败:");
+        Logger.error(error, "重置数据失败:");
         showMessage("重置失败，请重试！", 2500, 2);
       }
       showDataResetModal.value = false;

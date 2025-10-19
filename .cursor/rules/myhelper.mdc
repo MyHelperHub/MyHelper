@@ -99,7 +99,7 @@ Vue 组件模式：
 
 错误处理：
 - 在 Rust 中 [error.rs](mdc:src-tauri/src/utils/error.rs)
-- 在 Vue 中 [errorHandler.ts](mdc:src/utils/errorHandler.ts)
+- 在 Vue 中 [logger.ts](mdc:src/utils/logger.ts)
 - 为用户提供有意义的错误消息
 - 适当记录错误以便调试
 

@@ -13,7 +13,7 @@ import { ipcSetWindowSize } from "./api/ipc/window.api";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
-import { ErrorHandler } from "./utils/errorHandler";
+import { Logger } from "./utils/logger";
 import {
   preInitTheme,
   completeThemeInit,
@@ -38,7 +38,7 @@ const bootstrap = async () => {
 
   if (isMainWindow) {
     await ipcSetWindowSize(65, 65).catch((error) =>
-      ErrorHandler.handleError(error, "设置窗口尺寸失败"),
+      Logger.error(error, "设置窗口尺寸失败"),
     );
 
     await initMainWindow(mainWindowConfigs);
@@ -47,7 +47,7 @@ const bootstrap = async () => {
   const app = createApp(App);
 
   app.config.errorHandler = async (err, _, info) => {
-    await ErrorHandler.handleError(err, info);
+    await Logger.error(err, info);
   };
 
   app.use(router);
@@ -71,8 +71,8 @@ const bootstrap = async () => {
   app.mount("#app");
 
   await completeThemeInit().catch((error) =>
-    ErrorHandler.handleError(error, "主题系统初始化失败"),
+    Logger.error(error, "主题系统初始化失败"),
   );
 };
 
-bootstrap().catch((error) => ErrorHandler.handleError(error, "应用启动失败"));
+bootstrap().catch((error) => Logger.error(error, "应用启动失败"));

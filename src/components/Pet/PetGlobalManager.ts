@@ -6,7 +6,6 @@ import { Logger } from "@/utils/logger";
 import { ipcGetPetConfig, ipcSetPetConfig } from "@/api/ipc/database.api";
 import { resolveResource } from "@tauri-apps/api/path";
 import { readDir } from "@tauri-apps/plugin-fs";
-import { ErrorHandler } from "@/utils/errorHandler";
 
 /** 全局数据键名常量 */
 const GLOBAL_KEYS = {
@@ -367,13 +366,10 @@ export class PetGlobalManager {
 
       return result;
     } catch (error) {
-      ErrorHandler.handleError(
-        error,
-        "PetGlobalManager.importModel 完整错误对象:",
-      );
+      Logger.error(error, "PetGlobalManager.importModel 完整错误对象:");
       const errorStr =
         error instanceof Error ? error.message : JSON.stringify(error, null, 2);
-      ErrorHandler.handleError(
+      Logger.error(
         "PetGlobalManager: 导入模型失败",
         `错误类型: ${typeof error}, 错误内容: ${errorStr}`,
       );
