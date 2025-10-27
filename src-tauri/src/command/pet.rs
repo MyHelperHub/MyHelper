@@ -381,7 +381,7 @@ fn extract_live2d_model_from_zip(zip_path: &Path, target_dir: &Path) -> AppResul
     Ok(())
 }
 
-fn extract_file_from_zip(file: &mut zip::read::ZipFile, target_dir: &Path) -> AppResult<()> {
+fn extract_file_from_zip<R: io::Read>(file: &mut zip::read::ZipFile<'_, R>, target_dir: &Path) -> AppResult<()> {
     let out_path = target_dir.join(file.mangled_name());
 
     // 确保输出路径在目标目录内（安全检查）
