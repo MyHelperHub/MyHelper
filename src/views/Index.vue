@@ -70,7 +70,7 @@ import {
 } from "@/utils/windowManager";
 import { NewWindowEnum, WINDOW_CONFIG } from "@/types/windowEnum";
 import { checkLogoPath } from "@/utils/user";
-import Search from "@/views/Search.vue";
+import Search from "@/views/search/Search.vue";
 import Menu from "./Menu.vue";
 import AvatarDisplay from "@/components/AvatarDisplay.vue";
 

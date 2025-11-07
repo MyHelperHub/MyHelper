@@ -55,6 +55,8 @@ macro_rules! generate_app_handlers {
             open_web_or_app,
             write_log,
             set_hotkey_enabled,
+            // 文件搜索
+            fd_search,
         ]
     };
 }

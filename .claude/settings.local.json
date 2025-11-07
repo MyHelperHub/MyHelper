@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cargo check:*)",
       "Bash(pnpm run check:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(pnpm check:*)"
     ],
     "deny": []
   }
