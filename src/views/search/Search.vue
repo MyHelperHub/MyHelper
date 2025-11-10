@@ -5,7 +5,7 @@
       <div class="engine-selector" @click="popoverRef?.toggle($event)">
         <div class="engine-icon-wrapper">
           <img
-            v-if="state.searchType === 'web'"
+            v-if="state.searchType === SearchTypeEnum.Web"
             class="engine-icon"
             :src="state.selectedEngine.logo"
             :alt="state.selectedEngine.title" />
@@ -29,13 +29,17 @@
           }">
           <div class="popover-content">
             <!-- 搜索类型选择器 -->
-            <SearchTypeSelector v-model="state.searchType" />
+            <SearchTypeSelector
+              v-model="state.searchType"
+              @update:modelValue="saveSearchConfig" />
 
             <!-- 分隔线 -->
             <div class="popover-divider"></div>
 
             <!-- 搜索引擎列表 (仅网页搜索时显示) -->
-            <div v-if="state.searchType === 'web'" class="engine-dropdown">
+            <div
+              v-if="state.searchType === SearchTypeEnum.Web"
+              class="engine-dropdown">
               <div
                 v-for="(engine, index) in searchEngines"
                 :key="index"
@@ -54,7 +58,7 @@
 
             <!-- 文件搜索选项摘要 (仅文件搜索时显示) -->
             <FileSearchOptionsSummary
-              v-if="state.searchType === 'file'"
+              v-if="state.searchType === SearchTypeEnum.File"
               :options="fileSearch.options"
               @open-config="openOptionsDialog" />
           </div>
@@ -67,7 +71,9 @@
           v-model="state.searchData"
           class="search-input"
           :placeholder="
-            state.searchType === 'web' ? '搜索任何内容...' : '搜索本地文件...'
+            state.searchType === SearchTypeEnum.Web
+              ? '搜索任何内容...'
+              : '搜索本地文件...'
           "
           spellcheck="false"
           @keydown.enter="handleSearch" />
@@ -76,14 +82,14 @@
           ref="searchButtonRef"
           class="pi pi-search search-button"
           :class="{ active: state.searchData.length > 0 }"
-          @click="handleSearchButtonClick"
+          @click="handleSearch"
           aria-label="搜索"></i>
       </div>
     </div>
 
     <!-- 文件搜索结果 Popover -->
     <Popover
-      v-if="state.searchType === 'file'"
+      v-if="state.searchType === SearchTypeEnum.File"
       ref="resultsPopoverRef"
       append-to="body"
       :pt="{
@@ -114,7 +120,8 @@
         root: { class: 'search-options-dialog' },
         header: { class: 'dialog-header' },
         content: { class: 'dialog-content' },
-      }">
+      }"
+      @hide="saveSearchConfig">
       <FileSearchOptions v-model="fileSearch.options" />
     </Dialog>
   </div>
@@ -126,43 +133,48 @@ import { ipcOpen } from "@/api/ipc/launch.api";
 import { ipcFdSearch } from "@/api/ipc/fdSearch.api";
 import { desktopDir } from "@tauri-apps/api/path";
 import { Logger } from "@/utils/logger";
+import { setConfig } from "@/utils/config";
 import Popover from "primevue/popover";
 import Dialog from "primevue/dialog";
 import SearchTypeSelector from "./components/SearchTypeSelector.vue";
 import FileSearchResults from "./components/FileSearchResults.vue";
 import FileSearchOptions from "./components/FileSearchOptions.vue";
 import FileSearchOptionsSummary from "./components/FileSearchOptionsSummary.vue";
+import { SearchTypeEnum, SearchEngineEnum } from "@/types/search";
+import { getSingleConfig, updateSingleConfig } from "@/utils/appInit";
 
 const searchEngines = Object.freeze([
   {
-    title: "Baidu",
+    title: SearchEngineEnum.Baidu,
     logo: new URL("../../assets/images/engine/baidu.png", import.meta.url).href,
     url: "https://www.baidu.com/s?wd=",
     handleSearch: (data) => ipcOpen(`https://www.baidu.com/s?wd=${data}`),
   },
   {
-    title: "Google",
-    logo: new URL("../../assets/images/engine/google.png", import.meta.url).href,
+    title: SearchEngineEnum.Google,
+    logo: new URL("../../assets/images/engine/google.png", import.meta.url)
+      .href,
     url: "https://www.google.com/search?q=",
     handleSearch: (data) => ipcOpen(`https://www.google.com/search?q=${data}`),
   },
   {
-    title: "Bing",
+    title: SearchEngineEnum.Bing,
     logo: new URL("../../assets/images/engine/bing.png", import.meta.url).href,
     url: "https://bing.com/search?q=",
     handleSearch: (data) => ipcOpen(`https://bing.com/search?q=${data}`),
   },
   {
-    title: "Yahoo",
+    title: SearchEngineEnum.Yahoo,
     logo: new URL("../../assets/images/engine/yahoo.png", import.meta.url).href,
     url: "https://search.yahoo.com/search?p=",
-    handleSearch: (data) => ipcOpen(`https://search.yahoo.com/search?p=${data}`),
+    handleSearch: (data) =>
+      ipcOpen(`https://search.yahoo.com/search?p=${data}`),
   },
 ]);
 
 const state = reactive({
   searchData: "",
-  searchType: "web",
+  searchType: SearchTypeEnum.Web,
   selectedEngine: searchEngines[0],
   isPopoverOpen: false,
   showOptionsDialog: false,
@@ -173,7 +185,7 @@ const fileSearch = reactive({
   isSearching: false,
   showEmpty: false,
   options: {
-    paths: ["."],
+    paths: [],
     maxDepth: 10,
     hidden: false,
     noIgnore: false,
@@ -188,18 +200,49 @@ const popoverRef = ref(null);
 const searchButtonRef = ref(null);
 const resultsPopoverRef = ref(null);
 
+/** 根据枚举值获取搜索引擎对象 */
+const getEngineByKey = (key) => {
+  return searchEngines.find((engine) => engine.title === key) || searchEngines[0];
+};
+
+/** 保存搜索配置 */
+const saveSearchConfig = async () => {
+  try {
+    const config = {
+      searchType: state.searchType,
+      selectedEngine: state.selectedEngine.title,
+      searchOptions: fileSearch.options,
+    };
+    await setConfig("searchConfig", config);
+    updateSingleConfig("searchConfig", config);
+  } catch (error) {
+    Logger.error(error, "保存搜索配置失败");
+  }
+};
+
 onMounted(async () => {
   try {
-    const desktop = await desktopDir();
-    fileSearch.options.paths = [desktop];
+    const searchConfig = await getSingleConfig("searchConfig");
+    if (searchConfig) {
+      state.searchType = searchConfig.searchType || SearchTypeEnum.Web;
+      state.selectedEngine = getEngineByKey(searchConfig.selectedEngine);
+      if (searchConfig.searchOptions) {
+        fileSearch.options = { ...fileSearch.options, ...searchConfig.searchOptions };
+      }
+    }
+    if (fileSearch.options.paths.length === 0) {
+      const desktop = await desktopDir();
+      fileSearch.options.paths = [desktop];
+    }
   } catch (error) {
-    Logger.error(error, "获取桌面路径失败");
+    Logger.error(error, "加载搜索配置失败");
   }
 });
 
 const selectEngine = (engine) => {
   state.selectedEngine = engine;
   popoverRef.value?.hide();
+  saveSearchConfig();
 };
 
 const openOptionsDialog = () => {
@@ -207,25 +250,14 @@ const openOptionsDialog = () => {
   popoverRef.value?.hide();
 };
 
-const handleSearchButtonClick = (event) => {
-  if (state.searchType === "web") {
-    handleSearch();
-  } else if (state.searchType === "file") {
-    if (fileSearch.results.length > 0 || fileSearch.isSearching || fileSearch.showEmpty) {
-      resultsPopoverRef.value?.toggle(event);
-    } else {
-      handleSearch();
-    }
-  }
-};
 
 const handleSearch = async () => {
   if (!state.searchData.trim()) return;
 
-  if (state.searchType === "web") {
+  if (state.searchType === SearchTypeEnum.Web) {
     state.selectedEngine.handleSearch(state.searchData.trim());
     state.searchData = "";
-  } else if (state.searchType === "file") {
+  } else if (state.searchType === SearchTypeEnum.File) {
     await handleFileSearch();
   }
 };
@@ -248,7 +280,10 @@ const handleFileSearch = async () => {
       noIgnore: fileSearch.options.noIgnore,
       maxDepth: fileSearch.options.maxDepth,
       fileType: fileSearch.options.fileType,
-      extension: fileSearch.options.extension.length > 0 ? fileSearch.options.extension : undefined,
+      extension:
+        fileSearch.options.extension.length > 0
+          ? fileSearch.options.extension
+          : undefined,
       caseSensitive: fileSearch.options.caseSensitive,
     });
 
@@ -419,10 +454,7 @@ const clearFileSearch = () => {
 
   .popover-divider {
     height: 1px;
-    background: rgba(
-      var(--theme-border-rgb),
-      var(--theme-transparency-border)
-    );
+    background: rgba(var(--theme-border-rgb), var(--theme-transparency-border));
     margin: 4px 8px;
   }
 }

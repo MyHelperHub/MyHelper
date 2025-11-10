@@ -12,9 +12,7 @@
         @click="selectType(type.value)">
         <i :class="type.icon" class="type-icon"></i>
         <span class="type-label">{{ type.label }}</span>
-        <i
-          v-if="modelValue === type.value"
-          class="pi pi-check type-check"></i>
+        <i v-if="modelValue === type.value" class="pi pi-check type-check"></i>
       </div>
     </div>
   </div>
@@ -22,11 +20,12 @@
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
+import { SearchTypeEnum } from "@/types/search";
 
 const props = defineProps({
   modelValue: {
-    type: String,
-    default: "web",
+    type: SearchTypeEnum,
+    default: SearchTypeEnum.Web,
   },
 });
 
@@ -35,12 +34,12 @@ const emit = defineEmits(["update:modelValue"]);
 const searchTypes = [
   {
     label: "网页搜索",
-    value: "web",
+    value: SearchTypeEnum.Web,
     icon: "pi pi-globe",
   },
   {
     label: "本地文件",
-    value: "file",
+    value: SearchTypeEnum.File,
     icon: "pi pi-folder",
   },
 ];

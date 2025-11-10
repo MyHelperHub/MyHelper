@@ -110,6 +110,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { desktopDir } from "@tauri-apps/api/path";
 import { Logger } from "@/utils/logger";
 import { showMessage } from "@/composables/message.ts";
+import { FdFileTypeEnum } from "@/types/search";
 
 const props = defineProps({
   modelValue: {
@@ -124,10 +125,10 @@ const extensionInput = ref("");
 
 const fileTypeOptions = [
   { label: "全部类型", value: null },
-  { label: "仅文件", value: "file" },
-  { label: "仅目录", value: "directory" },
-  { label: "符号链接", value: "symlink" },
-  { label: "可执行文件", value: "executable" },
+  { label: "仅文件", value: FdFileTypeEnum.File },
+  { label: "仅目录", value: FdFileTypeEnum.Directory },
+  { label: "符号链接", value: FdFileTypeEnum.Symlink },
+  { label: "可执行文件", value: FdFileTypeEnum.Executable },
 ];
 
 const options = computed({
