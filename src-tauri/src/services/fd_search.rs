@@ -13,6 +13,7 @@ static REGEX_CACHE: Lazy<RwLock<HashMap<String, Regex>>> =
     Lazy::new(|| RwLock::new(HashMap::new()));
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchOptions {
     /// 搜索路径（支持多个路径）
     pub paths: Vec<String>,
@@ -57,6 +58,7 @@ impl Default for SearchOptions {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchResult {
     /// 文件路径
     pub path: String,
