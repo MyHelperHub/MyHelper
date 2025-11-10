@@ -47,7 +47,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue";
 import { ipcOpen } from "@/api/ipc/launch.api";
 import { formatFileSize } from "@/utils/pluginUtils";
 
@@ -66,7 +65,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(["close"]);
+const emit = defineEmits(["close"]);
 
 const getFileIcon = (result) => {
   if (result.fileType === "directory") {
@@ -119,7 +118,6 @@ const getTooltipContent = (result) => {
 
 <style lang="less" scoped>
 .file-search-results {
-  margin-top: 12px;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   background: rgba(
@@ -130,7 +128,8 @@ const getTooltipContent = (result) => {
     rgba(var(--theme-border-rgb), var(--theme-transparency-border));
   border-radius: var(--theme-radius-md);
   box-shadow: var(--theme-shadow-lg);
-  max-height: 280px;
+  max-height: 300px;
+  width: 230px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -142,7 +141,6 @@ const getTooltipContent = (result) => {
     padding: 10px 12px;
     border-bottom: 1px solid
       rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-    flex-shrink: 0;
 
     .results-count {
       font-size: 11px;
@@ -216,17 +214,17 @@ const getTooltipContent = (result) => {
           font-size: 12px;
           font-weight: 500;
           color: var(--theme-text);
-          white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .result-path {
           font-size: 10px;
           color: var(--theme-text-muted);
-          white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          white-space: nowrap;
           margin-top: 2px;
         }
       }
@@ -245,8 +243,6 @@ const getTooltipContent = (result) => {
 
   &.file-search-loading,
   &.file-search-empty {
-    position: relative;
-
     .loading-content,
     .empty-content {
       display: flex;
@@ -271,6 +267,8 @@ const getTooltipContent = (result) => {
   }
 
   &.file-search-empty {
+    position: relative;
+
     .close-btn-empty {
       position: absolute;
       top: 10px;
@@ -281,7 +279,6 @@ const getTooltipContent = (result) => {
       transition: color 0.2s ease;
       padding: 3px;
       border-radius: 3px;
-      z-index: 1;
 
       &:hover {
         color: var(--theme-text);

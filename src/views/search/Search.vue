@@ -5,12 +5,12 @@
       <div class="engine-selector" @click="popoverRef?.toggle($event)">
         <div class="engine-icon-wrapper">
           <img
-            v-if="searchType === 'web'"
+            v-if="state.searchType === 'web'"
             class="engine-icon"
-            :src="selectedEngine.logo"
-            :alt="selectedEngine.title" />
+            :src="state.selectedEngine.logo"
+            :alt="state.selectedEngine.title" />
           <i v-else class="pi pi-folder engine-icon-fallback"></i>
-          <div class="engine-indicator" :class="{ open: isPopoverOpen }">
+          <div class="engine-indicator" :class="{ open: state.isPopoverOpen }">
             <i class="pi pi-chevron-down"></i>
           </div>
         </div>
@@ -18,8 +18,8 @@
         <Popover
           ref="popoverRef"
           append-to="body"
-          @show="isPopoverOpen = true"
-          @hide="isPopoverOpen = false"
+          @show="state.isPopoverOpen = true"
+          @hide="state.isPopoverOpen = false"
           :pt="{
             root: {
               style: {
@@ -29,13 +29,13 @@
           }">
           <div class="popover-content">
             <!-- 搜索类型选择器 -->
-            <SearchTypeSelector v-model="searchType" />
+            <SearchTypeSelector v-model="state.searchType" />
 
             <!-- 分隔线 -->
             <div class="popover-divider"></div>
 
             <!-- 搜索引擎列表 (仅网页搜索时显示) -->
-            <div v-if="searchType === 'web'" class="engine-dropdown">
+            <div v-if="state.searchType === 'web'" class="engine-dropdown">
               <div
                 v-for="(engine, index) in searchEngines"
                 :key="index"
@@ -47,15 +47,15 @@
                   class="option-icon" />
                 <span class="option-title">{{ engine.title }}</span>
                 <i
-                  v-if="selectedEngine.title === engine.title"
+                  v-if="state.selectedEngine.title === engine.title"
                   class="pi pi-check option-check"></i>
               </div>
             </div>
 
             <!-- 文件搜索选项摘要 (仅文件搜索时显示) -->
             <FileSearchOptionsSummary
-              v-if="searchType === 'file'"
-              :options="fileSearchOptions"
+              v-if="state.searchType === 'file'"
+              :options="fileSearch.options"
               @open-config="openOptionsDialog" />
           </div>
         </Popover>
@@ -64,33 +64,48 @@
       <!-- 搜索输入框 -->
       <div class="search-input-wrapper">
         <input
-          v-model="searchData"
+          v-model="state.searchData"
           class="search-input"
           :placeholder="
-            searchType === 'web' ? '搜索任何内容...' : '搜索本地文件...'
+            state.searchType === 'web' ? '搜索任何内容...' : '搜索本地文件...'
           "
           spellcheck="false"
           @keydown.enter="handleSearch" />
 
         <i
+          ref="searchButtonRef"
           class="pi pi-search search-button"
-          :class="{ active: searchData.length > 0 }"
-          @click="handleSearch"
+          :class="{ active: state.searchData.length > 0 }"
+          @click="handleSearchButtonClick"
           aria-label="搜索"></i>
       </div>
     </div>
 
-    <!-- 文件搜索结果 -->
-    <FileSearchResults
-      v-if="searchType === 'file'"
-      :results="fileSearchResults"
-      :is-searching="isSearching"
-      :show-empty="showEmptyResults"
-      @close="clearFileSearch" />
+    <!-- 文件搜索结果 Popover -->
+    <Popover
+      v-if="state.searchType === 'file'"
+      ref="resultsPopoverRef"
+      append-to="body"
+      :pt="{
+        root: {
+          style: {
+            marginTop: '8px',
+            marginBottom: '12px',
+            left: '50% !important',
+            transform: 'translateX(-50%)',
+          },
+        },
+      }">
+      <FileSearchResults
+        :results="fileSearch.results"
+        :is-searching="fileSearch.isSearching"
+        :show-empty="fileSearch.showEmpty"
+        @close="clearFileSearch" />
+    </Popover>
 
     <!-- 文件搜索选项 Dialog -->
     <Dialog
-      v-model:visible="showOptionsDialog"
+      v-model:visible="state.showOptionsDialog"
       modal
       dismissableMask
       header="文件搜索配置"
@@ -100,13 +115,13 @@
         header: { class: 'dialog-header' },
         content: { class: 'dialog-content' },
       }">
-      <FileSearchOptions v-model="fileSearchOptions" />
+      <FileSearchOptions v-model="fileSearch.options" />
     </Dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import { ipcOpen } from "@/api/ipc/launch.api";
 import { ipcFdSearch } from "@/api/ipc/fdSearch.api";
 import { desktopDir } from "@tauri-apps/api/path";
@@ -123,123 +138,136 @@ const searchEngines = Object.freeze([
     title: "Baidu",
     logo: new URL("../../assets/images/engine/baidu.png", import.meta.url).href,
     url: "https://www.baidu.com/s?wd=",
-    handleSearch: (data) => {
-      ipcOpen(`https://www.baidu.com/s?wd=${data}`);
-    },
+    handleSearch: (data) => ipcOpen(`https://www.baidu.com/s?wd=${data}`),
   },
   {
     title: "Google",
     logo: new URL("../../assets/images/engine/google.png", import.meta.url).href,
     url: "https://www.google.com/search?q=",
-    handleSearch: (data) => {
-      ipcOpen(`https://www.google.com/search?q=${data}`);
-    },
+    handleSearch: (data) => ipcOpen(`https://www.google.com/search?q=${data}`),
   },
   {
     title: "Bing",
     logo: new URL("../../assets/images/engine/bing.png", import.meta.url).href,
     url: "https://bing.com/search?q=",
-    handleSearch: (data) => {
-      ipcOpen(`https://bing.com/search?q=${data}`);
-    },
+    handleSearch: (data) => ipcOpen(`https://bing.com/search?q=${data}`),
   },
   {
     title: "Yahoo",
     logo: new URL("../../assets/images/engine/yahoo.png", import.meta.url).href,
     url: "https://search.yahoo.com/search?p=",
-    handleSearch: (data) => {
-      ipcOpen(`https://search.yahoo.com/search?p=${data}`);
-    },
+    handleSearch: (data) => ipcOpen(`https://search.yahoo.com/search?p=${data}`),
   },
 ]);
 
-const searchData = ref("");
-const searchType = ref("web");
-const selectedEngine = ref(searchEngines[0]);
-const popoverRef = ref(null);
-const isPopoverOpen = ref(false);
-
-const fileSearchResults = ref([]);
-const isSearching = ref(false);
-const showEmptyResults = ref(false);
-const showOptionsDialog = ref(false);
-const fileSearchOptions = ref({
-  paths: ["."],
-  maxDepth: 10,
-  hidden: false,
-  noIgnore: false,
-  caseSensitive: false,
-  fileType: null,
-  extension: [],
-  isGlob: false,
+const state = reactive({
+  searchData: "",
+  searchType: "web",
+  selectedEngine: searchEngines[0],
+  isPopoverOpen: false,
+  showOptionsDialog: false,
 });
+
+const fileSearch = reactive({
+  results: [],
+  isSearching: false,
+  showEmpty: false,
+  options: {
+    paths: ["."],
+    maxDepth: 10,
+    hidden: false,
+    noIgnore: false,
+    caseSensitive: false,
+    fileType: null,
+    extension: [],
+    isGlob: false,
+  },
+});
+
+const popoverRef = ref(null);
+const searchButtonRef = ref(null);
+const resultsPopoverRef = ref(null);
 
 onMounted(async () => {
   try {
     const desktop = await desktopDir();
-    fileSearchOptions.value.paths = [desktop];
+    fileSearch.options.paths = [desktop];
   } catch (error) {
     Logger.error(error, "获取桌面路径失败");
   }
 });
 
 const selectEngine = (engine) => {
-  selectedEngine.value = engine;
-  popoverRef.value.hide();
+  state.selectedEngine = engine;
+  popoverRef.value?.hide();
 };
 
-function openOptionsDialog() {
-  showOptionsDialog.value = true;
+const openOptionsDialog = () => {
+  state.showOptionsDialog = true;
   popoverRef.value?.hide();
-}
+};
 
-async function handleSearch() {
-  if (!searchData.value.trim()) return;
+const handleSearchButtonClick = (event) => {
+  if (state.searchType === "web") {
+    handleSearch();
+  } else if (state.searchType === "file") {
+    if (fileSearch.results.length > 0 || fileSearch.isSearching || fileSearch.showEmpty) {
+      resultsPopoverRef.value?.toggle(event);
+    } else {
+      handleSearch();
+    }
+  }
+};
 
-  if (searchType.value === "web") {
-    selectedEngine.value.handleSearch(searchData.value.trim());
-    searchData.value = "";
-  } else if (searchType.value === "file") {
+const handleSearch = async () => {
+  if (!state.searchData.trim()) return;
+
+  if (state.searchType === "web") {
+    state.selectedEngine.handleSearch(state.searchData.trim());
+    state.searchData = "";
+  } else if (state.searchType === "file") {
     await handleFileSearch();
   }
-}
+};
 
-async function handleFileSearch() {
-  isSearching.value = true;
-  showEmptyResults.value = false;
-  fileSearchResults.value = [];
+const handleFileSearch = async () => {
+  fileSearch.isSearching = true;
+  fileSearch.showEmpty = false;
+  fileSearch.results = [];
+
+  if (searchButtonRef.value) {
+    resultsPopoverRef.value?.show({ currentTarget: searchButtonRef.value });
+  }
 
   try {
     const results = await ipcFdSearch({
-      paths: fileSearchOptions.value.paths,
-      pattern: searchData.value.trim(),
-      isGlob: fileSearchOptions.value.isGlob,
-      hidden: fileSearchOptions.value.hidden,
-      noIgnore: fileSearchOptions.value.noIgnore,
-      maxDepth: fileSearchOptions.value.maxDepth,
-      fileType: fileSearchOptions.value.fileType,
-      extension:
-        fileSearchOptions.value.extension.length > 0
-          ? fileSearchOptions.value.extension
-          : undefined,
-      caseSensitive: fileSearchOptions.value.caseSensitive,
+      paths: fileSearch.options.paths,
+      pattern: state.searchData.trim(),
+      isGlob: fileSearch.options.isGlob,
+      hidden: fileSearch.options.hidden,
+      noIgnore: fileSearch.options.noIgnore,
+      maxDepth: fileSearch.options.maxDepth,
+      fileType: fileSearch.options.fileType,
+      extension: fileSearch.options.extension.length > 0 ? fileSearch.options.extension : undefined,
+      caseSensitive: fileSearch.options.caseSensitive,
     });
 
-    fileSearchResults.value = results;
-    showEmptyResults.value = results.length === 0;
+    fileSearch.results = results;
+    fileSearch.showEmpty = results.length === 0;
   } catch (error) {
     Logger.error(error, "文件搜索失败");
-    showEmptyResults.value = true;
+    fileSearch.showEmpty = true;
   } finally {
-    isSearching.value = false;
+    fileSearch.isSearching = false;
   }
-}
+};
 
-function clearFileSearch() {
-  fileSearchResults.value = [];
-  showEmptyResults.value = false;
-  searchData.value = "";
-}
+const clearFileSearch = () => {
+  fileSearch.results = [];
+  fileSearch.showEmpty = false;
+  state.searchData = "";
+  resultsPopoverRef.value?.hide();
+};
 </script>
 
 <style lang="less">
@@ -252,7 +280,6 @@ function clearFileSearch() {
     align-items: center;
     padding: 6px;
     transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    position: relative;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     background: rgba(
@@ -264,18 +291,10 @@ function clearFileSearch() {
     border-radius: var(--theme-radius-md);
 
     &:hover {
-      background: rgba(
-        var(--theme-background-secondary-rgb),
-        var(--theme-transparency-background-secondary)
-      );
       box-shadow: var(--theme-shadow-sm);
     }
 
     &:focus-within {
-      background: rgba(
-        var(--theme-background-secondary-rgb),
-        var(--theme-transparency-background-secondary)
-      );
       box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb), 0.3);
     }
   }
@@ -329,16 +348,14 @@ function clearFileSearch() {
   }
 
   .search-input-wrapper {
-    flex: 1 1 auto;
+    flex: 1;
     display: flex;
     align-items: center;
     min-width: 0;
 
     .search-input {
-      flex: 1 1 auto;
+      flex: 1;
       min-width: 0;
-      width: auto;
-      box-sizing: border-box;
       border: none;
       outline: none;
       background: transparent;
@@ -362,11 +379,9 @@ function clearFileSearch() {
     }
 
     .search-button {
-      flex: 0 0 auto;
       margin-left: 6px;
       color: var(--theme-text-muted);
       font-size: 16px;
-      line-height: 1;
       cursor: pointer;
       transition:
         color 0.2s ease,
@@ -424,7 +439,6 @@ function clearFileSearch() {
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative;
 
     &:hover {
       background: rgba(
@@ -514,5 +528,4 @@ function clearFileSearch() {
     }
   }
 }
-
 </style>
