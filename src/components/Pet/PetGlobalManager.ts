@@ -26,7 +26,7 @@ const DEFAULT_PREFERENCES: PetPreferences = {
   defaultScale: 1.0,
 };
 
-/** 使用GlobalData存储 + Tauri事件通知的混合方案 */
+/** 宠物全局管理器 */
 export class PetGlobalManager {
   private static isInitialized = false;
   private static initPromise: Promise<void> | null = null;

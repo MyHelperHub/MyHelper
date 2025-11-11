@@ -72,15 +72,16 @@ const performModelLoad = async (): Promise<void> => {
   error.value = null;
 
   try {
+    // 先设置画布尺寸，确保在创建 Application 前完成
+    setupCanvas();
+    await nextTick();
+
     // 销毁旧模型但保留管理器实例
     if (modelManager) {
       modelManager.destroyModel();
     } else {
       modelManager = new SimpleLive2DManager();
     }
-
-    setupCanvas();
-    await nextTick();
 
     const info = await modelManager.load(canvasRef.value, props.modelConfig);
 
@@ -147,13 +148,18 @@ watch(
   { immediate: false },
 );
 
-watch([() => props.width, () => props.height], () => {
+watch([() => props.width, () => props.height], async () => {
   if (!modelManager || !canvasRef.value) return;
   setupCanvas();
+  await nextTick();
   modelManager.resize(canvasRef.value);
 });
 
 onMounted(async () => {
+  // 确保 canvas 尺寸在加载模型前正确设置
+  if (canvasRef.value) {
+    setupCanvas();
+  }
   await nextTick();
   if (canvasRef.value && props.modelConfig) {
     await loadModel();

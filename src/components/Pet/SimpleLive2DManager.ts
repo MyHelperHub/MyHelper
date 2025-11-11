@@ -36,7 +36,7 @@ export class SimpleLive2DManager {
         view: canvas,
         autoStart: true,
         backgroundAlpha: 0,
-        resolution: devicePixelRatio,
+        resolution: 1,
         width: canvas.width,
         height: canvas.height,
         powerPreference: "default",
@@ -44,6 +44,16 @@ export class SimpleLive2DManager {
       this.apps.set(canvas, app);
     }
     return this.apps.get(canvas)!;
+  }
+
+  /**
+   * 更新指定canvas的PIXI Application尺寸
+   */
+  private static resizeApp(canvas: HTMLCanvasElement): void {
+    const app = this.apps.get(canvas);
+    if (app && app.renderer) {
+      app.renderer.resize(canvas.width, canvas.height);
+    }
   }
 
   /**
@@ -417,7 +427,10 @@ export class SimpleLive2DManager {
   resize(canvas: HTMLCanvasElement): void {
     if (!this.model || !canvas) return;
 
-    // 只重新计算模型变换
+    // 更新 PIXI Application 渲染器尺寸
+    SimpleLive2DManager.resizeApp(canvas);
+
+    // 重新计算模型变换
     this.setupModelTransform(canvas);
   }
 

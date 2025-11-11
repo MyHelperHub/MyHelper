@@ -15,10 +15,6 @@
         :model-config="selectedModel"
         @loaded="onModelLoaded"
         @error="onModelError" />
-
-      <div v-if="isSmallMode" class="interaction-hint">
-        <div class="click-ripple" :class="{ active: showRipple }"></div>
-      </div>
     </div>
 
     <div v-else class="default-logo">
@@ -63,8 +59,6 @@ const petDisplayRef = ref<InstanceType<typeof PetDisplay>>();
 const isLoading = ref(false);
 /** 错误信息 */
 const error = ref<string | null>(null);
-/** 是否显示点击波纹 */
-const showRipple = ref(false);
 
 /** 使用全局宠物状态管理器 */
 const selectedModel = PetGlobalManager.createSelectedModelRef();
@@ -86,18 +80,13 @@ const displaySize = computed(() => {
 const handleClick = () => {
   emit("click");
 
-  if (isSmallMode.value && shouldShowPet.value) {
-    showRipple.value = true;
-    setTimeout(() => (showRipple.value = false), 600);
-
-    if (petDisplayRef.value) {
-      const actions = ["motion", "expression"];
-      const randomAction = actions[Math.floor(Math.random() * actions.length)];
-      if (randomAction === "motion") {
-        petDisplayRef.value.playMotion("idle", 0);
-      } else {
-        petDisplayRef.value.playExpression(0);
-      }
+  if (isSmallMode.value && shouldShowPet.value && petDisplayRef.value) {
+    const actions = ["motion", "expression"];
+    const randomAction = actions[Math.floor(Math.random() * actions.length)];
+    if (randomAction === "motion") {
+      petDisplayRef.value.playMotion("idle", 0);
+    } else {
+      petDisplayRef.value.playExpression(0);
     }
   }
 };
@@ -181,35 +170,6 @@ defineExpose({
 
 .avatar-display:active .logo-image {
   transform: scale(0.95);
-}
-
-.small-mode .interaction-hint {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.click-ripple {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: var(--theme-primary);
-  opacity: 0.3;
-  transform: translate(-50%, -50%);
-  transition: all 0.6s ease-out;
-}
-
-.click-ripple.active {
-  width: 110%;
-  height: 110%;
-  opacity: 0;
 }
 
 .small-mode:hover {
