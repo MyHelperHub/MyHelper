@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cargo check:*)",
       "Bash(pnpm run check:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "mcp__sequential-thinking__sequentialthinking"
     ],
     "deny": []
   }

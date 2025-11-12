@@ -95,59 +95,93 @@ export class PetGlobalManager {
    * 创建响应式的选中模型引用
    * 监听Tauri事件来更新本地状态
    */
-  static createSelectedModelRef(): Ref<ModelConfig | null> {
+  static createSelectedModelRef(): {
+    ref: Ref<ModelConfig | null>;
+    cleanup: () => void;
+  } {
     const modelRef = ref<ModelConfig | null>(null);
+    let unlistenFn: (() => void) | null = null;
 
     // 初始化时从GlobalData加载
-    this.init().then(async () => {
-      const preferences = (await GlobalData.get(
-        GLOBAL_KEYS.PET_PREFERENCES,
-      )) as PetPreferences | null;
+    this.init()
+      .then(async () => {
+        unlistenFn = await listen<{ model: ModelConfig | null }>(
+          TAURI_EVENTS.MODEL_CHANGED,
+          (event) => {
+            modelRef.value = event.payload.model;
+          },
+        );
 
-      if (!preferences || !preferences.isEnabledPet) {
-        modelRef.value = null;
-        return;
+        const preferences = (await GlobalData.get(
+          GLOBAL_KEYS.PET_PREFERENCES,
+        )) as PetPreferences | null;
+
+        if (!preferences || !preferences.isEnabledPet) {
+          modelRef.value = null;
+          return;
+        }
+
+        await this.ensureModelStateLoaded();
+        modelRef.value = await GlobalData.get(GLOBAL_KEYS.SELECTED_PET_MODEL);
+      })
+      .catch((error) => {
+        Logger.error("PetGlobalManager: 监听模型变化事件失败", String(error));
+      });
+
+    const cleanup = () => {
+      if (unlistenFn) {
+        unlistenFn();
+        unlistenFn = null;
       }
+    };
 
-      await this.ensureModelStateLoaded();
-      modelRef.value = await GlobalData.get(GLOBAL_KEYS.SELECTED_PET_MODEL);
-    });
-
-    // 监听Tauri事件更新
-    listen<{ model: ModelConfig | null }>(
-      TAURI_EVENTS.MODEL_CHANGED,
-      (event) => {
-        modelRef.value = event.payload.model;
-      },
-    ).catch((error) => {
-      Logger.error("PetGlobalManager: 监听模型变化事件失败", String(error));
-    });
-
-    return modelRef;
+    return { ref: modelRef, cleanup };
   }
 
   /**
    * 创建响应式的偏好设置引用
    */
-  static createPreferencesRef(): Ref<PetPreferences> {
+  static createPreferencesRef(): {
+    ref: Ref<PetPreferences>;
+    cleanup: () => void;
+  } {
     const preferencesRef = ref<PetPreferences>(DEFAULT_PREFERENCES);
+    let unlistenFn: (() => void) | null = null;
 
     // 初始化时从GlobalData加载
-    this.init().then(async () => {
-      const initialPreferences = await GlobalData.get(
-        GLOBAL_KEYS.PET_PREFERENCES,
-      );
-      preferencesRef.value = initialPreferences || DEFAULT_PREFERENCES;
-    });
+    this.init()
+      .then(async () => {
+        const initialPreferences = await GlobalData.get(
+          GLOBAL_KEYS.PET_PREFERENCES,
+        );
+        preferencesRef.value = initialPreferences || DEFAULT_PREFERENCES;
 
-    // 监听Tauri事件更新
-    listen<PetPreferences>(TAURI_EVENTS.PREFERENCES_CHANGED, (event) => {
-      preferencesRef.value = { ...preferencesRef.value, ...event.payload };
-    }).catch((error) => {
-      Logger.error("PetGlobalManager: 监听偏好设置变化事件失败", String(error));
-    });
+        // 监听Tauri事件更新，保存 unlisten 函数
+        unlistenFn = await listen<PetPreferences>(
+          TAURI_EVENTS.PREFERENCES_CHANGED,
+          (event) => {
+            preferencesRef.value = {
+              ...preferencesRef.value,
+              ...event.payload,
+            };
+          },
+        );
+      })
+      .catch((error) => {
+        Logger.error(
+          "PetGlobalManager: 监听偏好设置变化事件失败",
+          String(error),
+        );
+      });
 
-    return preferencesRef;
+    const cleanup = () => {
+      if (unlistenFn) {
+        unlistenFn();
+        unlistenFn = null;
+      }
+    };
+
+    return { ref: preferencesRef, cleanup };
   }
 
   /**
@@ -194,8 +228,13 @@ export class PetGlobalManager {
       await tauriEmit(TAURI_EVENTS.PREFERENCES_CHANGED, updates);
 
       if (!wasEnabled && willEnable) {
+        // 从禁用变为启用，需要加载模型状态并通知所有监听器
         this.modelStateLoaded = false;
         await this.ensureModelStateLoaded();
+
+        // 发送 MODEL_CHANGED 事件，触发所有监听器更新
+        const model = await GlobalData.get(GLOBAL_KEYS.SELECTED_PET_MODEL);
+        await tauriEmit(TAURI_EVENTS.MODEL_CHANGED, { model });
       } else if (wasEnabled && !willEnable) {
         this.modelStateLoaded = false;
       }

@@ -7,17 +7,20 @@
       'has-pet': shouldShowPet,
     }"
     @click="handleClick">
-    <div v-if="shouldShowPet" class="pet-container">
-      <PetDisplay
-        ref="petDisplayRef"
-        :width="displaySize.width"
-        :height="displaySize.height"
-        :model-config="selectedModel"
-        @loaded="onModelLoaded"
-        @error="onModelError" />
+    <div v-show="shouldShowPet" class="pet-container">
+      <KeepAlive>
+        <PetDisplay
+          v-if="shouldShowPet"
+          ref="petDisplayRef"
+          :width="displaySize.width"
+          :height="displaySize.height"
+          :model-config="selectedModel"
+          @loaded="onModelLoaded"
+          @error="onModelError" />
+      </KeepAlive>
     </div>
 
-    <div v-else class="default-logo">
+    <div v-show="!shouldShowPet" class="default-logo">
       <img :src="props.defaultLogo" class="logo-image" />
     </div>
 
@@ -32,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import type { ModelInfo } from "@/types/pet";
 import PetDisplay from "@/components/Pet/PetDisplay.vue";
 import { PetGlobalManager } from "@/components/Pet/PetGlobalManager";
@@ -61,8 +64,10 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 
 /** 使用全局宠物状态管理器 */
-const selectedModel = PetGlobalManager.createSelectedModelRef();
-const preferences = PetGlobalManager.createPreferencesRef();
+const { ref: selectedModel, cleanup: cleanupModelListener } =
+  PetGlobalManager.createSelectedModelRef();
+const { ref: preferences, cleanup: cleanupPrefsListener } =
+  PetGlobalManager.createPreferencesRef();
 const isSmallMode = computed(() => !props.isShowMenu);
 
 /** 计算是否应该显示宠物 */
@@ -118,6 +123,19 @@ watch(
 
 onMounted(async () => {
   await PetGlobalManager.init();
+
+  if (preferences.value.isEnabledPet) {
+    const model = await PetGlobalManager.getSelectedModel();
+    if (model && !selectedModel.value) {
+      selectedModel.value = model;
+    }
+  }
+});
+
+onUnmounted(() => {
+  // 清理事件监听器
+  cleanupModelListener();
+  cleanupPrefsListener();
 });
 
 defineExpose({

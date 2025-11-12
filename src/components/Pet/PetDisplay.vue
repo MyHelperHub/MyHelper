@@ -3,10 +3,9 @@
     <canvas ref="canvasRef" class="pet-canvas" />
 
     <!-- 加载状态 -->
-    <div v-if="isLoading" class="loading-overlay">
+    <!-- <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
-      <p>加载模型中...</p>
-    </div>
+    </div> -->
 
     <!-- 错误提示 -->
     <div v-if="error" class="error-overlay">
@@ -17,7 +16,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from "vue";
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated,
+  nextTick,
+  watch,
+} from "vue";
 import type { ModelConfig, ModelInfo } from "@/types/pet";
 import { SimpleLive2DManager } from "./SimpleLive2DManager";
 import { Logger } from "@/utils/logger";
@@ -46,26 +53,43 @@ const modelInfo = ref<ModelInfo | null>(null);
 // 使用简化的Live2D管理器
 let modelManager: SimpleLive2DManager | null = null;
 let loadingPromise: Promise<void> | null = null;
+let abortController: AbortController | null = null;
 
 const loadModel = async () => {
   if (!canvasRef.value || !props.modelConfig) return;
+
+  // 取消之前的加载
+  if (abortController) {
+    abortController.abort();
+  }
+  abortController = new AbortController();
 
   if (loadingPromise) {
     await loadingPromise.catch(() => {});
   }
 
-  loadingPromise = performModelLoad();
+  loadingPromise = performModelLoad(abortController.signal);
 
   try {
     await loadingPromise;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return;
+    }
+    throw error;
   } finally {
     loadingPromise = null;
   }
 };
 
-const performModelLoad = async (): Promise<void> => {
+const performModelLoad = async (signal: AbortSignal): Promise<void> => {
   if (!canvasRef.value || !props.modelConfig) {
     throw new Error("Canvas或模型配置不可用");
+  }
+
+  // 检查是否已取消
+  if (signal.aborted) {
+    throw new DOMException("加载已取消", "AbortError");
   }
 
   isLoading.value = true;
@@ -76,6 +100,10 @@ const performModelLoad = async (): Promise<void> => {
     setupCanvas();
     await nextTick();
 
+    if (signal.aborted) {
+      throw new DOMException("加载已取消", "AbortError");
+    }
+
     // 销毁旧模型但保留管理器实例
     if (modelManager) {
       modelManager.destroyModel();
@@ -83,7 +111,15 @@ const performModelLoad = async (): Promise<void> => {
       modelManager = new SimpleLive2DManager();
     }
 
-    const info = await modelManager.load(canvasRef.value, props.modelConfig);
+    const info = await modelManager.load(
+      canvasRef.value,
+      props.modelConfig,
+      signal,
+    );
+
+    if (signal.aborted) {
+      throw new DOMException("加载已取消", "AbortError");
+    }
 
     if (info) {
       modelInfo.value = info;
@@ -92,11 +128,15 @@ const performModelLoad = async (): Promise<void> => {
       emit("loaded", info);
     }
   } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw err;
+    }
+
     const errorMsg = err instanceof Error ? err.message : "加载模型失败";
     error.value = errorMsg;
     emit("error", errorMsg);
     Logger.error("PetDisplay: 模型加载失败", errorMsg);
-    throw err; // 重新抛出错误以便上层处理
+    throw err;
   } finally {
     isLoading.value = false;
   }
@@ -166,8 +206,27 @@ onMounted(async () => {
   }
 });
 
+/** 组件从 KeepAlive 缓存恢复时 */
+onActivated(() => {
+  if (modelManager) {
+    modelManager.resume();
+  }
+});
+
+/** 组件被 KeepAlive 缓存时 */
+onDeactivated(() => {
+  if (modelManager) {
+    modelManager.pause();
+  }
+});
+
 onUnmounted(() => {
   // 取消正在进行的加载
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+
   if (loadingPromise) {
     loadingPromise = null;
   }
@@ -199,26 +258,26 @@ defineExpose({
     display: block;
   }
 
-  .loading-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: var(--theme-text);
-    z-index: 20;
+  // .loading-overlay {
+  //   position: absolute;
+  //   top: 50%;
+  //   left: 50%;
+  //   transform: translate(-50%, -50%);
+  //   text-align: center;
+  //   color: var(--theme-text);
+  //   z-index: 20;
 
-    .loading-spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid
-        rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-      border-top: 3px solid var(--theme-primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 8px;
-    }
-  }
+  //   .loading-spinner {
+  //     width: 24px;
+  //     height: 24px;
+  //     border: 3px solid
+  //       rgba(var(--theme-border-rgb), var(--theme-transparency-border));
+  //     border-top: 3px solid var(--theme-primary);
+  //     border-radius: 50%;
+  //     animation: spin 1s linear infinite;
+  //     margin: 0 auto 8px;
+  //   }
+  // }
 
   .error-overlay {
     position: absolute;

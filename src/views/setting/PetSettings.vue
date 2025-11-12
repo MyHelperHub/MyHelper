@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import Button from "primevue/button";
 import ToggleSwitch from "primevue/toggleswitch";
 import Slider from "primevue/slider";
@@ -133,8 +133,8 @@ const modelScale = ref<number>(1.0);
 const showImportDialog = ref(false);
 
 // 使用全局宠物状态管理器
-const selectedModel = PetGlobalManager.createSelectedModelRef();
-const preferences = PetGlobalManager.createPreferencesRef();
+const { ref: preferences, cleanup: cleanupPrefsListener } =
+  PetGlobalManager.createPreferencesRef();
 
 const petEnabled = computed({
   get: () => preferences.value.isEnabledPet,
@@ -185,8 +185,9 @@ const onModelSelected = async (model: ModelConfig) => {
   }
 };
 
-const onModelsLoaded = (models: ModelConfig[]) => {
-  const current = selectedModel.value;
+const onModelsLoaded = async (models: ModelConfig[]) => {
+  // 从 PetGlobalManager 异步获取当前选中的模型
+  const current = await PetGlobalManager.getSelectedModel();
   if (!current) return;
 
   const index = models.findIndex(
@@ -194,6 +195,7 @@ const onModelsLoaded = (models: ModelConfig[]) => {
   );
   selectedModelIndex.value = index !== -1 ? index : null;
   previewModel.value = current;
+  modelScale.value = preferences.value.defaultScale || 1.0;
 };
 
 /** 预览模型加载完成 */
@@ -256,17 +258,12 @@ watch(modelScale, (newScale) => {
 
 onMounted(async () => {
   await PetGlobalManager.init();
-
   await nextTick();
+});
 
-  // 如果有已选中的模型，需要手动调用 onModelsLoaded 来同步选中状态
-  if (selectedModel.value && petSelectorRef.value) {
-    const models = petSelectorRef.value.models();
-    if (models.length > 0) {
-      // 手动触发模型加载事件来同步选中状态
-      onModelsLoaded(models);
-    }
-  }
+onUnmounted(() => {
+  // 清理事件监听器
+  cleanupPrefsListener();
 });
 </script>
 

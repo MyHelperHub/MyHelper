@@ -68,11 +68,7 @@ export class SimpleLive2DManager {
           app.stage.removeChild(child);
         }
 
-        app.destroy(false, {
-          children: true,
-          texture: false,
-          baseTexture: false,
-        });
+        app.destroy(false);
         this.apps.delete(canvas);
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
@@ -324,16 +320,25 @@ export class SimpleLive2DManager {
   async load(
     canvas: HTMLCanvasElement,
     config: ModelConfig,
+    signal?: AbortSignal,
   ): Promise<ModelInfo | null> {
     this.initApp(canvas);
     this.destroyModel(); // 只销毁模型，保留Application
 
     try {
+      // 检查是否已取消
+      if (signal?.aborted) {
+        throw new DOMException("加载已取消", "AbortError");
+      }
+
       // 使用新的 findModelConfig 方法，支持用户模型
       const configFileName =
         config.configFile || (await this.findModelConfig(config));
       if (!configFileName) {
         throw new Error("未找到模型配置文件");
+      }
+      if (signal?.aborted) {
+        throw new DOMException("加载已取消", "AbortError");
       }
 
       // 获取配置文件路径和基础目录
@@ -342,6 +347,10 @@ export class SimpleLive2DManager {
         configFileName,
       );
       const modelJSON = JSON.parse(await readTextFile(actualConfigPath));
+
+      if (signal?.aborted) {
+        throw new DOMException("加载已取消", "AbortError");
+      }
 
       // 确定模型的基础目录（配置文件所在目录）
       let modelBaseDir: string;
@@ -375,6 +384,11 @@ export class SimpleLive2DManager {
         url: convertFileSrc(actualConfigPath),
       });
 
+      // 检查是否已取消
+      if (signal?.aborted) {
+        throw new DOMException("加载已取消", "AbortError");
+      }
+
       // 使用更新的预处理方法，传入正确的基础目录
       await this.preprocessResourcePaths(
         modelSettings,
@@ -383,9 +397,28 @@ export class SimpleLive2DManager {
         modelBaseDir,
       );
 
+      // 再次检查是否已取消
+      if (signal?.aborted) {
+        throw new DOMException("加载已取消", "AbortError");
+      }
+
       this.model = await Live2DModel.from(modelSettings, {
         ticker: Ticker.shared,
       });
+
+      // 检查是否已取消（模型创建后）
+      if (signal?.aborted) {
+        // 如果已取消，清理刚创建的模型
+        if (this.model && !this.model.destroyed) {
+          this.model.destroy({
+            children: true,
+            texture: true,
+            baseTexture: true,
+          });
+        }
+        this.model = null;
+        throw new DOMException("加载已取消", "AbortError");
+      }
 
       if (!this.model) {
         throw new Error("模型创建失败");
@@ -413,6 +446,11 @@ export class SimpleLive2DManager {
 
       return result;
     } catch (error) {
+      // 如果是取消错误，直接重新抛出
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw error;
+      }
+
       Logger.error(
         `SimpleLive2DManager: 加载Live2D模型失败: ${config.name}`,
         String(error),
@@ -478,11 +516,8 @@ export class SimpleLive2DManager {
         }
 
         if (!this.model.destroyed && typeof this.model.destroy === "function") {
-          this.model.destroy({
-            children: true,
-            texture: false,
-            baseTexture: false,
-          });
+          // 默认清理所有资源
+          this.model.destroy();
         }
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
@@ -490,6 +525,26 @@ export class SimpleLive2DManager {
         }
       }
       this.model = null;
+    }
+  }
+
+  /**
+   * 暂停渲染（用于 KeepAlive deactivated）
+   * 停止 Ticker，释放部分资源但保持状态可恢复
+   */
+  pause(): void {
+    if (this.app) {
+      this.app.ticker.stop();
+    }
+  }
+
+  /**
+   * 恢复渲染（用于 KeepAlive activated）
+   * 重启 Ticker，恢复渲染
+   */
+  resume(): void {
+    if (this.app) {
+      this.app.ticker.start();
     }
   }
 
