@@ -1,28 +1,41 @@
 use crate::services::database::get_db_pool;
 use crate::utils::error::{AppError, AppResult};
-use crate::utils::response::{ApiResponse, ApiStatusCode};
 use crate::utils::path::get_myhelper_path;
+use crate::utils::response::{ApiResponse, ApiStatusCode};
+use chrono::Utc;
 use serde_json::Value;
 use std::fs::{self, File};
 use std::io;
 use std::path::{Path, PathBuf};
-use zip::read::ZipArchive;
 use tauri::AppHandle;
-use chrono::Utc;
+use zip::read::ZipArchive;
 
 // 常量定义
 const MAX_ZIP_SIZE: usize = 15 * 1024 * 1024; // 15MB
 const MODEL_EXTENSIONS: [&str; 3] = [".model.json", ".model3.json", ".model4.json"];
 const ASSET_EXTENSIONS: [&str; 13] = [
-    ".png", ".jpg", ".jpeg", ".moc", ".moc3", ".moc4",
-    ".physics.json", ".pose.json", ".motion3.json", ".motion4.json",
-    ".exp.json", ".exp3.json", ".exp4.json"
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".moc",
+    ".moc3",
+    ".moc4",
+    ".physics.json",
+    ".pose.json",
+    ".motion3.json",
+    ".motion4.json",
+    ".exp.json",
+    ".exp3.json",
+    ".exp4.json",
 ];
 
 // 辅助函数
 fn validate_model_name(model_name: &str) -> AppResult<()> {
-    if model_name.is_empty() || model_name.contains("..") || 
-       model_name.contains("/") || model_name.contains("\\") {
+    if model_name.is_empty()
+        || model_name.contains("..")
+        || model_name.contains("/")
+        || model_name.contains("\\")
+    {
         Err(AppError::Error("无效的模型名称".into()))
     } else {
         Ok(())
@@ -36,21 +49,14 @@ fn get_user_models_dir(_app: &AppHandle) -> AppResult<PathBuf> {
 }
 
 fn ensure_directory_exists(path: &Path) -> AppResult<()> {
-    fs::create_dir_all(path)
-        .map_err(|e| AppError::Error(format!("创建目录失败: {}", e)))
-}
-
-fn remove_existing_directory(path: &Path) -> AppResult<()> {
-    if path.exists() {
-        fs::remove_dir_all(path)
-            .map_err(|e| AppError::Error(format!("删除已存在目录失败: {}", e)))?;
-    }
-    Ok(())
+    fs::create_dir_all(path).map_err(|e| AppError::Error(format!("创建目录失败: {}", e)))
 }
 
 fn should_extract_file(file_name: &str) -> bool {
-    MODEL_EXTENSIONS.iter().any(|ext| file_name.ends_with(ext)) ||
-    ASSET_EXTENSIONS.iter().any(|ext| file_name.to_lowercase().ends_with(ext))
+    MODEL_EXTENSIONS.iter().any(|ext| file_name.ends_with(ext))
+        || ASSET_EXTENSIONS
+            .iter()
+            .any(|ext| file_name.to_lowercase().ends_with(ext))
 }
 
 fn is_model_file(file_name: &str) -> bool {
@@ -62,13 +68,14 @@ fn should_skip_file(file_name: &str) -> bool {
 }
 
 fn is_zip_file(file_path: &Path) -> bool {
-    file_path.extension()
+    file_path
+        .extension()
         .and_then(|ext| ext.to_str())
         .map(|ext| ext.to_lowercase() == "zip")
         .unwrap_or(false)
 }
 
-#[permission_macro::permission("main", "setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub fn set_pet_config(config_type: &str, config_data: Value) -> Result<ApiResponse<()>, AppError> {
     let pool = get_db_pool();
@@ -83,7 +90,9 @@ pub fn set_pet_config(config_type: &str, config_data: Value) -> Result<ApiRespon
         }
     };
 
-    let conn = pool.get().map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
+    let conn = pool
+        .get()
+        .map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
     match conn.execute(
         "INSERT OR REPLACE INTO pet_config (config_type, config_data, updated_at) VALUES (?1, ?2, CURRENT_TIMESTAMP)",
         [config_type, &json_value],
@@ -96,11 +105,13 @@ pub fn set_pet_config(config_type: &str, config_data: Value) -> Result<ApiRespon
     }
 }
 
-#[permission_macro::permission("main", "setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub fn get_pet_config(config_type: &str) -> Result<ApiResponse<Option<Value>>, AppError> {
     let pool = get_db_pool();
-    let conn = pool.get().map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
+    let conn = pool
+        .get()
+        .map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
 
     let mut stmt = match conn.prepare("SELECT config_data FROM pet_config WHERE config_type = ?1") {
         Ok(s) => s,
@@ -147,20 +158,25 @@ pub fn get_pet_config(config_type: &str) -> Result<ApiResponse<Option<Value>>, A
             Err(e) => Ok(ApiResponse::error(
                 ApiStatusCode::ErrDatabase,
                 format!("解析宠物配置失败: {}", e),
-            ))
+            )),
         }
     } else {
         Ok(ApiResponse::success(None))
     }
 }
 
-#[permission_macro::permission("main", "setting","my")]
+#[permission_macro::permission("main", "setting", "my")]
 #[tauri::command]
 pub fn delete_pet_config(config_type: &str) -> Result<ApiResponse<()>, AppError> {
     let pool = get_db_pool();
-    let conn = pool.get().map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
+    let conn = pool
+        .get()
+        .map_err(|e| AppError::Error(format!("获取数据库连接失败: {}", e)))?;
 
-    match conn.execute("DELETE FROM pet_config WHERE config_type = ?1", [config_type]) {
+    match conn.execute(
+        "DELETE FROM pet_config WHERE config_type = ?1",
+        [config_type],
+    ) {
         Ok(_) => Ok(ApiResponse::success(())),
         Err(e) => Ok(ApiResponse::error(
             ApiStatusCode::ErrDatabase,
@@ -174,8 +190,8 @@ pub fn delete_pet_config(config_type: &str) -> Result<ApiResponse<()>, AppError>
 #[tauri::command]
 pub async fn import_live2d_model(
     app: AppHandle,
-    file_path: &str, 
-    model_name: Option<&str>
+    file_path: &str,
+    _model_name: Option<&str>,
 ) -> Result<ApiResponse<String>, AppError> {
     let file_path = Path::new(file_path);
     if !file_path.exists() || !file_path.is_file() {
@@ -194,7 +210,7 @@ pub async fn import_live2d_model(
             ));
         }
     };
-    
+
     if let Err(e) = ensure_directory_exists(&models_dir) {
         return Ok(ApiResponse::error(
             ApiStatusCode::ErrSystem,
@@ -210,7 +226,7 @@ pub async fn import_live2d_model(
                 format!("解压模型文件失败: {}", e),
             ));
         }
-        
+
         // 尝试从解压结果中找到模型名称
         let extracted_model_name = match find_extracted_model_name(&models_dir) {
             Ok(name) => name,
@@ -221,46 +237,22 @@ pub async fn import_live2d_model(
                 ));
             }
         };
-        
-        Ok(ApiResponse::success(extracted_model_name))
-    } else {
-        // 单个文件需要用户提供模型名称
-        let model_name = model_name.unwrap_or_else(|| {
-            file_path.file_stem()
-                .and_then(|s| s.to_str())
-                .unwrap_or("imported_model")
-        });
 
-        if let Err(e) = validate_model_name(model_name) {
+        let model_dir = models_dir.join(&extracted_model_name);
+        if let Err(e) = validate_extracted_model_dir(&model_dir) {
+            let _ = fs::remove_dir_all(&model_dir);
             return Ok(ApiResponse::error(
                 ApiStatusCode::ErrParams,
-                format!("无效的模型名称: {}", e),
+                format!("模型文件结构不完整: {}", e),
             ));
         }
 
-        let target_dir = models_dir.join(model_name);
-        if let Err(e) = remove_existing_directory(&target_dir) {
-            return Ok(ApiResponse::error(
-                ApiStatusCode::ErrSystem,
-                format!("清理已存在目录失败: {}", e),
-            ));
-        }
-        
-        if let Err(e) = ensure_directory_exists(&target_dir) {
-            return Ok(ApiResponse::error(
-                ApiStatusCode::ErrSystem,
-                format!("创建目标目录失败: {}", e),
-            ));
-        }
-
-        if let Err(e) = copy_single_file(file_path, &target_dir) {
-            return Ok(ApiResponse::error(
-                ApiStatusCode::ErrSystem,
-                format!("复制模型文件失败: {}", e),
-            ));
-        }
-        
-        Ok(ApiResponse::success(model_name.to_string()))
+        Ok(ApiResponse::success(extracted_model_name))
+    } else {
+        return Ok(ApiResponse::error(
+            ApiStatusCode::ErrParams,
+            "仅支持 .zip 格式的模型包导入，请打包模型文件后重试",
+        ));
     }
 }
 
@@ -269,7 +261,7 @@ pub async fn import_live2d_model(
 #[tauri::command]
 pub async fn delete_user_live2d_model(
     app: AppHandle,
-    model_name: &str
+    model_name: &str,
 ) -> Result<ApiResponse<()>, AppError> {
     if let Err(e) = validate_model_name(model_name) {
         return Ok(ApiResponse::error(
@@ -287,14 +279,11 @@ pub async fn delete_user_live2d_model(
             ));
         }
     };
-    
+
     let model_dir = models_dir.join(model_name);
-    
+
     if !model_dir.exists() {
-        return Ok(ApiResponse::error(
-            ApiStatusCode::ErrParams,
-            "模型不存在",
-        ));
+        return Ok(ApiResponse::error(ApiStatusCode::ErrParams, "模型不存在"));
     }
 
     if let Err(e) = fs::remove_dir_all(&model_dir) {
@@ -307,22 +296,14 @@ pub async fn delete_user_live2d_model(
     Ok(ApiResponse::success(()))
 }
 
-fn copy_single_file(source: &Path, target_dir: &Path) -> AppResult<()> {
-    let file_name = source.file_name()
-        .and_then(|s| s.to_str())
-        .ok_or_else(|| AppError::Error("无法获取文件名".into()))?;
-    
-    let target_file = target_dir.join(file_name);
-    fs::copy(source, &target_file)
-        .map_err(|e| AppError::Error(format!("复制文件失败: {}", e)))?;
-    
-    Ok(())
-}
+// 旧的单文件导入复制函数，已不再使用
 
 /// 获取所有 Live2D 模型（预置+用户导入）
 #[permission_macro::permission("main", "setting")]
 #[tauri::command]
-pub async fn get_all_live2d_models(app: AppHandle) -> Result<ApiResponse<Vec<serde_json::Value>>, AppError> {
+pub async fn get_all_live2d_models(
+    app: AppHandle,
+) -> Result<ApiResponse<Vec<serde_json::Value>>, AppError> {
     let mut models = Vec::new();
 
     if let Ok(builtin_models) = get_builtin_models().await {
@@ -345,43 +326,49 @@ fn extract_live2d_model_from_zip(zip_path: &Path, target_dir: &Path) -> AppResul
         return Err(AppError::Error(format!("文件太大: {} bytes", file_size)));
     }
 
-    let file = File::open(zip_path)
-        .map_err(|e| AppError::Error(format!("打开ZIP文件失败: {}", e)))?;
-    
-    let mut archive = ZipArchive::new(file)
-        .map_err(|e| AppError::Error(format!("无效的ZIP文件: {}", e)))?;
-    
+    let file =
+        File::open(zip_path).map_err(|e| AppError::Error(format!("打开ZIP文件失败: {}", e)))?;
+
+    let mut archive =
+        ZipArchive::new(file).map_err(|e| AppError::Error(format!("无效的ZIP文件: {}", e)))?;
+
     let mut has_model_file = false;
-    
+
     // 解压文件，保持原有目录结构
     for i in 0..archive.len() {
-        let mut file = archive.by_index(i)
+        let mut file = archive
+            .by_index(i)
             .map_err(|e| AppError::Error(format!("读取ZIP文件失败: {}", e)))?;
-        
+
         let file_name = file.name().to_string();
-        
+
         if should_skip_file(&file_name) {
             continue;
         }
-        
+
         if is_model_file(&file_name) {
             has_model_file = true;
         }
-        
+
         // 只解压Live2D相关的文件
         if should_extract_file(&file_name) || file.is_dir() {
             extract_file_from_zip(&mut file, target_dir)?;
         }
     }
-    
+
     if !has_model_file {
-        return Err(AppError::Error("ZIP文件中未找到有效的Live2D模型文件".into()));
+        return Err(AppError::Error(
+            "ZIP文件中未找到有效的Live2D模型文件".into(),
+        ));
     }
-    
+
     Ok(())
 }
 
-fn extract_file_from_zip<R: io::Read>(file: &mut zip::read::ZipFile<'_, R>, target_dir: &Path) -> AppResult<()> {
+fn extract_file_from_zip<R: io::Read>(
+    file: &mut zip::read::ZipFile<'_, R>,
+    target_dir: &Path,
+) -> AppResult<()> {
     let out_path = target_dir.join(file.mangled_name());
 
     // 确保输出路径在目标目录内（安全检查）
@@ -404,8 +391,7 @@ fn extract_file_from_zip<R: io::Read>(file: &mut zip::read::ZipFile<'_, R>, targ
                 .map_err(|e| AppError::Error(format!("删除已存在的文件失败: {}", e)))?;
         }
         // 创建父目录
-        fs::create_dir_all(parent)
-            .map_err(|e| AppError::Error(format!("创建目录失败: {}", e)))?;
+        fs::create_dir_all(parent).map_err(|e| AppError::Error(format!("创建目录失败: {}", e)))?;
     }
 
     // 如果文件已存在，先删除
@@ -420,8 +406,8 @@ fn extract_file_from_zip<R: io::Read>(file: &mut zip::read::ZipFile<'_, R>, targ
     }
 
     // 创建并写入文件
-    let mut target_file = File::create(&out_path)
-        .map_err(|e| AppError::Error(format!("创建文件失败: {}", e)))?;
+    let mut target_file =
+        File::create(&out_path).map_err(|e| AppError::Error(format!("创建文件失败: {}", e)))?;
     io::copy(file, &mut target_file)
         .map_err(|e| AppError::Error(format!("写入文件失败: {}", e)))?;
 
@@ -439,18 +425,18 @@ async fn get_builtin_models() -> AppResult<Vec<serde_json::Value>> {
 async fn get_user_models(app: &AppHandle) -> AppResult<Vec<serde_json::Value>> {
     let models_dir = get_user_models_dir(app)?;
     let mut models = Vec::new();
-    
+
     if !models_dir.exists() || !models_dir.is_dir() {
         return Ok(models);
     }
 
     let entries = fs::read_dir(&models_dir)
         .map_err(|e| AppError::Error(format!("读取模型目录失败: {}", e)))?;
-    
+
     for entry in entries {
         let entry = entry.map_err(|e| AppError::Error(format!("读取目录项失败: {}", e)))?;
         let path = entry.path();
-        
+
         if path.is_dir() {
             if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
                 if has_model_files_recursive(&path) {
@@ -469,18 +455,18 @@ async fn get_user_models(app: &AppHandle) -> AppResult<Vec<serde_json::Value>> {
             }
         }
     }
-    
+
     Ok(models)
 }
 
 fn find_extracted_model_name(models_dir: &Path) -> AppResult<String> {
     let entries = fs::read_dir(models_dir)
         .map_err(|e| AppError::Error(format!("读取模型目录失败: {}", e)))?;
-    
+
     for entry in entries {
         let entry = entry.map_err(|e| AppError::Error(format!("读取目录项失败: {}", e)))?;
         let path = entry.path();
-        
+
         if path.is_dir() {
             if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
                 if has_model_files_recursive(&path) {
@@ -489,7 +475,7 @@ fn find_extracted_model_name(models_dir: &Path) -> AppResult<String> {
             }
         }
     }
-    
+
     Err(AppError::Error("未找到有效的模型目录".into()))
 }
 
@@ -498,7 +484,7 @@ fn has_model_files_recursive(dir_path: &Path) -> bool {
     if has_model_files(dir_path) {
         return true;
     }
-    
+
     // 递归检查子目录
     if let Ok(entries) = fs::read_dir(dir_path) {
         for entry in entries.filter_map(Result::ok) {
@@ -510,21 +496,20 @@ fn has_model_files_recursive(dir_path: &Path) -> bool {
             }
         }
     }
-    
+
     false
 }
 
 fn has_model_files(dir_path: &Path) -> bool {
     fs::read_dir(dir_path)
         .map(|entries| {
-            entries.filter_map(Result::ok)
-                .any(|entry| {
-                    if let Some(file_name) = entry.file_name().to_str() {
-                        is_model_file(file_name)
-                    } else {
-                        false
-                    }
-                })
+            entries.filter_map(Result::ok).any(|entry| {
+                if let Some(file_name) = entry.file_name().to_str() {
+                    is_model_file(file_name)
+                } else {
+                    false
+                }
+            })
         })
         .unwrap_or(false)
 }
@@ -561,20 +546,20 @@ fn get_directory_size(dir: &Path) -> u64 {
 fn create_user_model_json(app: &AppHandle, model_name: &str) -> AppResult<serde_json::Value> {
     let models_dir = get_user_models_dir(app)?;
     let model_path = models_dir.join(model_name);
-    
+
     let mut model_json = serde_json::json!({
         "name": model_name,
         "path": format!("Models/Live2D/{}", model_name),
         "source": 1,
         "importTime": Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
     });
-    
+
     // 获取文件夹大小
     let size = get_directory_size(&model_path);
     if size > 0 {
         model_json["size"] = serde_json::Value::Number(serde_json::Number::from(size));
     }
-    
+
     // 检测模型版本
     if let Ok(entries) = fs::read_dir(&model_path) {
         for entry in entries.filter_map(Result::ok) {
@@ -590,6 +575,84 @@ fn create_user_model_json(app: &AppHandle, model_name: &str) -> AppResult<serde_
             }
         }
     }
-    
+
     Ok(model_json)
+}
+
+/// 校验解压后的模型目录中文件结构是否完整
+fn validate_extracted_model_dir(model_root: &Path) -> AppResult<()> {
+    fn collect_model_configs(dir: &Path, list: &mut Vec<PathBuf>) {
+        if let Ok(entries) = fs::read_dir(dir) {
+            for entry in entries.filter_map(Result::ok) {
+                let path = entry.path();
+                if path.is_file() {
+                    if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
+                        if is_model_file(name) {
+                            list.push(path.clone());
+                        }
+                    }
+                } else if path.is_dir() {
+                    collect_model_configs(&path, list);
+                }
+            }
+        }
+    }
+
+    let mut configs = Vec::new();
+    collect_model_configs(model_root, &mut configs);
+    if configs.is_empty() {
+        return Err(AppError::Error("未找到模型配置文件".into()));
+    }
+
+    for config_path in configs {
+        let base_dir = config_path.parent().unwrap_or(model_root);
+        let json_str = fs::read_to_string(&config_path)
+            .map_err(|e| AppError::Error(format!("读取模型配置失败: {}", e)))?;
+        let v: Value = serde_json::from_str(&json_str)
+            .map_err(|e| AppError::Error(format!("解析模型配置失败: {}", e)))?;
+
+        let mut missing: Vec<String> = Vec::new();
+
+        if let Some(refs) = v.get("FileReferences") {
+            // 只校验必需的文件：Moc 文件（至少一个版本）和 Textures
+            let mut has_moc = false;
+            for key in ["Moc", "Moc3", "Moc4"] {
+                if let Some(val) = refs.get(key).and_then(|x| x.as_str()) {
+                    let p = base_dir.join(val);
+                    if p.exists() {
+                        has_moc = true;
+                    } else {
+                        missing.push(val.to_string());
+                    }
+                }
+            }
+
+            if !has_moc {
+                return Err(AppError::Error(format!(
+                    "模型 moc 文件缺失: {}",
+                    missing
+                        .get(0)
+                        .cloned()
+                        .unwrap_or_else(|| "未找到 moc 文件".to_string())
+                )));
+            }
+
+            // 校验纹理文件（必需）
+            if let Some(textures) = refs.get("Textures").and_then(|x| x.as_array()) {
+                if textures.is_empty() {
+                    return Err(AppError::Error("模型缺少纹理文件".into()));
+                }
+                for t in textures.iter().filter_map(|x| x.as_str()) {
+                    let p = base_dir.join(t);
+                    if !p.exists() {
+                        return Err(AppError::Error(format!("纹理文件缺失: {}", t)));
+                    }
+                }
+            } else {
+                return Err(AppError::Error("模型配置缺少 Textures 字段".into()));
+            }
+        }
+    }
+
+    Ok(())
 }

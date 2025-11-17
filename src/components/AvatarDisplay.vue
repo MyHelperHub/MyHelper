@@ -132,6 +132,7 @@ onMounted(async () => {
   }
 });
 
+
 onUnmounted(() => {
   // 清理事件监听器
   cleanupModelListener();

@@ -104,8 +104,7 @@
     <!-- 模型导入对话框 -->
     <ModelImportDialog
       v-model:visible="showImportDialog"
-      @import-success="onImportSuccess"
-      @import-error="onImportError" />
+      @import-success="onImportSuccess" />
   </div>
 </template>
 
@@ -168,11 +167,6 @@ const onImportSuccess = async (modelName: string) => {
 
   // 可以在这里添加成功提示
   showImportDialog.value = false;
-};
-
-const onImportError = (error: string) => {
-  Logger.error("PetSettings: 模型导入失败", error);
-  // 错误信息已经在对话框中显示，这里可以添加额外的错误处理
 };
 
 const onModelSelected = async (model: ModelConfig) => {

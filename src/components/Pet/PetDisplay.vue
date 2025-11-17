@@ -207,9 +207,11 @@ onMounted(async () => {
 });
 
 /** 组件从 KeepAlive 缓存恢复时 */
-onActivated(() => {
+onActivated(async () => {
   if (modelManager) {
     modelManager.resume();
+  } else if (canvasRef.value && props.modelConfig) {
+    await loadModel();
   }
 });
 
@@ -217,6 +219,7 @@ onActivated(() => {
 onDeactivated(() => {
   if (modelManager) {
     modelManager.pause();
+    modelManager.destroyModel();
   }
 });
 
@@ -238,12 +241,27 @@ onUnmounted(() => {
   }
 });
 
+const destroy = () => {
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+  if (loadingPromise) {
+    loadingPromise = null;
+  }
+  if (modelManager) {
+    modelManager.pause();
+    modelManager.destroyModel();
+  }
+};
+
 defineExpose({
   loadModel,
   playMotion,
   playExpression,
   setModelScale,
   getModelScale,
+  destroy,
 });
 </script>
 

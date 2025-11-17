@@ -95,7 +95,7 @@
               rounded
               size="small"
               :loading="isDeletingModel"
-              v-tooltip="'删除模型'" />
+              v-tooltip.top="'删除模型'" />
           </div>
         </div>
       </template>

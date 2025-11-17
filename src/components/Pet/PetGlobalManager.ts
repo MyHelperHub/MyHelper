@@ -237,6 +237,12 @@ export class PetGlobalManager {
         await tauriEmit(TAURI_EVENTS.MODEL_CHANGED, { model });
       } else if (wasEnabled && !willEnable) {
         this.modelStateLoaded = false;
+        const currentModel = await GlobalData.get(
+          GLOBAL_KEYS.SELECTED_PET_MODEL,
+        );
+        if (currentModel) {
+          await tauriEmit(TAURI_EVENTS.MODEL_CHANGED, { model: null });
+        }
       }
     } catch (error) {
       Logger.error("PetGlobalManager: 更新偏好设置失败", String(error));
@@ -405,13 +411,6 @@ export class PetGlobalManager {
 
       return result;
     } catch (error) {
-      Logger.error(error, "PetGlobalManager.importModel 完整错误对象:");
-      const errorStr =
-        error instanceof Error ? error.message : JSON.stringify(error, null, 2);
-      Logger.error(
-        "PetGlobalManager: 导入模型失败",
-        `错误类型: ${typeof error}, 错误内容: ${errorStr}`,
-      );
       throw error;
     }
   }

@@ -12,15 +12,16 @@
         <div class="section-header">
           <h4>选择模型文件</h4>
           <p class="section-description">
-            支持 Live2D Cubism 2.1、3.x、4.x 版本模型文件
-            (.zip、.model.json、.model3.json、.model4.json)
+            仅支持打包好的 .zip 模型包（建议包含模型配置与所有资源文件）
+            支持 Live2D Cubism 2.1、3.x、4.x
+            模型包内需包含对应的 .model.json/.model3.json/.model4.json 配置文件
           </p>
         </div>
 
         <input
           ref="fileInputRef"
           type="file"
-          accept=".zip,.model.json,.model3.json,.model4.json"
+          accept=".zip"
           @change="handleFileSelect"
           class="hidden" />
 
@@ -36,9 +37,6 @@
             <p class="text-base font-medium mb-2">
               点击选择文件或拖拽文件到此区域
             </p>
-            <span class="text-xs text-surface-500">
-              支持 .zip, .model.json, .model3.json, .model4.json
-            </span>
           </div>
 
           <div v-else class="selected-file-info">
@@ -192,22 +190,8 @@ const fileDropClasses = computed(() => ({
 }));
 
 // Watchers
-watch(selectedFile, async (newFile) => {
-  if (newFile?.name.endsWith(".zip")) {
-    try {
-      // 模拟预览信息
-      previewInfo.value = {
-        motionCount: Math.floor(Math.random() * 10) + 1,
-        expressionCount: Math.floor(Math.random() * 8) + 1,
-        textureCount: Math.floor(Math.random() * 5) + 1,
-      };
-    } catch (error) {
-      Logger.warn("ModelImportDialog: 模型预览分析失败", String(error));
-      previewInfo.value = null;
-    }
-  } else {
-    previewInfo.value = null;
-  }
+watch(selectedFile, async () => {
+  previewInfo.value = null;
 });
 
 // File handling methods
@@ -217,10 +201,7 @@ const triggerFileSelect = async () => {
       title: "选择 Live2D 模型文件",
       multiple: false,
       filters: [
-        {
-          name: "Live2D 模型文件",
-          extensions: ["zip", "model.json", "model3.json", "model4.json"],
-        },
+        { name: "Live2D 模型包（Cubism 2.1/3.x/4.x）", extensions: ["zip"] },
       ],
     });
 
@@ -273,19 +254,13 @@ const detectModelVersion = (fileName: string): string => {
 };
 
 const setSelectedFile = (file: SelectedFile) => {
-  const validExtensions = [
-    ".zip",
-    ".model.json",
-    ".model3.json",
-    ".model4.json",
-  ];
+  const validExtensions = [".zip"];
   const isValid = validExtensions.some((ext) =>
     file.name.toLowerCase().endsWith(ext),
   );
 
   if (!isValid) {
-    importError.value =
-      "不支持的文件格式，请选择 .zip、.model.json、.model3.json 或 .model4.json 文件";
+    importError.value = "不支持的文件格式，请选择 .zip 模型包";
     return;
   }
 
@@ -382,10 +357,7 @@ const importModel = async () => {
     }
 
     importError.value = errorMessage;
-    Logger.error(
-      "ModelImportDialog: 模型导入失败",
-      `错误信息: ${errorMessage}`,
-    );
+    Logger.error("模型导入失败:", errorMessage);
     emit("import-error", errorMessage);
     progressMessage.value = "";
     progressPercent.value = null;

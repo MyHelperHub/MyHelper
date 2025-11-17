@@ -32,14 +32,17 @@ export class SimpleLive2DManager {
    */
   private static getOrCreateApp(canvas: HTMLCanvasElement): Application {
     if (!this.apps.has(canvas)) {
+      const width = canvas.width > 0 ? canvas.width : 1;
+      const height = canvas.height > 0 ? canvas.height : 1;
       const app = new Application({
         view: canvas,
         autoStart: true,
         backgroundAlpha: 0,
         resolution: 1,
-        width: canvas.width,
-        height: canvas.height,
-        powerPreference: "default",
+        antialias: true,
+        width,
+        height,
+        powerPreference: "high-performance",
       });
       this.apps.set(canvas, app);
     }
@@ -63,11 +66,15 @@ export class SimpleLive2DManager {
     const app = this.apps.get(canvas);
     if (app) {
       try {
+        if (app.ticker?.started) {
+          app.ticker.stop();
+        }
         while (app.stage.children.length > 0) {
           const child = app.stage.children[0];
           app.stage.removeChild(child);
         }
 
+        app.renderer?.destroy(false);
         app.destroy(false);
         this.apps.delete(canvas);
       } catch (error) {
@@ -516,8 +523,11 @@ export class SimpleLive2DManager {
         }
 
         if (!this.model.destroyed && typeof this.model.destroy === "function") {
-          // 默认清理所有资源
-          this.model.destroy();
+          this.model.destroy({
+            children: true,
+            texture: true,
+            baseTexture: true,
+          });
         }
       } catch (error) {
         if (process.env.NODE_ENV === "development") {
