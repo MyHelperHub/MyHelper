@@ -219,7 +219,6 @@ onActivated(async () => {
 onDeactivated(() => {
   if (modelManager) {
     modelManager.pause();
-    modelManager.destroyModel();
   }
 });
 
