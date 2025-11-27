@@ -59,7 +59,7 @@ Live2D 萌宠陪伴你的工作时光：
 
 <!-- 图片位置：宠物系统截图 -->
 
-![桌面宠物](https://tc.z.wiki/autoupload/f/QMrmJUtVXl8-V_8WyW9oE5mesdO83n0jJRcmVXjsIsc/20251102/Dc0m/65X65/image.png)
+![桌面宠物](https://tc.z.wiki/autoupload/f/QMrmJUtVXl8-V_8WyW9oE5mesdO83n0jJRcmVXjsIsc/20251102/ltTD/65X65/image.png/webp)
 
 ### 🚀 快捷启动器
 
@@ -98,7 +98,7 @@ Live2D 萌宠陪伴你的工作时光：
 
 <!-- 图片位置：快捷输入截图 -->
 
-![快捷输入](https://tc.z.wiki/autoupload/f/QMrmJUtVXl8-V_8WyW9oE5mesdO83n0jJRcmVXjsIsc/20251102/2Dt4/250X420/image.png)
+![快捷输入](https://tc.z.wiki/autoupload/f/QMrmJUtVXl8-V_8WyW9oE5mesdO83n0jJRcmVXjsIsc/20251102/lHDL/250X420/image.png/webp)
 
 ### ⚙️ 全局快捷键
 
