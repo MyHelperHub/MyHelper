@@ -2,11 +2,6 @@
   <div class="pet-display-container">
     <canvas ref="canvasRef" class="pet-canvas" />
 
-    <!-- 加载状态 -->
-    <!-- <div v-if="isLoading" class="loading-overlay">
-      <div class="loading-spinner"></div>
-    </div> -->
-
     <!-- 错误提示 -->
     <div v-if="error" class="error-overlay">
       <p>{{ error }}</p>
@@ -46,99 +41,45 @@ const emit = defineEmits<{
 }>();
 
 const canvasRef = ref<HTMLCanvasElement>();
-const isLoading = ref(false);
 const error = ref<string | null>(null);
-const modelInfo = ref<ModelInfo | null>(null);
 
-// 使用简化的Live2D管理器
 let modelManager: SimpleLive2DManager | null = null;
-let loadingPromise: Promise<void> | null = null;
 let abortController: AbortController | null = null;
 
 const loadModel = async () => {
   if (!canvasRef.value || !props.modelConfig) return;
 
   // 取消之前的加载
-  if (abortController) {
-    abortController.abort();
-  }
+  abortController?.abort();
   abortController = new AbortController();
-
-  if (loadingPromise) {
-    await loadingPromise.catch(() => {});
-  }
-
-  loadingPromise = performModelLoad(abortController.signal);
-
-  try {
-    await loadingPromise;
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      return;
-    }
-    throw error;
-  } finally {
-    loadingPromise = null;
-  }
-};
-
-const performModelLoad = async (signal: AbortSignal): Promise<void> => {
-  if (!canvasRef.value || !props.modelConfig) {
-    throw new Error("Canvas或模型配置不可用");
-  }
-
-  // 检查是否已取消
-  if (signal.aborted) {
-    throw new DOMException("加载已取消", "AbortError");
-  }
-
-  isLoading.value = true;
   error.value = null;
 
   try {
-    // 先设置画布尺寸，确保在创建 Application 前完成
     setupCanvas();
     await nextTick();
 
-    if (signal.aborted) {
-      throw new DOMException("加载已取消", "AbortError");
-    }
-
-    // 销毁旧模型但保留管理器实例
-    if (modelManager) {
-      modelManager.destroyModel();
-    } else {
+    if (!modelManager) {
       modelManager = new SimpleLive2DManager();
     }
 
     const info = await modelManager.load(
       canvasRef.value,
       props.modelConfig,
-      signal,
+      abortController.signal,
     );
 
-    if (signal.aborted) {
-      throw new DOMException("加载已取消", "AbortError");
-    }
-
     if (info) {
-      modelInfo.value = info;
       await nextTick();
       modelManager.resize(canvasRef.value);
       emit("loaded", info);
     }
   } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") {
-      throw err;
-    }
+    if (err instanceof DOMException && err.name === "AbortError") return;
 
     const errorMsg = err instanceof Error ? err.message : "加载模型失败";
     error.value = errorMsg;
     emit("error", errorMsg);
     Logger.error("PetDisplay: 模型加载失败", errorMsg);
-    throw err;
-  } finally {
-    isLoading.value = false;
   }
 };
 
@@ -223,35 +164,17 @@ onDeactivated(() => {
 });
 
 onUnmounted(() => {
-  // 取消正在进行的加载
-  if (abortController) {
-    abortController.abort();
-    abortController = null;
-  }
-
-  if (loadingPromise) {
-    loadingPromise = null;
-  }
-
-  if (modelManager) {
-    // 完全销毁管理器实例
-    modelManager.destroy();
-    modelManager = null;
-  }
+  abortController?.abort();
+  abortController = null;
+  modelManager?.destroy();
+  modelManager = null;
 });
 
+/** 外部调用的销毁方法（暂停并清理模型，但保留管理器） */
 const destroy = () => {
-  if (abortController) {
-    abortController.abort();
-    abortController = null;
-  }
-  if (loadingPromise) {
-    loadingPromise = null;
-  }
-  if (modelManager) {
-    modelManager.pause();
-    modelManager.destroyModel();
-  }
+  abortController?.abort();
+  modelManager?.pause();
+  modelManager?.destroyModel();
 };
 
 defineExpose({
@@ -274,27 +197,6 @@ defineExpose({
   .pet-canvas {
     display: block;
   }
-
-  // .loading-overlay {
-  //   position: absolute;
-  //   top: 50%;
-  //   left: 50%;
-  //   transform: translate(-50%, -50%);
-  //   text-align: center;
-  //   color: var(--theme-text);
-  //   z-index: 20;
-
-  //   .loading-spinner {
-  //     width: 24px;
-  //     height: 24px;
-  //     border: 3px solid
-  //       rgba(var(--theme-border-rgb), var(--theme-transparency-border));
-  //     border-top: 3px solid var(--theme-primary);
-  //     border-radius: 50%;
-  //     animation: spin 1s linear infinite;
-  //     margin: 0 auto 8px;
-  //   }
-  // }
 
   .error-overlay {
     position: absolute;
@@ -324,17 +226,8 @@ defineExpose({
       transition: background 0.3s;
 
       &:hover {
-        background: var(--theme-error);
+        opacity: 0.9;
       }
-    }
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
     }
   }
 }

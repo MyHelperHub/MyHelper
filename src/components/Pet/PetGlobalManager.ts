@@ -6,6 +6,11 @@ import { Logger } from "@/utils/logger";
 import { ipcGetPetConfig, ipcSetPetConfig } from "@/api/ipc/database.api";
 import { resolveResource } from "@tauri-apps/api/path";
 import { readDir } from "@tauri-apps/plugin-fs";
+import {
+  ipcGetAllLive2DModels,
+  ipcImportLive2DModel,
+  ipcDeleteUserLive2DModel,
+} from "@/api/ipc/pet.api";
 
 /** 全局数据键名常量 */
 const GLOBAL_KEYS = {
@@ -339,9 +344,7 @@ export class PetGlobalManager {
 
       // 获取用户导入的模型
       try {
-        const { ipcGetAllLive2DModels } = await import("@/api/ipc/pet.api");
         const allModels = (await ipcGetAllLive2DModels()) as ModelConfig[];
-        // 只添加用户导入的模型（source: 1）
         const userModels = allModels.filter(
           (model: ModelConfig) => model.source === 1,
         );
@@ -399,20 +402,9 @@ export class PetGlobalManager {
     filePath: string,
     modelName?: string,
   ): Promise<string> {
-    try {
-      const { ipcImportLive2DModel } = await import("@/api/ipc/pet.api");
-      const result = (await ipcImportLive2DModel(
-        filePath,
-        modelName,
-      )) as string;
-
-      // 导入成功后刷新模型缓存
-      await this.refreshModelCache();
-
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = (await ipcImportLive2DModel(filePath, modelName)) as string;
+    await this.refreshModelCache();
+    return result;
   }
 
   /**
@@ -420,10 +412,7 @@ export class PetGlobalManager {
    */
   static async deleteUserModel(modelName: string): Promise<void> {
     try {
-      const { ipcDeleteUserLive2DModel } = await import("@/api/ipc/pet.api");
       await ipcDeleteUserLive2DModel(modelName);
-
-      // 删除成功后刷新模型缓存
       await this.refreshModelCache();
 
       // 如果删除的是当前选中的模型，则清除选中状态
@@ -442,10 +431,14 @@ export class PetGlobalManager {
   }
 
   /**
-   * 获取所有模型（包含预置和用户导入）
+   * 获取所有模型（优先使用缓存）
    */
-  static async getAllModels(): Promise<ModelConfig[]> {
+  static async getAllModels(forceRefresh = false): Promise<ModelConfig[]> {
     try {
+      if (!forceRefresh) {
+        const cached = await this.getModelCache();
+        if (cached.length > 0) return cached;
+      }
       return await this.refreshModelCache();
     } catch (error) {
       Logger.error("PetGlobalManager: 获取所有模型失败", String(error));

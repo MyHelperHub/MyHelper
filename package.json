@@ -33,7 +33,7 @@
     "dompurify": "^3.2.6",
     "less": "^4.2.1",
     "marked": "^15.0.3",
-    "pixi-live2d-display-lipsyncpatch": "^0.5.0-ls-8",
+    "pixi-live2d-display-advanced": "^1.0.1",
     "pixi.js": "^7.4.3",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.9",

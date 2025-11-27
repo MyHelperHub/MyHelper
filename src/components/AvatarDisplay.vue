@@ -8,7 +8,6 @@
     }"
     @click="handleClick">
     <div v-show="shouldShowPet" class="pet-container">
-      <KeepAlive>
         <PetDisplay
           v-if="shouldShowPet"
           ref="petDisplayRef"
@@ -17,7 +16,6 @@
           :model-config="selectedModel"
           @loaded="onModelLoaded"
           @error="onModelError" />
-      </KeepAlive>
     </div>
 
     <div v-show="!shouldShowPet" class="default-logo">

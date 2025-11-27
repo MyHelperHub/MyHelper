@@ -6,7 +6,8 @@ import { Application, Ticker } from "pixi.js";
 import {
   Live2DModel,
   Cubism4ModelSettings,
-} from "pixi-live2d-display-lipsyncpatch";
+  configureCubism4,
+} from "pixi-live2d-display-advanced";
 import type { ModelConfig, ModelInfo, Motion, Expression } from "@/types/pet";
 import { Logger } from "@/utils/logger";
 
@@ -17,6 +18,16 @@ import { Logger } from "@/utils/logger";
 export class SimpleLive2DManager {
   /** 全局Application实例管理，确保每个canvas只有一个Application */
   private static apps = new Map<HTMLCanvasElement, Application>();
+  /** Cubism4 是否已初始化 */
+  private static cubism4Initialized = false;
+
+  /** 初始化 Cubism4 运行时（仅调用一次） */
+  private static initCubism4(): void {
+    if (!this.cubism4Initialized) {
+      configureCubism4({ memorySizeMB: 128 });
+      this.cubism4Initialized = true;
+    }
+  }
 
   /** PIXI应用实例 */
   private app: Application | null = null;
@@ -64,46 +75,28 @@ export class SimpleLive2DManager {
    */
   private static destroyApp(canvas: HTMLCanvasElement): void {
     const app = this.apps.get(canvas);
-    if (app) {
-      try {
-        if (app.ticker?.started) {
-          app.ticker.stop();
-        }
-        while (app.stage.children.length > 0) {
-          const child = app.stage.children[0];
-          app.stage.removeChild(child);
-        }
+    if (!app) return;
 
-        app.renderer?.destroy(false);
-        app.destroy(false);
-        this.apps.delete(canvas);
-      } catch (error) {
-        if (process.env.NODE_ENV === "development") {
-          Logger.warn("PIXI Application destroy warning:", String(error));
-        }
-        this.apps.delete(canvas);
+    try {
+      app.ticker?.stop();
+      app.stage.removeChildren();
+      app.renderer?.destroy(false);
+      app.destroy(false);
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        Logger.warn("PIXI Application destroy warning:", String(error));
       }
     }
+    this.apps.delete(canvas);
   }
 
   /** 清理非活动应用实例 */
-  static cleanupInactiveApps(): void {
-    const canvasesToRemove: HTMLCanvasElement[] = [];
-
+  private static cleanupInactiveApps(): void {
     for (const [canvas] of this.apps) {
       if (!canvas.isConnected) {
-        canvasesToRemove.push(canvas);
+        this.destroyApp(canvas);
       }
     }
-
-    canvasesToRemove.forEach((canvas) => {
-      this.destroyApp(canvas);
-    });
-  }
-
-  /** 获取活动应用实例数量 */
-  static getActiveAppCount(): number {
-    return this.apps.size;
   }
 
   /**
@@ -112,6 +105,13 @@ export class SimpleLive2DManager {
   private initApp(canvas: HTMLCanvasElement): void {
     this.canvas = canvas;
     this.app = SimpleLive2DManager.getOrCreateApp(canvas);
+  }
+
+  /** 检查是否已取消加载 */
+  private checkAborted(signal?: AbortSignal): void {
+    if (signal?.aborted) {
+      throw new DOMException("加载已取消", "AbortError");
+    }
   }
 
   /**
@@ -329,14 +329,12 @@ export class SimpleLive2DManager {
     config: ModelConfig,
     signal?: AbortSignal,
   ): Promise<ModelInfo | null> {
+    SimpleLive2DManager.initCubism4();
     this.initApp(canvas);
-    this.destroyModel(); // 只销毁模型，保留Application
+    this.destroyModel();
 
     try {
-      // 检查是否已取消
-      if (signal?.aborted) {
-        throw new DOMException("加载已取消", "AbortError");
-      }
+      this.checkAborted(signal);
 
       // 使用新的 findModelConfig 方法，支持用户模型
       const configFileName =
@@ -344,9 +342,7 @@ export class SimpleLive2DManager {
       if (!configFileName) {
         throw new Error("未找到模型配置文件");
       }
-      if (signal?.aborted) {
-        throw new DOMException("加载已取消", "AbortError");
-      }
+      this.checkAborted(signal);
 
       // 获取配置文件路径和基础目录
       const actualConfigPath = await this.getActualConfigPath(
@@ -354,10 +350,7 @@ export class SimpleLive2DManager {
         configFileName,
       );
       const modelJSON = JSON.parse(await readTextFile(actualConfigPath));
-
-      if (signal?.aborted) {
-        throw new DOMException("加载已取消", "AbortError");
-      }
+      this.checkAborted(signal);
 
       // 确定模型的基础目录（配置文件所在目录）
       let modelBaseDir: string;
@@ -390,11 +383,7 @@ export class SimpleLive2DManager {
         ...modelJSON,
         url: convertFileSrc(actualConfigPath),
       });
-
-      // 检查是否已取消
-      if (signal?.aborted) {
-        throw new DOMException("加载已取消", "AbortError");
-      }
+      this.checkAborted(signal);
 
       // 使用更新的预处理方法，传入正确的基础目录
       await this.preprocessResourcePaths(
@@ -403,27 +392,15 @@ export class SimpleLive2DManager {
         modelJSON,
         modelBaseDir,
       );
-
-      // 再次检查是否已取消
-      if (signal?.aborted) {
-        throw new DOMException("加载已取消", "AbortError");
-      }
+      this.checkAborted(signal);
 
       this.model = await Live2DModel.from(modelSettings, {
         ticker: Ticker.shared,
       });
 
-      // 检查是否已取消（模型创建后）
+      // 模型创建后检查取消
       if (signal?.aborted) {
-        // 如果已取消，清理刚创建的模型
-        if (this.model && !this.model.destroyed) {
-          this.model.destroy({
-            children: true,
-            texture: true,
-            baseTexture: true,
-          });
-        }
-        this.model = null;
+        this.destroyModel();
         throw new DOMException("加载已取消", "AbortError");
       }
 
@@ -435,29 +412,20 @@ export class SimpleLive2DManager {
 
       // 清空stage并添加新模型
       if (this.app?.stage) {
-        // 清空所有子对象
-        while (this.app.stage.children.length > 0) {
-          const child = this.app.stage.children[0];
-          this.app.stage.removeChild(child);
-        }
-
+        this.app.stage.removeChildren();
         this.app.stage.addChild(this.model);
       }
 
-      const result: ModelInfo = {
+      return {
         width: this.model.width,
         height: this.model.height,
         motions: (modelSettings.motions || {}) as Record<string, Motion[]>,
         expressions: (modelSettings.expressions || []) as Expression[],
       };
-
-      return result;
     } catch (error) {
-      // 如果是取消错误，直接重新抛出
       if (error instanceof DOMException && error.name === "AbortError") {
         throw error;
       }
-
       Logger.error(
         `SimpleLive2DManager: 加载Live2D模型失败: ${config.name}`,
         String(error),
