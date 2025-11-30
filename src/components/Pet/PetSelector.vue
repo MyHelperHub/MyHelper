@@ -129,7 +129,7 @@ const emit = defineEmits<{
 }>();
 
 const models = ref<ModelConfig[]>([]);
-const selectedIndex = ref<number | null>(props.modelValue || null);
+const selectedIndex = ref<number | null>(props.modelValue ?? null);
 const isLoading = ref(false);
 const isDeletingModel = ref(false);
 const confirm = useConfirm();
@@ -138,6 +138,8 @@ const confirm = useConfirm();
 const loadModels = async () => {
   isLoading.value = true;
   try {
+    await PetGlobalManager.init();
+
     // 首先尝试从缓存获取，如果没有则刷新缓存
     let availableModels = await PetGlobalManager.getModelCache();
     if (availableModels.length === 0) {
@@ -227,19 +229,36 @@ const deleteUserModel = async (model: ModelConfig) => {
     accept: async () => {
       isDeletingModel.value = true;
       try {
-        await PetGlobalManager.deleteUserModel(model.name);
+        // 记录删除前选中的模型
+        const previousSelected = getSelectedModel();
+        const isDeletedSelected =
+          previousSelected?.name === model.name &&
+          previousSelected?.path === model.path;
 
-        // 刷新模型列表
+        await PetGlobalManager.deleteUserModel(model.name);
         await refreshModels();
 
-        // 删除后选择第一个模型
-        if (models.value.length > 0) {
-          selectedIndex.value = 0;
-          emit("update:modelValue", 0);
-          emit("model-selected", models.value[0], 0);
-        } else {
-          selectedIndex.value = null;
-          emit("update:modelValue", null);
+        if (isDeletedSelected) {
+          // 删除的是当前选中的模型，选择第一个或清空
+          if (models.value.length > 0) {
+            selectedIndex.value = 0;
+            emit("update:modelValue", 0);
+            emit("model-selected", models.value[0], 0);
+          } else {
+            selectedIndex.value = null;
+            emit("update:modelValue", null);
+          }
+        } else if (previousSelected) {
+          // 删除的不是当前选中的模型，保持选中状态但更新索引
+          const newIndex = models.value.findIndex(
+            (m) =>
+              m.name === previousSelected.name &&
+              m.path === previousSelected.path,
+          );
+          if (newIndex !== -1) {
+            selectedIndex.value = newIndex;
+            emit("update:modelValue", newIndex);
+          }
         }
 
         Logger.info("PetSelector: 模型删除成功", model.name);
