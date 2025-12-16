@@ -21,6 +21,7 @@ type MainWindowConfigs = {
   themeConfig?: any;
   settingConfig?: any;
   userConfig?: any;
+  searchConfig?: any;
 };
 
 /**
@@ -46,11 +47,21 @@ class AppInitManager {
         "themeConfig",
         "settingConfig",
         "userConfig",
+        "searchConfig",
       ]);
     }
     return this.totalConfigs;
   }
 
+  /** 获取单个配置 */
+  async getSingleConfig(key: string): Promise<any> {
+    return this.totalConfigs[key as keyof MainWindowConfigs];
+  }
+
+  /** 更新单个配置缓存 */
+  updateSingleConfig(key: string, value: any): void {
+    this.totalConfigs[key as keyof MainWindowConfigs] = value;
+  }
   /**
    * 预初始化主题系统
    * 分阶段初始化的第一步，在Vue应用创建前执行，用于提前设置主题避免闪烁
@@ -195,3 +206,6 @@ export const completeThemeInit = () => appInit.completeThemeInit();
 export const initMainWindow = (preloadedConfigs?: MainWindowConfigs) =>
   appInit.initMainWindow(preloadedConfigs);
 export const getTotalConfigs = () => appInit.getTotalConfigs();
+export const getSingleConfig = (key: string) => appInit.getSingleConfig(key);
+export const updateSingleConfig = (key: string, value: any) =>
+  appInit.updateSingleConfig(key, value);

@@ -4,7 +4,7 @@
       "Bash(cargo check:*)",
       "Bash(pnpm run check:*)",
       "Bash(find:*)",
-      "mcp__sequential-thinking__sequentialthinking"
+      "Bash(pnpm check:*)"
     ],
     "deny": []
   }

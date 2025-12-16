@@ -9,6 +9,7 @@ pub mod open_web_or_app;
 pub mod pet;
 pub mod quick_input;
 pub mod state;
+pub mod fd_search;
 
 pub use common::*;
 pub use config::*;
@@ -20,3 +21,4 @@ pub use open_web_or_app::*;
 pub use pet::*;
 pub use quick_input::*;
 pub use state::*;
+pub use fd_search::*;

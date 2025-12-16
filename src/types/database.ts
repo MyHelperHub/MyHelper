@@ -5,6 +5,7 @@ import { ThemeConfig } from "./theme";
 import { PetPreferences, ModelConfig } from "./pet";
 import { PluginConfig } from "./plugin";
 import { DisplayModeEnum } from "./enum";
+import { SearchConfig } from "./search";
 
 /** 总表配置 */
 // @ts-expect-error
@@ -31,6 +32,8 @@ export type ConfigTableMap = {
   themeConfig: ThemeConfig;
   /** 设置 */
   settingConfig: SettingConfig;
+  /** 搜索 */
+  searchConfig: SearchConfig;
 };
 
 /** plugin_config表 */
