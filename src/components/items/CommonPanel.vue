@@ -15,8 +15,9 @@
       <ContextMenu
         ref="contextMenuRef"
         :model="menuItems"
+        :autoZIndex="false"
         :pt="{
-          root: { style: 'width: 120px; min-width: 120px' },
+          root: { style: 'width: 120px; min-width: 120px; z-index: 1100' },
         }" />
 
       <!-- 内容区域 -->
